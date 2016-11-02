@@ -1,0 +1,17 @@
+macro(include_test test_exec test_src test_args)
+    include_directories(${global_include_directories})
+    set(test_dependencies utilities solid_geometry spatial_discretization)
+    
+    add_executable(${test_exec} ${test_src})
+    target_link_libraries(${test_exec} ${test_dependencies})
+    add_test(${test_exec} ${test_exec} ${test_args})
+    install(TARGETS ${test_exec} DESTINATION ${CMAKE_INSTALL_PREFIX}/test)
+endmacro()
+
+include_test(tst_indexing tst_Indexing.cc "")
+include_test(tst_vector_functions tst_Vector_Functions.cc "")
+include_test(tst_math_functions tst_Math_Functions.cc "")
+include_test(tst_sparse_storage tst_Sparse_Storage.cc "")
+include_test(tst_trilinos tst_Trilinos.cc "")
+include_test(tst_linear_algebra tst_Linear_Algebra.cc "")
+include_test(tst_integration tst_Integration.cc "")

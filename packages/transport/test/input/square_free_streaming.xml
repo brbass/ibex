@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+
+<input>
+  <angular_discretization>
+    <dimension>2</dimension>
+    <number_of_moments>1</number_of_moments>
+    <rule>1</rule>
+  </angular_discretization>
+
+  <energy_discretization>
+    <number_of_groups>1</number_of_groups>
+  </energy_discretization>
+
+  <spatial_discretization>
+    <type>rbf</type>
+    
+    <max_attempts>100000</max_attempts>
+    <min_distance_boundary>0.1</min_distance_boundary>
+    <min_distance_internal>0.1</min_distance_internal>
+    <bounding_radius>2</bounding_radius>
+    <bounding_origin>0 0</bounding_origin>
+    
+    <basis_type>multiquadric</basis_type>
+    <distance_type>cartesian</distance_type>
+    <function_type>standard</function_type>
+    <number_of_neighbors>100</number_of_neighbors>
+    <number_to_average>4</number_to_average>
+    <shape_multiplier>0.005</shape_multiplier>
+    <shape_method>min_distance</shape_method>
+    
+    <solid_geometry>
+      <dimension>2</dimension>
+      <surfaces>
+        <surface>
+          <index>0</index>
+          <shape>plane</shape>
+          <type>boundary</type>
+          <origin>-1 0</origin>
+          <normal>-1 0</normal>
+          <boundary_source>0</boundary_source>
+        </surface>
+        
+        <surface>
+          <index>1</index>
+          <shape>plane</shape>
+          <type>boundary</type>
+          <origin>1 0</origin>
+          <normal>1 0</normal>
+          <boundary_source>0</boundary_source>
+        </surface>
+        
+        <surface>
+          <index>2</index>
+          <shape>plane</shape>
+          <type>boundary</type>
+          <origin>0 -1</origin>
+          <normal>0 -1</normal>
+          <boundary_source>0</boundary_source>
+        </surface>
+        
+        <surface>
+          <index>3</index>
+          <shape>plane</shape>
+          <type>boundary</type>
+          <origin>0 1</origin>
+          <normal>0 1</normal>
+          <boundary_source>0</boundary_source>
+        </surface>
+      </surfaces>
+
+      <regions>
+        <region>
+          <index>0</index>
+          <material>0</material>
+          
+          <surface_relation>
+            <surface>0</surface>
+            <relation>inside</relation>
+          </surface_relation>
+          
+          <surface_relation>
+            <surface>1</surface>
+            <relation>inside</relation>
+          </surface_relation>
+
+          <surface_relation>
+            <surface>2</surface>
+            <relation>inside</relation>
+          </surface_relation>
+
+          <surface_relation>
+            <surface>3</surface>
+            <relation>inside</relation>
+          </surface_relation>
+        </region>
+      </regions>
+    </solid_geometry>
+  </spatial_discretization>
+  
+  <materials>
+    <number_of_materials>1</number_of_materials>
+    
+    <material>
+      <index>0</index>
+      
+      <sigma_t>0.0</sigma_t>
+      <sigma_s>0.0</sigma_s>
+      <nu>0.0</nu>
+      <sigma_f>0.0</sigma_f>
+      <chi>0.0</chi>
+      
+      <internal_source>0.0</internal_source>
+    </material>
+  </materials>
+  
+  <boundary_sources>
+    <number_of_boundary_sources>1</number_of_boundary_sources>
+    
+    <boundary_source>
+      <index>0</index>
+      <alpha>0</alpha>
+      <isotropic_source>1</isotropic_source>
+    </boundary_source>
+  </boundary_sources>
+
+  <sweep_operator>
+    <type>rbf_collocation</type>
+    <solution_variable>psi</solution_variable>
+  </sweep_operator>
+</input>
+
