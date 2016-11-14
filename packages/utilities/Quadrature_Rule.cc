@@ -39,16 +39,22 @@ namespace Quadrature_Rule
         return;
     }
     
-    void gl_cartesian_1d(int n,
-                         double x1,
-                         double x2,
-                         vector<double> &ordinates,
-                         vector<double> &weights)
+    void cartesian_1d(Quadrature_Type quadrature_type,
+                      int n,
+                      double x1,
+                      double x2,
+                      vector<double> &ordinates,
+                      vector<double> &weights)
     {
         // Get quadrature set
-        gauss_legendre(n,
-                       ordinates,
-                       weights);
+        switch(quadrature_type)
+        {
+        case Quadrature_Type::GAUSS_LEGENDRE:
+            gauss_legendre(n,
+                           ordinates,
+                           weights);
+            break;
+        }
         
         // Scale quadrature set
         double dx = x2 - x1;
@@ -63,15 +69,17 @@ namespace Quadrature_Rule
         return;
     }
 
-    void gl_cartesian_2d(int nx,
-                         int ny,
-                         double x1,
-                         double x2,
-                         double y1,
-                         double y2,
-                         vector<double> &ordinates_x,
-                         vector<double> &ordinates_y,
-                         vector<double> &weights)
+    void cartesian_2d(Quadrature_Type quadrature_type_x,
+                      Quadrature_Type quadrature_type_y,
+                      int nx,
+                      int ny,
+                      double x1,
+                      double x2,
+                      double y1,
+                      double y2,
+                      vector<double> &ordinates_x,
+                      vector<double> &ordinates_y,
+                      vector<double> &weights)
     {
         // Get 1D quadrature sets
         
@@ -80,12 +88,14 @@ namespace Quadrature_Rule
         vector<double> wei_x;
         vector<double> wei_y;
         
-        cartesian_1d(nx,
+        cartesian_1d(quadrature_type_x,
+                     nx,
                      x1,
                      x2,
                      ord_x,
                      wei_x);
-        cartesian_1d(ny,
+        cartesian_1d(quadrature_type_y,
+                     ny,
                      y1,
                      y2,
                      ord_y,

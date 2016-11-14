@@ -6,6 +6,15 @@
 namespace Quadrature_Rule
 {
     /*
+      Quadrature types
+    */
+
+    enum class Quadrature_Type
+    {
+        GAUSS_LEGENDRE
+    };
+
+    /*
       Get vectors of Gauss_Legendre ordinates and weights
     */
     
@@ -15,57 +24,65 @@ namespace Quadrature_Rule
       1D Cartesian quadrature
     */
 
-    void gl_cartesian_1d(int n,
-                         double x1,
-                         double x2,
-                         std::vector<double> &ordinates,
-                         std::vector<double> &weights);
+    void cartesian_1d(Quadrature_Type quadrature_type,
+                      int n,
+                      double x1,
+                      double x2,
+                      std::vector<double> &ordinates,
+                      std::vector<double> &weights);
     
     /*
       2D Cartesian quadrature
     */
 
-    void gl_cartesian_2d(int nx, 
-                         int ny,
-                         double x1,
-                         double x2,
-                         double y1,
-                         double y2,
-                         std::vector<double> &ordinates_x,
-                         std::vector<double> &ordinates_y,
-                         std::vector<double> &weights);
+    void cartesian_2d(Quadrature_Type quadrature_type_x,
+                      Quadrature_Type quadrature_type_y,
+                      int nx, 
+                      int ny,
+                      double x1,
+                      double x2,
+                      double y1,
+                      double y2,
+                      std::vector<double> &ordinates_x,
+                      std::vector<double> &ordinates_y,
+                      std::vector<double> &weights);
     
     /*
       3D Cartesian quadrature
     */
 
-    void gl_cartesian_3d(int nx,
-                         int ny,
-                         int nz,
-                         double x1,
-                         double x2,
-                         double y1,
-                         double y2,
-                         double z1,
-                         double z2,
-                         std::vector<double> &ordinates_x,
-                         std::vector<double> &ordinates_y,
-                         std::vector<double> &ordinates_z,
-                         std::vector<double> &weights);
+    void cartesian_3d(Quadrature_Type quadrature_type_x,
+                      Quadrature_Type quadrature_type_y,
+                      Quadrature_Type quadrature_type_z,
+                      int nx,
+                      int ny,
+                      int nz,
+                      double x1,
+                      double x2,
+                      double y1,
+                      double y2,
+                      double z1,
+                      double z2,
+                      std::vector<double> &ordinates_x,
+                      std::vector<double> &ordinates_y,
+                      std::vector<double> &ordinates_z,
+                      std::vector<double> &weights);
 
     /*
       2D cylindrical quadrature
     */
 
-    void gl_cylindrical_2d(int nr,
-                           int nt,
-                           double r1,
-                           double r1,
-                           double t1,
-                           double t2,
-                           std::vector<double> &ordinates_r,
-                           std::vector<double> &ordinates_t,
-                           std::vector<double> &weights);
+    void cylindrical_2d(Quadrature_Type quadrature_type_r,
+                        Quadrature_Type quadrature_type_t,
+                        int nr,
+                        int nt,
+                        double r1,
+                        double r1,
+                        double t1,
+                        double t2,
+                        std::vector<double> &ordinates_r,
+                        std::vector<double> &ordinates_t,
+                        std::vector<double> &weights);
     /*
       3D spherical quadrature
     */
