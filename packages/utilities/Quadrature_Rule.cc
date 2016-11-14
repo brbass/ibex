@@ -1,5 +1,6 @@
 #include "Quadrature_Rule.hh"
 
+#include <cmath>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -60,7 +61,7 @@ namespace Quadrature_Rule
         double dx = x2 - x1;
         double xt = x2 + x1;
         
-        for (int i = 0; i < order_; ++i)
+        for (int i = 0; i < n; ++i)
         {
             ordinates[i] = 0.5 * (xt + dx * ordinates[i]);
             weights[i] = 0.5 * dx * weights[i];
@@ -202,7 +203,7 @@ namespace Quadrature_Rule
                         double x0,
                         double y0,
                         double r1,
-                        double r1,
+                        double r2,
                         double t1,
                         double t2,
                         std::vector<double> &ordinates_x,

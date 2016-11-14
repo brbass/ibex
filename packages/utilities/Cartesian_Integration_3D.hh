@@ -18,14 +18,6 @@ public:
                      double y2,
                      double z1,
                      double z2) const;
-    void get_quadrature(double x1,
-                        double x2,
-                        double y1,
-                        double y2,
-                        double z1,
-                        double z2,
-                        vector<vector<double> > ordinates,
-                        vector<double> weights) const;
     
 private:
     

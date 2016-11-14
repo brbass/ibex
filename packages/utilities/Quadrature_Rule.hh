@@ -82,7 +82,7 @@ namespace Quadrature_Rule
                         double x0,
                         double y0,
                         double r1,
-                        double r1,
+                        double r2,
                         double t1,
                         double t2,
                         std::vector<double> &ordinates_r,
