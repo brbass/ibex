@@ -76,6 +76,8 @@ namespace Quadrature_Rule
                         Quadrature_Type quadrature_type_t,
                         int nr,
                         int nt,
+                        double x0,
+                        double y0,
                         double r1,
                         double r1,
                         double t1,
@@ -87,6 +89,25 @@ namespace Quadrature_Rule
       3D spherical quadrature
     */
     
+    void spherical_3d(Quadrature_Type quadrature_type_r,
+                      Quadrature_Type quadrature_type_t,
+                      Quadrature_Type quadrature_type_f,
+                      int nr,
+                      int nt,
+                      int nf,
+                      double x0,
+                      double y0,
+                      double z0,
+                      double r1,
+                      double r2,
+                      double t1,
+                      double t2,
+                      double f1,
+                      double f2,
+                      std::vector<double> &ordinates_r,
+                      std::vector<double> &ordinates_t,
+                      std::vector<double> &ordinates_f,
+                      std::vector<double> &weights);
 }
 #endif
 
