@@ -205,13 +205,55 @@ namespace Quadrature_Rule
                         double r1,
                         double t1,
                         double t2,
-                        std::vector<double> &ordinates_r,
-                        std::vector<double> &ordinates_t,
+                        std::vector<double> &ordinates_x,
+                        std::vector<double> &ordinates_y,
                         std::vector<double> &weights)
     {
+        // Get 1D quadrature sets
         
-    }
+        vector<double> ord_r;
+        vector<double> ord_t;
+        vector<double> wei_r;
+        vector<double> wei_t;
+        
+        cartesian_1d(quadrature_type_r,
+                     nr,
+                     r1,
+                     r2,
+                     ord_r,
+                     wei_r);
+        cartesian_1d(quadrature_type_t,
+                     nt,
+                     t1,
+                     t2,
+                     ord_t,
+                     wei_t);
 
+        // Fill 2D quadrature sets
+        
+        int n = nr * nt;
+        ordinates_x.resize(n);
+        ordinates_y.resize(n);
+        weights.resize(n);
+        
+        for (int i = 0; i < nr; ++i)
+        {
+            double r = ord_r[i];
+            
+            for (int j = 0; j < nt; ++j)
+            {
+                int k = j + nt * i;
+                double t = ord_t[j];
+                
+                ordinates_x[k] = x0 + r * cos(t);
+                ordinates_y[k] = y0 + r * sin(t);
+                weights[k] = wei_r[i] * wei_t[j] * r;
+            }
+        }
+        
+        return;
+    }
+    
     void spherical_3d(Quadrature_Type quadrature_type_r,
                       Quadrature_Type quadrature_type_t,
                       Quadrature_Type quadrature_type_f,
@@ -227,12 +269,69 @@ namespace Quadrature_Rule
                       double t2,
                       double f1,
                       double f2,
-                      std::vector<double> &ordinates_r,
-                      std::vector<double> &ordinates_t,
-                      std::vector<double> &ordinates_f,
+                      std::vector<double> &ordinates_x,
+                      std::vector<double> &ordinates_y,
+                      std::vector<double> &ordinates_z,
                       std::vector<double> &weights)
     {
+        // Get 1D quadrature sets
         
+        vector<double> ord_r;
+        vector<double> ord_t;
+        vector<double> ord_f;
+        vector<double> wei_r;
+        vector<double> wei_t;
+        vector<double> wei_f;
+        
+        cartesian_1d(quadrature_type_r,
+                     nr,
+                     r1,
+                     r2,
+                     ord_r,
+                     wei_r);
+        cartesian_1d(quadrature_type_t,
+                     nt,
+                     t1,
+                     t2,
+                     ord_t,
+                     wei_t);
+        cartesian_1d(quadrature_type_f,
+                     nf,
+                     f1,
+                     f2,
+                     ord_f,
+                     wei_f);
+        
+        // Fill 3D quadrature sets
+        
+        int n = nr * nt * nf;
+        ordinates_x.resize(n);
+        ordinates_y.resize(n);
+        ordinates_z.resize(n);
+        weights.resize(n);
+        
+        for (int i = 0; i < nr; ++i)
+        {
+            double r = ord_r[i];
+            
+            for (int j = 0; j < nt; ++j)
+            {
+                double t = ord_t[j];
+                
+                for (int k = 0; k < nf; ++k)
+                {
+                    int l = k + nf * (j + nt * i);
+                    double f = ord_f[k];
+                    
+                    ordinates_x[l] = x0 + r * cos(t) * sin(f);
+                    ordinates_y[l] = y0 + r * sin(t) * sin(f);
+                    ordinates_z[l] = z0 + r * cos(f);
+                    weights[l] = wei_r[i] * wei_t[j] * wei_f[k] * r * r * sin(f);
+                }
+            }
+        }
+        
+        return;
     }
     
 }

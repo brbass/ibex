@@ -3,6 +3,9 @@
 
 #include <vector>
 
+/*
+  Returns quadratures in x (1D), x,y (2D) and x,y,z (3D)
+*/
 namespace Quadrature_Rule
 {
     /*
