@@ -41,14 +41,24 @@ double double_compact_gaussian(double ep1,
     double x2 = x - dist;
     double s2 = sqrt(x2 * x2 + y * y);
 
-    return (compact_gaussian(ep1,
-                             s1,
-                             smax1)
-            * compact_gaussian(ep2,
-                               s2,
-                               smax2));
+    if (y >= 0)
+    {
+        return (compact_gaussian(ep1,
+                                 s1,
+                                 smax1)
+                * compact_gaussian(ep2,
+                                   s2,
+                                   smax2));
+    }
+    else
+    {
+        return 0.;
+    }
 }
 
+/*
+  Integrate over a full Gaussian
+*/
 int test_gaussian_2d(int order)
 {
     int checksum = 0;
@@ -147,6 +157,9 @@ int test_gaussian_2d(int order)
     return checksum;
 }
 
+/*
+  Integrate over half a lens
+*/
 int test_double_gaussian_2d(int order)
 {
     int checksum = 0;
@@ -164,7 +177,7 @@ int test_double_gaussian_2d(int order)
     qr::Quadrature_Type quad_type = qr::Quadrature_Type::GAUSS_LEGENDRE;
     int num_ordinates = order * order;
 
-    double numeric = 1.1016707860233166491e-10;
+    double numeric = 1.1016707860233166491e-10 / 2;
     
     vector<pair<double, string> > integrals;
     
@@ -214,10 +227,10 @@ int test_double_gaussian_2d(int order)
                            quad_type,
                            order,
                            order,
-                           interx,
                            0,
                            0,
-                           intery2,
+                           0,
+                           smax1,
                            0,
                            2 * M_PI,
                            ordinates_x,
@@ -284,10 +297,10 @@ int test_double_gaussian_2d(int order)
                            quad_type,
                            order,
                            order,
+                           interx,
                            0,
                            0,
-                           0,
-                           smax1,
+                           intery2,
                            0,
                            2 * M_PI,
                            ordinates_x,
@@ -308,6 +321,41 @@ int test_double_gaussian_2d(int order)
     }
     integrals.emplace_back(cyl2dlens, "Cyl_2D_lens");
     
+    // Lens integral
+    double lens2d = 0;
+    {
+        vector<double> ordinates_x;
+        vector<double> ordinates_y;
+        vector<double> weights;
+
+        qr::lens_2d(quad_type,
+                    quad_type,
+                    order,
+                    order,
+                    0, // x1
+                    0, // y1
+                    dist, // x2
+                    0, // y2
+                    smax1, // r1
+                    smax2, // r2
+                    ordinates_x,
+                    ordinates_y,
+                    weights);
+        
+        for (int i = 0; i < num_ordinates; ++i)
+        {
+            lens2d += (weights[i]
+                          * double_compact_gaussian(ep1,
+                                                    ep2,
+                                                    smax1,
+                                                    smax2,
+                                                    ordinates_x[i],
+                                                    ordinates_y[i],
+                                                    dist));
+        }
+    }
+    integrals.emplace_back(lens2d, "lens_2D");
+
     int w = 16;
     for (int i = 0; i < integrals.size(); ++i)
     {
@@ -331,11 +379,11 @@ int main()
     cout << setw(w) << "order";
     cout << setw(w) << "error";
     cout << endl;
-    for (int i = 8; i <= 64; i = i + 8)
+    for (int i = 4; i <= 512; i *= 2)
     {
         checksum += test_gaussian_2d(i);
     }
-    for (int i = 4; i <= 1024; i *= 2)
+    for (int i = 4; i <= 512; i *= 2)
     {
         checksum += test_double_gaussian_2d(i);
     }

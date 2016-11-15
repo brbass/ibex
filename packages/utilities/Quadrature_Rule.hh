@@ -111,6 +111,21 @@ namespace Quadrature_Rule
                       std::vector<double> &ordinates_t,
                       std::vector<double> &ordinates_f,
                       std::vector<double> &weights);
+
+    bool lens_2d(Quadrature_Type quadrature_type_xi,
+                 Quadrature_Type quadrature_type_eta,
+                 int nxi,
+                 int neta,
+                 double x1,
+                 double y1,
+                 double x2,
+                 double y2,
+                 double r1,
+                 double r2,
+                 std::vector<double> &ordinates_x,
+                 std::vector<double> &ordinates_y,
+                 std::vector<double> &weights);
+    
 }
 #endif
 

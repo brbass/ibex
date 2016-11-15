@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -334,5 +335,90 @@ namespace Quadrature_Rule
         
         return;
     }
-    
+
+    bool lens_2d(Quadrature_Type quadrature_type_xi,
+                 Quadrature_Type quadrature_type_eta,
+                 int nxi,
+                 int neta,
+                 double x1,
+                 double y1,
+                 double x2,
+                 double y2,
+                 double r1,
+                 double r2,
+                 vector<double> &ordinates_x,
+                 vector<double> &ordinates_y,
+                 vector<double> &weights)
+    {
+        // Get 1D quadrature sets
+        
+        vector<double> ord_xi;
+        vector<double> ord_eta;
+        vector<double> wei_xi;
+        vector<double> wei_eta;
+
+        gauss_legendre(nxi,
+                       ord_xi,
+                       wei_xi);
+        gauss_legendre(neta,
+                       ord_eta,
+                       wei_eta);
+        
+        // Geometric data
+        
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+        double d = sqrt(dx * dx + dy * dy);
+        
+        if (d == 0)
+        {
+            cerr << "lens_2d: distance between centers is zero" << endl;
+            return false;
+        }
+        
+        double x_intercept = (d * d + r1 * r1 - r2 * r2) / (2 * d);
+        if (x_intercept < 0)
+        {
+            cerr << "lens_2d: shape is not a lens" << endl;
+        }
+        double sqrt_val = 2 * d * d * (r1 * r1 + r2 * r2) - pow(r1 * r1 - r2 * r2, 2) - pow(d, 4);
+        if (sqrt_val <= 0)
+        {
+            cerr << "lens_2d: no intersection" << endl;
+            return false;
+        }
+        double y_intercept = sqrt(sqrt_val) / (2 * d);
+
+        // Get 2D quadrature set
+
+        int n = nxi * neta;
+        ordinates_x.resize(n);
+        ordinates_y.resize(n);
+        weights.resize(n);
+        
+        for (int j = 0; j < neta; ++j)
+        {
+            double eta = ord_eta[j];
+            double y_tilde = y_intercept * eta;
+            double a = d - sqrt(r2 * r2 - y_tilde * y_tilde);
+            double b = sqrt(r1 * r1 - y_tilde * y_tilde);
+
+            for (int i = 0; i < nxi; ++i)
+            {
+                double xi = ord_xi[i];
+                double x_tilde = 0.5 * (b - a) * xi + 0.5 * (a + b);
+                double x = x1 + (dx * x_tilde - dy * y_tilde) / d;
+                double y = y1 + (dy * x_tilde + dx * y_tilde) / d;
+                
+                int k = j + neta * i;
+                
+                ordinates_x[k] = x;
+                ordinates_y[k] = y;
+                weights[k] =  0.5 * (b - a) * y_intercept * wei_xi[i] * wei_eta[j];
+            }
+        }
+        
+        return true;
+    }
+        
 }
