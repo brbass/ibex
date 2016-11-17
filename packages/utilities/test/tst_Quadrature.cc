@@ -328,19 +328,19 @@ int test_double_gaussian_2d(int order)
         vector<double> ordinates_y;
         vector<double> weights;
 
-        qr::lens_2d(quad_type,
-                    quad_type,
-                    order,
-                    order,
-                    0, // x1
-                    0, // y1
-                    dist, // x2
-                    0, // y2
-                    smax1, // r1
-                    smax2, // r2
-                    ordinates_x,
-                    ordinates_y,
-                    weights);
+        qr::double_cylindrical_2d(quad_type,
+                                  quad_type,
+                                  order,
+                                  order,
+                                  0, // x1
+                                  0, // y1
+                                  dist, // x2
+                                  0, // y2
+                                  smax1, // r1
+                                  smax2, // r2
+                                  ordinates_x,
+                                  ordinates_y,
+                                  weights);
         
         for (int i = 0; i < num_ordinates; ++i)
         {

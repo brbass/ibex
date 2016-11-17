@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <vector>
@@ -14,7 +15,7 @@ namespace Quadrature_Rule
 {
     using namespace std;
     
-    void gauss_legendre(int n,
+    bool gauss_legendre(int n,
                         vector<double> &ordinates,
                         vector<double> &weights)
     {
@@ -38,15 +39,13 @@ namespace Quadrature_Rule
             quadrule::legendre_dr_compute(n, &ordinates[0], &weights[0]);
         }
 
-        return;
+        return true;
     }
-    
-    void cartesian_1d(Quadrature_Type quadrature_type,
-                      int n,
-                      double x1,
-                      double x2,
-                      vector<double> &ordinates,
-                      vector<double> &weights)
+
+    bool quadrature_1d(Quadrature_Type quadrature_type,
+                       int n,
+                       vector<double> &ordinates,
+                       vector<double> &weights)
     {
         // Get quadrature set
         switch(quadrature_type)
@@ -57,6 +56,20 @@ namespace Quadrature_Rule
                            weights);
             break;
         }
+    }
+    
+    bool cartesian_1d(Quadrature_Type quadrature_type,
+                      int n,
+                      double x1,
+                      double x2,
+                      vector<double> &ordinates,
+                      vector<double> &weights)
+    {
+        // Get quadrature set
+        quadrature_1d(quadrature_type,
+                      n,
+                      ordinates,
+                      weights);
         
         // Scale quadrature set
         double dx = x2 - x1;
@@ -68,10 +81,10 @@ namespace Quadrature_Rule
             weights[i] = 0.5 * dx * weights[i];
         }
 
-        return;
+        return true;
     }
 
-    void cartesian_2d(Quadrature_Type quadrature_type_x,
+    bool cartesian_2d(Quadrature_Type quadrature_type_x,
                       Quadrature_Type quadrature_type_y,
                       int nx,
                       int ny,
@@ -122,10 +135,10 @@ namespace Quadrature_Rule
             }
         }
         
-        return;
+        return true;
     }
 
-    void cartesian_3d(Quadrature_Type quadrature_type_x,
+    bool cartesian_3d(Quadrature_Type quadrature_type_x,
                       Quadrature_Type quadrature_type_y,
                       Quadrature_Type quadrature_type_z,
                       int nx,
@@ -194,10 +207,10 @@ namespace Quadrature_Rule
             }
         }
         
-        return;
+        return true;
     }
 
-    void cylindrical_2d(Quadrature_Type quadrature_type_r,
+    bool cylindrical_2d(Quadrature_Type quadrature_type_r,
                         Quadrature_Type quadrature_type_t,
                         int nr,
                         int nt,
@@ -207,9 +220,9 @@ namespace Quadrature_Rule
                         double r2,
                         double t1,
                         double t2,
-                        std::vector<double> &ordinates_x,
-                        std::vector<double> &ordinates_y,
-                        std::vector<double> &weights)
+                        vector<double> &ordinates_x,
+                        vector<double> &ordinates_y,
+                        vector<double> &weights)
     {
         // Get 1D quadrature sets
         
@@ -253,10 +266,10 @@ namespace Quadrature_Rule
             }
         }
         
-        return;
+        return true;
     }
     
-    void spherical_3d(Quadrature_Type quadrature_type_r,
+    bool spherical_3d(Quadrature_Type quadrature_type_r,
                       Quadrature_Type quadrature_type_t,
                       Quadrature_Type quadrature_type_f,
                       int nr,
@@ -333,92 +346,274 @@ namespace Quadrature_Rule
             }
         }
         
-        return;
+        return true;
     }
 
-    bool lens_2d(Quadrature_Type quadrature_type_xi,
-                 Quadrature_Type quadrature_type_eta,
-                 int nxi,
-                 int neta,
-                 double x1,
-                 double y1,
-                 double x2,
-                 double y2,
-                 double r1,
-                 double r2,
-                 vector<double> &ordinates_x,
-                 vector<double> &ordinates_y,
-                 vector<double> &weights)
-    {
-        // Get 1D quadrature sets
+    // bool lens_2d(Quadrature_Type quadrature_type_xi,
+    //              Quadrature_Type quadrature_type_eta,
+    //              int nxi,
+    //              int neta,
+    //              double x1,
+    //              double y1,
+    //              double x2,
+    //              double y2,
+    //              double r1,
+    //              double r2,
+    //              vector<double> &ordinates_x,
+    //              vector<double> &ordinates_y,
+    //              vector<double> &weights)
+    // {
+    //     // Get 1D quadrature sets
         
-        vector<double> ord_xi;
-        vector<double> ord_eta;
-        vector<double> wei_xi;
-        vector<double> wei_eta;
+    //     vector<double> ord_xi;
+    //     vector<double> ord_eta;
+    //     vector<double> wei_xi;
+    //     vector<double> wei_eta;
 
-        gauss_legendre(nxi,
-                       ord_xi,
-                       wei_xi);
-        gauss_legendre(neta,
-                       ord_eta,
-                       wei_eta);
+    //     quadrature_1d(quadrature_type_xi,
+    //                   nxi,
+    //                   ord_xi,
+    //                   wei_xi);
+    //     quadrature_1d(quadrature_type_eta,
+    //                   neta,
+    //                   ord_eta,
+    //                   wei_eta);
         
+    //     // Geometric data
+        
+    //     double dx = x2 - x1;
+    //     double dy = y2 - y1;
+    //     double d = sqrt(dx * dx + dy * dy);
+        
+    //     if (d == 0)
+    //     {
+    //         cerr << "lens_2d: distance between centers is zero" << endl;
+    //         return false;
+    //     }
+    //     double x_intercept = (d * d + r1 * r1 - r2 * r2) / (2 * d);
+    //     if (x_intercept < 0)
+    //     {
+    //         cerr << "lens_2d: intercept past midpoint of first circle" << endl;
+    //         return false;
+    //     }
+    //     else if (x_intercept > d)
+    //     {
+    //         cerr << "lens_2d: intercept past midpoint of second circle" << endl;
+    //         return false;
+    //     }
+    //     double sqrt_val = -(d - r1 - r2) * (d + r1 - r2) * (d - r1 + r2) * (d + r1 + r2);
+    //     if (sqrt_val <= 0)
+    //     {
+    //         cerr << "lens_2d: no intersection" << endl;
+    //         return false;
+    //     }
+    //     double y_intercept = sqrt(sqrt_val) / (2 * d);
+
+    //     // Get 2D quadrature set
+        
+    //     int n = nxi * neta;
+    //     ordinates_x.resize(n);
+    //     ordinates_y.resize(n);
+    //     weights.resize(n);
+        
+    //     for (int j = 0; j < neta; ++j)
+    //     {
+    //         double eta = ord_eta[j];
+    //         double y_tilde = y_intercept * eta;
+    //         double a = d - sqrt(r2 * r2 - y_tilde * y_tilde);
+    //         double b = sqrt(r1 * r1 - y_tilde * y_tilde);
+            
+    //         for (int i = 0; i < nxi; ++i)
+    //         {
+    //             double xi = ord_xi[i];
+    //             double x_tilde = 0.5 * (b - a) * xi + 0.5 * (a + b);
+    //             double x = x1 + (dx * x_tilde - dy * y_tilde) / d;
+    //             double y = y1 + (dy * x_tilde + dx * y_tilde) / d;
+                
+    //             int k = j + neta * i;
+                
+    //             ordinates_x[k] = x;
+    //             ordinates_y[k] = y;
+    //             weights[k] =  0.5 * (b - a) * y_intercept * wei_xi[i] * wei_eta[j];
+    //         }
+    //     }
+        
+    //     return true;
+    // }
+
+    bool double_cylindrical_2d(Quadrature_Type quadrature_type_xi,
+                               Quadrature_Type quadrature_type_eta,
+                               int nxi,
+                               int neta,
+                               double x1,
+                               double y1,
+                               double x2,
+                               double y2,
+                               double r1,
+                               double r2,
+                               vector<double> &ordinates_x,
+                               vector<double> &ordinates_y,
+                               vector<double> &weights)
+    {
         // Geometric data
-        
+
         double dx = x2 - x1;
         double dy = y2 - y1;
         double d = sqrt(dx * dx + dy * dy);
-        
-        if (d == 0)
+
+        // Find type of quadrature
+
+        if (d >= r1 + r2) // circles do not have any common points
         {
-            cerr << "lens_2d: distance between centers is zero" << endl;
+            cerr << "double_cylindrical_2d: no intersections" << endl;
+            ordinates_x.assign(1, x1);
+            ordinates_y.assign(1, y1);
+            weights.assign(1, 0);
             return false;
         }
-        
-        double x_intercept = (d * d + r1 * r1 - r2 * r2) / (2 * d);
-        if (x_intercept < 0)
+        else if (d < abs(r1 - r2) + 1e-15) // one circle contained in other
         {
-            cerr << "lens_2d: shape is not a lens" << endl;
-        }
-        double sqrt_val = 2 * d * d * (r1 * r1 + r2 * r2) - pow(r1 * r1 - r2 * r2, 2) - pow(d, 4);
-        if (sqrt_val <= 0)
-        {
-            cerr << "lens_2d: no intersection" << endl;
-            return false;
-        }
-        double y_intercept = sqrt(sqrt_val) / (2 * d);
-
-        // Get 2D quadrature set
-
-        int n = nxi * neta;
-        ordinates_x.resize(n);
-        ordinates_y.resize(n);
-        weights.resize(n);
-        
-        for (int j = 0; j < neta; ++j)
-        {
-            double eta = ord_eta[j];
-            double y_tilde = y_intercept * eta;
-            double a = d - sqrt(r2 * r2 - y_tilde * y_tilde);
-            double b = sqrt(r1 * r1 - y_tilde * y_tilde);
-
-            for (int i = 0; i < nxi; ++i)
+            if (r1 < r2) // first circle contained in second
             {
-                double xi = ord_xi[i];
-                double x_tilde = 0.5 * (b - a) * xi + 0.5 * (a + b);
-                double x = x1 + (dx * x_tilde - dy * y_tilde) / d;
-                double y = y1 + (dy * x_tilde + dx * y_tilde) / d;
-                
-                int k = j + neta * i;
-                
-                ordinates_x[k] = x;
-                ordinates_y[k] = y;
-                weights[k] =  0.5 * (b - a) * y_intercept * wei_xi[i] * wei_eta[j];
+                return cylindrical_2d(quadrature_type_xi,
+                                      quadrature_type_eta,
+                                      nxi,
+                                      neta,
+                                      x1,
+                                      y1,
+                                      0,
+                                      r1,
+                                      0,
+                                      2 * M_PI,
+                                      ordinates_x,
+                                      ordinates_y,
+                                      weights);
+            }
+            else // second circle contained in first
+            {
+                return cylindrical_2d(quadrature_type_xi,
+                                      quadrature_type_eta,
+                                      nxi,
+                                      neta,
+                                      x2,
+                                      y2,
+                                      0,
+                                      r2,
+                                      0,
+                                      2 * M_PI,
+                                      ordinates_x,
+                                      ordinates_y,
+                                      weights);
             }
         }
+        else //lens-shaped region
+        {
+            // Get 1D quadrature sets
+            
+            vector<double> ord_xi;
+            vector<double> ord_eta;
+            vector<double> wei_xi;
+            vector<double> wei_eta;
+            
+            quadrature_1d(quadrature_type_xi,
+                          nxi,
+                          ord_xi,
+                          wei_xi);
+            quadrature_1d(quadrature_type_eta,
+                          neta,
+                          ord_eta,
+                          wei_eta);
+            
+            double x_intercept = (d * d + r1 * r1 - r2 * r2) / (2 * d);
+            double sqrt_val = -(d - r1 - r2) * (d + r1 - r2) * (d - r1 + r2) * (d + r1 + r2);
+            double y_intercept = sqrt(sqrt_val) / (2 * d);
+            
+            // Get 2D quadrature set
         
-        return true;
+            int n = nxi * neta;
+            ordinates_x.resize(n);
+            ordinates_y.resize(n);
+            weights.resize(n);
+            
+            if (x_intercept < 0) // intercept past midpoint of first circle
+            {
+                for (int j = 0; j < neta; ++j)
+                {
+                    double eta = ord_eta[j];
+                    double y_tilde = r1 * eta;
+                    double a = (abs(y_tilde) > y_intercept
+                                ? -sqrt(r1 * r1 - y_tilde * y_tilde)
+                                : d - sqrt(r2 * r2 - y_tilde * y_tilde));
+                    double b = sqrt(r1 * r1 - y_tilde * y_tilde);
+            
+                    for (int i = 0; i < nxi; ++i)
+                    {
+                        double xi = ord_xi[i];
+                        double x_tilde = 0.5 * (b - a) * xi + 0.5 * (a + b);
+                        double x = x1 + (dx * x_tilde - dy * y_tilde) / d;
+                        double y = y1 + (dy * x_tilde + dx * y_tilde) / d;
+                
+                        int k = j + neta * i;
+                
+                        ordinates_x[k] = x;
+                        ordinates_y[k] = y;
+                        weights[k] =  0.5 * (b - a) * r1 * wei_xi[i] * wei_eta[j];
+                    }
+                }
+                
+            }
+            else if (x_intercept > d) // intercept past midpoint of second circle
+            {
+                for (int j = 0; j < neta; ++j)
+                {
+                    double eta = ord_eta[j];
+                    double y_tilde = r2 * eta;
+                    double a = d - sqrt(r2 * r2 - y_tilde * y_tilde);
+                    double b = (abs(y_tilde) > y_intercept
+                                ? d + sqrt(r2 * r2 - y_tilde * y_tilde)
+                                : sqrt(r1 * r1 - y_tilde * y_tilde));
+                    
+                    for (int i = 0; i < nxi; ++i)
+                    {
+                        double xi = ord_xi[i];
+                        double x_tilde = 0.5 * (b - a) * xi + 0.5 * (a + b);
+                        double x = x1 + (dx * x_tilde - dy * y_tilde) / d;
+                        double y = y1 + (dy * x_tilde + dx * y_tilde) / d;
+                        
+                        int k = j + neta * i;
+                        
+                        ordinates_x[k] = x;
+                        ordinates_y[k] = y;
+                        weights[k] =  0.5 * (b - a) * r2 * wei_xi[i] * wei_eta[j];
+                    }
+                }
+            }
+            else // normal, lens-shaped region
+            {
+                for (int j = 0; j < neta; ++j)
+                {
+                    double eta = ord_eta[j];
+                    double y_tilde = y_intercept * eta;
+                    double a = d - sqrt(r2 * r2 - y_tilde * y_tilde);
+                    double b = sqrt(r1 * r1 - y_tilde * y_tilde);
+                    
+                    for (int i = 0; i < nxi; ++i)
+                    {
+                        double xi = ord_xi[i];
+                        double x_tilde = 0.5 * (b - a) * xi + 0.5 * (a + b);
+                        double x = x1 + (dx * x_tilde - dy * y_tilde) / d;
+                        double y = y1 + (dy * x_tilde + dx * y_tilde) / d;
+                        
+                        int k = j + neta * i;
+                        
+                        ordinates_x[k] = x;
+                        ordinates_y[k] = y;
+                        weights[k] =  0.5 * (b - a) * y_intercept * wei_xi[i] * wei_eta[j];
+                    }
+                }
+            }
+            
+            return true;
+        }
     }
-        
 }

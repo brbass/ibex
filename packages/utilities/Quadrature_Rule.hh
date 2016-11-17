@@ -21,13 +21,24 @@ namespace Quadrature_Rule
       Get vectors of Gauss_Legendre ordinates and weights
     */
     
-    void gauss_legendre(int n, std::vector<double> &ordinates, std::vector<double> &weights);
+    bool gauss_legendre(int n, 
+                        std::vector<double> &ordinates,
+                        std::vector<double> &weights);
+
+    /*
+      Get specified 1D quadrature
+    */
+
+    bool quadrature_1d(Quadrature_Type quadrature_type,
+                       int n,
+                       std::vector<double> &ordinates,
+                       std::vector<double> &weights);
     
     /*
       1D Cartesian quadrature
     */
 
-    void cartesian_1d(Quadrature_Type quadrature_type,
+    bool cartesian_1d(Quadrature_Type quadrature_type,
                       int n,
                       double x1,
                       double x2,
@@ -38,7 +49,7 @@ namespace Quadrature_Rule
       2D Cartesian quadrature
     */
 
-    void cartesian_2d(Quadrature_Type quadrature_type_x,
+    bool cartesian_2d(Quadrature_Type quadrature_type_x,
                       Quadrature_Type quadrature_type_y,
                       int nx, 
                       int ny,
@@ -54,7 +65,7 @@ namespace Quadrature_Rule
       3D Cartesian quadrature
     */
 
-    void cartesian_3d(Quadrature_Type quadrature_type_x,
+    bool cartesian_3d(Quadrature_Type quadrature_type_x,
                       Quadrature_Type quadrature_type_y,
                       Quadrature_Type quadrature_type_z,
                       int nx,
@@ -75,7 +86,7 @@ namespace Quadrature_Rule
       2D cylindrical quadrature
     */
 
-    void cylindrical_2d(Quadrature_Type quadrature_type_r,
+    bool cylindrical_2d(Quadrature_Type quadrature_type_r,
                         Quadrature_Type quadrature_type_t,
                         int nr,
                         int nt,
@@ -85,14 +96,14 @@ namespace Quadrature_Rule
                         double r2,
                         double t1,
                         double t2,
-                        std::vector<double> &ordinates_r,
-                        std::vector<double> &ordinates_t,
+                        std::vector<double> &ordinates_x,
+                        std::vector<double> &ordinates_y,
                         std::vector<double> &weights);
     /*
       3D spherical quadrature
     */
     
-    void spherical_3d(Quadrature_Type quadrature_type_r,
+    bool spherical_3d(Quadrature_Type quadrature_type_r,
                       Quadrature_Type quadrature_type_t,
                       Quadrature_Type quadrature_type_f,
                       int nr,
@@ -107,24 +118,38 @@ namespace Quadrature_Rule
                       double t2,
                       double f1,
                       double f2,
-                      std::vector<double> &ordinates_r,
-                      std::vector<double> &ordinates_t,
-                      std::vector<double> &ordinates_f,
+                      std::vector<double> &ordinates_x,
+                      std::vector<double> &ordinates_y,
+                      std::vector<double> &ordinates_z,
                       std::vector<double> &weights);
 
-    bool lens_2d(Quadrature_Type quadrature_type_xi,
-                 Quadrature_Type quadrature_type_eta,
-                 int nxi,
-                 int neta,
-                 double x1,
-                 double y1,
-                 double x2,
-                 double y2,
-                 double r1,
-                 double r2,
-                 std::vector<double> &ordinates_x,
-                 std::vector<double> &ordinates_y,
-                 std::vector<double> &weights);
+    // bool lens_2d(Quadrature_Type quadrature_type_xi,
+    //              Quadrature_Type quadrature_type_eta,
+    //              int nxi,
+    //              int neta,
+    //              double x1,
+    //              double y1,
+    //              double x2,
+    //              double y2,
+    //              double r1,
+    //              double r2,
+    //              std::vector<double> &ordinates_x,
+    //              std::vector<double> &ordinates_y,
+    //              std::vector<double> &weights);
+
+    bool double_cylindrical_2d(Quadrature_Type quadrature_type_xi,
+                               Quadrature_Type quadrature_type_eta,
+                               int nxi,
+                               int neta,
+                               double x1,
+                               double y1,
+                               double x2,
+                               double y2,
+                               double r1,
+                               double r2,
+                               std::vector<double> &ordinates_x,
+                               std::vector<double> &ordinates_y,
+                               std::vector<double> &weights);
     
 }
 #endif
