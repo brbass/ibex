@@ -32,7 +32,7 @@ namespace XML_Functions
     {
         std::istringstream iss(data_string);
         
-        data = vector<T>{std::istream_iterator<T>(iss), std::istream_iterator<double>()};
+        data = vector<T>{std::istream_iterator<T>(iss), std::istream_iterator<T>()};
     }
 
     // Convert a vector to a string
