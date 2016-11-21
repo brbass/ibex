@@ -17,6 +17,27 @@ namespace Quadrature_Rule
         GAUSS_LEGENDRE
     };
 
+    class Plane_2D
+    {
+    public:
+
+        enum class Nonzero_Region
+        {
+            POSITIVE,
+            NEGATIVE
+        };
+        
+        Plane_2D(Nonzero_Region nonzero_region,
+                 std::vector<double> const &origin,
+                 std::vector<double> const &normal);
+        
+    private:
+
+        Nonzero_Region nonzero_region_;
+        vector<double> origin_;
+        vector<double> normal_;
+    };
+    
     /*
       Get vectors of Gauss_Legendre ordinates and weights
     */

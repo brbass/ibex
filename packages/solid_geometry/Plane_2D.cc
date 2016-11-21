@@ -26,8 +26,6 @@ relation(vector<double> const &particle_position,
 {
     vector<double> const k0 = vf2::subtract(particle_position,
                                             origin_);
-    double const k1 = vf2::magnitude(k0);
-
     double const k = vf2::dot(normal_, 
                               k0);
 
