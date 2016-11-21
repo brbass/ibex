@@ -545,7 +545,7 @@ namespace Quadrature_Rule
         double xminc = x0 - r;
         double xmaxc = x0 + r;
         double yminc = y0 - r;
-        double ymaxc = y1 + r;
+        double ymaxc = y0 + r;
 
         if (xmaxb < xminc || xminb > xmaxc || ymaxb < yminc || yminb > xmaxc)
         {

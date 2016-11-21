@@ -16,27 +16,6 @@ namespace Quadrature_Rule
     {
         GAUSS_LEGENDRE
     };
-
-    class Plane_2D
-    {
-    public:
-
-        enum class Nonzero_Region
-        {
-            POSITIVE,
-            NEGATIVE
-        };
-        
-        Plane_2D(Nonzero_Region nonzero_region,
-                 std::vector<double> const &origin,
-                 std::vector<double> const &normal);
-        
-    private:
-
-        Nonzero_Region nonzero_region_;
-        vector<double> origin_;
-        vector<double> normal_;
-    };
     
     /*
       Get vectors of Gauss_Legendre ordinates and weights
@@ -144,20 +123,6 @@ namespace Quadrature_Rule
                       std::vector<double> &ordinates_z,
                       std::vector<double> &weights);
 
-    // bool lens_2d(Quadrature_Type quadrature_type_xi,
-    //              Quadrature_Type quadrature_type_eta,
-    //              int nxi,
-    //              int neta,
-    //              double x1,
-    //              double y1,
-    //              double x2,
-    //              double y2,
-    //              double r1,
-    //              double r2,
-    //              std::vector<double> &ordinates_x,
-    //              std::vector<double> &ordinates_y,
-    //              std::vector<double> &weights);
-
     bool double_cylindrical_2d(Quadrature_Type quadrature_type_xi,
                                Quadrature_Type quadrature_type_eta,
                                int nxi,
@@ -171,7 +136,21 @@ namespace Quadrature_Rule
                                std::vector<double> &ordinates_x,
                                std::vector<double> &ordinates_y,
                                std::vector<double> &weights);
-    
+
+    bool cartesian_bounded_cylindrical_2d(Quadrature_Type quadrature_type_xi,
+                                          Quadrature_Type quadrature_type_eta,
+                                          int nxi,
+                                          int neta,
+                                          double x0,
+                                          double y0,
+                                          double r,
+                                          double xminb,
+                                          double xmaxb,
+                                          double yminb,
+                                          double ymaxb,
+                                          std::vector<double> &ordinates_x,
+                                          std::vector<double> &ordinates_y,
+                                          std::vector<double> &weights);
 }
 #endif
 
