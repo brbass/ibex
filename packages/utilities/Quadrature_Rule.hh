@@ -123,6 +123,10 @@ namespace Quadrature_Rule
                       std::vector<double> &ordinates_z,
                       std::vector<double> &weights);
 
+    /*
+      Integral over lens or other circle-circle regions
+    */
+    
     bool double_cylindrical_2d(Quadrature_Type quadrature_type_xi,
                                Quadrature_Type quadrature_type_eta,
                                int nxi,
@@ -137,6 +141,10 @@ namespace Quadrature_Rule
                                std::vector<double> &ordinates_y,
                                std::vector<double> &weights);
 
+    /*
+      Cylindrical integral with Cartesian bounds
+    */
+    
     bool cartesian_bounded_cylindrical_2d(Quadrature_Type quadrature_type_xi,
                                           Quadrature_Type quadrature_type_eta,
                                           int nxi,
@@ -152,6 +160,7 @@ namespace Quadrature_Rule
                                           std::vector<double> &ordinates_y,
                                           std::vector<double> &weights);
 }
+
 #endif
 
 

@@ -1,3 +1,5 @@
+#include <mpi.h>
+
 #include "Check_Equality.hh"
 #include "Random_Number_Generator.hh"
 #include "Trilinos_Dense_Solve.hh"
@@ -48,13 +50,17 @@ int test_trilinos_dense(int number_of_points)
     return checksum;
 }
 
-int main()
+int main(int argc, char **argv)
 {
     int checksum = 0;
 
+    MPI_Init(&argc, &argv);
+    
     checksum += test_trilinos_dense(10);
     checksum += test_trilinos_dense(100);
     checksum += test_trilinos_dense(1000);
+
+    MPI_Finalize();
     
     return checksum;
 }

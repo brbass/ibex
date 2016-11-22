@@ -1,14 +1,17 @@
 #include <cmath>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "Check_Equality.hh"
 #include "Quadrature_Rule.hh"
 
 using namespace std;
 
+namespace ce = Check_Equality;
 namespace qr = Quadrature_Rule;
 
 double compact_gaussian(double epsilon,
@@ -40,26 +43,38 @@ double double_compact_gaussian(double ep1,
     double s1 = sqrt(x * x + y * y);
     double x2 = x - dist;
     double s2 = sqrt(x2 * x2 + y * y);
+    
+    return (compact_gaussian(ep1,
+                             s1,
+                             smax1)
+            * compact_gaussian(ep2,
+                               s2,
+                               smax2));
+}
 
-    if (y >= 0)
+double boundary_compact_gaussian(double ep,
+                                 double smax,
+                                 double x,
+                                 double y)
+{
+    if (y >= -1./ep)
     {
-        return (compact_gaussian(ep1,
-                                 s1,
-                                 smax1)
-                * compact_gaussian(ep2,
-                                   s2,
-                                   smax2));
+        double s = sqrt(x * x + y * y);
+        return compact_gaussian(ep,
+                                s,
+                                smax);
     }
     else
     {
         return 0.;
     }
-}
+}                                 
 
 /*
   Integrate over a full Gaussian
 */
-int test_gaussian_2d(int order)
+int test_gaussian_2d(int order,
+                     double tolerance)
 {
     int checksum = 0;
     
@@ -144,14 +159,54 @@ int test_gaussian_2d(int order)
     }
     integrals.emplace_back(cyl2d, "Cyl_2D");
 
+    // Cylindrical-Cartesian 2D
+    double cylc2d = 0;
+    {
+        double max_value = numeric_limits<double>::max();
+        vector<double> ordinates_x;
+        vector<double> ordinates_y;
+        vector<double> weights;
+
+        qr::cartesian_bounded_cylindrical_2d(quad_type,
+                                             quad_type,
+                                             order,
+                                             order,
+                                             x0,
+                                             y0,
+                                             rmax,
+                                             -max_value,
+                                             max_value,
+                                             -max_value,
+                                             max_value,
+                                             ordinates_x,
+                                             ordinates_y,
+                                             weights);
+        
+        for (int i = 0; i < num_ordinates; ++i)
+        {
+            double s = sqrt(ordinates_x[i] * ordinates_x[i] + ordinates_y[i] * ordinates_y[i]);
+            
+            cylc2d += weights[i] * compact_gaussian(epsilon,
+                                                    s,
+                                                    smax);
+        }
+    }
+    integrals.emplace_back(cylc2d, "Cyl_Cart_2D");
+
     int w = 16;
     for (int i = 0; i < integrals.size(); ++i)
     {
         cout << setw(w) << "Gauss_2D";
         cout << setw(w) << integrals[i].second;
         cout << setw(w) << order;
-        cout << setw(w) << (analytic - integrals[i].first) / analytic;
+        cout << setw(w) << (analytic - integrals[i].first);
         cout << endl;
+
+        if (!ce::approx(integrals[i].first, analytic, tolerance))
+        {
+            cout << "failed" << endl;
+            checksum += 1;
+        }
     }
     
     return checksum;
@@ -160,7 +215,8 @@ int test_gaussian_2d(int order)
 /*
   Integrate over half a lens
 */
-int test_double_gaussian_2d(int order)
+int test_double_gaussian_2d(int order,
+                            double tolerance)
 {
     int checksum = 0;
     
@@ -177,7 +233,7 @@ int test_double_gaussian_2d(int order)
     qr::Quadrature_Type quad_type = qr::Quadrature_Type::GAUSS_LEGENDRE;
     int num_ordinates = order * order;
 
-    double numeric = 1.1016707860233166491e-10 / 2;
+    double numeric = 1.1016707860233166491e-10;
     
     vector<pair<double, string> > integrals;
     
@@ -362,8 +418,153 @@ int test_double_gaussian_2d(int order)
         cout << setw(w) << "double_Gauss_2D";
         cout << setw(w) << integrals[i].second;
         cout << setw(w) << order;
-        cout << setw(w) << (numeric - integrals[i].first) / numeric;
+        cout << setw(w) << (numeric - integrals[i].first);
         cout << endl;
+
+        if (!ce::approx(integrals[i].first, numeric, tolerance))
+        {
+            cout << "failed" << endl;
+            checksum += 1;
+        }
+    }
+    
+    return checksum;
+}
+
+// Test integration over a weight function intersected by a line
+int test_boundary_gaussian_2d(int order,
+                              double tolerance)
+{
+    int checksum = 0;
+    
+    double epsilon = 4;
+    double smax = 4 / epsilon;
+    double x0 = 0;
+    double y0 = 0;
+    double tmin = 0;
+    double tmax = 2 * M_PI;
+    double rmin = 0;
+    double rmax = smax;
+    double xmin = -smax;
+    double xmax = smax;
+    double ymin = -1/epsilon;
+    double ymax = smax;
+    qr::Quadrature_Type quad_type = qr::Quadrature_Type::GAUSS_LEGENDRE;
+    int num_ordinates = order * order;
+    
+    double numeric = 0.180906502448576686501692082076;
+    
+    vector<pair<double, string> > integrals;
+    
+    // Cartesian 2D
+    double cart2d = 0;
+    {
+        vector<double> ordinates_x;
+        vector<double> ordinates_y;
+        vector<double> weights;
+        
+        qr::cartesian_2d(quad_type,
+                         quad_type,
+                         order,
+                         order,
+                         xmin,
+                         xmax,
+                         ymin,
+                         ymax,
+                         ordinates_x,
+                         ordinates_y,
+                         weights);
+        
+        for (int i = 0; i < num_ordinates; ++i)
+        {
+            cart2d += weights[i] * boundary_compact_gaussian(epsilon,
+                                                             smax,
+                                                             ordinates_x[i],
+                                                             ordinates_y[i]);
+        }
+    }
+    integrals.emplace_back(cart2d, "Cart_2D");
+    
+    // Cylindrical 2D
+    double cyl2d = 0;
+    {
+        vector<double> ordinates_x;
+        vector<double> ordinates_y;
+        vector<double> weights;
+
+        qr::cylindrical_2d(quad_type,
+                           quad_type,
+                           order,
+                           order,
+                           x0,
+                           y0,
+                           rmin,
+                           rmax,
+                           tmin,
+                           tmax,
+                           ordinates_x,
+                           ordinates_y,
+                           weights);
+        
+        for (int i = 0; i < num_ordinates; ++i)
+        {
+            cyl2d += weights[i] * boundary_compact_gaussian(epsilon,
+                                                            smax,
+                                                            ordinates_x[i],
+                                                            ordinates_y[i]);
+        }
+    }
+    integrals.emplace_back(cyl2d, "Cyl_2D");
+
+    // Cylindrical-Cartesian 2D
+    double cylc2d = 0;
+    {
+        double max_value = numeric_limits<double>::max();
+        vector<double> ordinates_x;
+        vector<double> ordinates_y;
+        vector<double> weights;
+
+        qr::cartesian_bounded_cylindrical_2d(quad_type,
+                                             quad_type,
+                                             order,
+                                             order,
+                                             x0,
+                                             y0,
+                                             rmax,
+                                             xmin,
+                                             xmax,
+                                             ymin,
+                                             ymax,
+                                             ordinates_x,
+                                             ordinates_y,
+                                             weights);
+        
+        for (int i = 0; i < num_ordinates; ++i)
+        {
+            double s = sqrt(ordinates_x[i] * ordinates_x[i] + ordinates_y[i] * ordinates_y[i]);
+            
+            cylc2d += weights[i] * boundary_compact_gaussian(epsilon,
+                                                             smax,
+                                                             ordinates_x[i],
+                                                             ordinates_y[i]);
+        }
+    }
+    integrals.emplace_back(cylc2d, "Cyl_Cart_2D");
+    
+    int w = 16;
+    for (int i = 0; i < integrals.size(); ++i)
+    {
+        cout << setw(w) << "Bound_Gauss_2D";
+        cout << setw(w) << integrals[i].second;
+        cout << setw(w) << order;
+        cout << setw(w) << (numeric - integrals[i].first);
+        cout << endl;
+        
+        if (!ce::approx(integrals[i].first, numeric, tolerance))
+        {
+            cout << "failed" << endl;
+            checksum += 1;
+        }
     }
     
     return checksum;
@@ -381,12 +582,20 @@ int main()
     cout << endl;
     for (int i = 4; i <= 512; i *= 2)
     {
-        checksum += test_gaussian_2d(i);
+        checksum += test_gaussian_2d(i, 1);
     }
     for (int i = 4; i <= 512; i *= 2)
     {
-        checksum += test_double_gaussian_2d(i);
+        checksum += test_double_gaussian_2d(i, 1);
     }
+    for (int i = 4; i <= 512; i *= 2)
+    {
+        checksum += test_boundary_gaussian_2d(i, 1);
+    }
+    
+    checksum += test_gaussian_2d(64, 1e-10);
+    checksum += test_double_gaussian_2d(64, 1e-12);
+    checksum += test_boundary_gaussian_2d(64, 1e-3);
     
     return checksum;
 }
