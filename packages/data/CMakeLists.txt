@@ -1,5 +1,5 @@
 set(library_name data)
-set(library_dependencies external utilities angular_discretization energy_discretization spatial_discretization)
+set(library_dependencies external utilities angular_discretization energy_discretization)
 
 include_directories(${global_include_directories})
 
