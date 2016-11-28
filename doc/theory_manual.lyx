@@ -1,0 +1,2499 @@
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\usepackage{multicol}
+
+\renewcommand{\arraystretch}{1.5}
+
+\let\oldpart\part
+\renewcommand\part{\clearpage\oldpart}
+
+\allowdisplaybreaks
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_math auto
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement H
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder false
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 2.5cm
+\topmargin 2.5cm
+\rightmargin 2.5cm
+\bottommargin 2.5cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip smallskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Radial basis functions for neutron transport: theory manual
+\end_layout
+
+\begin_layout Author
+Brody Bassett
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset toc
+LatexCommand tableofcontents
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Discretization of the neutron transport equation
+\end_layout
+
+\begin_layout Section
+Introduction to transport equation
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="14" columns="3">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="center" valignment="middle" width="20text%">
+<column alignment="center" valignment="top" width="60text%">
+<column alignment="center" valignment="middle" width="20text%">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Variable
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Units
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Position
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+cm
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $E$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Energy
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+MeV
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\bm{\Omega}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Direction
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+steradian
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $t$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Time
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+s
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\psi\left(\bm{x},\bm{\Omega},E,t\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Angular flux at position 
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+ in direction 
+\begin_inset Formula $\bm{\Omega}$
+\end_inset
+
+ with energy 
+\begin_inset Formula $E$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+particles cm
+\begin_inset Formula $^{-2}$
+\end_inset
+
+ s
+\begin_inset Formula $^{-1}$
+\end_inset
+
+ MeV
+\begin_inset Formula $^{-1}$
+\end_inset
+
+ steradian
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\phi_{\ell}^{m}\left(\bm{x},E,t\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Spherical harmonic moment of the angular flux of degree 
+\begin_inset Formula $\ell$
+\end_inset
+
+ and order 
+\begin_inset Formula $m$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+particles cm
+\begin_inset Formula $^{-2}$
+\end_inset
+
+ s
+\begin_inset Formula $^{-1}$
+\end_inset
+
+ MeV
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $v\left(E\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Particle speed
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+cm s
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\Sigma_{t}\left(\bm{x},E\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Total cross section at position 
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+ for particles with energy 
+\begin_inset Formula $E$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+cm
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\Sigma_{s}\left(\bm{x},\bm{\Omega}'\cdot\bm{\Omega},E'\to E\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Scattering cross section at position 
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+ for particles scattering from direction 
+\begin_inset Formula $\bm{\Omega}'$
+\end_inset
+
+ to 
+\begin_inset Formula $\bm{\Omega}$
+\end_inset
+
+ and from energy 
+\begin_inset Formula $E'$
+\end_inset
+
+ to 
+\begin_inset Formula $E$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+MeV
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\chi\left(\bm{x},E\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Fission spectrum for energy 
+\begin_inset Formula $E$
+\end_inset
+
+ for fissions occurring at position 
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+MeV
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\nu\left(\bm{x},E\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Average number of neutrons created in a fission for a neutron at position
+ 
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+ and with energy 
+\begin_inset Formula $E$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+particles
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\Sigma_{f}\left(\bm{x},E\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Fission cross section at position 
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+ for particles of energy 
+\begin_inset Formula $E$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+cm
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $q\left(\bm{x},\bm{\Omega},E,t\right)$
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Internal particle source at position 
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+ in direction 
+\begin_inset Formula $\bm{\Omega}$
+\end_inset
+
+ with energy 
+\begin_inset Formula $E$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+particles cm
+\begin_inset Formula $^{-3}$
+\end_inset
+
+ s
+\begin_inset Formula $^{-1}$
+\end_inset
+
+ MeV
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Variables in the transport equation
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Continuous-energy transport equation
+\end_layout
+
+\begin_layout Standard
+Begin with the neutron transport equation without delayed neutrons,
+\begin_inset Formula 
+\begin{multline}
+\frac{1}{v\left(E\right)}\frac{\partial}{\partial t}\psi\left(\bm{x},\bm{\Omega},E,t\right)+\bm{\Omega}\cdot\bm{\nabla}\psi\left(\bm{x},\bm{\Omega},E,t\right)+\Sigma_{t}\left(\bm{x},E\right)\psi\left(\bm{x},\bm{\Omega},E,t\right)\\
+=\int_{0}^{\infty}\int_{4\pi}\Sigma_{s}\left(\bm{x},\bm{\Omega}'\cdot\bm{\Omega},E'\to E\right)\psi\left(\bm{x},\bm{\Omega}',E',t\right)d\Omega'dE'\\
++\chi\left(\bm{x},E\right)\int_{0}^{\infty}\int_{4\pi}\nu\left(\bm{x},E'\right)\Sigma_{f}\left(\bm{x},E'\right)\psi\left(\bm{x},\bm{\Omega}',E',t\right)d\Omega'dE'+q\left(\bm{x},\bm{\Omega},E,t\right),\\
+\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad0<E<\infty,\quad0<t,
+\end{multline}
+
+\end_inset
+
+and the accompanying boundary and initial conditions,
+\begin_inset Formula 
+\begin{gather}
+\psi\left(\bm{x},\bm{\Omega},E,t\right)=\psi^{b}\left(\bm{x},\bm{\Omega},E,t\right),\qquad\bm{x}\in V,\quad\bm{\Omega}\cdot\bm{n}<0,\quad0<E<\infty,\quad0<t,\\
+\psi\left(\bm{x},\bm{\Omega},E,t=0\right)=\psi^{i}\left(\bm{x},\bm{\Omega},E\right),\qquad\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad0<E<\infty.
+\end{gather}
+
+\end_inset
+
+Defining the spherical harmonics moments of the equation as 
+\begin_inset Formula 
+\begin{equation}
+\phi_{\ell}^{m}\left(\bm{x},E,t\right)=\int_{4\pi}Y_{\ell}^{m}\left(\bm{\Omega}\right)\psi\left(\bm{x},\bm{\Omega},E,t\right)d\Omega,
+\end{equation}
+
+\end_inset
+
+and using a similar expression for the representation of the scattering
+ source,
+\begin_inset Formula 
+\begin{equation}
+\Sigma_{s;\ell}\left(\bm{x},E'\to E\right)=2\pi\int_{-1}^{1}P_{\ell}\left(\mu_{0}\right)\Sigma_{s}\left(\bm{x},\mu_{0},E'\to E\right)d\mu_{0}
+\end{equation}
+
+\end_inset
+
+(with the scattering cosine 
+\begin_inset Formula $\mu_{0}=\bm{\Omega}'\cdot\bm{\Omega}$
+\end_inset
+
+), we get the approximations
+\begin_inset Formula 
+\begin{gather}
+\psi\left(\bm{x},\bm{\Omega},E,t\right)=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}\right)\phi_{\ell}^{m}\left(\bm{x},E,t\right),\label{eq:spherical-harmonic-angular-expansion}\\
+\Sigma_{s}\left(\bm{x},\bm{\Omega}'\cdot\bm{\Omega},E'\to E\right)=\sum_{\ell=0}^{\infty}\sum_{m=-\ell}^{\ell}\Sigma_{s,\ell}\left(\bm{x},E\right)Y_{\ell}^{m}\left(\bm{\Omega}\right)Y_{\ell}^{m}\left(\bm{\Omega}'\right)
+\end{gather}
+
+\end_inset
+
+(where we have assumed that the 
+\begin_inset Formula $Y_{\ell}^{m}$
+\end_inset
+
+ are the real spherical harmonic moments).
+ Applying these simplifications to the scattering and fission terms gives
+ 
+\begin_inset Formula 
+\begin{multline}
+\frac{1}{v\left(E\right)}\frac{\partial}{\partial t}\psi\left(\bm{x},\bm{\Omega},E,t\right)+\bm{\Omega}\cdot\bm{\nabla}\psi\left(\bm{x},\bm{\Omega},E,t\right)+\Sigma_{t}\left(\bm{x},E\right)\psi\left(\bm{x},\bm{\Omega},E,t\right)\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}\right)\int_{0}^{\infty}\Sigma_{s;\ell}^{m}\left(\bm{x},E'\to E\right)\phi_{\ell}^{m}\left(\bm{x},E',t\right)dE'\\
++\frac{\chi\left(\bm{x},E\right)}{4\pi}\int_{0}^{\infty}\nu\left(\bm{x},E'\right)\Sigma_{f}\left(\bm{x},E'\right)\phi_{0}^{0}\left(\bm{x},E',t\right)dE'+q\left(\bm{x},\bm{\Omega},E,t\right),\\
+\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad0<E<\infty,\quad0<t.
+\end{multline}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Angular, energy and time simplifications to transport equation
+\end_layout
+
+\begin_layout Subsection
+Multigroup transport equation
+\end_layout
+
+\begin_layout Standard
+The multigroup approximation begins with a neutron spectrum approximation,
+ 
+\begin_inset Formula $\Psi\left(\bm{x},E\right)$
+\end_inset
+
+, with which each of the energy-dependent cross sections is weighted over
+ an energy range 
+\begin_inset Formula $E\in\left[E_{g},E_{g-1}\right]$
+\end_inset
+
+ to get multigroup cross sections, neutron velocities and fission sources,
+\begin_inset Formula 
+\begin{gather}
+\Sigma_{t;g}\left(\bm{x}\right)=\dfrac{\int_{E_{g}}^{E_{g-1}}\Sigma_{t}\left(\bm{x},E\right)\Psi\left(\bm{x},E\right)dE}{\int_{E_{g}}^{E_{g-1}}\Psi\left(\bm{x},E\right)dE},\\
+\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)=\dfrac{\int_{E_{g}}^{E_{g-1}}\int_{E_{g'}}^{E_{g'-1}}\Sigma_{s;\ell}^{m}\left(\bm{x},E'\to E\right)\Psi\left(\bm{x},E'\right)dE'dE}{\int_{E_{g'}}^{E_{g'-1}}\Psi\left(\bm{x},E'\right)dE'},\\
+\frac{1}{\nu_{g}\left(\bm{x}\right)}=\dfrac{\int_{E_{g}}^{E_{g-1}}\frac{1}{v\left(E\right)}\Psi\left(\bm{x},E\right)dE}{\int_{E_{g}}^{E_{g-1}}\Psi\left(\bm{x},E\right)dE},\\
+\nu\Sigma_{f;g}\left(\bm{x}\right)=\dfrac{\int_{E_{g}}^{E_{g-1}}\nu\left(\bm{x},E\right)\Sigma_{f}\left(\bm{x},E\right)\Psi\left(\bm{x},E\right)dE}{\int_{E_{g}}^{E_{g-1}}\Psi\left(\bm{x},E\right)dE}.
+\end{gather}
+
+\end_inset
+
+The multigroup fission spectrum, angular flux and source are defined as
+\begin_inset Formula 
+\begin{gather}
+\chi_{g}\left(\bm{x}\right)=\int_{E_{g}}^{E_{g-1}}\chi\left(\bm{x},E\right)dE,\\
+\psi_{g}\left(\bm{x},\bm{\Omega},t\right)=\int_{E_{g}}^{E_{g-1}}\psi\left(\bm{x},\bm{\Omega},E,t\right)dE,\\
+q\left(\bm{x},\bm{\Omega},t\right)=\int_{E_{g}}^{E_{g-1}}q\left(\bm{x},\bm{\Omega},E,t\right)dE.
+\end{gather}
+
+\end_inset
+
+Integrate the transport equation over 
+\begin_inset Formula $E\in\left[E_{g},E_{g-1}\right]$
+\end_inset
+
+, 
+\begin_inset Formula 
+\begin{multline}
+\frac{\partial}{\partial t}\int_{E_{g}}^{E_{g-1}}\frac{1}{v\left(E\right)}\psi\left(\bm{x},\bm{\Omega},E,t\right)dE+\bm{\Omega}\cdot\bm{\nabla}\int_{E_{g}}^{E_{g-1}}\psi\left(\bm{x},\bm{\Omega},E,t\right)dE+\int_{E_{g}}^{E_{g-1}}\Sigma_{t}\left(\bm{x},E\right)\psi\left(\bm{x},\bm{\Omega},E,t\right)dE\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}\right)\int_{E_{g}}^{E_{g-1}}\int_{0}^{\infty}\Sigma_{s;\ell}^{m}\left(\bm{x},E'\to E\right)\phi_{\ell}^{m}\left(\bm{x},E',t\right)dE'dE\\
++\int_{E_{g}}^{E_{g-1}}\frac{\chi\left(\bm{x},E\right)}{4\pi}\int_{0}^{\infty}\nu\left(\bm{x},E'\right)\Sigma_{f}\left(\bm{x},E'\right)\phi_{0}^{0}\left(\bm{x},E',t\right)dE'dE+\int_{E_{g}}^{E_{g-1}}q\left(\bm{x},\bm{\Omega},E,t\right)dE,\\
+\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad g=1,\dots,G,\quad0<t.
+\end{multline}
+
+\end_inset
+
+If weighted integrals of the physical data over 
+\begin_inset Formula $\psi\left(\bm{x},E\right)$
+\end_inset
+
+ are approximately equal to weighted integrals over 
+\begin_inset Formula $\psi\left(\bm{x},\bm{\Omega},E,t\right)$
+\end_inset
+
+ (e.g.
+ for 
+\begin_inset Formula $\Sigma_{t}$
+\end_inset
+
+,
+\begin_inset Formula 
+\begin{equation}
+\dfrac{\int_{E_{g}}^{E_{g-1}}\Sigma_{t}\left(\bm{x},E\right)\Psi\left(\bm{x},E\right)dE}{\int_{E_{g}}^{E_{g-1}}\Psi\left(\bm{x},E\right)dE}\approx\dfrac{\int_{E_{g}}^{E_{g-1}}\Sigma_{t}\left(\bm{x},E\right)\psi\left(\bm{x},\bm{\Omega},E,t\right)dE}{\int_{E_{g}}^{E_{g-1}}\psi\left(\bm{x},\bm{\Omega},E,t\right)dE}
+\end{equation}
+
+\end_inset
+
+must hold), the transport equation can be simplified to 
+\begin_inset Formula 
+\begin{multline}
+\frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\psi_{g}\left(\bm{x},\bm{\Omega},t\right)dE+\bm{\Omega}\cdot\bm{\nabla}\psi_{g}\left(\bm{x},\bm{\Omega},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\psi_{g}\left(\bm{x},\bm{\Omega},t\right)\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x},t\right)\\
++\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x},t\right)+q_{g}\left(\bm{x},\bm{\Omega},t\right),\\
+\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad g=1,\dots,G,\quad0<t.
+\end{multline}
+
+\end_inset
+
+The initial and boundary equations become
+\begin_inset Formula 
+\begin{gather}
+\psi_{g}\left(\bm{x},\bm{\Omega},t\right)=\psi_{g}^{b}\left(\bm{x},\bm{\Omega},t\right),\qquad\bm{x}\in V,\quad\bm{\Omega}\cdot\bm{n}<0,\quad g=1,\dots,G,\quad0<t,\\
+\psi_{g}\left(\bm{x},\bm{\Omega},t=0\right)=\psi_{g}^{i}\left(\bm{x},\bm{\Omega}\right),\qquad\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad g=1,\dots,G,
+\end{gather}
+
+\end_inset
+
+where the initial and boundary flux have been integrated over each energy
+ group 
+\begin_inset Formula $g$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsection
+Discrete ordinates transport equation
+\end_layout
+
+\begin_layout Standard
+The discrete-ordinates approximation solves the transport equation along
+ particular rays (or ordinates).
+ Defining 
+\begin_inset Formula 
+\begin{gather}
+\psi_{n,g}\left(\bm{x},t\right)=\psi_{g}\left(\bm{x},\bm{\Omega}_{n},t\right),\\
+q_{n,g}\left(\bm{x},t\right)=q_{g}\left(\bm{x},\bm{\Omega}_{n},t\right),
+\end{gather}
+
+\end_inset
+
+for each discrete direction 
+\begin_inset Formula $\bm{\Omega}_{n}$
+\end_inset
+
+, the transport equation becomes
+\begin_inset Formula 
+\begin{multline}
+\frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\psi_{n,g}\left(\bm{x},t\right)dE+\bm{\Omega}_{n}\cdot\bm{\nabla}\psi_{n,g}\left(\bm{x},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x},t\right)\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x},t\right)\\
++\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x},t\right)+q_{n,g}\left(\bm{x},t\right),\\
+\bm{x}\in V,\quad n=1,\dots N,\quad g=1,\dots,G,\quad0<t.
+\end{multline}
+
+\end_inset
+
+The boundary and initial conditions become
+\begin_inset Formula 
+\begin{gather}
+\psi_{n,g}\left(\bm{x},t\right)=\psi_{n,g}^{b}\left(\bm{x},t\right),\qquad\bm{x}\in V,\quad\bm{\Omega}_{n}\cdot\bm{n}<0,\quad g=1,\dots,G,\quad0<t,\\
+\psi_{n,g}\left(\bm{x},t=0\right)=\psi_{n,g}^{i}\left(\bm{x}\right),\qquad\bm{x}\in V,\quad n=1,\dots N,\quad g=1,\dots,G,
+\end{gather}
+
+\end_inset
+
+To facilitate integration, the directions 
+\begin_inset Formula $\bm{\Omega}_{n}$
+\end_inset
+
+ are chosen as ordinates in a quadrature set which has the property
+\begin_inset Formula 
+\begin{equation}
+\int_{4\pi}f\left(\bm{\Omega}\right)d\Omega\approx\sum_{n=1}^{N}w_{n}f\left(\bm{\Omega}_{n}\right).
+\end{equation}
+
+\end_inset
+
+The calculation of the spherical harmonics moments then becomes
+\begin_inset Formula 
+\begin{equation}
+\phi_{\ell,g}^{m}\left(\bm{x},t\right)=\sum_{n=1}^{N}w_{n}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\psi_{n,g}\left(\bm{x},t\right).
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Steady state transport equation
+\end_layout
+
+\begin_layout Standard
+At steady state, the time derivative in the transport equation goes to zero
+ and time dependence is removed elsewhere, giving
+\begin_inset Formula 
+\begin{multline}
+\bm{\Omega}_{n}\cdot\bm{\nabla}\psi_{n,g}\left(\bm{x}\right)+\Sigma_{t;g}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)\\
++\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)+q_{n,g}\left(\bm{x}\right),\\
+\bm{x}\in V,\quad n=1,\dots N,\quad g=1,\dots,G.\label{eq:steady-state-transport}
+\end{multline}
+
+\end_inset
+
+The boundary condition simplifies to 
+\begin_inset Formula 
+\[
+\psi_{n,g}\left(\bm{x}\right)=\psi_{n,g}^{b}\left(\bm{x}\right),\qquad\bm{x}\in V,\quad\bm{\Omega}_{n}\cdot\bm{n}<0,\quad g=1,\dots,G.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Spatial discretization of the transport equation
+\end_layout
+
+\begin_layout Subsection
+Strong form of the transport equation
+\end_layout
+
+\begin_layout Standard
+The transport equation can be applied directly to a basis for the angular
+ flux, 
+\begin_inset Formula 
+\begin{gather*}
+\psi_{n,g}\left(\bm{x}\right)=\sum_{i=1}^{I}\alpha_{i,n,g}b_{i}\left(\bm{x}\right),
+\end{gather*}
+
+\end_inset
+
+to get
+\begin_inset Formula 
+\begin{multline}
+\sum_{i=1}^{I}\left[\bm{\Omega}_{n}\cdot\bm{\nabla}b_{i}\left(\bm{x}\right)+\Sigma_{t;g}\left(\bm{x}\right)b_{i}\left(\bm{x}\right)\right]\alpha_{i,n,g}\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)\\
++\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)+q_{n,g}\left(\bm{x}\right),\\
+\bm{x}\in V,\quad n=1,\dots N,\quad g=1,\dots,G.
+\end{multline}
+
+\end_inset
+
+In the strong form, this equation is enforced chosen points 
+\begin_inset Formula $\bm{x}_{j}\in V$
+\end_inset
+
+ to get 
+\begin_inset Formula 
+\begin{multline}
+\sum_{i=1}^{I}\left[\bm{\Omega}_{n}\cdot\bm{\nabla}b_{i}\left(\bm{x}_{j}\right)+\Sigma_{t;g}\left(\bm{x}_{j}\right)b_{i}\left(\bm{x}_{j}\right)\right]\alpha_{i,n,g}\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}_{j}\right)\phi_{\ell,g'}^{m}\left(\bm{x}_{j}\right)\\
++\frac{\chi_{g}\left(\bm{x}_{j}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}_{j}\right)\phi_{0,g'}^{0}\left(\bm{x}_{j}\right)+q_{n,g}\left(\bm{x}_{j}\right),\\
+j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G.
+\end{multline}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Weak form of the transport equation
+\end_layout
+
+\begin_layout Standard
+Multiply the steady-state transport equation by a series of weight functions
+ 
+\begin_inset Formula $w_{j}\left(\bm{x}\right)$
+\end_inset
+
+ (for 
+\begin_inset Formula $j=1,\dots,J$
+\end_inset
+
+) and integrate over the region of support 
+\begin_inset Formula $V_{j}$
+\end_inset
+
+ of 
+\begin_inset Formula $w_{j}\left(\bm{x}\right)$
+\end_inset
+
+ to get 
+\begin_inset Formula 
+\begin{multline}
+\int_{V_{j}}w_{j}\left(\bm{x}\right)\bm{\Omega}_{n}\cdot\bm{\nabla}\psi_{n,g}\left(\bm{x}\right)dV+\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{t;g}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
++\int_{V_{j}}w_{j}\left(\bm{x}\right)\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)dV+\int_{V_{j}}w_{j}\left(\bm{x}\right)q_{n,g}\left(\bm{x}\right)dV,\\
+j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G.\label{eq:initial-integral}
+\end{multline}
+
+\end_inset
+
+Perform integration by parts on the streaming term and apply the divergence
+ theorem
+\begin_inset Formula 
+\begin{equation}
+\int_{V}\bm{\nabla}\cdot\bm{F}\left(\bm{x}\right)dV=\int_{S}\bm{n}\cdot\bm{F}\left(\bm{x}\right)dS
+\end{equation}
+
+\end_inset
+
+to get the weak form of the transport equation,
+\begin_inset Formula 
+\begin{multline}
+\int_{S_{j}}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)\psi_{n,g}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS-\int_{V_{j}}\psi_{n,g}\left(\bm{x}\right)\left[\bm{\Omega}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]dV+\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{t;g}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
++\int_{V_{j}}w_{j}\left(\bm{x}\right)\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)dV+\int_{V_{j}}w_{j}\left(\bm{x}\right)q_{n,g}\left(\bm{x}\right)dV,\\
+j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G.
+\end{multline}
+
+\end_inset
+
+The surface integral can be split into its unknown and known parts (the
+ boundary condition) to give
+\begin_inset Formula 
+\begin{multline}
+\int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)\psi_{n,g}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS-\int_{V_{j}}\psi_{n,g}\left(\bm{x}\right)\left[\bm{\Omega}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]dV+\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{t;g}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
++\int_{V_{j}}w_{j}\left(\bm{x}\right)\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)dV+\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|\psi_{n,g}^{b}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS\\
++\int_{V_{j}}w_{j}\left(\bm{x}\right)q_{n,g}\left(\bm{x}\right)dV\\
+j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G.\label{eq:continuous-xs-transport}
+\end{multline}
+
+\end_inset
+
+If the cross sections are constant within each support region 
+\begin_inset Formula $V_{j}$
+\end_inset
+
+, (
+\begin_inset Formula $\Sigma_{j}=\Sigma\left(\bm{x}\right)$
+\end_inset
+
+ for all 
+\begin_inset Formula $\bm{x}\in V_{j}$
+\end_inset
+
+) this simplifies to 
+\begin_inset Formula 
+\begin{multline}
+\int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)\psi_{n,g}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS-\int_{V_{j}}\psi_{n,g}\left(\bm{x}\right)\left[\bm{\Omega}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]dV+\Sigma_{t;j,g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;j,\ell,g'\to g}^{m}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
++\frac{\chi_{j,g}}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;j,g'}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)dV+\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|\psi_{n,g}^{b}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS\\
++\int_{V_{j}}w_{j}\left(\bm{x}\right)q_{n,g}\left(\bm{x}\right)dV,\\
+j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G.\label{eq:constant-xs-transport}
+\end{multline}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Conservation of neutrons
+\end_layout
+
+\begin_layout Standard
+Without loss of generality, the weak form of the transport equation can
+ be written as
+\begin_inset Formula 
+\begin{multline}
+\int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)\psi_{n,g}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS-\int_{V_{j}}\psi_{n,g}\left(\bm{x}\right)\left[\bm{\Omega}_{n}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]dV+\int_{V_{j}}\Sigma_{t;g}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV\\
+=\int_{V_{j}}w_{j}\left(\bm{x}\right)s_{n,g}\left(\bm{x}\right)dV+\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|\psi_{n,g}^{b}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS,\\
+j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G,\label{eq:simplified-lhs}
+\end{multline}
+
+\end_inset
+
+where
+\begin_inset Formula 
+\begin{multline}
+s_{n,g}\left(\bm{x}\right)=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)\\
++\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)+q_{n,g}\left(\bm{x}\right).\label{eq:total-source}
+\end{multline}
+
+\end_inset
+
+Multiply the transport equation by an arbitrary constant 
+\begin_inset Formula $c_{j}$
+\end_inset
+
+ and sum over all 
+\begin_inset Formula $j$
+\end_inset
+
+ to get
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{multline}
+\int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)\psi_{n,g}\left(\bm{x}\right)\left(\sum_{j=1}^{J}c_{j}w_{j}\left(\bm{x}\right)\right)dS-\int_{V}\psi_{n,g}\left(\bm{x}\right)\left[\bm{\Omega}_{n}\cdot\bm{\nabla}\left(\sum_{j=1}^{J}c_{j}w_{j}\left(\bm{x}\right)\right)\right]dV\\
++\int_{V}\Sigma_{t;g}\left(\bm{x}\right)\left(\sum_{j=1}^{J}c_{j}w_{j}\left(\bm{x}\right)\right)\psi_{n,g}\left(\bm{x}\right)dV\\
+=\int_{V}\left(\sum_{j=1}^{J}c_{j}w_{j}\left(\bm{x}\right)\right)s_{n,g}\left(\bm{x}\right)dV+\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|\psi_{n,g}^{b}\left(\bm{x}\right)\left(\sum_{j=1}^{J}c_{j}w_{j}\left(\bm{x}\right)\right)dS,\\
+n=1,\dots N,\quad g=1,\dots,G.
+\end{multline}
+
+\end_inset
+
+Suppose that there exist 
+\begin_inset Formula $c_{j}$
+\end_inset
+
+ such that 
+\begin_inset Formula 
+\begin{equation}
+\sum_{j}c_{j}w_{j}\left(\bm{x}\right)=1.\label{eq:sum-weight}
+\end{equation}
+
+\end_inset
+
+Then using these 
+\begin_inset Formula $c_{j}$
+\end_inset
+
+, we get that the weak form of the transport equations satisfy 
+\begin_inset Formula 
+\begin{multline}
+\int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)\psi_{n,g}\left(\bm{x}\right)dS-\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|\psi_{n,g}^{b}\left(\bm{x}\right)dS=\int_{V}s_{n,g}\left(\bm{x}\right)dV-\int_{V}\Sigma_{t,g}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV,\\
+n=1,\dots N,\quad g=1,\dots,G.
+\end{multline}
+
+\end_inset
+
+This statement of conservation can also be directly derived by integrating
+ the transport equation over 
+\begin_inset Formula $V$
+\end_inset
+
+.
+ It states that the neutrons entering the problem minus the neutrons exiting
+ the problem equal the gains from the internal source, scattering and fission
+ plus the losses from absorption.
+ Thus, it is a sufficient condition for conservation that Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:sum-weight"
+
+\end_inset
+
+ holds true for some 
+\begin_inset Formula $c_{j}$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsection
+Petrov-Galerkin method
+\end_layout
+
+\begin_layout Standard
+The Petrov-Galerkin method can supply the unknowns needed to solve the weak
+ form of the transport equation.
+ Defining
+\begin_inset Formula 
+\begin{gather*}
+\psi_{n,g}\left(\bm{x}\right)=\sum_{i=1}^{J}\alpha_{i,n,g}b_{i}\left(\bm{x}\right),\\
+\phi_{\ell,g}^{m}\left(\bm{x}\right)=\sum_{n=1}^{N}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{i=1}^{J}\alpha_{i,n,g}b_{i}\left(\bm{x}\right)=\sum_{i=1}^{J}\beta_{i,\ell,g}^{m}b_{i}\left(\bm{x}\right),\\
+q_{n,g}\left(\bm{x}\right)=\sum_{i=1}^{J}\gamma_{i,n,g}b_{i}\left(\bm{x}\right),\\
+\psi_{n,g}^{b}\left(\bm{x}\right)=\sum_{i=1}^{J}\alpha_{i,n,g}^{b}b_{i}\left(\bm{x}\right),
+\end{gather*}
+
+\end_inset
+
+as the basis, the weak form of the transport equation becomes
+\begin_inset Formula 
+\begin{multline}
+\sum_{i=1}^{J}\left[\int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS-\int_{V_{j}}b_{i}\left(\bm{x}\right)\left[\bm{\Omega}_{n}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]dV+\Sigma_{t;j,g}\int_{V_{j}}b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV\right]\alpha_{i,n,g}\\
+=\sum_{\ell}\frac{2\ell+1}{4\pi}\sum_{m}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'}\Sigma_{s;j,\ell,g'\to g}^{m}\sum_{i=1}^{J}\beta_{i,\ell,g'}^{m}\int_{V_{j}}b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV\\
++\frac{\chi_{j,g}}{4\pi}\sum_{g'}\nu\Sigma_{f;j,g'}\sum_{i=1}^{J}\beta_{i,0,g'}^{0}\int_{V_{j}}b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV+\sum_{i=1}^{J}\alpha_{i,n,g}^{b}\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS\\
++\sum_{i=1}^{J}\gamma_{i,n,g}\int_{V_{j}}w_{j}\left(\bm{x}\right)b_{i}\left(\bm{x}\right)dV,\\
+j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G.\label{eq:petrov-galerkin}
+\end{multline}
+
+\end_inset
+
+Thus, the integrands become functions of the known 
+\begin_inset Formula $b_{i}$
+\end_inset
+
+ and 
+\begin_inset Formula $w_{j}$
+\end_inset
+
+.
+ If 
+\begin_inset Formula $b_{i}=w_{i}$
+\end_inset
+
+ for all 
+\begin_inset Formula $i$
+\end_inset
+
+, this is the Galerkin method, which is frequently used in the finite element
+ method.
+ If the basis and weight function differ, it is the Petrov-Galerkin method.
+ Note that the relationship between the 
+\begin_inset Formula $\alpha_{i,n,g}$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta_{i,\ell,g}^{m}$
+\end_inset
+
+ is exactly the same as 
+\begin_inset Formula $\psi_{n,g}$
+\end_inset
+
+ and 
+\begin_inset Formula $\phi_{\ell,g}^{m}$
+\end_inset
+
+:
+\begin_inset Formula 
+\begin{equation}
+\beta_{i,\ell,g}^{m}=\sum_{n=1}^{N}w_{n}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\alpha_{i,n,g}.\label{eq:coefficient-relation}
+\end{equation}
+
+\end_inset
+
+This allows the same code that is used to convert between the angular flux
+ and its moments to do the same for 
+\begin_inset Formula $\alpha$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsection
+Streamline upwind Petrov-Galerkin method
+\end_layout
+
+\begin_layout Standard
+The streamline upwind Petrov-Galerkin (SUPG) method can be used to stabilize
+ the solution of the transport equation when a continuous method (such as
+ the CFEM, or continuous finite element method) is used.
+ In these methods, the solution does not allow discontinuities.
+ Because the transport equation is mathematically an advection equation,
+ this causes instabilities that manifest in oscillations.
+ The SUPG method adds artificial diffusion into the problem without affecting
+ overall particle balance.
+ Using the definition of 
+\begin_inset Formula $s_{n,g}$
+\end_inset
+
+ in Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:total-source"
+
+\end_inset
+
+, the weak form of the transport equation before integration by parts is
+\begin_inset Formula 
+\begin{multline}
+\int_{V_{j}}w_{j}\left(\bm{x}\right)\left[\bm{\Omega}_{n}\cdot\bm{\nabla}\psi_{n,g}\left(\bm{x}\right)\right]dV+\int_{V_{j}}\Sigma_{t;g}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV\\
+=\int_{V_{j}}w_{j}\left(\bm{x}\right)s_{n,g}\left(\bm{x}\right)dV,\\
+j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G,
+\end{multline}
+
+\end_inset
+
+If instead of using the weight function 
+\begin_inset Formula $w_{j}\left(\bm{x}\right)$
+\end_inset
+
+ we used as a weight function 
+\begin_inset Formula $\bm{\Omega}_{n}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)$
+\end_inset
+
+, this equation would become 
+\begin_inset Formula 
+\begin{multline}
+\int_{V_{j}}\left[\bm{\Omega}_{n}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]\left[\bm{\Omega}_{n}\cdot\bm{\nabla}\psi_{n,g}\left(\bm{x}\right)\right]dV+\int_{V_{j}}\Sigma_{t;g}\left(\bm{x}\right)\left[\bm{\Omega}_{n}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]\psi_{n,g}\left(\bm{x}\right)dV\\
+=\int_{V_{j}}\left[\bm{\Omega}_{n}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]s_{n,g}\left(\bm{x}\right)dV,\\
+j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G,
+\end{multline}
+
+\end_inset
+
+Adding this equation to Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:simplified-lhs"
+
+\end_inset
+
+ gives the SUPG form of the transport equation,
+\begin_inset Formula 
+\begin{multline}
+\int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)\psi_{n,g}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS+\int_{V_{j}}\left[\psi_{n,g}\left(\bm{x}\right)+\bm{\Omega}_{n}\cdot\bm{\nabla}\psi_{n,g}\left(\bm{x}\right)\right]\left[\bm{\Omega}_{n}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]dV\\
++\int_{V_{j}}\Sigma_{t;g}\left(\bm{x}\right)\left[w_{j}\left(\bm{x}\right)+\bm{\Omega}_{n}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]\psi_{n,g}\left(\bm{x}\right)dV\\
+=\int_{V_{j}}\left[w_{j}\left(\bm{x}\right)+\bm{\Omega}_{n}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]s_{n,g}\left(\bm{x}\right)dV+\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|\psi_{n,g}^{b}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS,\\
+j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G,\label{eq:SUPG-equation}
+\end{multline}
+
+\end_inset
+
+Notably, this addition does not affect particle balance if Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:sum-weight"
+
+\end_inset
+
+ holds as before, as the derivatives will annihilate the constant, giving
+ 
+\begin_inset Formula $0=0$
+\end_inset
+
+ for the SUPG addition when multiplied by 
+\begin_inset Formula $c_{j}$
+\end_inset
+
+ and summed over all 
+\begin_inset Formula $j$
+\end_inset
+
+.
+ The reason this term stabilizes the method can be found in the volume integral
+ of the streaming term.
+ If we had a diffusion method with diffusion tensor 
+\begin_inset Formula $\bm{D}=\bm{\Omega}_{n}\otimes\bm{\Omega}_{n}$
+\end_inset
+
+,
+\begin_inset Formula 
+\begin{equation}
+-\left(\bm{\Omega}_{n}\cdot\bm{\nabla}\right)\left(\bm{\Omega}_{n}\cdot\bm{\nabla}\right)f\left(\bm{x}\right)=-\bm{\nabla}\cdot\left(\bm{D}\cdot\bm{\nabla}\right)f\left(\bm{x}\right)=0,
+\end{equation}
+
+\end_inset
+
+ the weak form of the equation would be 
+\begin_inset Formula 
+\begin{equation}
+-\int_{S_{j}}\left[\bm{n}\cdot\left(\bm{D}\cdot\bm{\nabla}\right)f\left(\bm{x}\right)\right]w_{j}\left(\bm{x}\right)+\int_{V_{j}}\left[\bm{\Omega}_{n}\cdot\bm{\nabla}f\left(\bm{x}\right)\right]\left[\bm{\Omega}_{n}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]dV=0.\label{eq:weak-supg-diffusion-comp}
+\end{equation}
+
+\end_inset
+
+The diffusive term in Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:weak-supg-diffusion-comp"
+
+\end_inset
+
+ can be found in the SUPG addition in Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:SUPG-equation"
+
+\end_inset
+
+.
+ This adds numerical diffusion (and stabilization) to the method.
+ 
+\end_layout
+
+\begin_layout Subsection
+Spatially-dependent cross sections
+\end_layout
+
+\begin_layout Standard
+Suppose that the assumption made after Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:continuous-xs-transport"
+
+\end_inset
+
+ that the cross sections are continuous does not hold.
+ The integrals over weight and basis functions would then have to be done
+ for each group and cross section as well.
+ To avoid this, some approximation of the moments of the angular flux 
+\begin_inset Formula $\Phi_{\ell,g}^{m}\left(\bm{x}\right)$
+\end_inset
+
+ (from a low-order 
+\begin_inset Formula $P_{N}$
+\end_inset
+
+ or 
+\begin_inset Formula $SP_{N}$
+\end_inset
+
+ calculation, for instance) can be used to weight the cross sections and
+ remove them from the integrals.
+ Define
+\begin_inset Formula 
+\begin{gather}
+\Sigma_{t;j,g}=\dfrac{\int_{V_{j}}\Sigma_{t;g}\left(\bm{x}\right)\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV},\label{eq:total-xs-weighting}\\
+\Sigma_{s;j,\ell,g'\to g}^{m}=\dfrac{\int_{V_{j}}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV},\\
+\chi_{j,g}=\dfrac{\int_{V_{j}}\chi_{g}\left(\bm{x}\right)\sum_{g'}\left[\nu\Sigma_{f;g'}\Phi_{0,g'}^{0}\left(\bm{x}\right)\right]w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\sum_{g'}\left[\nu\Sigma_{f;g'}\Phi_{0,g'}^{0}\left(\bm{x}\right)\right]w_{j}\left(\bm{x}\right)dV},\\
+\nu\Sigma_{f;j,g}=\dfrac{\int_{V_{j}}\nu\Sigma_{f;g}\left(\bm{x}\right)\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV},
+\end{gather}
+
+\end_inset
+
+(noting that the fission spectrum is weighted by the fission source) and
+ assume that 
+\begin_inset Formula 
+\begin{gather}
+\phi_{0,g}^{0}\left(\bm{x}\right)\sim\psi_{n,g}\left(\bm{x}\right)\text{ for all }n,g,\label{eq:isotropic-assumption}\\
+\Phi_{\ell,g}^{m}\sim\phi_{\ell,g}^{m}\text{ for all }\ell,m,g.
+\end{gather}
+
+\end_inset
+
+Then the approximations can be made that 
+\begin_inset Formula 
+\begin{multline}
+\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{t,g}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV\\
+\approx\dfrac{\int_{V_{j}}\Sigma_{t;g}\left(\bm{x}\right)\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}\int_{V_{j}}w_{j}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV\\
+=\Sigma_{t;j,g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV,
+\end{multline}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{multline}
+\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
+\approx\dfrac{\int_{V_{j}}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
+=\Sigma_{s;j,\ell,g'\to g}^{m}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV,
+\end{multline}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{multline}
+\int_{V_{j}}w_{j}\left(\bm{x}\right)\chi_{g}\left(\bm{x}\right)\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)dV\\
+\approx\dfrac{\int_{V_{j}}\chi_{g}\left(\bm{x}\right)\sum_{g''}\left[\nu\Sigma_{f;g''}\Phi_{0,g''}^{0}\left(\bm{x}\right)\right]w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\sum_{g''}\left[\nu\Sigma_{f;g''}\Phi_{0,g''}^{0}\left(\bm{x}\right)\right]w_{j}\left(\bm{x}\right)dV}\sum_{g'=1}^{G}\dfrac{\int_{V_{j}}\nu\Sigma_{f;g'}\left(\bm{x}\right)\Phi_{0,g'}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{0,g'}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}\int_{V_{j}}\phi_{0,g'}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV\\
+=\chi_{g,j}\sum_{g'=1}^{G}\nu\Sigma_{f;j,g'}\int_{V_{j}}\phi_{0,g'}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV.
+\end{multline}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+If instead of using only the first spherical harmonic moment of the angular
+ flux in Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:total-xs-weighting"
+
+\end_inset
+
+ a more complete weighting using the spherical harmonic expansion (Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:spherical-harmonic-angular-expansion"
+
+\end_inset
+
+) were used, the approximation would be instead 
+\begin_inset Formula 
+\begin{equation}
+\Sigma_{t;j,g,n}=\dfrac{\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\int_{V_{j}}\Sigma_{t;g}\left(\bm{x}\right)\Phi_{\ell,g}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\int_{V_{j}}\Phi_{\ell,g}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}.
+\end{equation}
+
+\end_inset
+
+This approximation would be truncated to some finite value of 
+\begin_inset Formula $\ell$
+\end_inset
+
+.
+ The values for each 
+\begin_inset Formula $n$
+\end_inset
+
+ could be calculated as needed and would not need to be stored.
+ This would increase the number of integrals, but not significantly when
+ compared, for instance, to the number required for the scattering cross
+ section.
+ 
+\end_layout
+
+\begin_layout Part
+Discretization of the diffusion equation
+\end_layout
+
+\begin_layout Section
+Derivation of the diffusion equation
+\end_layout
+
+\begin_layout Part
+Iteration methods
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+Introduce operator notation
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Operator notation
+\end_layout
+
+\begin_layout Standard
+The steady-state neutron transport equation can be written in operator notation
+ for both the strong and weak forms of the equation.
+ In either case we have the transport operator 
+\begin_inset Formula $\mathcal{L}$
+\end_inset
+
+, the discrete-to-moment operator 
+\begin_inset Formula $\mathcal{D}$
+\end_inset
+
+, the moment-to-discrete operator 
+\begin_inset Formula $\mathcal{M}$
+\end_inset
+
+, the scattering operator 
+\begin_inset Formula $\mathcal{S}$
+\end_inset
+
+ and the fission operator 
+\begin_inset Formula $\mathcal{F}$
+\end_inset
+
+.
+ The transport equation can then be written as
+\begin_inset Formula 
+\begin{equation}
+\mathcal{L}\psi=\mathcal{M}\left(\mathcal{S}+\mathcal{F}\right)\mathcal{D}\psi+s.\label{eq:operator}
+\end{equation}
+
+\end_inset
+
+For the strong form of the equation, we have (from Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:steady-state-transport"
+
+\end_inset
+
+) 
+\begin_inset Formula 
+\begin{gather}
+\left(\mathcal{L}\psi\right)_{n,g,j}=\bm{\Omega}\cdot\bm{\nabla}\psi_{n,g}+\Sigma_{t,g}\psi_{n,g}\bigg|_{\bm{x}=\bm{x}_{j}},\\
+\left(\mathcal{D}\psi\right)_{\ell,g,j}^{m}=\sum_{n}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)w_{n}\psi_{n,g}\bigg|_{\bm{x}=\bm{x}_{j}},\\
+\left(\mathcal{M}\phi\right)_{n,g,j}=\sum_{\ell}\frac{2\ell+1}{4\pi}\sum_{m}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\phi_{\ell,g}^{m}\bigg|_{\bm{x}=\bm{x}_{j}},\\
+\left(\mathcal{S}\phi\right)_{\ell,g,j}^{m}=\sum_{g'}\Sigma_{s,\ell,g'\to g}^{m}\phi_{\ell,g'}^{m}\bigg|_{\bm{x}=\bm{x}_{j}},\\
+\left(\mathcal{F}\phi\right)_{\ell,g,j}^{m}=\delta_{\ell,0}\chi_{g}\sum_{g'}\nu_{g'}\Sigma_{f,g'}\phi_{\ell,g'}^{m}\bigg|_{\bm{x}=\bm{x}_{j}},\\
+s=q\bigg|_{\bm{x}=\bm{x}_{j}}
+\end{gather}
+
+\end_inset
+
+The weak form of the equation with constant or weighted coefficients (Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:constant-xs-transport"
+
+\end_inset
+
+) becomes
+\begin_inset Formula 
+\begin{gather}
+\left(\mathcal{L}\psi\right)_{n,g,j}=\int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)\psi_{n,g}w_{j}dS-\int_{V_{j}}\psi_{n,g}\left[\bm{\Omega}\cdot\bm{\nabla}w_{j}\right]dV+\Sigma_{t;g,j}\int_{V_{j}}w_{j}\psi_{n,g}dV,\\
+\left(\mathcal{D}\psi\right)_{\ell,g,j}^{m}=\sum_{n}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)w_{n}\psi_{n,g}\\
+\left(\mathcal{M}\phi\right)_{n,g,j}=\sum_{\ell=0}^{L}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\phi_{\ell,g}^{m},\\
+\left(\mathcal{S}\phi\right)_{\ell,g,j}^{m}=\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g,j}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{\ell,g'}^{m}dV,\\
+\left(\mathcal{F}\phi\right)_{\ell,g,j}^{m}=\delta_{\ell,0}\chi_{g,j}\sum_{g'=1}^{G}\nu\Sigma_{f,g',j}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)dV,\\
+s_{n,g,j}=\int_{V_{j}}w_{j}q_{n,g,j}dV+\sum_{i=1}^{J}\alpha_{i,n,g}^{b}\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS.
+\end{gather}
+
+\end_inset
+
+When we add basis functions, the weak form can also be written as iteration
+ over the coefficients of the solution, which can be solved for instead
+ of the angular flux or its moments.
+ From Eqs.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:petrov-galerkin"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:coefficient-relation"
+
+\end_inset
+
+, we have
+\begin_inset Formula 
+\begin{gather}
+\left(\tilde{\mathcal{L}}\alpha\right)_{n,g,j}=\sum_{i=1}^{J}\left[\int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)b_{i}w_{j}dS-\int_{V_{j}}b_{i}\left(\bm{x}\right)\left[\bm{\Omega}_{n}\cdot\bm{\nabla}w_{j}\right]dV+\Sigma_{t;g,j}\int_{V_{j}}b_{i}w_{j}dV\right]\alpha_{i,n,g},\\
+\left(\tilde{\mathcal{S}}\beta\right)_{\ell,g,j}^{m}=\sum_{g'}\Sigma_{s;\ell,g'\to g,j}^{m}\sum_{i=1}^{J}\beta_{\ell,g',j}^{m}\int_{V_{j}}b_{i}w_{j}dV,\\
+\left(\tilde{\mathcal{F}}\beta\right)_{\ell,g,j}^{m}=\delta_{\ell,0}\chi_{g,j}\sum_{g'}\nu\Sigma_{f;g',j}\sum_{i=1}^{J}\beta_{i,0,g'}^{0}\int_{V_{j}}b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV,\\
+s_{n,g,j}=\sum_{i=1}^{J}\gamma_{i,n,g}\int_{V_{j}}w_{j}b_{i}dV+\sum_{i=1}^{J}\alpha_{i,n,g}^{b}\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|b_{i}w_{j}dS,
+\end{gather}
+
+\end_inset
+
+while the definitions of 
+\begin_inset Formula $\mathcal{M}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathcal{D}$
+\end_inset
+
+ remain unchanged.
+ If we define 
+\begin_inset Formula 
+\begin{equation}
+\tilde{\phi}_{\ell,g,j}^{m}=\sum_{i=1}^{J}\beta_{\ell,g',j}^{m}\int_{V_{j}}b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV,
+\end{equation}
+
+\end_inset
+
+the scattering and fission operators become
+\begin_inset Formula 
+\begin{gather}
+\left(\mathcal{S}\beta\right)_{\ell,g,j}^{m}=\sum_{g'}\Sigma_{s;\ell,g'\to g,j}^{m}\tilde{\phi}_{\ell,g',j}^{m},\\
+\left(\mathcal{F}\beta\right)_{\ell,g,j}^{m}=\delta_{\ell,0}\chi_{g,j}\sum_{g'}\nu\Sigma_{f;g',j}\tilde{\phi}_{\ell,g',j},
+\end{gather}
+
+\end_inset
+
+which is in the same form as the strong form of the problem.
+ Thus, if we define 
+\begin_inset Formula 
+\begin{equation}
+\left(\tilde{\mathcal{C}}\beta\right)_{\ell,g,j}^{m}=\sum_{i=1}^{J}\beta_{i,\ell,g'}^{m}\int_{V_{j}}b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV,
+\end{equation}
+
+\end_inset
+
+then we can write the system of equations as
+\begin_inset Formula 
+\begin{equation}
+\tilde{\mathcal{L}}\alpha=\mathcal{M}\left(\mathcal{S}+\mathcal{F}\right)\tilde{\mathcal{C}}\mathcal{D}\alpha+s,
+\end{equation}
+
+\end_inset
+
+after which the operators 
+\begin_inset Formula $\mathcal{M}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathcal{S}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathcal{F}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathcal{D}$
+\end_inset
+
+ are unchanged.
+ Most of the time in finite element methods, the basis functions have the
+ Dirac delta property, which means that the value of the function at the
+ nodes is equal to the value of the corresponding coefficient,
+\begin_inset Formula 
+\begin{equation}
+\psi\left(\bm{x}_{i}\right)=\alpha_{i}.
+\end{equation}
+
+\end_inset
+
+In these cases, the 
+\begin_inset Formula $\tilde{\mathcal{C}}$
+\end_inset
+
+ operator would not be needed, as the nodal values of the angular flux directly
+ produce the nodal values for its moments, the scattering source and fission,
+ which are then automatically interpolated in the basis expansion.
+ The addition of the 
+\begin_inset Formula $\tilde{\mathcal{C}}$
+\end_inset
+
+ operator (1) allows for solution using basis functions without the Dirac
+ delta property, (2) moves the integrals outside of the scattering and fission
+ operator definitions and (3) prevents spatial information from being destroyed
+ that would then need to be reintroduced by interpolation.
+ 
+\end_layout
+
+\begin_layout Section
+Steady-state equation
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+Make sure to include information on the boundary terms
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+To solve for the moments of the angular flux instead of the angular flux
+ itself, apply the operator 
+\begin_inset Formula $\mathcal{D}\mathcal{L}^{-1}$
+\end_inset
+
+ to each side of Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:operator"
+
+\end_inset
+
+ to get 
+\begin_inset Formula 
+\[
+\phi=\mathcal{D}\mathcal{L}^{-1}M\left(\mathcal{S}+\mathcal{F}\right)\phi+DL^{-1}s.
+\]
+
+\end_inset
+
+This equation can be used for source (or Richardson) iteration.
+ Gathering the 
+\begin_inset Formula $\phi$
+\end_inset
+
+ terms gives
+\begin_inset Formula 
+\[
+\left(\mathcal{I}-\mathcal{D}\mathcal{L}^{-1}\mathcal{M}\left(\mathcal{S}+\mathcal{F}\right)\right)\phi=\mathcal{D}\mathcal{L}^{-1}s,
+\]
+
+\end_inset
+
+which is a form suitable for solution by Krylov iteration.
+ These equations include the source term, 
+\begin_inset Formula $\mathcal{D}\mathcal{L}^{-1}s$
+\end_inset
+
+, which includes the contribution of the boundary term and represents the
+ first-flight flux.
+ To handle reflective boundaries, we follow Warsa et.
+ al 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+cite{warsa-krylov-2004}
+\end_layout
+
+\end_inset
+
+ and use augments to store the outgoing flux at the boundaries for the next
+ iteration.
+ For the source term, this means iterating on the source and its reflected
+ component until convergence is reached.
+ Once convergence is reached, the augments in the source term are zeroed
+ out (since the first-flight flux already includes the boundary source).
+ The terms 
+\begin_inset Formula $\mathcal{D}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathcal{M}$
+\end_inset
+
+, 
+\begin_inset Formula $\mathcal{S}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathcal{F}$
+\end_inset
+
+ ignore the augments, which are only used inside 
+\begin_inset Formula $\mathcal{L}^{-1}$
+\end_inset
+
+.
+ The identity operator is still an identity operator for the augments.
+ Mathematically, the augments do the following:
+\begin_inset Formula 
+\begin{gather*}
+\phi\to\left[\begin{array}{c}
+\phi\\
+\psi_{R}
+\end{array}\right],\\
+\mathcal{D}\to\left[\begin{array}{cc}
+\mathcal{D} & 0\\
+0 & \mathcal{I}_{R}
+\end{array}\right],\\
+\mathcal{M}\to\left[\begin{array}{cc}
+\mathcal{M} & 0\\
+0 & \mathcal{I}_{R}
+\end{array}\right],\\
+\mathcal{S}\to\left[\begin{array}{cc}
+\mathcal{S} & 0\\
+0 & \mathcal{I}_{R}
+\end{array}\right],\\
+s\to\left[\begin{array}{c}
+s\\
+0
+\end{array}\right].
+\end{gather*}
+
+\end_inset
+
+Optionally, another two operators can be added that represent adding the
+ augments into the angular flux and storing the reflected flux after the
+ action of 
+\begin_inset Formula $\mathcal{L}^{-1}$
+\end_inset
+
+.
+ In this code, these two operators are included in the 
+\begin_inset Formula $\mathcal{L}^{-1}$
+\end_inset
+
+ operator.
+ 
+\end_layout
+
+\begin_layout Section
+k-eigenvalue equation
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+Include introduction earlier to k-eigenvalue equation
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The k-eigenvalue equation can be written in operator notation as
+\begin_inset Formula 
+\begin{equation}
+\mathcal{L}\psi=\mathcal{M}\left(\mathcal{S}+\frac{1}{k}\mathcal{F}\right)\mathcal{D}\psi,
+\end{equation}
+
+\end_inset
+
+where the operators are defined the same as in the steady-state case and
+ the eigenvalue is 
+\begin_inset Formula $k$
+\end_inset
+
+.
+ This can be written in moment form as
+\begin_inset Formula 
+\begin{equation}
+\phi=D\mathcal{L}^{-1}\mathcal{M}\left(\mathcal{S}+\frac{1}{k}\mathcal{F}\right)\phi,
+\end{equation}
+
+\end_inset
+
+which represents fixed point iteration.
+ After each iteration, the eigenvalue is updated as
+\begin_inset Formula 
+\[
+k^{\left(\ell+1\right)}=\frac{\left\Vert \mathcal{F}\phi^{\left(\ell+1\right)}\right\Vert }{\left\Vert \frac{1}{k^{\left(\ell\right)}}\mathcal{F}\phi^{\left(\ell\right)}-\mathcal{S}\left(\phi^{\ell+1}-\phi^{\ell}\right)\right\Vert }.
+\]
+
+\end_inset
+
+To derive the equations for power iteration, isolate the fission term and
+ the invert the equation onto it, which gives
+\begin_inset Formula 
+\[
+\phi=\left(\mathcal{I}-\mathcal{D}\mathcal{L}^{-1}\mathcal{M}\mathcal{S}\right)^{-1}\mathcal{D}\mathcal{L}^{-1}\mathcal{M}\frac{1}{k}\mathcal{F}\phi.
+\]
+
+\end_inset
+
+For power iteration, the eigenvalue is updated after each iteration as
+\begin_inset Formula 
+\[
+k^{\left(\ell+1\right)}=\frac{\left\Vert \mathcal{F}\phi^{\left(\ell+1\right)}\right\Vert }{\left\Vert \frac{1}{k^{\left(\ell\right)}}\mathcal{F}\phi^{\left(\ell\right)}\right\Vert }.
+\]
+
+\end_inset
+
+Finally, for Krylov eigenvalue iteration, isolate the eigenvalue in the
+ equation to get
+\begin_inset Formula 
+\[
+\left(\mathcal{I}-\mathcal{D}\mathcal{L}^{-1}\mathcal{M}\mathcal{S}\right)^{-1}D\mathcal{L}^{-1}\mathcal{M}\mathcal{F}\phi=k\phi.
+\]
+
+\end_inset
+
+For power and Krylov eigenvalue iteration, the inverse of the operator 
+\begin_inset Formula $\left(\mathcal{I}-\mathcal{D}\mathcal{L}^{-1}\mathcal{M}\mathcal{S}\right)^{-1}$
+\end_inset
+
+ is needed, which is roughly the action needed when inverting the steady-state
+ operator.
+ This inverse can be performed by a standard Krylov solver such as GMRES.
+ The full system can be solved with a Krylov eigensolver that admits asymmetric
+ matrices, such as Block Krylov-Schur or Generalized Davidson.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Section
+Time-dependent equation
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+Crank-Nicolson for now
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+Define 
+\begin_inset Formula 
+\[
+\mathcal{T}\psi_{j,n,g}=\frac{\psi_{j,n,g}}{2\Delta t}.
+\]
+
+\end_inset
+
+Then Crank-Nicolson can be written as 
+\begin_inset Formula 
+\[
+\mathcal{T}\psi^{\left(\ell+1\right)}-\mathcal{T}\psi^{\left(\ell\right)}=\left[\mathcal{M}\left(\mathcal{S}+\mathcal{F}\right)\mathcal{D}-\mathcal{L}\right]\psi^{\left(\ell+1\right)}+\left[\mathcal{M}\left(\mathcal{S}+\mathcal{F}\right)\mathcal{D}-\mathcal{L}\right]\psi^{\left(\ell\right)}+s^{\left(\ell+1\right)}+s^{\left(\ell\right)}
+\]
+
+\end_inset
+
+Define the 
+\begin_inset Formula $\mathcal{L}_{+}$
+\end_inset
+
+ and 
+\begin_inset Formula $\mathcal{L}_{-}$
+\end_inset
+
+ operators as 
+\begin_inset Formula 
+\begin{gather*}
+\mathcal{L}_{+}=\mathcal{L}+\mathcal{T},\\
+\mathcal{L}_{-}=\mathcal{L}-\mathcal{T},
+\end{gather*}
+
+\end_inset
+
+to get
+\begin_inset Formula 
+\[
+\mathcal{L}_{+}\psi^{\left(\ell+1\right)}=\mathcal{M}\left(\mathcal{S}+\mathcal{F}\right)\mathcal{D}\psi^{\left(\ell+1\right)}+\left[\mathcal{M}\left(\mathcal{S}+\mathcal{F}\right)\mathcal{D}-\mathcal{L}_{-}\right]\psi^{\left(\ell\right)}+s^{\left(\ell+1\right)}+s^{\left(\ell\right)}.
+\]
+
+\end_inset
+
+The problem can then be written in the same form as a fixed-source problem,
+\begin_inset Formula 
+\[
+\phi^{\left(\ell+1\right)}=\mathcal{D}\mathcal{L}_{+}^{-1}\mathcal{M}\left(\mathcal{S}+\mathcal{F}\right)\phi^{\left(\ell+1\right)}+\mathcal{D}\mathcal{L}_{+}^{-1}\tilde{s}^{\left(\ell+1\right)},
+\]
+
+\end_inset
+
+with
+\begin_inset Formula 
+\[
+\tilde{s}^{\left(\ell+1\right)}=\left[\mathcal{M}\left(\mathcal{S}+\mathcal{F}\right)\mathcal{D}-\mathcal{L}_{-}\right]\psi^{\left(\ell\right)}+s^{\left(\ell+1\right)}+s^{\left(\ell\right)}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Meshless methods
+\end_layout
+
+\begin_layout Section
+Radial basis functions
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+Regular and compact.
+ Show how interpolation might be done.
+ Include pictures.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Introduction to radial basis functions
+\end_layout
+
+\begin_layout Standard
+The value of a radial basis function (RBF) depends only on the distance
+ traversed by the input vector, 
+\begin_inset Formula 
+\[
+\Gamma\left(\bm{x}\right)=\Gamma\left(\left\Vert \bm{x}\right\Vert \right)=\Gamma\left(r\right),
+\]
+
+\end_inset
+
+regardless of the number of dimensions.
+ Examples of radial basis functions include the Gaussian (GA), multiquadric
+ (MQ) and inverse multiquadric (IMQ), 
+\begin_inset Formula 
+\begin{align}
+\text{GA} & :\qquad\Gamma\left(r\right)=e^{-\left(r\right)^{2}},\\
+\text{MQ} & :\qquad\Gamma\left(r\right)=\sqrt{1+\left(r\right)^{2}},\\
+\text{IMQ} & :\qquad\Gamma\left(r\right)=\frac{1}{\sqrt{1+\left(r\right)^{2}}}.
+\end{align}
+
+\end_inset
+
+ RBFs can act as a functional basis,
+\begin_inset Formula 
+\[
+f\left(\bm{x}\right)=\sum_{i}a_{i}\Gamma_{i}\left(\bm{x}\right),
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula 
+\[
+\Gamma_{i}\left(\bm{x}\right)=\Gamma\left(\epsilon_{i}\left\Vert \bm{x}-\bm{x}_{i}\right\Vert \right),
+\]
+
+\end_inset
+
+where 
+\begin_inset Formula $\epsilon_{i}$
+\end_inset
+
+ is the shape parameter, which controls how quickly the RBF increases or
+ decreases away from the center.
+ 
+\end_layout
+
+\begin_layout Subsection
+Localization of basis functions
+\end_layout
+
+\begin_layout Section
+Moving least squares
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+Include pictures.
+ Test in 2D.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Strong form of neutron transport equation
+\end_layout
+
+\begin_layout Section
+Weak form of neutron transport equation
+\end_layout
+
+\begin_layout Part
+Math
+\end_layout
+
+\begin_layout Section
+Legendre polynomials
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+Include algorithms for calculating.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Spherical harmonics
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+Include algorithms for calculating.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Geometry
+\end_layout
+
+\begin_layout Section
+Rotation and translation
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+2D and 3D.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Quadrature sets
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+Cartesian 1D, 2D, 3D.
+ Cylindrical 2D in cylindrical and Cartesian coordinates.
+ Spherical 3D.
+ Two circles intersecting in 2D.
+\end_layout
+
+\begin_layout Plain Layout
+Include notes on 1D quadratures: must have smooth function to work with
+ (boundaries must be used for accurate evaluation).
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Solid geometry
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+Intersections, relations, optical depth and so on.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Part
+Tests
+\end_layout
+
+\begin_layout Standard
+\begin_inset Note Comment
+status open
+
+\begin_layout Plain Layout
+Include pictures of test when possible.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Utilities
+\end_layout
+
+\begin_layout Section
+Angular discretization
+\end_layout
+
+\begin_layout Section
+Solid geometry
+\end_layout
+
+\begin_layout Section
+Spatial discretization
+\end_layout
+
+\begin_layout Section
+Operator
+\end_layout
+
+\begin_layout Section
+Transport
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{thebibliography}{99}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+bibitem{kindelan-application-2009}
+\end_layout
+
+\begin_layout Plain Layout
+
+M.
+ KINDELAN, F.
+ BERNAL, P.
+ GONZALEZ-RODRIGUEZ, M.
+ MOSCOSO, ``Application of the RBF meshless method to the solution of the
+ radiative transport equation,'' {
+\backslash
+it Journal of Computational Physics}, {
+\backslash
+bf 229}, 1897-1908 (2010).
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+bibitem{warsa-krylov-2004}
+\end_layout
+
+\begin_layout Plain Layout
+
+J.S.
+ WARSA, T.A WAREING, J.E.
+ MOREL, ``Krylov Iterative Methods and the Degraded Effectiveness of Diffusion
+ Synthetic Acceleration for Multidimensional $S_N$ Calculations in Problems
+ with Material Discontinuities,'' {
+\backslash
+it Nucl.
+ Sci.
+ Eng.}, {
+\backslash
+bf 147}(3), 218-248 (2004).
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+bibitem{chen-recent-2014}
+\end_layout
+
+\begin_layout Plain Layout
+
+W.
+ CHEN, Z.
+ FU, C.
+ CHEN, {
+\backslash
+it Recent Advances in Radial Basis Function Collocation Methods}, Springer
+ (2014).
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{thebibliography}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
