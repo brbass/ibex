@@ -2064,7 +2064,7 @@ For power and Krylov eigenvalue iteration, the inverse of the operator
 status open
 
 \begin_layout Section
-Time-dependent equation
+Time-dependent equation (not yet implemented)
 \end_layout
 
 \begin_layout Plain Layout
@@ -2242,14 +2242,6 @@ Include pictures.
 
 \end_layout
 
-\begin_layout Section
-Strong form of neutron transport equation
-\end_layout
-
-\begin_layout Section
-Weak form of neutron transport equation
-\end_layout
-
 \begin_layout Part
 Math
 \end_layout
@@ -2293,23 +2285,6 @@ Geometry
 \end_layout
 
 \begin_layout Section
-Rotation and translation
-\end_layout
-
-\begin_layout Standard
-\begin_inset Note Comment
-status open
-
-\begin_layout Plain Layout
-2D and 3D.
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Section
 Quadrature sets
 \end_layout
 
@@ -2334,6 +2309,565 @@ Include notes on 1D quadratures: must have smooth function to work with
 
 \end_layout
 
+\begin_layout Standard
+The following equations convert from various geometries to an integral of
+ the form
+\begin_inset Formula 
+\[
+\int_{-1}^{1}f\left(\xi\right)d\xi=\sum_{i}w_{i}f\left(\xi_{i}\right),
+\]
+
+\end_inset
+
+where the ordinates 
+\begin_inset Formula $\xi_{i}$
+\end_inset
+
+ and weights 
+\begin_inset Formula $w_{i}$
+\end_inset
+
+ are some 1D quadrature scheme such as the Gauss-Legendre ordinates.
+ All the quadratures map the calculated quadrature back to Cartesian coordinates.
+ 
+\end_layout
+
+\begin_layout Subsection
+Cartesian 1D
+\end_layout
+
+\begin_layout Standard
+To convert from 
+\begin_inset Formula $x\in\left[x_{1},x_{2}\right]$
+\end_inset
+
+ to 
+\begin_inset Formula $\xi\in\left[-1,1\right]$
+\end_inset
+
+, use
+\begin_inset Formula 
+\[
+x\left(\xi\right)=\frac{1-\xi}{2}x_{1}+\frac{1+\xi}{2}x_{2}
+\]
+
+\end_inset
+
+to get
+\begin_inset Formula 
+\[
+dx=\frac{x_{2}-x_{1}}{2}d\xi.
+\]
+
+\end_inset
+
+The integral then becomes
+\begin_inset Formula 
+\begin{align*}
+\int_{x_{1}}^{x_{2}}f\left(x\right)dx & =\frac{x_{2}-x_{1}}{2}\int_{-1}^{1}f\left(x\left(\xi\right)\right)d\xi\\
+ & =\frac{x_{2}-x_{1}}{2}\sum_{i}w_{i}f\left(x\left(\xi_{i}\right)\right).
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Cartesian 2D
+\end_layout
+
+\begin_layout Standard
+To convert from 
+\begin_inset Formula $x\in\left[x_{1},x_{2}\right]$
+\end_inset
+
+ and 
+\begin_inset Formula $y\in\left[y_{1},y_{2}\right]$
+\end_inset
+
+ to 
+\begin_inset Formula $\xi\in\left[-1,1\right]$
+\end_inset
+
+ and 
+\begin_inset Formula $\eta\in\left[-1,1\right]$
+\end_inset
+
+, use similar rules to the 1D case,
+\begin_inset Formula 
+\begin{gather*}
+x\left(\xi\right)=\frac{1-\xi}{2}x_{1}+\frac{1+\xi}{2}x_{2},\\
+y\left(\eta\right)=\frac{1-\eta}{2}y_{1}+\frac{1-\eta}{2}y_{2},
+\end{gather*}
+
+\end_inset
+
+to get the independent differentials,
+\begin_inset Formula 
+\begin{gather*}
+dx=\frac{x_{2}-x_{1}}{2}d\xi,\\
+dy=\frac{y_{2}-y_{1}}{2}d\eta.
+\end{gather*}
+
+\end_inset
+
+The integral is
+\begin_inset Formula 
+\begin{align*}
+\int_{x_{1}}^{x_{2}}\int_{y_{1}}^{y_{2}}f\left(x,y\right)dxdy & =\frac{x_{2}-x_{1}}{2}\frac{y_{2}-y_{1}}{2}\int_{-1}^{1}\int_{-1}^{1}f\left(x\left(\xi\right),y\left(\eta\right)\right)d\xi d\eta\\
+ & =\frac{x_{2}-x_{1}}{2}\frac{y_{2}-y_{1}}{2}\sum_{i,j}w_{i}w_{j}f\left(x\left(\xi_{i}\right),y\left(\eta_{j}\right)\right).
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Cylindrical 2D
+\end_layout
+
+\begin_layout Standard
+Use 
+\begin_inset Formula 
+\begin{gather*}
+r=\frac{1-\xi}{2}r_{1}+\frac{1+\xi}{2}r_{2},\\
+\theta=\frac{1-\eta}{2}\theta_{1}+\frac{1+\eta}{2}\theta_{2},
+\end{gather*}
+
+\end_inset
+
+where 
+\begin_inset Formula $\theta\in\left[0,2\pi\right]$
+\end_inset
+
+ and 
+\begin_inset Formula $r\in\left[0,R\right]$
+\end_inset
+
+, which has the differentials
+\begin_inset Formula 
+\begin{gather*}
+dr=\frac{r_{2}-r_{1}}{2}d\xi,\\
+d\theta=\frac{\theta_{2}-\theta_{1}}{2}d\eta.
+\end{gather*}
+
+\end_inset
+
+The conversion to Cartesian coordinates is
+\begin_inset Formula 
+\begin{gather*}
+x\left(r,\theta\right)=x_{0}+r\cos\theta,\\
+y\left(r,\theta\right)=y_{0}+r\sin\theta,
+\end{gather*}
+
+\end_inset
+
+where 
+\begin_inset Formula $\bm{x}_{0}$
+\end_inset
+
+ is the location of the center of the cylinder.
+ Then the cylindrical-geometry integral is
+\begin_inset Formula 
+\begin{align*}
+\int_{\theta_{1}}^{\theta_{2}}\int_{r_{1}}^{r_{2}}f\left(x\left(r,\theta\right),y\left(r,\theta\right)\right)rdrd\theta & =\frac{r_{2}-r_{1}}{2}\frac{\theta_{2}-\theta_{1}}{2}\int_{-1}^{1}\int_{-1}^{1}f\left(x\left(r\left(\xi\right),\theta\left(\eta\right)\right),y\left(r\left(\xi\right),\theta\left(\eta\right)\right)\right)r\left(\xi\right)d\xi d\eta\\
+ & =\frac{r_{2}-r_{1}}{2}\frac{\theta_{2}-\theta_{1}}{2}\sum_{i,j}f\left(x\left(r\left(\xi_{i}\right),\theta\left(\eta_{j}\right)\right),y\left(r\left(\xi_{i}\right),\theta\left(\eta_{j}\right)\right)\right)r\left(\xi\right).
+\end{align*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Spherical 3D
+\end_layout
+
+\begin_layout Standard
+For the 3D spherical-geometry integral, we use
+\begin_inset Formula 
+\begin{gather*}
+r=\frac{1-\xi}{2}r_{1}+\frac{1+\xi}{2}r_{2},\\
+\theta=\frac{1-\eta}{2}\theta_{1}+\frac{1+\eta}{2}\theta_{2},\\
+\phi=\frac{1-\zeta}{2}\phi_{1}+\frac{1+\zeta}{2}\phi_{2},
+\end{gather*}
+
+\end_inset
+
+where 
+\begin_inset Formula $r\in\left[0,r\right]$
+\end_inset
+
+, 
+\begin_inset Formula $\theta\in\left[0,2\pi\right]$
+\end_inset
+
+, 
+\begin_inset Formula $\phi\in\left[0,\pi\right]$
+\end_inset
+
+.
+ The differentials are
+\begin_inset Formula 
+\begin{gather*}
+dr=\frac{r_{2}-r_{1}}{2}d\xi,\\
+d\theta=\frac{\theta_{2}-\theta_{1}}{2}d\eta,\\
+d\phi=\frac{\phi_{2}-\phi_{1}}{2}d\zeta.
+\end{gather*}
+
+\end_inset
+
+The conversion to Cartesian coordinates is
+\begin_inset Formula 
+\begin{gather*}
+x\left(r,\theta,\phi\right)=x_{0}+r\cos\theta\sin\phi,\\
+y\left(r,\theta,\phi\right)=y_{0}+r\sin\theta\sin\phi,\\
+z\left(r,\theta,\phi\right)=z_{0}+r\cos\phi,
+\end{gather*}
+
+\end_inset
+
+where 
+\begin_inset Formula $\bm{x}_{0}$
+\end_inset
+
+ is the location of the center of the sphere.
+ Then the integral is
+\begin_inset Formula 
+\begin{multline*}
+\int_{0}^{\pi}\int_{0}^{2\pi}\int_{0}^{r}f\left(x\left(r,\theta,\phi\right),y\left(r,\theta,\phi\right),z\left(r,\phi\right)\right)r^{2}\sin\phi drd\theta d\phi\\
+=\frac{r_{2}-r_{1}}{2}\frac{\theta_{2}-\theta_{1}}{2}\frac{\phi_{2}-\phi_{1}}{2}\iiint_{-1}^{1}f\left(x\left(r\left(\xi\right),\theta\left(\eta\right),\phi\left(\zeta\right)\right),y\left(r\left(\xi\right),\theta\left(\eta\right),\phi\left(\zeta\right)\right),z\left(r\left(\xi\right),\phi\left(\zeta\right)\right)\right)r^{2}\left(\xi\right)\sin\phi\left(\zeta\right)drd\theta d\phi\\
+=\frac{r_{2}-r_{1}}{2}\frac{\theta_{2}-\theta_{1}}{2}\frac{\phi_{2}-\phi_{1}}{2}\sum_{i,j,k}f\left(x\left(r\left(\xi_{i}\right),\theta\left(\eta_{j}\right),\phi\left(\zeta_{k}\right)\right),y\left(r\left(\xi_{i}\right),\theta\left(\eta_{j}\right),\phi\left(\zeta_{k}\right)\right),z\left(r\left(\xi_{i}\right),\phi\left(\zeta_{k}\right)\right)\right)r^{2}\left(\xi_{i}\right)\sin\phi\left(\zeta_{k}\right)drd\theta d\phi.
+\end{multline*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Lens in 2D
+\end_layout
+
+\begin_layout Standard
+For a lens, we have the intersection of two circles as the region of integration.
+ In all cases, we will map the two circles into a simple coordinate system
+ and then rotate/translate the ordinates back into the original coordinates.
+ There are three different cases to be considered, which can be seen in
+ Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:lens-cases"
+
+\end_inset
+
+.
+ For the third case, we can use a simple cylindrical quadrature.
+ For the first two, different quadratures must be used.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename figs/lens_2.5_1_2.5.pdf
+	width 30text%
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename figs/lens_2_1_2.5.pdf
+	width 30text%
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename figs/lens_2_1_3.pdf
+	width 30text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Three lens cases: a standard lens, a non-standard lens, and a full circle
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:lens-cases"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Simple lens
+\end_layout
+
+\begin_layout Standard
+Let the simplified coordinate system 
+\begin_inset Formula $\tilde{x}$
+\end_inset
+
+, 
+\begin_inset Formula $\tilde{y}$
+\end_inset
+
+ be defined by 
+\begin_inset Formula 
+\[
+\left[\begin{array}{c}
+x\\
+y
+\end{array}\right]=\left[\begin{array}{c}
+x_{1}\\
+y_{1}
+\end{array}\right]+\frac{1}{d}\left[\begin{array}{cc}
+\Delta x & -\Delta y\\
+\Delta y & \Delta x
+\end{array}\right]\left[\begin{array}{c}
+\tilde{x}\\
+\tilde{y}
+\end{array}\right],
+\]
+
+\end_inset
+
+where the distance between the basis functions is 
+\begin_inset Formula 
+\begin{gather*}
+\Delta x=x_{2}-x_{1},\\
+\Delta y=y_{2}-y_{1},\\
+d=\sqrt{\Delta x^{2}+\Delta y^{2}}.
+\end{gather*}
+
+\end_inset
+
+This describes a coordinate system with the first circle centered at the
+ origin and the second circle a distance 
+\begin_inset Formula $d$
+\end_inset
+
+ away in the 
+\begin_inset Formula $+\hat{x}$
+\end_inset
+
+ direction.
+ Then in the new coordinate system, we can write the circle equations as
+\begin_inset Formula 
+\begin{gather*}
+x^{2}+y^{2}=r_{1}^{2},\\
+\left(x-d\right)^{2}+y^{2}=r_{2}^{2}.
+\end{gather*}
+
+\end_inset
+
+ The intercepts of these two circles are 
+\begin_inset Formula 
+\begin{gather*}
+\tilde{x}_{int}=\frac{d^{2}+r_{1}^{2}-r_{2}^{2}}{2d},\\
+\tilde{y}_{int}=\pm\frac{\sqrt{2d^{2}\left(r_{1}^{2}+r_{2}^{2}\right)-\left(r_{1}^{2}-r_{2}^{2}\right)^{2}-d^{4}}}{2d}.
+\end{gather*}
+
+\end_inset
+
+If we define 
+\begin_inset Formula 
+\begin{gather*}
+\tilde{x}_{min}\left(\tilde{y}\right)=d-\sqrt{r_{2}^{2}-\tilde{y}^{2}},\\
+\tilde{x}_{max}\left(\tilde{y}\right)=\sqrt{r_{1}^{2}-\tilde{y}^{2}},
+\end{gather*}
+
+\end_inset
+
+then our integral over the lens is of the form
+\begin_inset Formula 
+\[
+\int_{-\tilde{y}_{int}}^{\tilde{y}_{int}}\int_{\tilde{x}_{min}\left(\tilde{y}\right)}^{\tilde{x}_{max}\left(\tilde{y}\right)}f\left(\tilde{x},\tilde{y}\right)dxdy,
+\]
+
+\end_inset
+
+which can be converted to 
+\begin_inset Formula $\xi\in\left[-1,1\right]$
+\end_inset
+
+ and 
+\begin_inset Formula $\eta\in\left[-1,1\right]$
+\end_inset
+
+ using
+\begin_inset Formula 
+\begin{gather*}
+x=\frac{\tilde{x}_{max}\left(\tilde{y}\left(\eta\right)\right)-\tilde{x}_{min}\left(\tilde{y}\left(\eta\right)\right)}{2}\xi+\frac{\tilde{x}_{max}\left(\tilde{y}\left(\eta\right)\right)+\tilde{x}_{min}\left(\tilde{y}\left(\eta\right)\right)}{2},\\
+\tilde{y}=\tilde{y}_{int}\eta.
+\end{gather*}
+
+\end_inset
+
+The Jacobian determinant for this is
+\begin_inset Formula 
+\begin{align*}
+J & =\left|\begin{array}{cc}
+\dfrac{d\tilde{x}}{d\xi} & \dfrac{d\tilde{x}}{d\eta}\\
+\dfrac{d\tilde{y}}{d\xi} & \dfrac{d\tilde{y}}{d\eta}
+\end{array}\right|\\
+ & =\left(\frac{\tilde{x}_{max}\left(\tilde{y}\left(\eta\right)\right)-\tilde{x}_{min}\left(\tilde{y}\left(\eta\right)\right)}{2}\right)\tilde{y}_{int},
+\end{align*}
+
+\end_inset
+
+after which the integral becomes
+\begin_inset Formula 
+\[
+\int_{-1}^{1}\int_{-1}^{1}f\left(\tilde{x}\left(\xi,\eta\right),\tilde{y}\left(\eta\right)\right)\left(\frac{\tilde{x}_{max}\left(\tilde{y}\left(\eta\right)\right)-\tilde{x}_{min}\left(\tilde{y}\left(\eta\right)\right)}{2}\right)\tilde{y}_{int}d\xi d\eta.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Non-standard lens
+\end_layout
+
+\begin_layout Standard
+If we assume that the first circle with 
+\begin_inset Formula $r_{1}$
+\end_inset
+
+ has the smaller radius 
+\begin_inset Formula $\left(r_{1}<r_{2}\right)$
+\end_inset
+
+ and the 
+\begin_inset Formula $\tilde{x}$
+\end_inset
+
+ intercept is past the center of this circle, then the integral is identical
+ to the standard lens except for the definitions 
+\begin_inset Formula 
+\begin{gather*}
+\tilde{x}_{min}\left(\tilde{y}\right)=\begin{cases}
+d-\sqrt{r_{2}^{2}-\tilde{y}^{2}}, & \left|\tilde{y}\right|\leq\tilde{y}_{int},\\
+-\sqrt{r_{1}^{2}-\tilde{y}^{2}}, & \text{otherwise},
+\end{cases}\\
+\tilde{x}_{max}\left(y\right)=\sqrt{r_{1}^{2}-\tilde{y}^{2}}.
+\end{gather*}
+
+\end_inset
+
+If 
+\begin_inset Formula $r_{2}>r_{1}$
+\end_inset
+
+, then the definitions become
+\begin_inset Formula 
+\begin{gather*}
+\tilde{x}_{min}\left(\tilde{y}\right)=d-\sqrt{r_{2}^{2}-\tilde{y}^{2}},\\
+\tilde{x}_{max}\left(\tilde{y}\right)=\begin{cases}
+\sqrt{r_{1}^{2}-\tilde{y}^{2}}, & \left|\tilde{y}\right|\leq\tilde{y}_{int},\\
+d+\sqrt{r_{2}^{2}-\tilde{y}^{2}}, & \text{otherwise}.
+\end{cases}
+\end{gather*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Quadratures near boundaries
+\end_layout
+
+\begin_layout Standard
+Near boundaries, the most important thing is that the quadrature not extend
+ past the boundary.
+ Since the functions we're integrating fall off away from the center, they're
+ smooth even as they become zero.
+ However, if we include quadrature points past the boundary (and artificially
+ set the weights of these quadrature points to zero), the function we're
+ integrating is no longer smooth, which means that the quadratures will
+ no longer behave ideally.
+ 
+\end_layout
+
+\begin_layout Standard
+One easy-to-derive quadrature for use near boundaries is the integration
+ over a cylinder with Cartesian limits 
+\begin_inset Formula $x_{min,max}$
+\end_inset
+
+ and 
+\begin_inset Formula $y_{min,max}$
+\end_inset
+
+.
+ For this, we create an array of 
+\begin_inset Formula $x$
+\end_inset
+
+ points with 
+\begin_inset Formula $x\in\left[\max\left(x_{0}-r,x_{min}\right),\min\left(x_{0}+r,x_{max}\right)\right]$
+\end_inset
+
+ and then integrate in 
+\begin_inset Formula $y$
+\end_inset
+
+ between the top and bottom of the circle at the point 
+\begin_inset Formula $x$
+\end_inset
+
+, taking into account the 
+\begin_inset Formula $y$
+\end_inset
+
+ intercepts to get 
+\begin_inset Formula $y\in\left[\max\left(y_{0}-\sqrt{r^{2}-x^{2}},y_{min}\right),\min\left(y_{0}+\sqrt{r^{2}-x^{2}},y_{max}\right)\right]$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Quadratures for lenses that intersect boundaries are possible but not practical,
+ particularly when going to 3D cases with the intersection of a basis function,
+ weight function and up to three planes that make up a corner.
+ For these cases, using a Cartesian or other quadrature that extends beyond
+ the area where the functions have gone to zero but tightly holds to the
+ boundary works well.
+ 
+\end_layout
+
 \begin_layout Section
 Solid geometry
 \end_layout
@@ -2346,6 +2880,358 @@ status open
 Intersections, relations, optical depth and so on.
  
 \end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Shape-specific values
+\end_layout
+
+\begin_layout Standard
+For each surface in a constructive solid geometry, the following information
+ is needed to run a particle simulation:
+\end_layout
+
+\begin_layout Itemize
+The normal vector of the surface at each point on the surface,
+\end_layout
+
+\begin_layout Itemize
+The distance to intersection and point of intersection of a particle incident
+ on the surface, and
+\end_layout
+
+\begin_layout Itemize
+Whether a particle is positive or negative from a surface (which can be
+ arbitrarily defined).
+ 
+\end_layout
+
+\begin_layout Standard
+These quantities are calculated below for a plane, a cylinder and a sphere,
+ all with arbitrary position and orientation.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Plane
+\end_layout
+
+\begin_layout Standard
+The general equation for a plane with normal vector 
+\begin_inset Formula $\bm{n}$
+\end_inset
+
+ is
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\left(\bm{x}-\bm{x}_{0}\right)\cdot\bm{n}=0.
+\end{equation}
+
+\end_inset
+
+Let the particle position be 
+\begin_inset Formula 
+\begin{equation}
+\bm{x}_{p}\left(s\right)=\bm{g}_{0}+\bm{g}_{1}s
+\end{equation}
+
+\end_inset
+
+and plug it in.
+ Solving for 
+\begin_inset Formula $s$
+\end_inset
+
+ gives
+\begin_inset Formula 
+\begin{equation}
+s=\frac{\left(\bm{x}_{0}-\bm{g}_{0}\right)\cdot\bm{n}}{\bm{g}_{1}\cdot\bm{n}}.
+\end{equation}
+
+\end_inset
+
+This is the distance to intersection.
+ The point of intersection can be found by advancing the particle by distance
+ 
+\begin_inset Formula $s$
+\end_inset
+
+.
+ To find the geometric relationship between a particle and a plane, we have
+ 
+\begin_inset Formula 
+\[
+\bm{n}\cdot\left(\bm{x}-\bm{x}_{0}\right)\begin{cases}
+>0, & \text{positive},\\
+<0, & \text{negative},\\
+=0, & \text{coincident}.
+\end{cases}
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Cylinder
+\end_layout
+
+\begin_layout Standard
+Begin with the equation for a cylinder with the centerline having an axis
+ in direction 
+\begin_inset Formula $\bm{\Omega}$
+\end_inset
+
+ that runs through the point 
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+.
+ The equation for this cylinder is
+\begin_inset Formula 
+\[
+\left\Vert \bm{x}-\bm{x}_{0}-\bm{\Omega}\cdot\left(\bm{x}-\bm{x}_{0}\right)\bm{\Omega}\right\Vert ^{2}=r^{2}.
+\]
+
+\end_inset
+
+If we again define the particle position as 
+\begin_inset Formula 
+\begin{equation}
+\bm{x}_{p}\left(s\right)=\bm{g}_{0}+\bm{g}_{1}s,
+\end{equation}
+
+\end_inset
+
+then we get 
+\begin_inset Formula 
+\[
+\left\Vert \bm{k}_{0}+\bm{k}_{1}s\right\Vert ^{2}=r^{2},
+\]
+
+\end_inset
+
+with 
+\begin_inset Formula 
+\begin{gather*}
+\bm{k}_{0}=\left[\bm{g}_{0}-\bm{x}_{0}-\bm{\Omega}\cdot\left(\bm{g}_{0}-\bm{x}_{0}\right)\bm{\Omega}\right],\\
+\bm{k}_{1}=\left[\bm{g}_{1}-\left(\bm{\Omega}\cdot\bm{g}_{1}\right)\bm{\Omega}\right].
+\end{gather*}
+
+\end_inset
+
+Here 
+\begin_inset Formula $\bm{k}_{0}$
+\end_inset
+
+ represents the vector rejection of 
+\begin_inset Formula $\bm{g}_{0}-\bm{x}_{0}$
+\end_inset
+
+ onto 
+\begin_inset Formula $\bm{\Omega}$
+\end_inset
+
+, or the part of the vector connecting the midpoint of the cylinder to the
+ position of the particle that is perpendicular to the cylinder axis.
+ 
+\begin_inset Formula $\bm{k}_{1}$
+\end_inset
+
+ is the same thing, except for 
+\begin_inset Formula $\bm{g}_{1}$
+\end_inset
+
+, the direction of the particle.
+ The equation can further simplify to 
+\begin_inset Formula 
+\begin{align*}
+r^{2} & =\left(\bm{k}_{0}+\bm{k}_{1}s\right)\cdot\left(\bm{k}_{0}+\bm{k}_{1}s\right)\\
+ & =\bm{k}_{0}\cdot\bm{k}_{0}+2\bm{k}_{0}\cdot\bm{k}_{1}s+\bm{k}_{1}\cdot\bm{k}_{1}s^{2}.
+\end{align*}
+
+\end_inset
+
+Defining 
+\begin_inset Formula 
+\begin{gather*}
+\ell_{0}=\bm{k}_{0}\cdot\bm{k}_{0}-r^{2},\\
+\ell_{1}=\bm{k}_{0}\cdot\bm{k}_{1},\\
+\ell_{2}=\bm{k}_{1}\cdot\bm{k}_{1},
+\end{gather*}
+
+\end_inset
+
+the solution to this equation is
+\begin_inset Formula 
+\[
+s=\frac{-\ell_{1}\pm\sqrt{\ell_{1}^{2}-\ell_{0}\ell_{2}}}{\ell_{2}},
+\]
+
+\end_inset
+
+which is the distance to collision of the particle with the cylinder.
+ Moving the particle ahead by this distance will move it to the site of
+ intersection.
+ If 
+\begin_inset Formula $l_{2}=0$
+\end_inset
+
+, the particle continues along the axis of the line forever.
+ If 
+\begin_inset Formula 
+\[
+\ell_{1}^{2}-\ell_{0}\ell_{2}<0,
+\]
+
+\end_inset
+
+there are no intersections.
+ 
+\end_layout
+
+\begin_layout Standard
+To find the relationship between a cylinder and a particle, the equation
+ is the same as before but with 
+\begin_inset Formula $\bm{k}_{1}=\bm{0}$
+\end_inset
+
+, which gives
+\begin_inset Formula 
+\[
+\bm{k}_{0}\cdot\bm{k}_{0}=r^{2},
+\]
+
+\end_inset
+
+or
+\begin_inset Formula 
+\[
+\ell_{0}\begin{cases}
+>0, & \text{outside},\\
+<0, & \text{inside},\\
+=0, & \text{coincident}.
+\end{cases}
+\]
+
+\end_inset
+
+The normal direction of a cylinder at a point 
+\begin_inset Formula $\bm{g}_{0}$
+\end_inset
+
+ can be found by normalizing the 
+\begin_inset Formula $\bm{k}_{0}$
+\end_inset
+
+ vector,
+\begin_inset Formula 
+\[
+\hat{\bm{n}}=\frac{\bm{k}_{0}}{\left\Vert \bm{k}_{0}\right\Vert }.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Sphere
+\end_layout
+
+\begin_layout Standard
+The equation of a sphere is
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\left\Vert \bm{x}-\bm{x}_{0}\right\Vert ^{2}=r^{2},
+\end{equation}
+
+\end_inset
+
+which using the same 
+\begin_inset Formula 
+\begin{equation}
+\bm{x}_{p}\left(s\right)=\bm{g}_{0}+\bm{g}_{1}s
+\end{equation}
+
+\end_inset
+
+as before gives
+\begin_inset Formula 
+\[
+\left\Vert \bm{g}_{0}+\bm{g}_{1}s-\bm{x}_{0}\right\Vert ^{2}=r^{2}.
+\]
+
+\end_inset
+
+Letting 
+\begin_inset Formula 
+\begin{gather*}
+\bm{k}_{0}=\bm{g}_{0}-\bm{x}_{0},\\
+\bm{k}_{1}=\bm{g}_{1},
+\end{gather*}
+
+\end_inset
+
+the results from the cylinder follow exactly.
+ The difference is that 
+\begin_inset Formula 
+\[
+\ell_{2}=\bm{g}_{1}\cdot\bm{g}_{1}=1,
+\]
+
+\end_inset
+
+so that the equation can be simplified to 
+\begin_inset Formula 
+\[
+s=-\ell_{1}\pm\sqrt{\ell_{1}^{2}-\ell_{0}},
+\]
+
+\end_inset
+
+with 
+\begin_inset Formula 
+\begin{gather*}
+\ell_{0}=\bm{k}_{0}\cdot\bm{k}_{0}-r^{2},\\
+\ell_{1}=\bm{k}_{0}\cdot\bm{k}_{1}.
+\end{gather*}
+
+\end_inset
+
+To check if a particle is inside of the problem, use
+\begin_inset Formula 
+\[
+\ell_{0}\begin{cases}
+>0, & \text{outside},\\
+<0, & \text{inside},\\
+=0, & \text{coincident},
+\end{cases}
+\]
+
+\end_inset
+
+as before.
+ The normal direction of a cylinder at point 
+\begin_inset Formula $\bm{g}_{0}$
+\end_inset
+
+ is 
+\begin_inset Formula 
+\[
+\hat{n}=\frac{\bm{k}_{0}}{\left\Vert \bm{k}_{0}\right\Vert }.
+\]
 
 \end_inset
 
@@ -2402,32 +3288,6 @@ status open
 
 \backslash
 begin{thebibliography}{99}
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-
-\backslash
-bibitem{kindelan-application-2009}
-\end_layout
-
-\begin_layout Plain Layout
-
-M.
- KINDELAN, F.
- BERNAL, P.
- GONZALEZ-RODRIGUEZ, M.
- MOSCOSO, ``Application of the RBF meshless method to the solution of the
- radiative transport equation,'' {
-\backslash
-it Journal of Computational Physics}, {
-\backslash
-bf 229}, 1897-1908 (2010).
- 
 \end_layout
 
 \begin_layout Plain Layout
