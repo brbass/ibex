@@ -3259,8 +3259,126 @@ Include pictures of test when possible.
 Utilities
 \end_layout
 
+\begin_layout Subsection
+Indexing
+\end_layout
+
+\begin_layout Standard
+The indexing test 
+\begin_inset Quotes eld
+\end_inset
+
+tst_indexing
+\begin_inset Quotes erd
+\end_inset
+
+ tests whether the subscript to index and index to subscript functions work
+ appropriately to restore a given subscript after converting it to the index
+ and back.
+ 
+\end_layout
+
+\begin_layout Subsection
+Integration
+\end_layout
+
+\begin_layout Subsection
+Linear algebra
+\end_layout
+
+\begin_layout Standard
+This tests the analytic linear solves against a Trilinos solve.
+ A random matrix 
+\begin_inset Formula $\bm{A}$
+\end_inset
+
+ and vector 
+\begin_inset Formula $\bm{b}$
+\end_inset
+
+ are created, after which the solution is performed using each of the analytic
+ solves and the Trilinos solution to get the vector 
+\begin_inset Formula $\bm{x}$
+\end_inset
+
+.
+ If the 
+\begin_inset Formula $L_{\infty}$
+\end_inset
+
+ difference between these two vectors is less than the tolerance, the test
+ is passed.
+ 
+\end_layout
+
+\begin_layout Subsection
+Math functions
+\end_layout
+
+\begin_layout Subsubsection
+Factorial
+\end_layout
+
+\begin_layout Standard
+The factorial test compares the analytic value of 
+\begin_inset Formula $12!$
+\end_inset
+
+ with a calculated value.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Legendre polynomial
+\end_layout
+
+\begin_layout Subsubsection
+Spherical harmonics
+\end_layout
+
+\begin_layout Subsection
+Quadrature
+\end_layout
+
+\begin_layout Subsubsection
+Gaussian 2D
+\end_layout
+
+\begin_layout Subsubsection
+Double Gaussian 2D
+\end_layout
+
+\begin_layout Subsubsection
+Boundary Gaussian 2D
+\end_layout
+
+\begin_layout Subsection
+Sparse storage
+\end_layout
+
+\begin_layout Subsection
+Trilinos
+\end_layout
+
+\begin_layout Subsection
+Vector functions
+\end_layout
+
+\begin_layout Standard
+Tests vector functions against analytic results.
+ 
+\end_layout
+
 \begin_layout Section
 Angular discretization
+\end_layout
+
+\begin_layout Subsection
+Gauss-Legendre
+\end_layout
+
+\begin_layout Subsection
+LDFE
 \end_layout
 
 \begin_layout Section
