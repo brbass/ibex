@@ -9,19 +9,25 @@ from basis import *
 def compare_strong_weak():
     def func(x):
         return sps.sawtooth(2 * 2 * np.pi * x, width=0.5) + 1 # sawtooth
-        # return sps.square(2 * np.pi * ((2 * x) - 0.25)) # square
+        # return sps.square(2 * np.pi * ((2 * x) - 0.25)) + 1 # square
         # return np.sin(2 * np.pi * (3.5 * x))
-    
+
+    description = "../figs/saw_multi_17"
     num_points = 17
     points = np.linspace(0, 1, num=num_points)
-    # basis = Compact_Gaussian(1.0,
+    # basis = Compact_Gaussian(0.5,
     #                          points)
-    # weight = Compact_Gaussian(1.0,
+    # weight = Compact_Gaussian(0.5,
     #                           points)
-    basis = Linear_MLS(2,
-                       points)
-    weight = Linear_MLS(2,
-                        points)
+    basis = Multiquadric(0.5,
+                         points)
+    weight = Multiquadric(0.5,
+                          points)
+    
+    # basis = Linear_MLS(2,
+    #                    points)
+    # weight = Linear_MLS(2,
+    #                     points)
     num_plot_points = (num_points-1)*20+1
     plot_points = np.linspace(0, 1, num=num_plot_points)
     ana_plot = func(plot_points)
@@ -39,7 +45,7 @@ def compare_strong_weak():
     for i, point in enumerate(plot_points):
         for j in range(num_points):
             strong_plot[i] += strong_sol[j] * basis.val(j, point)
-
+            
     # Weak interpolation
     
     mat = np.zeros((num_points, num_points))
@@ -73,8 +79,12 @@ def compare_strong_weak():
     plt.plot(plot_points, strong_plot, label="strong")
     plt.plot(plot_points, weak_plot, label="weak")
     plt.plot(plot_points, ana_plot, label="analytic")
+    plt.xlabel(r"$x$")
+    plt.ylabel(r"$f(x)$")
     plt.legend()
-
+    plt.savefig(description + "_interp.pdf", bbox_inches='tight')
+    plt.close()
+    
     # Plot constituent parts
     
     plt.figure()
@@ -85,6 +95,10 @@ def compare_strong_weak():
         for j, point in enumerate(points_temp):
             part_sol[j] = strong_sol[i] * basis.val(i, point)
         plt.plot(plot_points, part_sol)
+    plt.xlabel(r"$x$")
+    plt.ylabel(r"$\Gamma_i(x)a_i$")
+    plt.savefig(description + "_partial.pdf", bbox_inches='tight')
+    plt.close()
 
     # Plot plain basis functions
     
@@ -96,8 +110,10 @@ def compare_strong_weak():
         for j, point in enumerate(points_temp):
             part_sol[j] = basis.val(i, point)
         plt.plot(plot_points, part_sol)
-
-    plt.show()
+    plt.xlabel(r"$x$")
+    plt.ylabel(r"$\Gamma_i(x)$")
+    plt.savefig(description + "_basis.pdf", bbox_inches='tight')
+    plt.close()
     
 if __name__ == '__main__':
     compare_strong_weak()

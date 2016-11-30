@@ -2197,17 +2197,17 @@ regardless of the number of dimensions.
 
  RBFs can act as a functional basis,
 \begin_inset Formula 
-\[
-f\left(\bm{x}\right)=\sum_{i}a_{i}\Gamma_{i}\left(\bm{x}\right),
-\]
+\begin{equation}
+f\left(\bm{x}\right)=\sum_{i}a_{i}\Gamma_{i}\left(\bm{x}\right),\label{eq:rbf-basis}
+\end{equation}
 
 \end_inset
 
 where 
 \begin_inset Formula 
-\[
+\begin{equation}
 \Gamma_{i}\left(\bm{x}\right)=\Gamma\left(\epsilon_{i}\left\Vert \bm{x}-\bm{x}_{i}\right\Vert \right),
-\]
+\end{equation}
 
 \end_inset
 
@@ -2216,8 +2216,231 @@ where
 \end_inset
 
  is the shape parameter, which controls how quickly the RBF increases or
- decreases away from the center.
+ decreases away from the center, and 
+\begin_inset Formula $\bm{x}_{i}$
+\end_inset
+
+ is the location of the center of the basis function.
  
+\end_layout
+
+\begin_layout Standard
+For interpolation, a pointwise or an integral method can be used.
+ For pointwise interpolation, given certain sample points located at 
+\begin_inset Formula $\bm{x}_{i}$
+\end_inset
+
+, equations are
+\begin_inset Formula 
+\begin{equation}
+\left[\begin{array}{cccc}
+\Gamma_{1}\left(\bm{x}_{1}\right) & \Gamma_{2}\left(\bm{x}_{1}\right) & \cdots & \Gamma_{I}\left(\bm{x}_{1}\right)\\
+\Gamma_{1}\left(\bm{x}_{2}\right) & \Gamma_{2}\left(\bm{x}_{2}\right) & \cdots & \Gamma_{I}\left(\bm{x}_{2}\right)\\
+\vdots & \vdots & \vdots & \vdots\\
+\Gamma_{1}\left(\bm{x}_{I}\right) & \Gamma_{2}\left(\bm{x}_{I}\right) & \cdots & \Gamma_{I}\left(\bm{x}_{I}\right)
+\end{array}\right]\left[\begin{array}{c}
+a_{1}\\
+a_{2}\\
+\vdots\\
+a_{I}
+\end{array}\right]=\left[\begin{array}{c}
+f\left(\bm{x}_{1}\right)\\
+f\left(\bm{x}_{2}\right)\\
+\vdots\\
+f\left(\bm{x}_{I}\right)
+\end{array}\right].
+\end{equation}
+
+\end_inset
+
+The interpolant can then be evaluated using Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:rbf-basis"
+
+\end_inset
+
+ using the calculated 
+\begin_inset Formula $a_{i}$
+\end_inset
+
+ values.
+ For weak interpolation using the Galerkin method, these functions are instead
+\begin_inset Formula 
+\begin{equation}
+\left[\begin{array}{cccc}
+\int_{V}\tilde{\Gamma}_{1}\left(\bm{x}\right)\Gamma_{1}\left(\bm{x}\right)dV & \int_{V}\tilde{\Gamma}_{1}\left(\bm{x}\right)\Gamma_{2}\left(\bm{x}\right)dV & \cdots & \int_{V}\tilde{\Gamma}_{1}\left(\bm{x}\right)\Gamma_{I}\left(\bm{x}\right)dV\\
+\int_{V}\tilde{\Gamma}_{2}\left(\bm{x}\right)\Gamma_{1}\left(\bm{x}\right)dV & \int_{V}\tilde{\Gamma}_{2}\left(\bm{x}\right)\Gamma_{2}\left(\bm{x}\right)dV & \cdots & \int_{V}\tilde{\Gamma}_{2}\left(\bm{x}\right)\Gamma_{I}\left(\bm{x}\right)dV\\
+\vdots & \vdots & \vdots & \vdots\\
+\int_{V}\tilde{\Gamma}_{I}\left(\bm{x}\right)\Gamma_{1}\left(\bm{x}\right)dV & \int_{V}\tilde{\Gamma}_{I}\left(\bm{x}\right)\Gamma_{2}\left(\bm{x}\right)dV & \cdots & \int_{V}\tilde{\Gamma}_{I}\left(\bm{x}\right)\Gamma_{I}\left(\bm{x}\right)dV
+\end{array}\right]\left[\begin{array}{c}
+a_{1}\\
+a_{2}\\
+\vdots\\
+a_{I}
+\end{array}\right]=\left[\begin{array}{c}
+\int_{V}\tilde{\Gamma}_{1}\left(\bm{x}\right)f\left(\bm{x}\right)dV\\
+\int_{V}\tilde{\Gamma}_{2}\left(\bm{x}\right)f\left(\bm{x}\right)dV\\
+\vdots\\
+\int_{V}\tilde{\Gamma}_{I}\left(\bm{x}\right)f\left(\bm{x}\right)dV
+\end{array}\right],
+\end{equation}
+
+\end_inset
+
+where the 
+\begin_inset Formula $\tilde{\Gamma}$
+\end_inset
+
+ are the weight functions (which would be the same as the basis functions
+ in the Galerkin method).
+ In practice, the weak form would not be used for interpolation since the
+ function 
+\begin_inset Formula $f\left(\bm{x}\right)$
+\end_inset
+
+ would need to be known at all points in the domain a priori, which would
+ defeat the purpose of interpolation.
+ This second method is mentioned to show how the Galerkin method could work
+ when solving a differential equation.
+ Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:sawtooth-interpolation"
+
+\end_inset
+
+ shows the interpolation results.
+ The basis (and weight, where applicable) functions are a set of Gaussian
+ basis functions over a slab of length 
+\begin_inset Formula $L=1$
+\end_inset
+
+ with a constant spacing of 
+\begin_inset Formula $\Delta x=L/I$
+\end_inset
+
+ and shape parameters of 
+\begin_inset Formula $\epsilon_{i}=1/\Delta x$
+\end_inset
+
+.
+ The unscaled basis functions are all identical.
+ Once the interpolation is completed, the scaled basis functions show how
+ each of the basis functions contributes individually to the interpolant.
+ The weak interpolant does not perform significantly better than the strong
+ interpolant in this case.
+ The weak interpolant near the boundary is poor due to the integral nature
+ of the interpolantion.
+ The interpolant struggles where the function is not smooth (near the discontinu
+ities in the first derivative).
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename figs/square_gauss_17_partial.pdf
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Scaled basis functions, 
+\begin_inset Formula $a_{i}\Gamma_{i}\left(\bm{x}\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename figs/saw_gauss_17_interp.pdf
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Interpolation result
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Interpolation of a sawtooth wave using 17 identical Gaussian basis and weight
+ functions
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:sawtooth-interpolation"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
