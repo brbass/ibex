@@ -752,7 +752,7 @@ Variables in the transport equation
 \end_layout
 
 \begin_layout Subsection
-Continuous-energy transport equation
+Continuous transport equation
 \end_layout
 
 \begin_layout Standard
@@ -816,9 +816,9 @@ and using a similar expression for the representation of the scattering
 \begin_inset Formula 
 \begin{multline}
 \frac{1}{v\left(E\right)}\frac{\partial}{\partial t}\psi\left(\bm{x},\bm{\Omega},E,t\right)+\bm{\Omega}\cdot\bm{\nabla}\psi\left(\bm{x},\bm{\Omega},E,t\right)+\Sigma_{t}\left(\bm{x},E\right)\psi\left(\bm{x},\bm{\Omega},E,t\right)\\
-=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}\right)\int_{0}^{\infty}\Sigma_{s;\ell}^{m}\left(\bm{x},E'\to E\right)\phi_{\ell}^{m}\left(\bm{x},E',t\right)dE'\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}\right)\int_{0}^{\infty}\Sigma_{s;\ell}\left(\bm{x},E'\to E\right)\phi_{\ell}^{m}\left(\bm{x},E',t\right)dE'\\
 +\frac{\chi\left(\bm{x},E\right)}{4\pi}\int_{0}^{\infty}\nu\left(\bm{x},E'\right)\Sigma_{f}\left(\bm{x},E'\right)\phi_{0}^{0}\left(\bm{x},E',t\right)dE'+q\left(\bm{x},\bm{\Omega},E,t\right),\\
-\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad0<E<\infty,\quad0<t.
+\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad0<E<\infty,\quad0<t.\label{eq:transport-equation}
 \end{multline}
 
 \end_inset
@@ -849,7 +849,7 @@ The multigroup approximation begins with a neutron spectrum approximation,
 \begin_inset Formula 
 \begin{gather}
 \Sigma_{t;g}\left(\bm{x}\right)=\dfrac{\int_{E_{g}}^{E_{g-1}}\Sigma_{t}\left(\bm{x},E\right)\Psi\left(\bm{x},E\right)dE}{\int_{E_{g}}^{E_{g-1}}\Psi\left(\bm{x},E\right)dE},\\
-\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)=\dfrac{\int_{E_{g}}^{E_{g-1}}\int_{E_{g'}}^{E_{g'-1}}\Sigma_{s;\ell}^{m}\left(\bm{x},E'\to E\right)\Psi\left(\bm{x},E'\right)dE'dE}{\int_{E_{g'}}^{E_{g'-1}}\Psi\left(\bm{x},E'\right)dE'},\\
+\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)=\dfrac{\int_{E_{g}}^{E_{g-1}}\int_{E_{g'}}^{E_{g'-1}}\Sigma_{s;\ell}\left(\bm{x},E'\to E\right)\Psi\left(\bm{x},E'\right)dE'dE}{\int_{E_{g'}}^{E_{g'-1}}\Psi\left(\bm{x},E'\right)dE'},\\
 \frac{1}{\nu_{g}\left(\bm{x}\right)}=\dfrac{\int_{E_{g}}^{E_{g-1}}\frac{1}{v\left(E\right)}\Psi\left(\bm{x},E\right)dE}{\int_{E_{g}}^{E_{g-1}}\Psi\left(\bm{x},E\right)dE},\\
 \nu\Sigma_{f;g}\left(\bm{x}\right)=\dfrac{\int_{E_{g}}^{E_{g-1}}\nu\left(\bm{x},E\right)\Sigma_{f}\left(\bm{x},E\right)\Psi\left(\bm{x},E\right)dE}{\int_{E_{g}}^{E_{g-1}}\Psi\left(\bm{x},E\right)dE}.
 \end{gather}
@@ -874,7 +874,7 @@ Integrate the transport equation over
 \begin_inset Formula 
 \begin{multline}
 \frac{\partial}{\partial t}\int_{E_{g}}^{E_{g-1}}\frac{1}{v\left(E\right)}\psi\left(\bm{x},\bm{\Omega},E,t\right)dE+\bm{\Omega}\cdot\bm{\nabla}\int_{E_{g}}^{E_{g-1}}\psi\left(\bm{x},\bm{\Omega},E,t\right)dE+\int_{E_{g}}^{E_{g-1}}\Sigma_{t}\left(\bm{x},E\right)\psi\left(\bm{x},\bm{\Omega},E,t\right)dE\\
-=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}\right)\int_{E_{g}}^{E_{g-1}}\int_{0}^{\infty}\Sigma_{s;\ell}^{m}\left(\bm{x},E'\to E\right)\phi_{\ell}^{m}\left(\bm{x},E',t\right)dE'dE\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}\right)\int_{E_{g}}^{E_{g-1}}\int_{0}^{\infty}\Sigma_{s;\ell}\left(\bm{x},E'\to E\right)\phi_{\ell}^{m}\left(\bm{x},E',t\right)dE'dE\\
 +\int_{E_{g}}^{E_{g-1}}\frac{\chi\left(\bm{x},E\right)}{4\pi}\int_{0}^{\infty}\nu\left(\bm{x},E'\right)\Sigma_{f}\left(\bm{x},E'\right)\phi_{0}^{0}\left(\bm{x},E',t\right)dE'dE+\int_{E_{g}}^{E_{g-1}}q\left(\bm{x},\bm{\Omega},E,t\right)dE,\\
 \bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad g=1,\dots,G,\quad0<t.
 \end{multline}
@@ -906,7 +906,7 @@ must hold), the transport equation can be simplified to
 \begin_inset Formula 
 \begin{multline}
 \frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\psi_{g}\left(\bm{x},\bm{\Omega},t\right)dE+\bm{\Omega}\cdot\bm{\nabla}\psi_{g}\left(\bm{x},\bm{\Omega},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\psi_{g}\left(\bm{x},\bm{\Omega},t\right)\\
-=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x},t\right)\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x},t\right)\\
 +\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x},t\right)+q_{g}\left(\bm{x},\bm{\Omega},t\right),\\
 \bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad g=1,\dots,G,\quad0<t.
 \end{multline}
@@ -955,9 +955,9 @@ for each discrete direction
 \begin_inset Formula 
 \begin{multline}
 \frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\psi_{n,g}\left(\bm{x},t\right)dE+\bm{\Omega}_{n}\cdot\bm{\nabla}\psi_{n,g}\left(\bm{x},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x},t\right)\\
-=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x},t\right)\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x},t\right)\\
 +\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x},t\right)+q_{n,g}\left(\bm{x},t\right),\\
-\bm{x}\in V,\quad n=1,\dots N,\quad g=1,\dots,G,\quad0<t.
+\bm{x}\in V,\quad n=1,\dots N,\quad g=1,\dots,G,\quad0<t.\label{eq:discrete-ordinates-transport}
 \end{multline}
 
 \end_inset
@@ -1004,7 +1004,7 @@ At steady state, the time derivative in the transport equation goes to zero
 \begin_inset Formula 
 \begin{multline}
 \bm{\Omega}_{n}\cdot\bm{\nabla}\psi_{n,g}\left(\bm{x}\right)+\Sigma_{t;g}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)\\
-=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)\\
 +\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)+q_{n,g}\left(\bm{x}\right),\\
 \bm{x}\in V,\quad n=1,\dots N,\quad g=1,\dots,G.\label{eq:steady-state-transport}
 \end{multline}
@@ -1044,7 +1044,7 @@ to get
 \begin_inset Formula 
 \begin{multline}
 \sum_{i=1}^{I}\left[\bm{\Omega}_{n}\cdot\bm{\nabla}b_{i}\left(\bm{x}\right)+\Sigma_{t;g}\left(\bm{x}\right)b_{i}\left(\bm{x}\right)\right]\alpha_{i,n,g}\\
-=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)\\
 +\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)+q_{n,g}\left(\bm{x}\right),\\
 \bm{x}\in V,\quad n=1,\dots N,\quad g=1,\dots,G.
 \end{multline}
@@ -1059,7 +1059,7 @@ In the strong form, this equation is enforced chosen points
 \begin_inset Formula 
 \begin{multline}
 \sum_{i=1}^{I}\left[\bm{\Omega}_{n}\cdot\bm{\nabla}b_{i}\left(\bm{x}_{j}\right)+\Sigma_{t;g}\left(\bm{x}_{j}\right)b_{i}\left(\bm{x}_{j}\right)\right]\alpha_{i,n,g}\\
-=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}_{j}\right)\phi_{\ell,g'}^{m}\left(\bm{x}_{j}\right)\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}\left(\bm{x}_{j}\right)\phi_{\ell,g'}^{m}\left(\bm{x}_{j}\right)\\
 +\frac{\chi_{g}\left(\bm{x}_{j}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}_{j}\right)\phi_{0,g'}^{0}\left(\bm{x}_{j}\right)+q_{n,g}\left(\bm{x}_{j}\right),\\
 j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G.
 \end{multline}
@@ -1095,7 +1095,7 @@ Multiply the steady-state transport equation by a series of weight functions
 \begin_inset Formula 
 \begin{multline}
 \int_{V_{j}}w_{j}\left(\bm{x}\right)\bm{\Omega}_{n}\cdot\bm{\nabla}\psi_{n,g}\left(\bm{x}\right)dV+\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{t;g}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV\\
-=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
 +\int_{V_{j}}w_{j}\left(\bm{x}\right)\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)dV+\int_{V_{j}}w_{j}\left(\bm{x}\right)q_{n,g}\left(\bm{x}\right)dV,\\
 j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G.\label{eq:initial-integral}
 \end{multline}
@@ -1115,7 +1115,7 @@ to get the weak form of the transport equation,
 \begin_inset Formula 
 \begin{multline}
 \int_{S_{j}}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)\psi_{n,g}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS-\int_{V_{j}}\psi_{n,g}\left(\bm{x}\right)\left[\bm{\Omega}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]dV+\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{t;g}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV\\
-=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
 +\int_{V_{j}}w_{j}\left(\bm{x}\right)\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)dV+\int_{V_{j}}w_{j}\left(\bm{x}\right)q_{n,g}\left(\bm{x}\right)dV,\\
 j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G.
 \end{multline}
@@ -1127,7 +1127,7 @@ The surface integral can be split into its unknown and known parts (the
 \begin_inset Formula 
 \begin{multline}
 \int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)\psi_{n,g}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS-\int_{V_{j}}\psi_{n,g}\left(\bm{x}\right)\left[\bm{\Omega}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]dV+\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{t;g}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV\\
-=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
 +\int_{V_{j}}w_{j}\left(\bm{x}\right)\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)dV+\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|\psi_{n,g}^{b}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS\\
 +\int_{V_{j}}w_{j}\left(\bm{x}\right)q_{n,g}\left(\bm{x}\right)dV\\
 j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G.\label{eq:continuous-xs-transport}
@@ -1151,7 +1151,7 @@ If the cross sections are constant within each support region
 \begin_inset Formula 
 \begin{multline}
 \int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)\psi_{n,g}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS-\int_{V_{j}}\psi_{n,g}\left(\bm{x}\right)\left[\bm{\Omega}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]dV+\Sigma_{t;j,g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV\\
-=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;j,\ell,g'\to g}^{m}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;j,\ell,g'\to g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
 +\frac{\chi_{j,g}}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;j,g'}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)dV+\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|\psi_{n,g}^{b}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS\\
 +\int_{V_{j}}w_{j}\left(\bm{x}\right)q_{n,g}\left(\bm{x}\right)dV,\\
 j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G.\label{eq:constant-xs-transport}
@@ -1181,7 +1181,7 @@ j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G,\label{eq:simplified-lhs}
 where
 \begin_inset Formula 
 \begin{multline}
-s_{n,g}\left(\bm{x}\right)=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)\\
+s_{n,g}\left(\bm{x}\right)=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)\\
 +\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)+q_{n,g}\left(\bm{x}\right).\label{eq:total-source}
 \end{multline}
 
@@ -1268,12 +1268,11 @@ The Petrov-Galerkin method can supply the unknowns needed to solve the weak
  form of the transport equation.
  Defining
 \begin_inset Formula 
-\begin{gather*}
+\begin{gather}
 \psi_{n,g}\left(\bm{x}\right)=\sum_{i=1}^{J}\alpha_{i,n,g}b_{i}\left(\bm{x}\right),\\
 \phi_{\ell,g}^{m}\left(\bm{x}\right)=\sum_{n=1}^{N}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{i=1}^{J}\alpha_{i,n,g}b_{i}\left(\bm{x}\right)=\sum_{i=1}^{J}\beta_{i,\ell,g}^{m}b_{i}\left(\bm{x}\right),\\
-q_{n,g}\left(\bm{x}\right)=\sum_{i=1}^{J}\gamma_{i,n,g}b_{i}\left(\bm{x}\right),\\
 \psi_{n,g}^{b}\left(\bm{x}\right)=\sum_{i=1}^{J}\alpha_{i,n,g}^{b}b_{i}\left(\bm{x}\right),
-\end{gather*}
+\end{gather}
 
 \end_inset
 
@@ -1281,9 +1280,9 @@ as the basis, the weak form of the transport equation becomes
 \begin_inset Formula 
 \begin{multline}
 \sum_{i=1}^{J}\left[\int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS-\int_{V_{j}}b_{i}\left(\bm{x}\right)\left[\bm{\Omega}_{n}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]dV+\Sigma_{t;j,g}\int_{V_{j}}b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV\right]\alpha_{i,n,g}\\
-=\sum_{\ell}\frac{2\ell+1}{4\pi}\sum_{m}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'}\Sigma_{s;j,\ell,g'\to g}^{m}\sum_{i=1}^{J}\beta_{i,\ell,g'}^{m}\int_{V_{j}}b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV\\
+=\sum_{\ell}\frac{2\ell+1}{4\pi}\sum_{m}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'}\Sigma_{s;j,\ell,g'\to g}\sum_{i=1}^{J}\beta_{i,\ell,g'}^{m}\int_{V_{j}}b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV\\
 +\frac{\chi_{j,g}}{4\pi}\sum_{g'}\nu\Sigma_{f;j,g'}\sum_{i=1}^{J}\beta_{i,0,g'}^{0}\int_{V_{j}}b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV+\sum_{i=1}^{J}\alpha_{i,n,g}^{b}\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS\\
-+\sum_{i=1}^{J}\gamma_{i,n,g}\int_{V_{j}}w_{j}\left(\bm{x}\right)b_{i}\left(\bm{x}\right)dV,\\
++\int_{V_{j}}w_{j}\left(\bm{x}\right)q_{n,g}\left(\bm{x}\right)dV,\\
 j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G.\label{eq:petrov-galerkin}
 \end{multline}
 
@@ -1293,8 +1292,12 @@ Thus, the integrands become functions of the known
 \begin_inset Formula $b_{i}$
 \end_inset
 
- and 
+, 
 \begin_inset Formula $w_{j}$
+\end_inset
+
+, and 
+\begin_inset Formula $q_{n,g}$
 \end_inset
 
 .
@@ -1343,6 +1346,10 @@ This allows the same code that is used to convert between the angular flux
 \end_inset
 
 .
+ The boundary source term is written in a form that allows easy reflection
+ without interpolation.
+ If instead of reflection the boundary source is intrinsic to the problem,
+ the boundary source itself could be used in the integrand.
  
 \end_layout
 
@@ -1488,6 +1495,18 @@ Spatially-dependent cross sections
 \end_layout
 
 \begin_layout Standard
+THINK ABOUT HOW TO HANDLE SPHERICAL HARMONIC MOMENTS OF 
+\begin_inset Formula $\Sigma_{s}$
+\end_inset
+
+: DEPENDS ON 
+\begin_inset Formula $m$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 Suppose that the assumption made after Eq.
  
 \begin_inset CommandInset ref
@@ -1517,7 +1536,7 @@ reference "eq:continuous-xs-transport"
 \begin_inset Formula 
 \begin{gather}
 \Sigma_{t;j,g}=\dfrac{\int_{V_{j}}\Sigma_{t;g}\left(\bm{x}\right)\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV},\label{eq:total-xs-weighting}\\
-\Sigma_{s;j,\ell,g'\to g}^{m}=\dfrac{\int_{V_{j}}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV},\\
+\Sigma_{s;j,\ell,g'\to g}=\dfrac{\int_{V_{j}}\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV},\\
 \chi_{j,g}=\dfrac{\int_{V_{j}}\chi_{g}\left(\bm{x}\right)\sum_{g'}\left[\nu\Sigma_{f;g'}\Phi_{0,g'}^{0}\left(\bm{x}\right)\right]w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\sum_{g'}\left[\nu\Sigma_{f;g'}\Phi_{0,g'}^{0}\left(\bm{x}\right)\right]w_{j}\left(\bm{x}\right)dV},\\
 \nu\Sigma_{f;j,g}=\dfrac{\int_{V_{j}}\nu\Sigma_{f;g}\left(\bm{x}\right)\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV},
 \end{gather}
@@ -1547,9 +1566,9 @@ Then the approximations can be made that
 
 \begin_inset Formula 
 \begin{multline}
-\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
-\approx\dfrac{\int_{V_{j}}\Sigma_{s;\ell,g'\to g}^{m}\left(\bm{x}\right)\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
-=\Sigma_{s;j,\ell,g'\to g}^{m}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV,
+\int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
+\approx\dfrac{\int_{V_{j}}\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV\\
+=\Sigma_{s;j,\ell,g'\to g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x}\right)dV,
 \end{multline}
 
 \end_inset
@@ -1609,12 +1628,180 @@ This approximation would be truncated to some finite value of
  
 \end_layout
 
+\begin_layout Standard
+\begin_inset Note Greyedout
+status open
+
 \begin_layout Part
-Discretization of the diffusion equation
+Spatial approximations to the transport equation
 \end_layout
 
 \begin_layout Section
-Derivation of the diffusion equation
+Derivation of the diffusion equations
+\end_layout
+
+\begin_layout Subsection
+From spatially continuous transport equations
+\end_layout
+
+\begin_layout Plain Layout
+Define 
+\begin_inset Formula $\phi$
+\end_inset
+
+ and 
+\begin_inset Formula $\bm{J}$
+\end_inset
+
+ in terms of Legendre moments.
+ Define 
+\begin_inset Formula $\bm{Q}_{\ell}$
+\end_inset
+
+ in terms of 
+\begin_inset Formula $q$
+\end_inset
+
+.
+ State assumption of isotropic internal source.
+ 
+\end_layout
+
+\begin_layout Plain Layout
+DEFINE 
+\begin_inset Formula $\phi$
+\end_inset
+
+ AND 
+\begin_inset Formula $\bm{J}$
+\end_inset
+
+ IN TERMS OF LEGENDRE MOMENTS.
+ DEFINE 
+\begin_inset Formula $\bm{Q}_{\ell}$
+\end_inset
+
+ IN TERMS OF 
+\begin_inset Formula $q$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Formula 
+\begin{multline}
+\frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\psi_{g}\left(\bm{x},\bm{\Omega},t\right)dE+\bm{\Omega}\cdot\bm{\nabla}\psi_{g}\left(\bm{x},\bm{\Omega},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\psi_{g}\left(\bm{x},\bm{\Omega},t\right)\\
+=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x},t\right)\\
++\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x},t\right)+q_{g}\left(\bm{x},\bm{\Omega},t\right),\\
+\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad g=1,\dots,G,\quad0<t.
+\end{multline}
+
+\end_inset
+
+First-order approximation:
+\begin_inset Formula 
+\[
+\psi_{g}\left(\bm{x},\bm{\Omega},t\right)\approx\frac{1}{4\pi}\left[\phi_{g}\left(\bm{x},t\right)+3\bm{\Omega}\cdot\bm{J}_{g}\left(\bm{x},t\right)\right]
+\]
+
+\end_inset
+
+Use in multigroup equation and integrate by 
+\begin_inset Formula $\int_{4\pi}\left(\cdot\right)d\Omega$
+\end_inset
+
+ and 
+\begin_inset Formula $\int_{4\pi}\bm{\Omega}\left(\cdot\right)d\Omega$
+\end_inset
+
+ to get
+\begin_inset Formula 
+\[
+\frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\phi_{g}\left(\bm{x}\right)+\bm{\nabla}\cdot\bm{J}_{g}\left(\bm{x},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\phi_{g}\left(\bm{x}\right)=\sum_{g'=1}^{G}\Sigma_{s;0,g'\to g}\left(\bm{x}\right)\phi_{g'}\left(\bm{x},t\right)+\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{g'}\left(\bm{x},t\right)+Q_{0,g}\left(\bm{x},t\right)
+\]
+
+\end_inset
+
+
+\begin_inset Formula 
+\[
+\frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\bm{J}_{g}\left(\bm{x}\right)+\frac{1}{3}\bm{\nabla}\phi_{g}\left(\bm{x},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\bm{J}_{g}\left(\bm{x}\right)=\sum_{g'=1}^{G}\Sigma_{s;1,g'\to g}\left(\bm{x}\right)\bm{J}_{g'}\left(\bm{x},t\right)
+\]
+
+\end_inset
+
+Neglect time derivative on 
+\begin_inset Formula $\bm{J}$
+\end_inset
+
+ and assume that 
+\begin_inset Formula 
+\[
+\sum_{g'=1}^{G}\Sigma_{s;1,g'\to g}\left(\bm{x}\right)\bm{J}_{g'}\left(\bm{x},t\right)\approx\bm{J}_{g}\left(\bm{x},t\right)\sum_{g'=1}^{G}\Sigma_{s;1,g'\to g}
+\]
+
+\end_inset
+
+to get
+\begin_inset Formula 
+\[
+\bm{J}_{g}\left(\bm{x},t\right)\approx-D_{g}\left(\bm{x}\right)\bm{\nabla}\phi_{g}\left(\bm{x},t\right),
+\]
+
+\end_inset
+
+with 
+\begin_inset Formula 
+\begin{gather*}
+\Sigma_{tr;g}\left(\bm{x}\right)=\Sigma_{t;g}\left(\bm{x}\right)-\sum_{g'=1}^{G}\Sigma_{s;1,g'\to g},\\
+D_{g}\left(\bm{x}\right)=\frac{1}{3\Sigma_{tr;g}\left(\bm{x}\right)}.
+\end{gather*}
+
+\end_inset
+
+Then the diffusion equation is
+\begin_inset Formula 
+\[
+\frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\phi_{g}\left(\bm{x}\right)-\bm{\nabla}\cdot D_{g}\left(\bm{x}\right)\bm{\nabla}\phi_{g}\left(\bm{x},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\phi_{g}\left(\bm{x}\right)=\sum_{g'=1}^{G}\Sigma_{s;0,g'\to g}\left(\bm{x}\right)\phi_{g'}\left(\bm{x},t\right)+\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{g'}\left(\bm{x},t\right)+Q_{0,g}\left(\bm{x},t\right).
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Strong form
+\end_layout
+
+\begin_layout Subsection
+Weak form
+\end_layout
+
+\begin_layout Subsection
+From spatially discretized transport equations
+\end_layout
+
+\begin_layout Plain Layout
+Define the matrix of values on the LHS for each of the strong and weak forms
+ of the spatially-discretized transport equation.
+ Perform 
+\begin_inset Formula $\sum_{n}w_{n}\left(\cdot\right)$
+\end_inset
+
+ and 
+\begin_inset Formula $\sum_{n}w_{n}\bm{\Omega}_{n}\left(\cdot\right)$
+\end_inset
+
+.
+ Use inversion of LHS matrices to get diffusion equation directly.
+ 
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Part
@@ -1705,9 +1892,9 @@ reference "eq:constant-xs-transport"
 \left(\mathcal{L}\psi\right)_{n,g,j}=\int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)\psi_{n,g}w_{j}dS-\int_{V_{j}}\psi_{n,g}\left[\bm{\Omega}\cdot\bm{\nabla}w_{j}\right]dV+\Sigma_{t;g,j}\int_{V_{j}}w_{j}\psi_{n,g}dV,\\
 \left(\mathcal{D}\psi\right)_{\ell,g,j}^{m}=\sum_{n}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)w_{n}\psi_{n,g}\\
 \left(\mathcal{M}\phi\right)_{n,g,j}=\sum_{\ell=0}^{L}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\phi_{\ell,g}^{m},\\
-\left(\mathcal{S}\phi\right)_{\ell,g,j}^{m}=\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g,j}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{\ell,g'}^{m}dV,\\
-\left(\mathcal{F}\phi\right)_{\ell,g,j}^{m}=\delta_{\ell,0}\chi_{g,j}\sum_{g'=1}^{G}\nu\Sigma_{f,g',j}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x}\right)dV,\\
-s_{n,g,j}=\int_{V_{j}}w_{j}q_{n,g,j}dV+\sum_{i=1}^{J}\alpha_{i,n,g}^{b}\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS.
+\left(\mathcal{S}\phi\right)_{\ell,g,j}^{m}=\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g,j}\int_{V_{j}}w_{j}\phi_{\ell,g'}^{m}dV,\\
+\left(\mathcal{F}\phi\right)_{\ell,g,j}^{m}=\delta_{\ell,0}\chi_{g,j}\sum_{g'=1}^{G}\nu\Sigma_{f,g',j}\int_{V_{j}}w_{j}\phi_{0,g'}^{0}\left(\bm{x}\right)dV,\\
+s_{n,g,j}=\int_{V_{j}}w_{j}q_{n,g}dV+\sum_{i=1}^{J}\alpha_{i,n,g}^{b}\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|b_{i}w_{j}dS.
 \end{gather}
 
 \end_inset
@@ -1736,7 +1923,7 @@ reference "eq:coefficient-relation"
 \left(\tilde{\mathcal{L}}\alpha\right)_{n,g,j}=\sum_{i=1}^{J}\left[\int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)b_{i}w_{j}dS-\int_{V_{j}}b_{i}\left(\bm{x}\right)\left[\bm{\Omega}_{n}\cdot\bm{\nabla}w_{j}\right]dV+\Sigma_{t;g,j}\int_{V_{j}}b_{i}w_{j}dV\right]\alpha_{i,n,g},\\
 \left(\tilde{\mathcal{S}}\beta\right)_{\ell,g,j}^{m}=\sum_{g'}\Sigma_{s;\ell,g'\to g,j}^{m}\sum_{i=1}^{J}\beta_{\ell,g',j}^{m}\int_{V_{j}}b_{i}w_{j}dV,\\
 \left(\tilde{\mathcal{F}}\beta\right)_{\ell,g,j}^{m}=\delta_{\ell,0}\chi_{g,j}\sum_{g'}\nu\Sigma_{f;g',j}\sum_{i=1}^{J}\beta_{i,0,g'}^{0}\int_{V_{j}}b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV,\\
-s_{n,g,j}=\sum_{i=1}^{J}\gamma_{i,n,g}\int_{V_{j}}w_{j}b_{i}dV+\sum_{i=1}^{J}\alpha_{i,n,g}^{b}\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|b_{i}w_{j}dS,
+s_{n,g,j}=\int_{V_{j}}w_{j}q_{n,g}dV+\sum_{i=1}^{J}\alpha_{i,n,g}^{b}\int_{\bm{\Omega}_{n}\cdot\bm{n}<0}\left|\bm{\Omega}_{n}\cdot\bm{n}\right|b_{i}w_{j}dS,
 \end{gather}
 
 \end_inset
@@ -1822,10 +2009,22 @@ In these cases, the
 \begin_inset Formula $\tilde{\mathcal{C}}$
 \end_inset
 
- operator (1) allows for solution using basis functions without the Dirac
- delta property, (2) moves the integrals outside of the scattering and fission
- operator definitions and (3) prevents spatial information from being destroyed
- that would then need to be reintroduced by interpolation.
+ operator 
+\end_layout
+
+\begin_layout Itemize
+Allows for solution using basis functions without the Dirac delta property,
+ 
+\end_layout
+
+\begin_layout Itemize
+Moves the integrals outside of the scattering and fission operator definitions,
+ and 
+\end_layout
+
+\begin_layout Itemize
+Prevents spatial information from being destroyed that would then need to
+ be reintroduced by interpolation.
  
 \end_layout
 
@@ -2596,7 +2795,16 @@ The moving least squares method is one meshless approach to basis functions
 \end_layout
 
 \begin_layout Standard
+\begin_inset Note Greyedout
+status open
+
+\begin_layout Plain Layout
 EXPLAIN MINIMIZATION, DERIVE METHOD
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -2900,6 +3108,10 @@ name "fig:mls-interpolation"
 
 \end_layout
 
+\begin_layout Standard
+\begin_inset Note Greyedout
+status open
+
 \begin_layout Part
 Math
 \end_layout
@@ -2908,7 +3120,7 @@ Math
 Legendre polynomials
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 \begin_inset Note Comment
 status open
 
@@ -2925,12 +3137,17 @@ Include algorithms for calculating.
 Spherical harmonics
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 \begin_inset Note Comment
 status open
 
 \begin_layout Plain Layout
 Include algorithms for calculating.
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -3530,20 +3747,6 @@ Quadratures for lenses that intersect boundaries are possible but not practical,
 Solid geometry
 \end_layout
 
-\begin_layout Standard
-\begin_inset Note Comment
-status open
-
-\begin_layout Plain Layout
-Intersections, relations, optical depth and so on.
- 
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Subsection
 Shape-specific values
 \end_layout
@@ -3896,11 +4099,15 @@ as before.
 
 \end_layout
 
+\begin_layout Standard
+\begin_inset Note Greyedout
+status open
+
 \begin_layout Part
 Tests
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 \begin_inset Note Comment
 status open
 
@@ -3921,7 +4128,7 @@ Utilities
 Indexing
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 The indexing test 
 \begin_inset Quotes eld
 \end_inset
@@ -3944,7 +4151,7 @@ Integration
 Linear algebra
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 This tests the analytic linear solves against a Trilinos solve.
  A random matrix 
 \begin_inset Formula $\bm{A}$
@@ -3977,7 +4184,7 @@ Math functions
 Factorial
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 The factorial test compares the analytic value of 
 \begin_inset Formula $12!$
 \end_inset
@@ -4022,7 +4229,7 @@ Trilinos
 Vector functions
 \end_layout
 
-\begin_layout Standard
+\begin_layout Plain Layout
 Tests vector functions against analytic results.
  
 \end_layout
@@ -4053,6 +4260,11 @@ Operator
 
 \begin_layout Section
 Transport
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
