@@ -44,7 +44,7 @@
 \pdf_bookmarksopenlevel 1
 \pdf_breaklinks false
 \pdf_pdfborder false
-\pdf_colorlinks false
+\pdf_colorlinks true
 \pdf_backref false
 \pdf_pdfusetitle true
 \papersize default
@@ -779,7 +779,7 @@ and the accompanying boundary and initial conditions,
 Defining the spherical harmonics moments of the equation as 
 \begin_inset Formula 
 \begin{equation}
-\phi_{\ell}^{m}\left(\bm{x},E,t\right)=\int_{4\pi}Y_{\ell}^{m}\left(\bm{\Omega}\right)\psi\left(\bm{x},\bm{\Omega},E,t\right)d\Omega,
+\phi_{\ell}^{m}\left(\bm{x},E,t\right)\equiv\int_{4\pi}Y_{\ell}^{m}\left(\bm{\Omega}\right)\psi\left(\bm{x},\bm{\Omega},E,t\right)d\Omega,
 \end{equation}
 
 \end_inset
@@ -788,7 +788,7 @@ and using a similar expression for the representation of the scattering
  source,
 \begin_inset Formula 
 \begin{equation}
-\Sigma_{s;\ell}\left(\bm{x},E'\to E\right)=2\pi\int_{-1}^{1}P_{\ell}\left(\mu_{0}\right)\Sigma_{s}\left(\bm{x},\mu_{0},E'\to E\right)d\mu_{0}
+\Sigma_{s;\ell}\left(\bm{x},E'\to E\right)\equiv2\pi\int_{-1}^{1}P_{\ell}\left(\mu_{0}\right)\Sigma_{s}\left(\bm{x},\mu_{0},E'\to E\right)d\mu_{0}
 \end{equation}
 
 \end_inset
@@ -846,12 +846,25 @@ The multigroup approximation begins with a neutron spectrum approximation,
 \end_inset
 
  to get multigroup cross sections, neutron velocities and fission sources,
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
+
 \begin_inset Formula 
 \begin{gather}
-\Sigma_{t;g}\left(\bm{x}\right)=\dfrac{\int_{E_{g}}^{E_{g-1}}\Sigma_{t}\left(\bm{x},E\right)\Psi\left(\bm{x},E\right)dE}{\int_{E_{g}}^{E_{g-1}}\Psi\left(\bm{x},E\right)dE},\\
-\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)=\dfrac{\int_{E_{g}}^{E_{g-1}}\int_{E_{g'}}^{E_{g'-1}}\Sigma_{s;\ell}\left(\bm{x},E'\to E\right)\Psi\left(\bm{x},E'\right)dE'dE}{\int_{E_{g'}}^{E_{g'-1}}\Psi\left(\bm{x},E'\right)dE'},\\
-\frac{1}{\nu_{g}\left(\bm{x}\right)}=\dfrac{\int_{E_{g}}^{E_{g-1}}\frac{1}{v\left(E\right)}\Psi\left(\bm{x},E\right)dE}{\int_{E_{g}}^{E_{g-1}}\Psi\left(\bm{x},E\right)dE},\\
-\nu\Sigma_{f;g}\left(\bm{x}\right)=\dfrac{\int_{E_{g}}^{E_{g-1}}\nu\left(\bm{x},E\right)\Sigma_{f}\left(\bm{x},E\right)\Psi\left(\bm{x},E\right)dE}{\int_{E_{g}}^{E_{g-1}}\Psi\left(\bm{x},E\right)dE}.
+\Sigma_{t;g}\left(\bm{x}\right)\equiv\dfrac{\int_{E_{g}}^{E_{g-1}}\Sigma_{t}\left(\bm{x},E\right)\Psi\left(\bm{x},E\right)dE}{\int_{E_{g}}^{E_{g-1}}\Psi\left(\bm{x},E\right)dE},\\
+\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\equiv\dfrac{\int_{E_{g}}^{E_{g-1}}\int_{E_{g'}}^{E_{g'-1}}\Sigma_{s;\ell}\left(\bm{x},E'\to E\right)\Psi\left(\bm{x},E'\right)dE'dE}{\int_{E_{g'}}^{E_{g'-1}}\Psi\left(\bm{x},E'\right)dE'},\\
+\frac{1}{\nu_{g}\left(\bm{x}\right)}\equiv\dfrac{\int_{E_{g}}^{E_{g-1}}\frac{1}{v\left(E\right)}\Psi\left(\bm{x},E\right)dE}{\int_{E_{g}}^{E_{g-1}}\Psi\left(\bm{x},E\right)dE},\\
+\nu\Sigma_{f;g}\left(\bm{x}\right)\equiv\dfrac{\int_{E_{g}}^{E_{g-1}}\nu\left(\bm{x},E\right)\Sigma_{f}\left(\bm{x},E\right)\Psi\left(\bm{x},E\right)dE}{\int_{E_{g}}^{E_{g-1}}\Psi\left(\bm{x},E\right)dE}.
 \end{gather}
 
 \end_inset
@@ -859,10 +872,23 @@ The multigroup approximation begins with a neutron spectrum approximation,
 The multigroup fission spectrum, angular flux and source are defined as
 \begin_inset Formula 
 \begin{gather}
-\chi_{g}\left(\bm{x}\right)=\int_{E_{g}}^{E_{g-1}}\chi\left(\bm{x},E\right)dE,\\
-\psi_{g}\left(\bm{x},\bm{\Omega},t\right)=\int_{E_{g}}^{E_{g-1}}\psi\left(\bm{x},\bm{\Omega},E,t\right)dE,\\
-q\left(\bm{x},\bm{\Omega},t\right)=\int_{E_{g}}^{E_{g-1}}q\left(\bm{x},\bm{\Omega},E,t\right)dE.
+\chi_{g}\left(\bm{x}\right)\equiv\int_{E_{g}}^{E_{g-1}}\chi\left(\bm{x},E\right)dE,\\
+\psi_{g}\left(\bm{x},\bm{\Omega},t\right)\equiv\int_{E_{g}}^{E_{g-1}}\psi\left(\bm{x},\bm{\Omega},E,t\right)dE,\\
+q\left(\bm{x},\bm{\Omega},t\right)\equiv\int_{E_{g}}^{E_{g-1}}q\left(\bm{x},\bm{\Omega},E,t\right)dE.
 \end{gather}
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
 
 \end_inset
 
@@ -908,17 +934,50 @@ must hold), the transport equation can be simplified to
 \frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\psi_{g}\left(\bm{x},\bm{\Omega},t\right)dE+\bm{\Omega}\cdot\bm{\nabla}\psi_{g}\left(\bm{x},\bm{\Omega},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\psi_{g}\left(\bm{x},\bm{\Omega},t\right)\\
 =\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x},t\right)\\
 +\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x},t\right)+q_{g}\left(\bm{x},\bm{\Omega},t\right),\\
-\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad g=1,\dots,G,\quad0<t.
+\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad g=1,\dots,G,\quad0<t.\label{eq:multigroup}
 \end{multline}
 
 \end_inset
 
 The initial and boundary equations become
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "eq:multigroup-boundary-initial"
+
+\end_inset
+
+
 \begin_inset Formula 
 \begin{gather}
-\psi_{g}\left(\bm{x},\bm{\Omega},t\right)=\psi_{g}^{b}\left(\bm{x},\bm{\Omega},t\right),\qquad\bm{x}\in V,\quad\bm{\Omega}\cdot\bm{n}<0,\quad g=1,\dots,G,\quad0<t,\\
-\psi_{g}\left(\bm{x},\bm{\Omega},t=0\right)=\psi_{g}^{i}\left(\bm{x},\bm{\Omega}\right),\qquad\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad g=1,\dots,G,
+\psi_{g}\left(\bm{x},\bm{\Omega},t\right)=\psi_{g}^{b}\left(\bm{x},\bm{\Omega},t\right),\qquad\bm{x}\in V,\quad\bm{\Omega}\cdot\bm{n}<0,\quad g=1,\dots,G,\quad0<t,\label{eq:multigroup-boundary}\\
+\psi_{g}\left(\bm{x},\bm{\Omega},t=0\right)=\psi_{g}^{i}\left(\bm{x},\bm{\Omega}\right),\qquad\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad g=1,\dots,G,\label{eq:multigroup-initial}
 \end{gather}
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
 
 \end_inset
 
@@ -938,12 +997,38 @@ Discrete ordinates transport equation
 \begin_layout Standard
 The discrete-ordinates approximation solves the transport equation along
  particular rays (or ordinates).
- Defining 
+ Defining
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
+ 
 \begin_inset Formula 
 \begin{gather}
-\psi_{n,g}\left(\bm{x},t\right)=\psi_{g}\left(\bm{x},\bm{\Omega}_{n},t\right),\\
-q_{n,g}\left(\bm{x},t\right)=q_{g}\left(\bm{x},\bm{\Omega}_{n},t\right),
+\psi_{n,g}\left(\bm{x},t\right)\equiv\psi_{g}\left(\bm{x},\bm{\Omega}_{n},t\right),\\
+q_{n,g}\left(\bm{x},t\right)\equiv q_{g}\left(\bm{x},\bm{\Omega}_{n},t\right),
 \end{gather}
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
 
 \end_inset
 
@@ -963,11 +1048,37 @@ for each discrete direction
 \end_inset
 
 The boundary and initial conditions become
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
+
 \begin_inset Formula 
 \begin{gather}
 \psi_{n,g}\left(\bm{x},t\right)=\psi_{n,g}^{b}\left(\bm{x},t\right),\qquad\bm{x}\in V,\quad\bm{\Omega}_{n}\cdot\bm{n}<0,\quad g=1,\dots,G,\quad0<t,\\
 \psi_{n,g}\left(\bm{x},t=0\right)=\psi_{n,g}^{i}\left(\bm{x}\right),\qquad\bm{x}\in V,\quad n=1,\dots N,\quad g=1,\dots,G,
 \end{gather}
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
 
 \end_inset
 
@@ -986,7 +1097,7 @@ To facilitate integration, the directions
 The calculation of the spherical harmonics moments then becomes
 \begin_inset Formula 
 \begin{equation}
-\phi_{\ell,g}^{m}\left(\bm{x},t\right)=\sum_{n=1}^{N}w_{n}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\psi_{n,g}\left(\bm{x},t\right).
+\phi_{\ell,g}^{m}\left(\bm{x},t\right)\equiv\sum_{n=1}^{N}w_{n}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\psi_{n,g}\left(\bm{x},t\right).
 \end{equation}
 
 \end_inset
@@ -1061,7 +1172,7 @@ In the strong form, this equation is enforced chosen points
 \sum_{i=1}^{I}\left[\bm{\Omega}_{n}\cdot\bm{\nabla}b_{i}\left(\bm{x}_{j}\right)+\Sigma_{t;g}\left(\bm{x}_{j}\right)b_{i}\left(\bm{x}_{j}\right)\right]\alpha_{i,n,g}\\
 =\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}\left(\bm{x}_{j}\right)\phi_{\ell,g'}^{m}\left(\bm{x}_{j}\right)\\
 +\frac{\chi_{g}\left(\bm{x}_{j}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}_{j}\right)\phi_{0,g'}^{0}\left(\bm{x}_{j}\right)+q_{n,g}\left(\bm{x}_{j}\right),\\
-j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G.
+j=1,\dots,J,\quad n=1,\dots N,\quad g=1,\dots,G.\label{eq:strong-discretized-transport}
 \end{multline}
 
 \end_inset
@@ -1267,16 +1378,42 @@ Petrov-Galerkin method
 The Petrov-Galerkin method can supply the unknowns needed to solve the weak
  form of the transport equation.
  Defining
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
+
 \begin_inset Formula 
 \begin{gather}
 \psi_{n,g}\left(\bm{x}\right)=\sum_{i=1}^{J}\alpha_{i,n,g}b_{i}\left(\bm{x}\right),\\
-\phi_{\ell,g}^{m}\left(\bm{x}\right)=\sum_{n=1}^{N}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{i=1}^{J}\alpha_{i,n,g}b_{i}\left(\bm{x}\right)=\sum_{i=1}^{J}\beta_{i,\ell,g}^{m}b_{i}\left(\bm{x}\right),\\
+\phi_{\ell,g}^{m}\left(\bm{x}\right)=\sum_{n=1}^{N}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\sum_{i=1}^{J}\alpha_{i,n,g}b_{i}\left(\bm{x}\right)=\sum_{i=1}^{J}\beta_{i,\ell,g}^{m}b_{i}\left(\bm{x}\right),\label{eq:moments-expansion}\\
 \psi_{n,g}^{b}\left(\bm{x}\right)=\sum_{i=1}^{J}\alpha_{i,n,g}^{b}b_{i}\left(\bm{x}\right),
 \end{gather}
 
 \end_inset
 
 as the basis, the weak form of the transport equation becomes
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
+
+\end_inset
+
+
 \begin_inset Formula 
 \begin{multline}
 \sum_{i=1}^{J}\left[\int_{\bm{\Omega}_{n}\cdot\bm{n}>0}\left(\bm{\Omega}_{n}\cdot\bm{n}\right)b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dS-\int_{V_{j}}b_{i}\left(\bm{x}\right)\left[\bm{\Omega}_{n}\cdot\bm{\nabla}w_{j}\left(\bm{x}\right)\right]dV+\Sigma_{t;j,g}\int_{V_{j}}b_{i}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV\right]\alpha_{i,n,g}\\
@@ -1450,7 +1587,7 @@ reference "eq:sum-weight"
  The reason this term stabilizes the method can be found in the volume integral
  of the streaming term.
  If we had a diffusion method with diffusion tensor 
-\begin_inset Formula $\bm{D}=\bm{\Omega}_{n}\otimes\bm{\Omega}_{n}$
+\begin_inset Formula $\bm{D}=\bm{\Omega}_{n}\bm{\Omega}_{n}$
 \end_inset
 
 ,
@@ -1533,18 +1670,57 @@ reference "eq:continuous-xs-transport"
  calculation, for instance) can be used to weight the cross sections and
  remove them from the integrals.
  Define
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
+
 \begin_inset Formula 
 \begin{gather}
-\Sigma_{t;j,g}=\dfrac{\int_{V_{j}}\Sigma_{t;g}\left(\bm{x}\right)\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV},\label{eq:total-xs-weighting}\\
-\Sigma_{s;j,\ell,g'\to g}=\dfrac{\int_{V_{j}}\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV},\\
-\chi_{j,g}=\dfrac{\int_{V_{j}}\chi_{g}\left(\bm{x}\right)\sum_{g'}\left[\nu\Sigma_{f;g'}\Phi_{0,g'}^{0}\left(\bm{x}\right)\right]w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\sum_{g'}\left[\nu\Sigma_{f;g'}\Phi_{0,g'}^{0}\left(\bm{x}\right)\right]w_{j}\left(\bm{x}\right)dV},\\
-\nu\Sigma_{f;j,g}=\dfrac{\int_{V_{j}}\nu\Sigma_{f;g}\left(\bm{x}\right)\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV},
+\Sigma_{t;j,g}\equiv\dfrac{\int_{V_{j}}\Sigma_{t;g}\left(\bm{x}\right)\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV},\label{eq:total-xs-weighting}\\
+\Sigma_{s;j,\ell,g'\to g}\equiv\dfrac{\int_{V_{j}}\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{\ell,g'}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV},\\
+\chi_{j,g}\equiv\dfrac{\int_{V_{j}}\chi_{g}\left(\bm{x}\right)\sum_{g'}\left[\nu\Sigma_{f;g'}\Phi_{0,g'}^{0}\left(\bm{x}\right)\right]w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\sum_{g'}\left[\nu\Sigma_{f;g'}\Phi_{0,g'}^{0}\left(\bm{x}\right)\right]w_{j}\left(\bm{x}\right)dV},\\
+\nu\Sigma_{f;j,g}\equiv\dfrac{\int_{V_{j}}\nu\Sigma_{f;g}\left(\bm{x}\right)\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\int_{V_{j}}\Phi_{0,g}^{0}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV},
 \end{gather}
 
 \end_inset
 
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
+
+\end_inset
+
 (noting that the fission spectrum is weighted by the fission source) and
- assume that 
+ assume that
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
+ 
 \begin_inset Formula 
 \begin{gather}
 \phi_{0,g}^{0}\left(\bm{x}\right)\sim\psi_{n,g}\left(\bm{x}\right)\text{ for all }n,g,\label{eq:isotropic-assumption}\\
@@ -1553,7 +1729,33 @@ reference "eq:continuous-xs-transport"
 
 \end_inset
 
-Then the approximations can be made that 
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
+
+\end_inset
+
+Then the approximations can be made that
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
+ 
 \begin_inset Formula 
 \begin{multline}
 \int_{V_{j}}w_{j}\left(\bm{x}\right)\Sigma_{t,g}\left(\bm{x}\right)\psi_{n,g}\left(\bm{x}\right)dV\\
@@ -1584,6 +1786,19 @@ Then the approximations can be made that
 \end_inset
 
 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -1607,7 +1822,7 @@ reference "eq:spherical-harmonic-angular-expansion"
 ) were used, the approximation would be instead 
 \begin_inset Formula 
 \begin{equation}
-\Sigma_{t;j,g,n}=\dfrac{\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\int_{V_{j}}\Sigma_{t;g}\left(\bm{x}\right)\Phi_{\ell,g}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\int_{V_{j}}\Phi_{\ell,g}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}.
+\Sigma_{t;j,g,n}\equiv\dfrac{\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\int_{V_{j}}\Sigma_{t;g}\left(\bm{x}\right)\Phi_{\ell,g}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\int_{V_{j}}\Phi_{\ell,g}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}.
 \end{equation}
 
 \end_inset
@@ -1628,10 +1843,6 @@ This approximation would be truncated to some finite value of
  
 \end_layout
 
-\begin_layout Standard
-\begin_inset Note Greyedout
-status open
-
 \begin_layout Part
 Spatial approximations to the transport equation
 \end_layout
@@ -1644,70 +1855,113 @@ Derivation of the diffusion equations
 From spatially continuous transport equations
 \end_layout
 
-\begin_layout Plain Layout
-Define 
-\begin_inset Formula $\phi$
+\begin_layout Standard
+In this derivation, 
+\begin_inset Formula $\phi_{g}$
 \end_inset
 
- and 
+ will be the multigroup isotropic moment of the angular flux, while 
 \begin_inset Formula $\bm{J}$
 \end_inset
 
- in terms of Legendre moments.
- Define 
-\begin_inset Formula $\bm{Q}_{\ell}$
+ will be the multigroup current.
+ These are defined in terms of the spherical harmonic moments as as
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
 \end_inset
 
- in terms of 
-\begin_inset Formula $q$
+
+\begin_inset Formula 
+\begin{gather}
+\phi_{g}\equiv\phi_{0,g}^{0},\\
+\bm{J}_{g}\equiv\left[\phi_{1,g}^{0},\phi_{1,g}^{1},\phi_{1,g}^{-1}\right].
+\end{gather}
+
 \end_inset
 
-.
- State assumption of isotropic internal source.
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
+
+\end_inset
+
+The linearly anisotropic (or first-order) flux approximation can then be
+ written 
+\begin_inset Formula 
+\begin{align}
+\psi_{g}\left(\bm{x},\bm{\Omega},t\right) & \approx\sum_{\ell=0}^{1}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}\phi_{\ell}^{m}\left(\bm{x},t\right)Y_{\ell}^{m}\left(\bm{\Omega}\right)d\Omega\nonumber \\
+ & =\frac{1}{4\pi}\left[\phi_{g}\left(\bm{x},t\right)+3\bm{\Omega}\cdot\bm{J}_{g}\left(\bm{x},t\right)\right].
+\end{align}
+
+\end_inset
+
+We also define the zeroth and first order sources as
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
  
-\end_layout
+\begin_inset Formula 
+\begin{gather*}
+Q_{0,g}\left(\bm{x},t\right)\equiv\frac{1}{4\pi}\int_{4\pi}q_{g}\left(\bm{x},\bm{\Omega},t\right)d\Omega,\\
+\bm{Q}_{1,g}\left(\bm{x},t\right)\equiv\frac{1}{4\pi}\int_{4\pi}\bm{\Omega}q_{g}\left(\bm{x},\bm{\Omega},t\right)d\Omega.
+\end{gather*}
+
+\end_inset
+
+
+\begin_inset ERT
+status open
 
 \begin_layout Plain Layout
-DEFINE 
-\begin_inset Formula $\phi$
-\end_inset
-
- AND 
-\begin_inset Formula $\bm{J}$
-\end_inset
-
- IN TERMS OF LEGENDRE MOMENTS.
- DEFINE 
-\begin_inset Formula $\bm{Q}_{\ell}$
-\end_inset
-
- IN TERMS OF 
-\begin_inset Formula $q$
-\end_inset
 
 
+\backslash
+end{subequations}
 \end_layout
 
-\begin_layout Plain Layout
-\begin_inset Formula 
-\begin{multline}
-\frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\psi_{g}\left(\bm{x},\bm{\Omega},t\right)dE+\bm{\Omega}\cdot\bm{\nabla}\psi_{g}\left(\bm{x},\bm{\Omega},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\psi_{g}\left(\bm{x},\bm{\Omega},t\right)\\
-=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}\right)\sum_{g'=1}^{G}\Sigma_{s;\ell,g'\to g}\left(\bm{x}\right)\phi_{\ell,g'}^{m}\left(\bm{x},t\right)\\
-+\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{0,g'}^{0}\left(\bm{x},t\right)+q_{g}\left(\bm{x},\bm{\Omega},t\right),\\
-\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad g=1,\dots,G,\quad0<t.
-\end{multline}
+\end_inset
+
+Beginning from the multigroup, continuous-energy and space equation (Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:multigroup"
 
 \end_inset
 
-First-order approximation:
-\begin_inset Formula 
-\[
-\psi_{g}\left(\bm{x},\bm{\Omega},t\right)\approx\frac{1}{4\pi}\left[\phi_{g}\left(\bm{x},t\right)+3\bm{\Omega}\cdot\bm{J}_{g}\left(\bm{x},t\right)\right]
-\]
+) with its accompanying boundary and initial conditions (Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:multigroup-boundary-initial"
 
 \end_inset
 
-Use in multigroup equation and integrate by 
+), perform 
 \begin_inset Formula $\int_{4\pi}\left(\cdot\right)d\Omega$
 \end_inset
 
@@ -1715,19 +1969,52 @@ Use in multigroup equation and integrate by
 \begin_inset Formula $\int_{4\pi}\bm{\Omega}\left(\cdot\right)d\Omega$
 \end_inset
 
- to get
+ individually to get
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 \begin_inset Formula 
-\[
-\frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\phi_{g}\left(\bm{x}\right)+\bm{\nabla}\cdot\bm{J}_{g}\left(\bm{x},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\phi_{g}\left(\bm{x}\right)=\sum_{g'=1}^{G}\Sigma_{s;0,g'\to g}\left(\bm{x}\right)\phi_{g'}\left(\bm{x},t\right)+\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{g'}\left(\bm{x},t\right)+Q_{0,g}\left(\bm{x},t\right)
-\]
+\begin{multline}
+\frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\phi_{g}\left(\bm{x}\right)+\bm{\nabla}\cdot\bm{J}_{g}\left(\bm{x},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\phi_{g}\left(\bm{x}\right)\\
+=\sum_{g'=1}^{G}\Sigma_{s;0,g'\to g}\left(\bm{x}\right)\phi_{g'}\left(\bm{x},t\right)+\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{g'}\left(\bm{x},t\right)+Q_{0,g}\left(\bm{x},t\right),\\
+\bm{x}\in V,\quad g=1,\dots,G,\quad0<t,
+\end{multline}
 
 \end_inset
 
 
 \begin_inset Formula 
-\[
-\frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\bm{J}_{g}\left(\bm{x}\right)+\frac{1}{3}\bm{\nabla}\phi_{g}\left(\bm{x},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\bm{J}_{g}\left(\bm{x}\right)=\sum_{g'=1}^{G}\Sigma_{s;1,g'\to g}\left(\bm{x}\right)\bm{J}_{g'}\left(\bm{x},t\right)
-\]
+\begin{multline}
+\frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\bm{J}_{g}\left(\bm{x}\right)+\frac{1}{3}\bm{\nabla}\phi_{g}\left(\bm{x},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\bm{J}_{g}\left(\bm{x}\right)\\
+=\sum_{g'=1}^{G}\Sigma_{s;1,g'\to g}\left(\bm{x}\right)\bm{J}_{g'}\left(\bm{x},t\right),\\
+\bm{x}\in V,\quad g=1,\dots,G,\quad0<t.
+\end{multline}
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
 
 \end_inset
 
@@ -1737,56 +2024,304 @@ Neglect time derivative on
 
  and assume that 
 \begin_inset Formula 
-\[
+\begin{equation}
 \sum_{g'=1}^{G}\Sigma_{s;1,g'\to g}\left(\bm{x}\right)\bm{J}_{g'}\left(\bm{x},t\right)\approx\bm{J}_{g}\left(\bm{x},t\right)\sum_{g'=1}^{G}\Sigma_{s;1,g'\to g}
-\]
+\end{equation}
 
 \end_inset
 
-to get
+(i.e.
+ the energy and direction of scattering are independent) to get Fick's Law,
 \begin_inset Formula 
-\[
-\bm{J}_{g}\left(\bm{x},t\right)\approx-D_{g}\left(\bm{x}\right)\bm{\nabla}\phi_{g}\left(\bm{x},t\right),
-\]
+\begin{equation}
+\bm{J}_{g}\left(\bm{x},t\right)\approx-D_{g}\left(\bm{x}\right)\bm{\nabla}\phi_{g}\left(\bm{x},t\right),\label{eq:ficks-law}
+\end{equation}
 
 \end_inset
 
-with 
-\begin_inset Formula 
-\begin{gather*}
-\Sigma_{tr;g}\left(\bm{x}\right)=\Sigma_{t;g}\left(\bm{x}\right)-\sum_{g'=1}^{G}\Sigma_{s;1,g'\to g},\\
-D_{g}\left(\bm{x}\right)=\frac{1}{3\Sigma_{tr;g}\left(\bm{x}\right)}.
-\end{gather*}
+with
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
 
 \end_inset
 
-Then the diffusion equation is
+ 
 \begin_inset Formula 
-\[
-\frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\phi_{g}\left(\bm{x}\right)-\bm{\nabla}\cdot D_{g}\left(\bm{x}\right)\bm{\nabla}\phi_{g}\left(\bm{x},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\phi_{g}\left(\bm{x}\right)=\sum_{g'=1}^{G}\Sigma_{s;0,g'\to g}\left(\bm{x}\right)\phi_{g'}\left(\bm{x},t\right)+\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{g'}\left(\bm{x},t\right)+Q_{0,g}\left(\bm{x},t\right).
-\]
+\begin{gather}
+\Sigma_{tr;g}\left(\bm{x}\right)\equiv\Sigma_{t;g}\left(\bm{x}\right)-\sum_{g'=1}^{G}\Sigma_{s;1,g'\to g},\\
+D_{g}\left(\bm{x}\right)\equiv\frac{1}{3\Sigma_{tr;g}\left(\bm{x}\right)}.
+\end{gather}
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
+
+\end_inset
+
+Then the multigroup diffusion equation is
+\begin_inset Formula 
+\begin{multline}
+\frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\phi_{g}\left(\bm{x},t\right)-\bm{\nabla}\cdot D_{g}\left(\bm{x}\right)\bm{\nabla}\phi_{g}\left(\bm{x},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\phi_{g}\left(\bm{x},t\right)\\
+=\sum_{g'=1}^{G}\Sigma_{s;0,g'\to g}\left(\bm{x}\right)\phi_{g'}\left(\bm{x},t\right)+\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{g'}\left(\bm{x},t\right)+Q_{0,g}\left(\bm{x},t\right),\\
+\bm{x}\in V,\quad g=1,\dots,G,\quad0<t.\label{eq:multigroup-diffusion}
+\end{multline}
+
+\end_inset
+
+For the boundary condition, start by defining incoming and outgoing partial
+ currents,
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{gather}
+J_{g}^{-}\left(\bm{x},t\right)\equiv\int_{\bm{\Omega}\cdot\bm{n}<0}\left|\bm{\Omega}\cdot\bm{n}\right|\psi_{g}\left(\bm{x},\bm{\Omega},t\right)d\Omega,\\
+J_{g}^{+}\left(\bm{x},t\right)\equiv\int_{\bm{\Omega}\cdot\bm{n}>0}\bm{\Omega}\cdot\bm{n}\psi_{g}\left(\bm{x},\bm{\Omega},t\right)d\Omega,
+\end{gather}
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
+
+\end_inset
+
+, and using the linearly anisotropic assumption to get
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{gather}
+J_{g}^{-}\left(\bm{x},t\right)\approx-\frac{1}{4\pi}\bm{n}\cdot\left[\int_{\bm{\Omega}\cdot\bm{n}<0}\bm{\Omega}\phi_{g}\left(\bm{x},t\right)+3\bm{\Omega}\bm{\Omega}\cdot\bm{J}_{g}\left(\bm{x},t\right)d\Omega\right]=\frac{1}{4}\left[\phi_{g}\left(\bm{x},t\right)-2\bm{n}\cdot\bm{J}_{g}\left(\bm{x},t\right)\right],\\
+J_{g}^{+}\left(\bm{x},t\right)\approx\frac{1}{4\pi}\bm{n}\cdot\left[\int_{\bm{\Omega}\cdot\bm{n}>0}\bm{\Omega}\phi_{g}\left(\bm{x},t\right)+3\bm{\Omega}\bm{\Omega}\cdot\bm{J}_{g}\left(\bm{x},t\right)d\Omega\right]=\frac{1}{4}\left[\phi_{g}\left(\bm{x},t\right)+2\bm{n}\cdot\bm{J}_{g}\left(\bm{x},t\right)\right].
+\end{gather}
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
+
+\end_inset
+
+Multiply Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:multigroup-boundary"
+
+\end_inset
+
+ by 
+\begin_inset Formula $\left|\bm{\Omega}\cdot\bm{n}\right|$
+\end_inset
+
+ and integrate over those directions with 
+\begin_inset Formula $\bm{\Omega}\cdot\bm{n}<0$
+\end_inset
+
+ to get
+\begin_inset Formula 
+\begin{equation}
+\frac{1}{4}\left[\phi_{g}\left(\bm{x},t\right)-2\bm{n}\cdot\bm{J}_{g}\left(\bm{x},t\right)\right]=\int_{\bm{\Omega}\cdot\bm{n}<0}\left|\bm{\Omega}\cdot\bm{n}\right|\psi_{g}\left(\bm{x},\bm{\Omega},t\right)d\Omega\equiv J_{g}^{b-}\left(\bm{x},t\right).
+\end{equation}
+
+\end_inset
+
+This can be simplified further by using the definition of 
+\begin_inset Formula $\bm{J}$
+\end_inset
+
+ in Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ficks-law"
+
+\end_inset
+
+ to get the diffusion boundary condition,
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Formula 
+\begin{equation}
+\frac{1}{4}\left[\phi_{g}\left(\bm{x},t\right)+2D_{g}\left(\bm{x}\right)\bm{n}\cdot\bm{\nabla}\phi_{g}\left(\bm{x},t\right)\right]=J_{g}^{b-}\left(\bm{x},t\right).
+\end{equation}
+
+\end_inset
+
+The initial condition can be found by performing 
+\begin_inset Formula $\int_{4\pi}\left(\cdot\right)d\Omega$
+\end_inset
+
+ on the initial condition (Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:multigroup-initial"
+
+\end_inset
+
+) to get
+\begin_inset Formula 
+\begin{equation}
+\phi_{g}\left(\bm{x},0\right)=\int_{4\pi}\psi_{g}^{i}\left(\bm{x},t\right)d\Omega\equiv\phi_{g}^{i}\left(\bm{x},t\right).
+\end{equation}
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
 
 \end_inset
 
 
 \end_layout
 
-\begin_layout Subsection
-Strong form
+\begin_layout Subsubsection
+Steady-state
 \end_layout
 
-\begin_layout Subsection
-Weak form
+\begin_layout Standard
+For the steady-state diffusion equation, set the time derivative in Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:multigroup-diffusion"
+
+\end_inset
+
+ to zero and remove time dependence in the unknowns to get
+\begin_inset Formula 
+\begin{multline}
+-\bm{\nabla}\cdot D_{g}\left(\bm{x}\right)\bm{\nabla}\phi_{g}\left(\bm{x}\right)+\Sigma_{t;g}\left(\bm{x}\right)\phi_{g}\left(\bm{x}\right)\\
+=\sum_{g'=1}^{G}\Sigma_{s;0,g'\to g}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)+\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)+Q_{0,g}\left(\bm{x}\right),\\
+\bm{x}\in V,\quad g=1,\dots,G.\label{eq:multigroup-diffusion-steady}
+\end{multline}
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
 From spatially discretized transport equations
 \end_layout
 
-\begin_layout Plain Layout
-Define the matrix of values on the LHS for each of the strong and weak forms
- of the spatially-discretized transport equation.
- Perform 
+\begin_layout Standard
+Another possible method to derive the diffusion equations is to start at
+ the spatially and angularly-discretized transport equation and calculate
+ a discrete approximation to the transport discretization.
+ Although untested, this could possibly allow use of DSA in problems that
+ would otherwise lack consistency between the transport and diffusion discretiza
+tions.
+ 
+\end_layout
+
+\begin_layout Itemize
+Define 
+\begin_inset Formula $\phi$
+\end_inset
+
+ and 
+\begin_inset Formula $\bm{J}$
+\end_inset
+
+ in a discrete way as the sums of weights
+\end_layout
+
+\begin_layout Itemize
+Define coefficents 
+\begin_inset Formula $\beta$
+\end_inset
+
+ and 
+\begin_inset Formula $\gamma$
+\end_inset
+
+ as the expansion coefficients for 
+\begin_inset Formula $\phi$
+\end_inset
+
+ and 
+\begin_inset Formula $\bm{J}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Perform 
 \begin_inset Formula $\sum_{n}w_{n}\left(\cdot\right)$
 \end_inset
 
@@ -1794,14 +2329,162 @@ Define the matrix of values on the LHS for each of the strong and weak forms
 \begin_inset Formula $\sum_{n}w_{n}\bm{\Omega}_{n}\left(\cdot\right)$
 \end_inset
 
-.
- Use inversion of LHS matrices to get diffusion equation directly.
+ over discretized equation (Eq.
  
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:strong-discretized-transport"
+
+\end_inset
+
+ or 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:petrov-galerkin"
+
+\end_inset
+
+)
 \end_layout
+
+\begin_layout Itemize
+Define matrices for each part of the equation
+\end_layout
+
+\begin_layout Itemize
+Solve the second equation for 
+\begin_inset Formula $\bm{J}_{g}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Insert this solution (which will involve a matrix inverse) into the first
+ equation
+\end_layout
+
+\begin_layout Section
+Spatial discretization of the diffusion equations
+\end_layout
+
+\begin_layout Subsection
+Strong discretization
+\end_layout
+
+\begin_layout Standard
+The derivation of the strong form of the diffusion equations is identical
+ to the derivation for the angular flux.
+ Use the expansion in Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:moments-expansion"
+
+\end_inset
+
+ in the diffusion equation and evaluate at discrete centers 
+\begin_inset Formula $\bm{x}_{i}$
+\end_inset
+
+ to get 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{multline}
+\sum_{i=1}^{J}\left[-D_{g}\left(\bm{x}_{j}\right)\nabla^{2}b_{i}\left(\bm{x}_{j}\right)+\Sigma_{t;g}\left(\bm{x}\right)b_{i}\left(\bm{x}_{j}\right)\right]\beta_{i,g}\\
+=\sum_{g'=1}^{G}\Sigma_{s;0,g'\to g}\left(\bm{x}_{j}\right)\phi_{g'}\left(\bm{x}_{j}\right)+\frac{\chi_{g}\left(\bm{x}_{j}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}_{j}\right)\phi_{g'}\left(\bm{x}_{j}\right)+Q_{0,g}\left(\bm{x}_{j}\right),\\
+j=1,\dots,J,\quad g=1,\dots,G.\label{eq:multigroup-diffusion-strong}
+\end{multline}
+
+\end_inset
+
+The 
+\begin_inset Formula $\phi$
+\end_inset
+
+ values on the RHS can also be expressed in terms of 
+\begin_inset Formula $\beta_{i,g}$
+\end_inset
+
+ if desired, or the system can be written in terms of 
+\begin_inset Formula $\phi_{i,g}$
+\end_inset
+
+ with some localization procedure.
+ The boundary conditions are 
+\begin_inset Formula 
+\begin{equation}
+\frac{1}{4}\sum_{i=1}^{J}\left[b_{i}\left(\bm{x}\right)+2D_{g}\left(\bm{x}\right)\bm{n}\cdot\bm{\nabla}b_{i}\left(\bm{x}\right)\right]\beta_{i,g}=J_{g}^{b-}\left(\bm{x},t\right),\qquad j=1,\dots,J,\quad g=1,\dots,G.
+\end{equation}
 
 \end_inset
 
 
+\end_layout
+
+\begin_layout Subsection
+Weak discretization
+\end_layout
+
+\begin_layout Standard
+To get the weak discretization, perform 
+\begin_inset Formula $\int_{V_{j}}w_{j}\left(\cdot\right)dV$
+\end_inset
+
+ on Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:multigroup-diffusion-steady"
+
+\end_inset
+
+ for each weight function 
+\begin_inset Formula $w_{j}$
+\end_inset
+
+ and assume the cross sections are constant or weighted in space to get
+ 
+\begin_inset Formula 
+\begin{multline}
+-D_{j,g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\nabla^{2}\phi_{g}\left(\bm{x}\right)dV+\Sigma_{t;j,g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g}\left(\bm{x}\right)dV\\
+=\sum_{g'=1}^{G}\Sigma_{s;j,0,g'\to g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)dV+\frac{\chi_{j,g}}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;j,g'}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)dV+\int_{V_{j}}w_{j}\left(\bm{x}\right)Q_{0,g}\left(\bm{x}\right)dV,\\
+\bm{x}\in V,\quad g=1,\dots,G.
+\end{multline}
+
+\end_inset
+
+Use the chain rule,
+\begin_inset Formula 
+\begin{equation}
+\nabla\cdot\left(w_{j}\left(\bm{x}\right)\nabla\phi_{g}\left(\bm{x}\right)\right)=w_{j}\left(\bm{x}\right)\nabla^{2}\phi_{g}\left(\bm{x}\right)+\left[\nabla w_{j}\left(\bm{x}\right)\right]\cdot\left[\nabla\phi_{g}\left(\bm{x}\right)\right]
+\end{equation}
+
+\end_inset
+
+(or integration by parts) and apply the divergence theorem on the diffusion
+ term to get
+\begin_inset Formula 
+\begin{multline}
+-D_{j,g}\int_{S_{j}}w_{j}\left(\bm{x}\right)\bm{n}\cdot\bm{\nabla}\phi_{g}\left(\bm{x}\right)dS+D_{j,g}\int_{V_{j}}\left[\nabla w_{j}\left(\bm{x}\right)\right]\cdot\left[\nabla\phi_{g}\left(\bm{x}\right)\right]dV+\Sigma_{t;j,g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g}\left(\bm{x}\right)dV\\
+=\sum_{g'=1}^{G}\Sigma_{s;j,0,g'\to g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)dV+\frac{\chi_{j,g}}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;j,g'}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)dV+\int_{V_{j}}w_{j}\left(\bm{x}\right)Q_{0,g}\left(\bm{x}\right)dV,\\
+\bm{x}\in V,\quad g=1,\dots,G.
+\end{multline}
+
+\end_inset
+
+An expansion for 
+\begin_inset Formula $\phi_{g}\left(\bm{x}\right)$
+\end_inset
+
+ can then be used to supply the 
+\begin_inset Formula $J$
+\end_inset
+
+ unknowns to the equation.
+ 
 \end_layout
 
 \begin_layout Part
@@ -3108,19 +3791,96 @@ name "fig:mls-interpolation"
 
 \end_layout
 
-\begin_layout Standard
-\begin_inset Note Greyedout
-status open
-
 \begin_layout Part
 Math
+\end_layout
+
+\begin_layout Section
+Integrals in weak forms
+\end_layout
+
+\begin_layout Standard
+For both the diffusion and the transport equation, integrals of the form
+ 
+\begin_inset Formula 
+\begin{equation}
+\int_{V}w\left(\bm{x}\right)\bm{\nabla}\cdot\bm{F}\left(\bm{x}\right)dV
+\end{equation}
+
+\end_inset
+
+must be done, which require either the chain rule,
+\begin_inset Formula 
+\begin{equation}
+\bm{\nabla}\cdot\left(w\left(\bm{x}\right)\bm{F}\left(\bm{x}\right)\right)=\left[\bm{\nabla}w\left(\bm{x}\right)\right]\cdot\bm{F}\left(\bm{x}\right)+w\left(\bm{x}\right)\bm{\nabla}\cdot\bm{F}\left(\bm{x}\right),
+\end{equation}
+
+\end_inset
+
+or integration by parts to get
+\begin_inset Formula 
+\begin{equation}
+\int_{V}w\left(\bm{x}\right)\bm{\nabla}\cdot\bm{F}\left(\bm{x}\right)dV=\int_{V}\bm{\nabla}\cdot\left(w\left(\bm{x}\right)\bm{F}\left(\bm{x}\right)\right)dV-\int_{V}\left[\bm{\nabla}w\left(\bm{x}\right)\right]\cdot\bm{F}\left(\bm{x}\right)dV.
+\end{equation}
+
+\end_inset
+
+Then using the divergence theorem gives
+\begin_inset Formula 
+\begin{equation}
+\int_{V}\bm{\nabla}\cdot\left(w\left(\bm{x}\right)\bm{F}\left(\bm{x}\right)\right)dV=\int_{S}w\left(\bm{x}\right)\left(\bm{F}\left(\bm{x}\right)\cdot\bm{n}\right)dS,
+\end{equation}
+
+\end_inset
+
+or in whole,
+\begin_inset Formula 
+\begin{equation}
+\int_{V}w\left(\bm{x}\right)\bm{\nabla}\cdot\bm{F}\left(\bm{x}\right)dV=\int_{S}w\left(\bm{x}\right)\left(\bm{F}\left(\bm{x}\right)\cdot\bm{n}\right)dS-\int_{V}\left[\bm{\nabla}w\left(\bm{x}\right)\right]\cdot\bm{F}\left(\bm{x}\right)dV.
+\end{equation}
+
+\end_inset
+
+For the transport equation, 
+\begin_inset Formula 
+\[
+\bm{F}\left(\bm{x}\right)=\bm{\Omega}\psi\left(\bm{x},\bm{\Omega}\right),
+\]
+
+\end_inset
+
+so the integral becomes
+\begin_inset Formula 
+\begin{equation}
+\int_{V}w\left(\bm{x}\right)\bm{\Omega}\cdot\bm{\nabla}\psi\left(\bm{x},\bm{\Omega}\right)dV=\int_{S}w\left(\bm{x}\right)\left(\bm{\Omega}\cdot\bm{n}\right)\psi\left(\bm{x},\bm{\Omega}\right)dS-\int_{V}\left[\bm{\Omega}\cdot\bm{\nabla}w\left(\bm{x}\right)\right]\psi\left(\bm{x},\bm{\Omega}\right)dV.
+\end{equation}
+
+\end_inset
+
+The diffusion equation has
+\begin_inset Formula 
+\[
+\bm{F}\left(\bm{x}\right)=D\left(\bm{x}\right)\bm{\nabla}\phi\left(\bm{x}\right),
+\]
+
+\end_inset
+
+so the volume integral becomes
+\begin_inset Formula 
+\begin{equation}
+\int_{V}w\left(\bm{x}\right)\bm{\nabla}\cdot D\left(\bm{x}\right)\bm{\nabla}\phi\left(\bm{x}\right)dV=\int_{S}w\left(\bm{x}\right)D\left(\bm{x}\right)\left[\left(\bm{\nabla}\cdot\bm{n}\right)\phi\left(\bm{x}\right)\right]dS-\int_{V}D\left(\bm{x}\right)\left[\bm{\nabla}w\left(\bm{x}\right)\right]\cdot\left[\bm{\nabla}\phi\left(\bm{x}\right)\right]dV.
+\end{equation}
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
 Legendre polynomials
 \end_layout
 
-\begin_layout Plain Layout
+\begin_layout Standard
 \begin_inset Note Comment
 status open
 
@@ -3137,17 +3897,12 @@ Include algorithms for calculating.
 Spherical harmonics
 \end_layout
 
-\begin_layout Plain Layout
+\begin_layout Standard
 \begin_inset Note Comment
 status open
 
 \begin_layout Plain Layout
 Include algorithms for calculating.
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \end_inset
