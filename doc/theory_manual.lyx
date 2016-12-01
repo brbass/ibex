@@ -2308,7 +2308,7 @@ where the
  
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "fig:sawtooth-interpolation"
+reference "fig:gaussian-interpolation"
 
 \end_inset
 
@@ -2340,6 +2340,32 @@ ities in the first derivative).
 \end_layout
 
 \begin_layout Standard
+The Gaussian functions fail to exactly reproduce a constant and a linear
+ function correctly, which means they do not satisfy the Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:sum-weight"
+
+\end_inset
+
+.
+ This means that they are not ideal for use as weight functions in a Petrov-Gale
+rkin method as they will not exactly enforce conservation.
+ Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:gaussian-const"
+
+\end_inset
+
+ shows the attempted fit to a constant and to a linear function.
+ The error is nonzero except at the interpolation points.
+ 
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
@@ -2351,13 +2377,13 @@ status open
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \noindent
 \align center
 \begin_inset Graphics
-	filename figs/square_gauss_17_partial.pdf
+	filename figs/saw_gauss_17_1.0_basis.pdf
 	width 50text%
 
 \end_inset
@@ -2369,7 +2395,110 @@ status open
 \begin_inset Caption Standard
 
 \begin_layout Plain Layout
-Scaled basis functions, 
+Basis function set, 
+\begin_inset Formula $\Gamma_{i}\left(\bm{x}\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename figs/saw_gauss_17_1.0_const.pdf
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Interpolation of a constant and a linear function
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Gaussian basis with 17 points
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:gaussian-const"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename figs/saw_gauss_17_1.0_partial.pdf
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Scaled basis functions for the pointwise interpolation, 
 \begin_inset Formula $a_{i}\Gamma_{i}\left(\bm{x}\right)$
 \end_inset
 
@@ -2387,13 +2516,13 @@ Scaled basis functions,
 \begin_inset Float figure
 wide false
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \noindent
 \align center
 \begin_inset Graphics
-	filename figs/saw_gauss_17_interp.pdf
+	filename figs/saw_gauss_17_1.0_interp.pdf
 	width 50text%
 
 \end_inset
@@ -2431,7 +2560,7 @@ Interpolation of a sawtooth wave using 17 identical Gaussian basis and weight
 
 \begin_inset CommandInset label
 LatexCommand label
-name "fig:sawtooth-interpolation"
+name "fig:gaussian-interpolation"
 
 \end_inset
 
@@ -2452,12 +2581,318 @@ Moving least squares
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Comment
+The moving least squares method is one meshless approach to basis functions
+ that retains the ability to represent a certain order of polynomials exactly.
+ The idea is to minimize error of the function 
+\begin_inset Formula $f\left(\bm{x}\right)$
+\end_inset
+
+ with respect to some values 
+\begin_inset Formula $f_{i}$
+\end_inset
+
+ in a least-squares sense.
+ 
+\end_layout
+
+\begin_layout Standard
+EXPLAIN MINIMIZATION, DERIVE METHOD
+\end_layout
+
+\begin_layout Standard
+Start with a basis of 
+\begin_inset Formula $m$
+\end_inset
+
+ polynomials and 
+\begin_inset Formula $n$
+\end_inset
+
+ points.
+ The shape functions themselves are simply 
+\begin_inset Formula 
+\begin{align*}
+\phi_{i}\left(\bm{x}\right) & =\bm{p}^{\top}\left(\bm{x}\right)\bm{A}^{-1}\left(\bm{x}\right)\bm{B}_{i}\left(\bm{x}\right),
+\end{align*}
+
+\end_inset
+
+with
+\begin_inset Formula 
+\begin{gather*}
+\bm{p}^{\top}\left(\bm{x}\right)=\left\{ p_{0}\left(\bm{x}\right),p_{1}\left(\bm{x}\right),p_{2}\left(\bm{x}\right),\dots,p_{m}\left(\bm{x}\right)\right\} =\left\{ 1,x,y,z,xy,xz,yz,x^{2},y^{2},z^{2},\dots\right\} ,\\
+\bm{A}\left(\bm{x}\right)=\sum_{i=1}^{n}W_{i}\left(\bm{x}\right)\bm{p}\left(\bm{x}_{i}\right)\bm{p}^{\top}\left(\bm{x}_{i}\right),\\
+\bm{B}_{i}\left(\bm{x}\right)=w_{i}\left(\bm{x}\right)\bm{p}\left(\bm{x}_{i}\right),
+\end{gather*}
+
+\end_inset
+
+where 
+\begin_inset Formula $w_{i}\left(\bm{x}\right)$
+\end_inset
+
+ is a weighting function centered at the point 
+\begin_inset Formula $\bm{x}_{i}$
+\end_inset
+
+.
+ The derivatives are
+\begin_inset Formula 
+\[
+\frac{\partial\phi_{i}\left(\bm{x}\right)}{\partial x_{j}}=\frac{\partial\bm{p}^{\top}\left(\bm{x}\right)}{\partial x_{j}}\bm{A}^{-1}\left(\bm{x}\right)\bm{B}_{i}\left(\bm{x}\right)+\bm{p}^{\top}\left(\bm{x}\right)\frac{\partial\bm{A}^{-1}\left(\bm{x}\right)}{\partial x_{j}}\bm{B}_{i}\left(\bm{x}\right)+\bm{p}^{\top}\left(\bm{x}\right)\bm{A}^{-1}\left(\bm{x}\right)\frac{\partial\bm{B}_{i}\left(\bm{x}\right)}{\partial x_{j}},
+\]
+
+\end_inset
+
+where
+\begin_inset Formula 
+\begin{gather*}
+\frac{\partial\bm{B}_{i}}{\partial x_{j}}=\frac{\partial w_{i}\left(\bm{x}\right)}{\partial x_{j}}\bm{p}\left(\bm{x}_{i}\right),\\
+\frac{\partial\bm{A}^{-1}\left(\bm{x}\right)}{\partial x_{j}}=-\bm{A}^{-1}\left(\bm{x}\right)\frac{\partial\bm{A}\left(\bm{x}\right)}{\partial x_{j}}\bm{A}^{-1}\left(\bm{x}\right),\\
+\frac{\partial\bm{A}\left(\bm{x}\right)}{\partial x_{j}}=\sum_{i=1}^{n}\frac{\partial\hat{W}_{i}\left(\bm{x}\right)}{\partial x_{j}}\bm{p}\left(\bm{x}_{i}\right)\bm{p}^{\top}\left(\bm{x}_{i}\right).
+\end{gather*}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:mls-const"
+
+\end_inset
+
+ shows the MLS basis functions, which are not symmetric about the center
+ as are RBFs.
+ The defining feature of the MLS functions is the ability to exactly represent
+ polynomials up to a defined order.
+ In this case, only a linear basis is used.
+ As is evident, the MLS basis functions are approximating the constant and
+ linear functions to machine precision.
+ 
+\end_layout
+
+\begin_layout Standard
+Like RBFs, MLS basis functions are not able to easily represent large discontinu
+ities in the solution.
+ Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:mls-interpolation"
+
+\end_inset
+
+ shows the attempt at interpolating a square wave using MLS basis and weight
+ functions without a sufficient number to finely resolve the discontinuities.
+ As in the RBF case, the weak form does not have the Dirac delta property
+ at the boundary, i.e.
+ the value of the interpolant at the boundary does not equal the boundary
+ condition.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
 status open
 
 \begin_layout Plain Layout
-Include pictures.
- Test in 2D.
+\noindent
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename figs/square_mls_17_2_basis.pdf
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Basis function set, 
+\begin_inset Formula $\Gamma_{i}\left(\bm{x}\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename figs/square_mls_17_2_const.pdf
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Interpolation of a constant and a linear function
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Linear MLS basis with 17 points
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:mls-const"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename figs/square_mls_17_2_partial.pdf
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Scaled basis functions for the pointwise interpolation, 
+\begin_inset Formula $a_{i}\Gamma_{i}\left(\bm{x}\right)$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename figs/square_mls_17_2_interp.pdf
+	width 50text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Interpolation result
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Interpolation of a square wave using 17 MLS basis and weight functions
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:mls-interpolation"
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
