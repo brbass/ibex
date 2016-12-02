@@ -2482,9 +2482,9 @@ The
  with some localization procedure.
  The boundary conditions are 
 \begin_inset Formula 
-\begin{equation}
-\frac{1}{4}\sum_{i=1}^{J}\left[b_{i}\left(\bm{x}\right)+2D_{g}\left(\bm{x}\right)\bm{n}\cdot\bm{\nabla}b_{i}\left(\bm{x}\right)\right]\beta_{i,g}=J_{g}^{b-}\left(\bm{x},t\right),\qquad j=1,\dots,J,\quad g=1,\dots,G.
-\end{equation}
+\[
+\frac{1}{4}\sum_{i=1}^{J}\left[\left(1-\rho\right)b_{i}\left(\bm{x}\right)+2\left(1+\rho\right)D_{g}\left(\bm{x}\right)\bm{n}\cdot\bm{\nabla}b_{i}\left(\bm{x}\right)\right]\beta_{i,g}=J_{g}^{b-}\left(\bm{x}\right),\qquad j=1,\dots,J,\quad g=1,\dots,G.
+\]
 
 \end_inset
 
@@ -2619,7 +2619,37 @@ reference "eq:partial-currents-flux"
 
 \end_inset
 
+The 
+\begin_inset Formula $\rho$
+\end_inset
 
+ may be dependent on which boundary is being integrated.
+ If so, the surface integral will be of the form
+\begin_inset Formula 
+\begin{equation}
+\sum_{m}\left(\frac{1-\rho_{m}}{4}\right)\int_{S_{j,m}}w_{j}\left(\bm{x}\right)\left(\cdot\right)dS.
+\end{equation}
+
+\end_inset
+
+For the interior of the problem, if the discontinuous finite element method
+ is being used, the integral over the boundary current 
+\begin_inset Formula $J_{g}^{b-}$
+\end_inset
+
+  instead becomes an integral over the boundary current exiting the neighboring
+ cells.
+ Unlike in DFEM transport methods where only the contribution of upwind
+ cells is taken into account, in the diffusion method there is no concept
+ of upwind or downwind and the incoming current from all of the neighboring
+ cells must be included.
+ For between-cell current, the albedo coefficient will be zero, i.e.
+ 
+\begin_inset Formula $\rho=0$
+\end_inset
+
+.
+ 
 \end_layout
 
 \begin_layout Part
