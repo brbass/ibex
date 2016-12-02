@@ -770,13 +770,31 @@ Begin with the neutron transport equation without delayed neutrons,
 and the accompanying boundary and initial conditions,
 \begin_inset Formula 
 \begin{gather}
-\psi\left(\bm{x},\bm{\Omega},E,t\right)=\psi^{b}\left(\bm{x},\bm{\Omega},E,t\right),\qquad\bm{x}\in V,\quad\bm{\Omega}\cdot\bm{n}<0,\quad0<E<\infty,\quad0<t,\\
+\psi\left(\bm{x},\bm{\Omega},E,t\right)=\psi^{b}\left(\bm{x},\bm{\Omega},E,t\right)+\rho\psi\left(\bm{x},\bm{\Omega}_{r},E,t\right),\qquad\bm{x}\in V,\quad\bm{\Omega}\cdot\bm{n}<0,\quad0<E<\infty,\quad0<t,\\
 \psi\left(\bm{x},\bm{\Omega},E,t=0\right)=\psi^{i}\left(\bm{x},\bm{\Omega},E\right),\qquad\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad0<E<\infty.
 \end{gather}
 
 \end_inset
 
-Defining the spherical harmonics moments of the equation as 
+Here 
+\begin_inset Formula $\rho$
+\end_inset
+
+ allows for the albedo boundary condition with 
+\begin_inset Formula $\rho=1$
+\end_inset
+
+ for a reflective boundary condition and 
+\begin_inset Formula $\rho=0$
+\end_inset
+
+ for a vacuum boundary condition.
+ The reflection angle is 
+\begin_inset Formula $\bm{\Omega}_{r}=\bm{\Omega}-2\left(\bm{\Omega}\cdot\bm{n}\right)\bm{n}$
+\end_inset
+
+.
+ Defining the spherical harmonics moments of the equation as 
 \begin_inset Formula 
 \begin{equation}
 \phi_{\ell}^{m}\left(\bm{x},E,t\right)\equiv\int_{4\pi}Y_{\ell}^{m}\left(\bm{\Omega}\right)\psi\left(\bm{x},\bm{\Omega},E,t\right)d\Omega,
@@ -962,7 +980,7 @@ name "eq:multigroup-boundary-initial"
 
 \begin_inset Formula 
 \begin{gather}
-\psi_{g}\left(\bm{x},\bm{\Omega},t\right)=\psi_{g}^{b}\left(\bm{x},\bm{\Omega},t\right),\qquad\bm{x}\in V,\quad\bm{\Omega}\cdot\bm{n}<0,\quad g=1,\dots,G,\quad0<t,\label{eq:multigroup-boundary}\\
+\psi_{g}\left(\bm{x},\bm{\Omega},t\right)=\psi_{g}^{b}\left(\bm{x},\bm{\Omega},t\right)+\rho\psi_{g}\left(\bm{x},\bm{\Omega}_{r},t\right),\qquad\bm{x}\in V,\quad\bm{\Omega}\cdot\bm{n}<0,\quad g=1,\dots,G,\quad0<t,\label{eq:multigroup-boundary}\\
 \psi_{g}\left(\bm{x},\bm{\Omega},t=0\right)=\psi_{g}^{i}\left(\bm{x},\bm{\Omega}\right),\qquad\bm{x}\in V,\quad\bm{\Omega}\in4\pi,\quad g=1,\dots,G,\label{eq:multigroup-initial}
 \end{gather}
 
@@ -1063,7 +1081,7 @@ begin{subequations}
 
 \begin_inset Formula 
 \begin{gather}
-\psi_{n,g}\left(\bm{x},t\right)=\psi_{n,g}^{b}\left(\bm{x},t\right),\qquad\bm{x}\in V,\quad\bm{\Omega}_{n}\cdot\bm{n}<0,\quad g=1,\dots,G,\quad0<t,\\
+\psi_{n,g}\left(\bm{x},t\right)=\psi_{n,g}^{b}\left(\bm{x},t\right)+\rho\psi_{n_{r},g}^{b}\left(\bm{x},t\right),\qquad\bm{x}\in V,\quad\bm{\Omega}_{n}\cdot\bm{n}<0,\quad g=1,\dots,G,\quad0<t,\\
 \psi_{n,g}\left(\bm{x},t=0\right)=\psi_{n,g}^{i}\left(\bm{x}\right),\qquad\bm{x}\in V,\quad n=1,\dots N,\quad g=1,\dots,G,
 \end{gather}
 
@@ -1125,7 +1143,7 @@ At steady state, the time derivative in the transport equation goes to zero
 The boundary condition simplifies to 
 \begin_inset Formula 
 \[
-\psi_{n,g}\left(\bm{x}\right)=\psi_{n,g}^{b}\left(\bm{x}\right),\qquad\bm{x}\in V,\quad\bm{\Omega}_{n}\cdot\bm{n}<0,\quad g=1,\dots,G.
+\psi_{n,g}\left(\bm{x}\right)=\psi_{n,g}^{b}\left(\bm{x}\right)+\rho\psi_{n_{r},g}\left(\bm{x}\right),\qquad\bm{x}\in V,\quad\bm{\Omega}_{n}\cdot\bm{n}<0,\quad g=1,\dots,G.
 \]
 
 \end_inset
@@ -1990,7 +2008,7 @@ begin{subequations}
 \begin{multline}
 \frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\phi_{g}\left(\bm{x}\right)+\bm{\nabla}\cdot\bm{J}_{g}\left(\bm{x},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\phi_{g}\left(\bm{x}\right)\\
 =\sum_{g'=1}^{G}\Sigma_{s;0,g'\to g}\left(\bm{x}\right)\phi_{g'}\left(\bm{x},t\right)+\frac{\chi_{g}\left(\bm{x}\right)}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;g'}\left(\bm{x}\right)\phi_{g'}\left(\bm{x},t\right)+Q_{0,g}\left(\bm{x},t\right),\\
-\bm{x}\in V,\quad g=1,\dots,G,\quad0<t,
+\bm{x}\in V,\quad g=1,\dots,G,\quad0<t,\label{eq:p1-phi}
 \end{multline}
 
 \end_inset
@@ -2000,7 +2018,7 @@ begin{subequations}
 \begin{multline}
 \frac{1}{v_{g}\left(\bm{x}\right)}\frac{\partial}{\partial t}\bm{J}_{g}\left(\bm{x}\right)+\frac{1}{3}\bm{\nabla}\phi_{g}\left(\bm{x},t\right)+\Sigma_{t;g}\left(\bm{x}\right)\bm{J}_{g}\left(\bm{x}\right)\\
 =\sum_{g'=1}^{G}\Sigma_{s;1,g'\to g}\left(\bm{x}\right)\bm{J}_{g'}\left(\bm{x},t\right),\\
-\bm{x}\in V,\quad g=1,\dots,G,\quad0<t.
+\bm{x}\in V,\quad g=1,\dots,G,\quad0<t.\label{eq:p1-j}
 \end{multline}
 
 \end_inset
@@ -2134,10 +2152,59 @@ begin{subequations}
 \end_inset
 
 
+\begin_inset CommandInset label
+LatexCommand label
+name "eq:partial-currents"
+
+\end_inset
+
+
 \begin_inset Formula 
 \begin{gather}
 J_{g}^{-}\left(\bm{x},t\right)\approx-\frac{1}{4\pi}\bm{n}\cdot\left[\int_{\bm{\Omega}\cdot\bm{n}<0}\bm{\Omega}\phi_{g}\left(\bm{x},t\right)+3\bm{\Omega}\bm{\Omega}\cdot\bm{J}_{g}\left(\bm{x},t\right)d\Omega\right]=\frac{1}{4}\left[\phi_{g}\left(\bm{x},t\right)-2\bm{n}\cdot\bm{J}_{g}\left(\bm{x},t\right)\right],\\
 J_{g}^{+}\left(\bm{x},t\right)\approx\frac{1}{4\pi}\bm{n}\cdot\left[\int_{\bm{\Omega}\cdot\bm{n}>0}\bm{\Omega}\phi_{g}\left(\bm{x},t\right)+3\bm{\Omega}\bm{\Omega}\cdot\bm{J}_{g}\left(\bm{x},t\right)d\Omega\right]=\frac{1}{4}\left[\phi_{g}\left(\bm{x},t\right)+2\bm{n}\cdot\bm{J}_{g}\left(\bm{x},t\right)\right].
+\end{gather}
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{subequations}
+\end_layout
+
+\end_inset
+
+Apply Fick's Law to get these in terms of the scalar flux,
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "eq:partial-currents-flux"
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{gather}
+J_{g}^{-}\left(\bm{x},t\right)=\frac{1}{4}\left[\phi_{g}\left(\bm{x},t\right)+2D_{g}\left(\bm{x}\right)\bm{n}\cdot\bm{\nabla}\phi_{g}\left(\bm{x},t\right)\right],\\
+J_{g}^{+}\left(\bm{x},t\right)=\frac{1}{4}\left[\phi_{g}\left(\bm{x},t\right)-2D_{g}\left(\bm{x}\right)\bm{n}\cdot\bm{\nabla}\phi_{g}\left(\bm{x},t\right)\right].
 \end{gather}
 
 \end_inset
@@ -2174,7 +2241,7 @@ reference "eq:multigroup-boundary"
  to get
 \begin_inset Formula 
 \begin{equation}
-\frac{1}{4}\left[\phi_{g}\left(\bm{x},t\right)-2\bm{n}\cdot\bm{J}_{g}\left(\bm{x},t\right)\right]=\int_{\bm{\Omega}\cdot\bm{n}<0}\left|\bm{\Omega}\cdot\bm{n}\right|\psi_{g}\left(\bm{x},\bm{\Omega},t\right)d\Omega\equiv J_{g}^{b-}\left(\bm{x},t\right).
+J_{g}^{-}\left(\bm{x},t\right)=J_{g}^{b-}\left(\bm{x},t\right)+\rho J_{g}^{+}\left(\bm{x},t\right).\label{eq:diffusion-current-boundary}
 \end{equation}
 
 \end_inset
@@ -2207,7 +2274,7 @@ begin{subequations}
  
 \begin_inset Formula 
 \begin{equation}
-\frac{1}{4}\left[\phi_{g}\left(\bm{x},t\right)+2D_{g}\left(\bm{x}\right)\bm{n}\cdot\bm{\nabla}\phi_{g}\left(\bm{x},t\right)\right]=J_{g}^{b-}\left(\bm{x},t\right).
+\frac{1}{4}\left[\left(1-\rho\right)\phi_{g}\left(\bm{x},t\right)+2\left(1+\rho\right)D_{g}\left(\bm{x}\right)\bm{n}\cdot\bm{\nabla}\phi_{g}\left(\bm{x},t\right)\right]=J_{g}^{b-}\left(\bm{x},t\right).
 \end{equation}
 
 \end_inset
@@ -2429,62 +2496,130 @@ Weak discretization
 \end_layout
 
 \begin_layout Standard
-To get the weak discretization, perform 
-\begin_inset Formula $\int_{V_{j}}w_{j}\left(\cdot\right)dV$
-\end_inset
-
- on Eq.
+To derive the weak form of the diffusion equations, we take a few steps
+ back to Eq.
  
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "eq:multigroup-diffusion-steady"
+reference "eq:p1-phi"
 
 \end_inset
 
- for each weight function 
-\begin_inset Formula $w_{j}$
+ to correctly account for the incoming and outgoing partial currents.
+ Neglect the time derivative, assume the cross sections are constant or
+ weighted in each integration region and apply 
+\begin_inset Formula $\int_{V_{j}}w_{j}\left(\cdot\right)dV$
 \end_inset
 
- and assume the cross sections are constant or weighted in space to get
- 
+ to get 
 \begin_inset Formula 
 \begin{multline}
--D_{j,g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\nabla^{2}\phi_{g}\left(\bm{x}\right)dV+\Sigma_{t;j,g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g}\left(\bm{x}\right)dV\\
-=\sum_{g'=1}^{G}\Sigma_{s;j,0,g'\to g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)dV+\frac{\chi_{j,g}}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;j,g'}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)dV+\int_{V_{j}}w_{j}\left(\bm{x}\right)Q_{0,g}\left(\bm{x}\right)dV,\\
-\bm{x}\in V,\quad g=1,\dots,G.
+\int_{V_{j}}w_{j}\left(\bm{x}\right)\bm{\nabla}\cdot\bm{J}_{g}\left(\bm{x}\right)dV+\Sigma_{t;j,g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g}\left(\bm{x}\right)dV\\
+=\sum_{g'=1}^{G}\Sigma_{s;j,0,g'\to g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)dV+\frac{\chi_{j,g}}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;j,g'}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)dV\\
++\int_{V_{j}}w_{j}\left(\bm{x}\right)Q_{0,g}\left(\bm{x}\right)dV,\\
+\bm{x}\in V,\quad g=1,\dots,G,\quad0<t.\label{eq:p1-phi-integrated}
 \end{multline}
 
 \end_inset
 
-Use the chain rule,
+Use the definitions of 
+\begin_inset Formula $J^{+}$
+\end_inset
+
+ and 
+\begin_inset Formula $J^{-}$
+\end_inset
+
+ to derive a relationship with 
+\begin_inset Formula $\bm{J}$
+\end_inset
+
+,
 \begin_inset Formula 
-\begin{equation}
-\nabla\cdot\left(w_{j}\left(\bm{x}\right)\nabla\phi_{g}\left(\bm{x}\right)\right)=w_{j}\left(\bm{x}\right)\nabla^{2}\phi_{g}\left(\bm{x}\right)+\left[\nabla w_{j}\left(\bm{x}\right)\right]\cdot\left[\nabla\phi_{g}\left(\bm{x}\right)\right]
-\end{equation}
+\begin{align*}
+\bm{n}\cdot\bm{J}_{g}\left(\bm{x}\right) & =\bm{n}\cdot\int_{4\pi}\bm{\Omega}\psi_{g}\left(\bm{x},\bm{\Omega}\right)d\Omega\\
+ & =\int_{\bm{\Omega}\cdot\bm{n}>0}\bm{\Omega}\cdot\bm{n}\psi_{g}\left(\bm{x},\bm{\Omega}\right)d\Omega-\int_{\bm{\Omega}\cdot\bm{n}<0}\bm{\Omega}\cdot\bm{n}\psi_{g}\left(\bm{x},\bm{\Omega}\right)d\Omega\\
+ & =J_{g}^{+}\left(\bm{x}\right)-J_{g}^{-}\left(\bm{x}\right).
+\end{align*}
 
 \end_inset
 
-(or integration by parts) and apply the divergence theorem on the diffusion
- term to get
+The streaming term then becomes
+\begin_inset Formula 
+\begin{align}
+\int_{V_{j}}w_{j}\left(\bm{x}\right)\bm{\nabla}\cdot\bm{J}_{g}\left(\bm{x}\right)dV & =\int_{S_{j}}w_{j}\left(\bm{x}\right)\left(\bm{n}\cdot\bm{J}\left(\bm{x}\right)\right)dS-\int_{V_{j}}\left[\bm{\nabla}w_{j}\left(\bm{x}\right)\right]\cdot\bm{J}\left(\bm{x}\right)dV\\
+ & =\int_{S_{j}}w_{j}\left(\bm{x}\right)\left[J_{g}^{+}\left(\bm{x}\right)-J_{g}^{-}\left(\bm{x}\right)\right]dS-\int_{V_{j}}\left[\bm{\nabla}w_{j}\left(\bm{x}\right)\right]\cdot\bm{J}\left(\bm{x}\right)dV.
+\end{align}
+
+\end_inset
+
+To review, 
+\begin_inset Formula $J_{g}^{+}$
+\end_inset
+
+ represents the outgoing flux at the boundary (which we do not know a priori)
+ and 
+\begin_inset Formula $J_{g}^{-}$
+\end_inset
+
+ represents the incoming flux at the boundary (which is known for the boundary
+ source but not for reflection).
+ Using Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:diffusion-current-boundary"
+
+\end_inset
+
+, this the streaming term can be expanded to include the boundary condition,
+\begin_inset Formula 
+\[
+\int_{S_{j}}w_{j}\left(\bm{x}\right)\left[J_{g}^{+}\left(\bm{x}\right)-J_{g}^{-}\left(\bm{x}\right)\right]dS=\int_{S_{j}}w_{j}\left(\bm{x}\right)\left[\left(1-\rho\right)J_{g}^{+}\left(\bm{x}\right)-J_{g}^{b-}\left(\bm{x}\right)\right]dS.
+\]
+
+\end_inset
+
+Putting the transport equation back together, we get
 \begin_inset Formula 
 \begin{multline}
--D_{j,g}\int_{S_{j}}w_{j}\left(\bm{x}\right)\bm{n}\cdot\bm{\nabla}\phi_{g}\left(\bm{x}\right)dS+D_{j,g}\int_{V_{j}}\left[\nabla w_{j}\left(\bm{x}\right)\right]\cdot\left[\nabla\phi_{g}\left(\bm{x}\right)\right]dV+\Sigma_{t;j,g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g}\left(\bm{x}\right)dV\\
-=\sum_{g'=1}^{G}\Sigma_{s;j,0,g'\to g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)dV+\frac{\chi_{j,g}}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;j,g'}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)dV+\int_{V_{j}}w_{j}\left(\bm{x}\right)Q_{0,g}\left(\bm{x}\right)dV,\\
-\bm{x}\in V,\quad g=1,\dots,G.
+\left(1-\rho\right)\int_{S_{j}}w_{j}\left(\bm{x}\right)J_{g}^{+}\left(\bm{x}\right)dS-\int_{V_{j}}\left[\bm{\nabla}w_{j}\left(\bm{x}\right)\right]\cdot\bm{J}\left(\bm{x}\right)dV+\Sigma_{t;j,g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g}\left(\bm{x}\right)dV\\
+=\sum_{g'=1}^{G}\Sigma_{s;j,0,g'\to g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)dV+\frac{\chi_{j,g}}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;j,g'}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)dV\\
++\int_{V_{j}}w_{j}\left(\bm{x}\right)Q_{0,g}\left(\bm{x}\right)dV+\int_{S_{j}}w_{j}\left(\bm{x}\right)J_{g}^{b-}\left(\bm{x}\right)dS,\\
+\bm{x}\in V,\quad g=1,\dots,G.\label{eq:p1-weak}
 \end{multline}
 
 \end_inset
 
-An expansion for 
-\begin_inset Formula $\phi_{g}\left(\bm{x}\right)$
-\end_inset
-
- can then be used to supply the 
-\begin_inset Formula $J$
-\end_inset
-
- unknowns to the equation.
+Using Fick's Law (Eq.
  
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ficks-law"
+
+\end_inset
+
+) and the partial currents (Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:partial-currents-flux"
+
+\end_inset
+
+), the final equations are
+\begin_inset Formula 
+\begin{multline}
+\left(\frac{1-\rho}{4}\right)\left[\int_{S_{j}}w_{j}\left(\bm{x}\right)\phi_{g}\left(\bm{x},t\right)dS-2D_{j,g}\bm{n}\cdot\int_{S_{j}}w_{j}\left(\bm{x}\right)\bm{\nabla}\phi_{g}\left(\bm{x}\right)dS\right]+D_{j,g}\int_{V_{j}}\left[\bm{\nabla}w_{j}\left(\bm{x}\right)\right]\cdot\left[\bm{\nabla}\phi_{g}\left(\bm{x}\right)\right]dV\\
++\Sigma_{t;j,g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g}\left(\bm{x}\right)dV\\
+=\sum_{g'=1}^{G}\Sigma_{s;j,0,g'\to g}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)dV+\frac{\chi_{j,g}}{4\pi}\sum_{g'=1}^{G}\nu\Sigma_{f;j,g'}\int_{V_{j}}w_{j}\left(\bm{x}\right)\phi_{g'}\left(\bm{x}\right)dV\\
++\int_{V_{j}}w_{j}\left(\bm{x}\right)Q_{0,g}\left(\bm{x}\right)dV+\int_{S_{j}}w_{j}\left(\bm{x}\right)J_{g}^{b-}\left(\bm{x}\right)dS,\\
+\bm{x}\in V,\quad g=1,\dots,G.\label{eq:weak-diffusion}
+\end{multline}
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Part
