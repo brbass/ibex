@@ -1,0 +1,21 @@
+#include "XML_Document.hh"
+
+#include "Check.hh"
+#include "XML_Node.hh"
+
+using namespace std;
+
+XML_Document::
+XML_Document()
+{
+}
+
+XML_Document::
+XML_Document(string filename)
+{
+    if (!xml_document_.load_file(xml_in_.c_str()))
+    {
+        AssertMsg(false, "Could not open xml input file \"" + xml_in_ + "\"");
+    }
+}
+
