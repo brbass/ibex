@@ -6,12 +6,14 @@
 using namespace std;
 
 XML_Document::
-XML_Document()
+XML_Document():
+    XML_Node(xml_document_)
 {
 }
 
 XML_Document::
-XML_Document(string filename)
+XML_Document(string filename):
+    XML_Document()
 {
     if (!xml_document_.load_file(xml_in_.c_str()))
     {
