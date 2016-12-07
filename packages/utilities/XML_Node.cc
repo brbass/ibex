@@ -1,5 +1,7 @@
 #include "XML_Node.hh"
 
+using namespace std;
+
 XML_Node::
 XML_Node(pugi::xml_node xml_node):
     xml_node_(xml_node)

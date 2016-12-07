@@ -5,7 +5,7 @@
 
 #include "pugixml.hh"
 
-#include "XML_Node.hh";
+#include "XML_Node.hh"
 
 class XML_Document : public XML_Node
 {
@@ -20,6 +20,6 @@ public:
 private:
     
     pugi::xml_document xml_document_;
-}
+};
 
 #endif

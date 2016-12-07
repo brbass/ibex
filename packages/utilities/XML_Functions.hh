@@ -14,7 +14,7 @@ namespace XML_Functions
 
     template<typename T> T attr_value(pugi::xml_attribute attr);
     template<typename T> T text_value(pugi::xml_text text);
-    template<typename T> vector<T> text_vector(pugi::xml_text text);
+    template<typename T> std::vector<T> text_vector(pugi::xml_text text);
     
     // Specializations
     template<> bool attr_value<bool>(pugi::xml_attribute attr)
@@ -33,9 +33,9 @@ namespace XML_Functions
     {
         return attr.as_double();
     }
-    template<> string attr_value<string>(pugi::xml_attribute attr)
+    template<> std::string attr_value<std::string>(pugi::xml_attribute attr)
     {
-        return static_cast<string>(attr.as_string());
+        return static_cast<std::string>(attr.as_string());
     }
     template<> bool text_value<bool>(pugi::xml_text text)
     {
@@ -53,16 +53,16 @@ namespace XML_Functions
     {
         return text.as_double();
     }
-    template<> string text_value<string>(pugi::xml_text text)
+    template<> std::string text_value<std::string>(pugi::xml_text text)
     {
-        return static_cast<string>(text.as_string());
+        return static_cast<std::string>(text.as_string());
     }
     
-    template<typename T> vector<T> text_vector(pugi::xml_text text)
+    template<typename T> std::vector<T> text_vector(pugi::xml_text text)
     {
-        vector<T> value;
+        std::vector<T> value;
         
-        String_Functions::string_to_vector(text_value<string>(text),
+        String_Functions::string_to_vector(text_value<std::string>(text),
                                            value);
         
         return value;

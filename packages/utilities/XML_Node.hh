@@ -8,6 +8,7 @@
 
 #include "pugixml.hh"
 
+#include "Check.hh"
 #include "XML_Functions.hh"
 
 #define XML_PRECISION 16
@@ -30,40 +31,44 @@ public:
 
     // Get an attribute of the node given a default
     template<typename T> T get_attribute_value(std::string description,
-                                           T def);
+                                               T def);
     
     // Get the value of the node, insisting that it exists
     template<typename T> T get_value();
-    template<typename T> vector<T> vector(int expected_size);
+    template<typename T> std::vector<T> get_vector(int expected_size);
     
     // Get the value of the node given a default
     template<typename T> T get_value(T def);
-    template<typename T> vector<T> vector(vector<T> def);
+    template<typename T> std::vector<T> get_vector(int expected_size,
+                                                   std::vector<T> def);
     
     // Get a child value of the node, insisting that it exists
     template<typename T> T get_child_value(std::string description);
-    template<typename T> vector<T> get_child_vector(std::string description,
-                                                    int expected_size);
+    template<typename T> std::vector<T> get_child_vector(std::string description,
+                                                         int expected_size);
     
     // Get a child value of the node given a default
     template<typename T> T get_child_value(std::string description,
                                            T def);
-    template<typename T> vector<T> get_child_vector(std::string description,
-                                                vector<T> def);
+    template<typename T> std::vector<T> get_child_vector(std::string description,
+                                                         int expected_size,
+                                                         std::vector<T> def);
 
     // Set attribute of node
     template<typename T> void set_attribute(T data,
-                                            string description);
+                                            std::string description);
     
     // Set value of node
     template<typename T> void set_value(T data);
-    template<typename T> void set_vector(vector<T> const &data);
+    template<typename T> void set_vector(std::vector<T> const &data,
+                                         std::string index_order = "");
 
     // Set value of child node
     template<typename T> void set_child_value(T data,
                                               std::string description);
-    template<typename T> void set_child_vector(vector<T> const &data,
-                                               std::string description);
+    template<typename T> void set_child_vector(std::vector<T> const &data,
+                                               std::string description,
+                                               std::string index_order = "");
     
 protected:
     
@@ -85,8 +90,8 @@ get_attribute_value(std::string description)
 
     if (attr.empty())
     {
-        string name = static_cast<string>(xml_node_.name());
-        string error_message
+        std::string name = static_cast<std::string>(xml_node_.name());
+        std::string error_message
             = "required attribute ("
             + description
             + ") in node ("
@@ -101,7 +106,7 @@ get_attribute_value(std::string description)
 
 template<typename T> T XML_Node::
 get_attribute_value(std::string description,
-                T def)
+                    T def)
 {
     pugi::xml_attribute attr = xml_node_.attribute(description.c_str());
 
@@ -110,7 +115,7 @@ get_attribute_value(std::string description,
         return def;
     }
 
-    return attr_value<T>(text);
+    return XML_Functions::attr_value<T>(attr);
 }
 
 template<typename T> T XML_Node::
@@ -122,9 +127,7 @@ get_value()
     {
         std::string name = static_cast<std::string>(xml_node_.name());
         std::string error_message
-            = "required value ("
-            + description
-            + ") in node ("
+            = "required value in node ("
             + name
             + ") not found";
         
@@ -134,7 +137,7 @@ get_value()
     return XML_Functions::text_value<T>(text);
 }
 
-template<typename T> vector<T> XML_Node::
+template<typename T> std::vector<T> XML_Node::
 get_vector(int expected_size)
 {
     pugi::xml_text text = xml_node_.text();
@@ -143,24 +146,20 @@ get_vector(int expected_size)
     {
         std::string name = static_cast<std::string>(xml_node_.name());
         std::string error_message
-            = "required value ("
-            + description
-            + ") in node ("
+            = "required value in node ("
             + name
             + ") not found";
         
         AssertMsg(false, error_message);
     }
     
-    vector<T> value = XML_Functions::text_vector<T>(text);
+    std::vector<T> value = XML_Functions::text_vector<T>(text);
 
     if (value.size() != expected_size)
     {
         std::string name = static_cast<std::string>(xml_node_.name());
         std::string error_message
-            = "num values of ("
-            + description
-            + ") in node ("
+            = "num values of in node ("
             + name
             + ") incorrect; expected ("
             + std::to_string(expected_size)
@@ -184,12 +183,12 @@ get_value(T def)
         return def;
     }
 
-    return text_value<T>(text);
+    return XML_Functions::text_value<T>(text);
 }
 
-template<typename T> vector<T> XML_Node::
+template<typename T> std::vector<T> XML_Node::
 get_vector(int expected_size,
-       vector<T> def)
+           std::vector<T> def)
 {
     pugi::xml_text text = xml_node_.text();
 
@@ -198,15 +197,13 @@ get_vector(int expected_size,
         return def;
     }
 
-    vector<T> value = XML_Functions::text_vector<T>(text);
+    std::vector<T> value = XML_Functions::text_vector<T>(text);
 
     if (value.size() != expected_size)
     {
         std::string name = static_cast<std::string>(xml_node_.name());
         std::string error_message
-            = "size of ("
-            + description
-            + ") in node ("
+            = "size in node ("
             + name
             + ") incorrect - expected ("
             + std::to_string(expected_size)
@@ -224,49 +221,49 @@ get_vector(int expected_size,
 template<typename T> T XML_Node::
 get_child_value(std::string description)
 {
-    return get_child(description).value();
+    return get_child(description).get_value<T>();
 }
 
-template<typename T> vector<T> XML_Node::
+template<typename T> std::vector<T> XML_Node::
 get_child_vector(std::string description,
-             int expected_size)
+                 int expected_size)
 {
-    return get_child(description).vector(expected_size);
+    return get_child(description).get_vector<T>(expected_size);
 }
 
 template<typename T> T XML_Node::
 get_child_value(std::string description,
-            T def)
+                T def)
 {
-    return get_child(description).value(def);
+    return get_child(description).get_value(def);
 }
 
-template<typename T> vector<T> XML_Node::
+template<typename T> std::vector<T> XML_Node::
 get_child_vector(std::string description,
-             int expected_size,
-             vector<T> def)
+                 int expected_size,
+                 std::vector<T> def)
 {
-    return get_child(description).vector(expected_size,
+    return get_child(description).get_vector(expected_size,
                                          def);
 }
 
 template<typename T> void XML_Node::
 set_attribute(T data,
-              string description)
+              std::string description)
 {
-    string data_string;
+    std::string data_string;
     String_Functions::to_string(data_string,
                                 data,
                                 XML_PRECISION);
     
-    pugi::xml_attribute attr = xml_node_.append_attribute(description);
+    pugi::xml_attribute attr = xml_node_.append_attribute(description.c_str());
     attr.set_value(data_string.c_str());
 }
 
 template<typename T> void XML_Node::
 set_value(T data)
 {
-    string data_string;
+    std::string data_string;
     String_Functions::to_string(data_string,
                                 data,
                                 XML_PRECISION);
@@ -275,10 +272,10 @@ set_value(T data)
 }
 
 template<typename T> void XML_Node::
-set_vector(vector<T> const &data,
-           string index_order = "")
+set_vector(std::vector<T> const &data,
+           std::string index_order)
 {
-    string data_string;
+    std::string data_string;
     String_Functions::vector_to_string(data_string,
                                        data,
                                        XML_PRECISION);
@@ -296,16 +293,16 @@ template<typename T> void XML_Node::
 set_child_value(T data,
                 std::string description)
 {
-    append_node(description).set_value(data);
+    append_child(description).set_value(data);
 }
 
 template<typename T> void XML_Node::
-set_child_vector(vector<T> const &data,
+set_child_vector(std::vector<T> const &data,
                  std::string description,
-                 string index_order)
+                 std::string index_order)
 {
-    append_node(description).set_vector(data,
-                                        index_order);
+    append_child(description).set_vector(data,
+                                         index_order);
 }
 
 #endif

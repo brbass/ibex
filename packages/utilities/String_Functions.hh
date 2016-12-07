@@ -20,7 +20,7 @@ namespace String_Functions
               int precision = 16)
     {
         std::stringstream ss;
-        ss << setprecision(XML_PRECISION);
+        ss << std::setprecision(precision);
         ss << data;
         
         return ss.str();

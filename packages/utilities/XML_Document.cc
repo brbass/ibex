@@ -15,9 +15,9 @@ XML_Document::
 XML_Document(string filename):
     XML_Document()
 {
-    if (!xml_document_.load_file(xml_in_.c_str()))
+    if (!xml_document_.load_file(filename.c_str()))
     {
-        AssertMsg(false, "Could not open xml input file \"" + xml_in_ + "\"");
+        AssertMsg(false, "Could not open xml input file \"" + filename + "\"");
     }
 }
 
