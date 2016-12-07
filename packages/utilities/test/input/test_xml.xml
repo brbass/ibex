@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<input>
+  <cat breed="siamese">
+    <color>black</color>
+    <dimensions>14.2 5.9 9.0</dimensions>
+    <number_of_legs>4</number_of_legs>
+    <bites>true</bites>
+  </cat>
+</input>

@@ -16,10 +16,6 @@ public:
 
     // Load XML document from file
     XML_Document(std::string name); 
-    
-private:
-    
-    pugi::xml_document xml_document_;
 };
 
 #endif

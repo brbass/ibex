@@ -19,9 +19,13 @@
 class XML_Node
 {
 public:
-
+    
+    // Check for child node
+    bool check_child(std::string name);
+    
     // Find a child node
-    XML_Node get_child(std::string name);
+    XML_Node get_child(std::string name,
+                       bool check = true);
     
     // Append a child node
     XML_Node append_child(std::string name);
@@ -122,7 +126,7 @@ template<typename T> T XML_Node::
 get_value()
 {
     pugi::xml_text text = xml_node_.text();
-    
+
     if (text.empty())
     {
         std::string name = static_cast<std::string>(xml_node_.name());
@@ -163,7 +167,7 @@ get_vector(int expected_size)
             + name
             + ") incorrect; expected ("
             + std::to_string(expected_size)
-            + ") but got ("
+            + ") but calculated ("
             + std::to_string(value.size())
             + ")";
         
@@ -207,7 +211,7 @@ get_vector(int expected_size,
             + name
             + ") incorrect - expected ("
             + std::to_string(expected_size)
-            + ") but got ("
+            + ") but calculated ("
             + std::to_string(value.size())
             + ") - reverting to default value";
         std::cout << error_message << std::endl;
@@ -221,21 +225,24 @@ get_vector(int expected_size,
 template<typename T> T XML_Node::
 get_child_value(std::string description)
 {
-    return get_child(description).get_value<T>();
+    return get_child(description,
+                     false).get_value<T>();
 }
 
 template<typename T> std::vector<T> XML_Node::
 get_child_vector(std::string description,
                  int expected_size)
 {
-    return get_child(description).get_vector<T>(expected_size);
+    return get_child(description,
+                     false).get_vector<T>(expected_size);
 }
 
 template<typename T> T XML_Node::
 get_child_value(std::string description,
                 T def)
 {
-    return get_child(description).get_value(def);
+    return get_child(description,
+                     false).get_value(def);
 }
 
 template<typename T> std::vector<T> XML_Node::
@@ -243,8 +250,9 @@ get_child_vector(std::string description,
                  int expected_size,
                  std::vector<T> def)
 {
-    return get_child(description).get_vector(expected_size,
-                                         def);
+    return get_child(description,
+                     false).get_vector(expected_size,
+                                       def);
 }
 
 template<typename T> void XML_Node::

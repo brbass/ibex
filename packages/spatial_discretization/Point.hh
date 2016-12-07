@@ -13,7 +13,7 @@ using std::vector;
 class Point
 {
 public:
-
+    
     enum class Point_Type
     {
         INTERNAL,

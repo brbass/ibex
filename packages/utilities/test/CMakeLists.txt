@@ -16,4 +16,6 @@ include_test(tst_trilinos tst_Trilinos.cc "")
 include_test(tst_linear_algebra tst_Linear_Algebra.cc "")
 include_test(tst_integration tst_Integration.cc "")
 include_test(tst_quadrature tst_Quadrature.cc "")
-include_test(tst_xml tst_XML.cc "")
+include_test(tst_xml tst_XML.cc ${CMAKE_CURRENT_SOURCE_DIR}/input)
+
+add_subdirectory(input)

@@ -5,19 +5,42 @@
 
 using namespace std;
 
+namespace
+{
+    pugi::xml_node get_empty_document()
+    {
+        pugi::xml_document doc;
+
+        return doc;
+    }
+    pugi::xml_node get_document(string filename)
+    {
+        pugi::xml_document doc;
+        pugi::xml_parse_result res = doc.load_file(filename.c_str());
+        
+        if (!res)
+        {
+            string error_message
+                = "Could not open xml input file \""
+                + filename
+                + "\"\terror message: "
+                + res.description();
+            AssertMsg(false, error_message);
+        }
+        
+        return doc;
+    }
+}
+
 XML_Document::
 XML_Document():
-    XML_Node(xml_document_)
+    XML_Node(get_empty_document())
 {
 }
 
 XML_Document::
 XML_Document(string filename):
-    XML_Document()
+    XML_Node(get_document(filename))
 {
-    if (!xml_document_.load_file(filename.c_str()))
-    {
-        AssertMsg(false, "Could not open xml input file \"" + filename + "\"");
-    }
 }
 
