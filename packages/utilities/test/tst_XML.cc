@@ -13,7 +13,7 @@ int test_xml_read(string input_folder)
 {
     int checksum = 0;
     
-    string input_filename = input_folder + "test_xml.xml";
+    string input_filename = input_folder + "/test_xml.xml";
 
     XML_Document doc(input_filename);
     XML_Node input = doc.get_child("input");
