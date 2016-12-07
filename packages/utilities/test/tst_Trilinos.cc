@@ -13,7 +13,8 @@ int test_trilinos_dense(int number_of_points)
     int checksum = 0;
     
     Random_Number_Generator<double> rng(-1,
-                                        1);
+                                        1,
+                                        402 * number_of_points);
     Trilinos_Dense_Solve solver;
 
     vector<double> const a_data = rng.vector(number_of_points * number_of_points);
@@ -42,8 +43,16 @@ int test_trilinos_dense(int number_of_points)
                                   number_of_points);
     }
 
-    if (!ce::approx(x_epetra, x_amesos, 1e-10))
+    if (!ce::approx(x_epetra, x_amesos, 1e-9))
     {
+        cerr << "tst_Trilinos: results differ from amesos to epetra";
+        cerr << endl;
+        cerr << "error of first two points: ";
+        cerr << x_epetra[0] - x_amesos[0];
+        cerr << ", ";
+        cerr << x_epetra[1] - x_amesos[1];
+        cerr << endl;
+            
         checksum += 1;
     }
 
