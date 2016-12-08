@@ -38,7 +38,7 @@ public:
                                   std::vector<double> &optical_distance) const override;
     virtual std::shared_ptr<Material> material(std::vector<double> const &position) const override;
     virtual void check_class_invariants() const override;
-    virtual void output(pugi::xml_node &output_node) const override;
+    virtual void output(XML_Node output_node) const override;
     
 private:
 

@@ -2,6 +2,9 @@
 
 #include "Check.hh"
 #include "Material.hh"
+#include "XML_Node.hh"
+
+using namespace std;
 
 Region::
 Region(int index,
@@ -48,36 +51,35 @@ check_class_invariants() const
 }
 
 void Region::
-output(pugi::xml_node &output_node) const
+output(XML_Node output_node) const
 {
     // General information
     
-    pugi::xml_node node = output_node.append_child("region");
-    XML_Functions::append_child(node, index_, "index");
-    XML_Functions::append_child(node, material_->index(), "material_index");
+    output_node.set_attribute(index_, "index");
+    output_node.set_child_value(material_->index(), "material_index");
 
     // Surfaces
 
-    pugi::xml_node surfaces_node = node.append_child("surface_relations");
+    XML_Node surfaces_node = output_node.append_child("surface_relations");
     
     int number_of_surface_relations = surface_relations_.size();
-
+    
     for (int i = 0; i < number_of_surface_relations; ++i)
     {
-        pugi::xml_node surface_node = surfaces_node.append_child("surface_relation");
-
-        XML_Functions::append_child(surface_node, surfaces_[i]->index(), "surface");
+        XML_Node surface_node = surfaces_node.append_child("surface_relation");
+        
+        surface_node.set_attribute(surfaces_[i]->index(), "surface");
         
         switch(surface_relations_[i])
         {
         case Surface::Relation::POSITIVE:
-            XML_Functions::append_child(surface_node, "positive", "relation");
+            surface_node.set_attribute("positive", "relation");
             break;
         case Surface::Relation::NEGATIVE:
-            XML_Functions::append_child(surface_node, "negative", "relation");
+            surface_node.set_attribute("negative", "relation");
             break;
         case Surface::Relation::EQUAL:
-            XML_Functions::append_child(surface_node, "equal", "relation");
+            surface_node.set_attribute("equal", "relation");
             break;
         }
     }

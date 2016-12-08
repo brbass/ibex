@@ -4,9 +4,8 @@
 #include <memory>
 #include <vector>
 
-#include "pugixml.hh"
-
 class Material;
+class XML_Node;
 
 class Solid_Geometry
 {
@@ -38,7 +37,7 @@ public:
                                   std::vector<double> &optical_distance) const = 0;
     virtual std::shared_ptr<Material> material(std::vector<double> const &position) const = 0;
     virtual void check_class_invariants() const = 0;
-    virtual void output(pugi::xml_node &output_node) const = 0;
+    virtual void output(XML_Node output_node) const = 0;
 };
 
 #endif

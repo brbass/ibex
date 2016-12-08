@@ -1,41 +1,35 @@
 #ifndef Constructive_Solid_Geometry_Parser_hh
 #define Constructive_Solid_Geometry_Parser_hh
 
+#include <memory>
 #include <vector>
 
-#include "Parser.hh"
-#include "Constructive_Solid_Geometry.hh"
+class Boundary_Source;
+class Constructive_Solid_Geometry;
+class Material;
+class Surface;
+class Region;
+class XML_Node;
 
-using std::vector;
-
-class Constructive_Solid_Geometry_Parser : public Parser<Constructive_Solid_Geometry>
+class Constructive_Solid_Geometry_Parser
 {
 public:
 
     // Creator
-    Constructive_Solid_Geometry_Parser(pugi::xml_node &input_file,
-                          vector<shared_ptr<Material> > materials,
-                          vector<shared_ptr<Boundary_Source> > boundary_sources);
-
-    // Return pointer to object
-    virtual shared_ptr<Constructive_Solid_Geometry> get_ptr() override
-    {
-        return solid_;
-    }
-
-    
-private:
+    Constructive_Solid_Geometry_Parser(std::vector<std::shared_ptr<Material> > materials,
+                                       std::vector<std::shared_ptr<Boundary_Source> > boundary_sources);
 
     // Get solid geometry
-    shared_ptr<Constructive_Solid_Geometry> get_solid(pugi::xml_node &solid_node);
-    vector<shared_ptr<Surface> > get_surfaces(pugi::xml_node &surfaces_node,
-                                              int dimension);
-    vector<shared_ptr<Region> > get_regions(pugi::xml_node &regions_node,
-                                            vector<shared_ptr<Surface> > const &surfaces);
+    std::shared_ptr<Constructive_Solid_Geometry> parse_from_xml(XML_Node input_node);
+    std::vector<std::shared_ptr<Surface> > get_surfaces(XML_Node input_node,
+                                                        int dimension);
+    std::vector<std::shared_ptr<Region> > get_regions(XML_Node input_node,
+                                                      std::vector<std::shared_ptr<Surface> > const &surfaces);
     
-    shared_ptr<Constructive_Solid_Geometry> solid_;
-    vector<shared_ptr<Material> > materials_;
-    vector<shared_ptr<Boundary_Source> > boundary_sources_;
+private:
+    
+    std::vector<std::shared_ptr<Material> > materials_;
+    std::vector<std::shared_ptr<Boundary_Source> > boundary_sources_;
 };
 
 #endif

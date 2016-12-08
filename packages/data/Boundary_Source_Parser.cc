@@ -28,7 +28,7 @@ parse_from_xml(XML_Node input_node)
     int checksum = 0;
     for (XML_Node source_node = input_node.get_child("boundary_source"); source_node; source_node = source_node.get_sibling("boundary_source"))
     {
-        int a = source_node.get_child_value<int>("index");
+        int a = source_node.get_attribute<int>("index");
         
         vector<double> alpha = source_node.get_child_vector<double>("alpha", number_of_groups);
         vector<double> isotropic_boundary_source = source_node.get_child_vector<double>("isotropic_source", number_of_groups);
@@ -59,4 +59,40 @@ parse_from_xml(XML_Node input_node)
     AssertMsg(checksum == checksum_expected, "Boundary source indexing incorrect");
 
     return sources;
+}
+
+shared_ptr<Boundary_Source> Boundary_Source_Parser::
+get_vacuum_boundary()
+{
+    int number_of_ordinates = angular_->number_of_ordinates();
+    int number_of_groups = energy_->number_of_groups();
+
+    int index = -1; // add enum if this function is used
+
+    vector<double> alpha(number_of_groups, 0);
+    vector<double> boundary_source(number_of_groups * number_of_ordinates, 0);
+    
+    return make_shared<Boundary_Source>(index,
+                                        angular_,
+                                        energy_,
+                                        boundary_source,
+                                        alpha);
+}
+
+shared_ptr<Boundary_Source> Boundary_Source_Parser::
+get_reflective_boundary()
+{
+    int number_of_ordinates = angular_->number_of_ordinates();
+    int number_of_groups = energy_->number_of_groups();
+
+    int index = -2; // add enum if this function is used
+    
+    vector<double> alpha(number_of_groups, 1);
+    vector<double> boundary_source(number_of_groups * number_of_ordinates, 0);
+    
+    return make_shared<Boundary_Source>(index,
+                                        angular_,
+                                        energy_,
+                                        boundary_source,
+                                        alpha);
 }

@@ -38,11 +38,11 @@ public:
     XML_Node append_child(std::string name);
     
     // Get an attribute of the node, insisting that it exists
-    template<typename T> T get_attribute_value(std::string description);
+    template<typename T> T get_attribute(std::string description);
 
     // Get an attribute of the node given a default
-    template<typename T> T get_attribute_value(std::string description,
-                                               T def);
+    template<typename T> T get_attribute(std::string description,
+                                         T def);
     
     // Get the value of the node, insisting that it exists
     template<typename T> T get_value();
@@ -95,7 +95,7 @@ private:
   Definitions for templated functions
 */
 template<typename T> T XML_Node::
-get_attribute_value(std::string description)
+get_attribute(std::string description)
 {
     pugi::xml_attribute attr = xml_node_.attribute(description.c_str());
 
@@ -116,8 +116,8 @@ get_attribute_value(std::string description)
 }
 
 template<typename T> T XML_Node::
-get_attribute_value(std::string description,
-                    T def)
+get_attribute(std::string description,
+              T def)
 {
     pugi::xml_attribute attr = xml_node_.attribute(description.c_str());
 

@@ -1,5 +1,8 @@
 #include "Cylinder.hh"
 
+#include "Boundary_Source.hh"
+#include "XML_Node.hh"
+
 Cylinder::
 Cylinder(int index,
          int dimension,
@@ -11,25 +14,23 @@ Cylinder(int index,
 }
 
 void Cylinder::
-output(pugi::xml_node &output_node) const
+output(XML_Node output_node) const
 {
-    pugi::xml_node node = output_node.append_child("surface");
-
-    XML_Functions::append_child(node, index_, "index");
-    XML_Functions::append_child(node, dimension_, "dimension");
-    XML_Functions::append_child(node, "cylinder", "type");
-    XML_Functions::append_child(node, radius(), "radius");
-    XML_Functions::append_child(node, origin(), "origin");
-    XML_Functions::append_child(node, direction(), "direction");
+    output_node.set_attribute(index_, "index");
+    output_node.set_attribute("cylinder", "shape");
+    output_node.set_child_value(dimension_, "dimension");
+    output_node.set_child_value(radius(), "radius");
+    output_node.set_child_vector(origin(), "origin");
+    output_node.set_child_vector(direction(), "direction");
 
     switch(surface_type_)
     {
     case Surface_Type::BOUNDARY:
-        XML_Functions::append_child(node, "boundary", "surface_type");
-        XML_Functions::append_child(node, boundary_source_->index(), "boundary_source_index");
+        output_node.set_attribute("boundary", "type");
+        output_node.set_child_value(boundary_source_->index(), "boundary_source");
         break;
     case Surface_Type::INTERNAL:
-        XML_Functions::append_child(node, "internal", "surface_type");
+        output_node.set_attribute("internal", "type");
         break;
     }
 }

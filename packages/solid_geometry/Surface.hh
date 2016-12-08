@@ -4,14 +4,10 @@
 #include <memory>
 #include <vector>
 
-#include "pugixml.hh"
-
 #include "Check.hh"
-#include "Boundary_Source.hh"
-#include "XML_Functions.hh"
 
-using std::shared_ptr;
-using std::vector;
+class Boundary_Source;
+class XML_Node;
 
 /*
   General class for a solid geometry surface
@@ -82,11 +78,11 @@ public:
     }
 
     /* Returns relationship between point and surface */
-    virtual Relation relation(vector<double> const &position,
+    virtual Relation relation(std::vector<double> const &position,
                               bool check_equality = false) const = 0;
     
     /* Returns distance to the surface */
-    virtual double distance(vector<double> const &position) const
+    virtual double distance(std::vector<double> const &position) const
     {
         AssertMsg(false, "Not yet implemented for this surface");
         
@@ -96,36 +92,36 @@ public:
     /* Type of intersection of streaming particle with surface
        If type is TANGEANT or PARALLEL, the distance and position are
        returned. Otherwise, the distance and position remain unchanged.*/
-    virtual Intersection intersection(vector<double> const &initial_position,
-                                      vector<double> const &initial_direction,
+    virtual Intersection intersection(std::vector<double> const &initial_position,
+                                      std::vector<double> const &initial_direction,
                                       double &distance,
-                                      vector<double> &final_position) const = 0;
+                                      std::vector<double> &final_position) const = 0;
 
     /* Normal direction of surface at a point on the surface */
-    virtual bool normal_direction(vector<double> const &position,
-                                  vector<double> &normal,
+    virtual bool normal_direction(std::vector<double> const &position,
+                                  std::vector<double> &normal,
                                   bool check_normal = true) const = 0;
 
     /* Reflected direction */
-    virtual bool reflected_direction(vector<double> const &position,
-                                     vector<double> const &initial_direction,
-                                     vector<double> &final_direction,
+    virtual bool reflected_direction(std::vector<double> const &position,
+                                     std::vector<double> const &initial_direction,
+                                     std::vector<double> &final_direction,
                                      bool check_normal = true);
 
     /* Boundary source (for boundary surfaces) */
-    virtual shared_ptr<Boundary_Source> boundary_source()
+    virtual std::shared_ptr<Boundary_Source> boundary_source()
     {
         return boundary_source_;
     }
     
-    virtual void set_boundary_source(shared_ptr<Boundary_Source> boundary_source)
+    virtual void set_boundary_source(std::shared_ptr<Boundary_Source> boundary_source)
     {
         boundary_source_ = boundary_source;
     }
 
     virtual void check_class_invariants() const = 0;
-
-    virtual void output(pugi::xml_node &output_node) const = 0;
+    
+    virtual void output(XML_Node output_node) const = 0;
     
 protected:
 
@@ -136,7 +132,7 @@ protected:
     double intersection_tolerance_;
     double normal_tolerance_;
     
-    shared_ptr<Boundary_Source> boundary_source_;
+    std::shared_ptr<Boundary_Source> boundary_source_;
 };
 
 #endif

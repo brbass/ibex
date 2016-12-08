@@ -30,7 +30,7 @@ parse_from_xml(XML_Node input_node)
     int checksum = 0;
     for (XML_Node material_node = input_node.get_child("material"); material_node; material_node = material_node.get_sibling("material"))
     {
-        int a = material_node.get_child_value<int>("index");
+        int a = material_node.get_attribute<int>("index");
         
         vector<double> sigma_t = material_node.get_child_vector<double>("sigma_t", number_of_groups);
         vector<double> sigma_s = material_node.get_child_vector<double>("sigma_s", number_of_groups * number_of_groups * number_of_moments);

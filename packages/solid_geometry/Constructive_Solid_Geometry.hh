@@ -1,11 +1,11 @@
 #ifndef Constructive_Solid_Geometry_hh
 #define Constructive_Solid_Geometry_hh
 
-#include "Boundary_Source.hh"
-#include "Material.hh"
-#include "Region.hh"
 #include "Solid_Geometry.hh"
-#include "Surface.hh"
+
+class Boundary_Source;
+class Region;
+class Surface;
 
 /* 
    Solid geometry for Monte Carlo and RBF calculations
@@ -17,10 +17,10 @@ class Constructive_Solid_Geometry : public Solid_Geometry
 public:
 
     Constructive_Solid_Geometry(int dimension,
-                                vector<shared_ptr<Surface> > const &surfaces,
-                                vector<shared_ptr<Region> > const &regions,
-                                vector<shared_ptr<Material> > const &materials,
-                                vector<shared_ptr<Boundary_Source> > const &boundary_sources);
+                                std::vector<std::shared_ptr<Surface> > const &surfaces,
+                                std::vector<std::shared_ptr<Region> > const &regions,
+                                std::vector<std::shared_ptr<Material> > const &materials,
+                                std::vector<std::shared_ptr<Boundary_Source> > const &boundary_sources);
     
     virtual bool cartesian_boundaries() const
     {
@@ -43,55 +43,55 @@ public:
         return delta_distance_;
     }
     
-    virtual shared_ptr<Surface> const &surface(int s) const
+    virtual std::shared_ptr<Surface> const &surface(int s) const
     {
         return surfaces_[s];
     }
-    virtual shared_ptr<Region> const &region(int r) const
+    virtual std::shared_ptr<Region> const &region(int r) const
     {
         return regions_[r];
     }
     
-    virtual int find_region(vector<double> const &position) const override;
-    virtual int find_region_including_surface(vector<double> const &position) const;
-    virtual int find_surface(vector<double> const &position) const override;
+    virtual int find_region(std::vector<double> const &position) const override;
+    virtual int find_region_including_surface(std::vector<double> const &position) const;
+    virtual int find_surface(std::vector<double> const &position) const override;
 
-    virtual int next_intersection(vector<double> const &initial_position,
-                                  vector<double> const &initial_direction,
+    virtual int next_intersection(std::vector<double> const &initial_position,
+                                  std::vector<double> const &initial_direction,
                                   int &final_region,
                                   double &distance,
-                                  vector<double> &final_position) const override;
+                                  std::vector<double> &final_position) const override;
     virtual int next_intersection(int initial_region,
-                                  vector<double> const &initial_position,
-                                  vector<double> const &initial_direction,
+                                  std::vector<double> const &initial_position,
+                                  std::vector<double> const &initial_direction,
                                   int &final_region,
                                   double &distance,
-                                  vector<double> &final_position) const;
+                                  std::vector<double> &final_position) const;
     
-    virtual int next_boundary(vector<double> const &initial_position,
-                              vector<double> const &initial_direction,
+    virtual int next_boundary(std::vector<double> const &initial_position,
+                              std::vector<double> const &initial_direction,
                               int &boundary_region,
                               double &distance,
-                              vector<double> &final_position) const override;
+                              std::vector<double> &final_position) const override;
     virtual int next_boundary(int initial_region,
-                              vector<double> const &initial_position,
-                              vector<double> const &initial_direction,
+                              std::vector<double> const &initial_position,
+                              std::vector<double> const &initial_direction,
                               int &boundary_region,
                               double &distance,
-                              vector<double> &final_position) const;
+                              std::vector<double> &final_position) const;
     
     virtual void new_position(double distance,
-                              vector<double> const &initial_position,
-                              vector<double> const &initial_direction,
-                              vector<double> &final_position) const;
+                              std::vector<double> const &initial_position,
+                              std::vector<double> const &initial_direction,
+                              std::vector<double> &final_position) const;
     
-    virtual void optical_distance(vector<double> const &initial_position,
-                                  vector<double> const &final_position,
-                                  vector<double> &optical_distance) const override;
-    virtual shared_ptr<Material> material(vector<double> const &position) const override;
+    virtual void optical_distance(std::vector<double> const &initial_position,
+                                  std::vector<double> const &final_position,
+                                  std::vector<double> &optical_distance) const override;
+    virtual std::shared_ptr<Material> material(std::vector<double> const &position) const override;
     
     virtual void check_class_invariants() const override;
-    virtual void output(pugi::xml_node &output_node) const override;
+    virtual void output(XML_Node output_node) const override;
     
 protected:
 
@@ -99,11 +99,11 @@ protected:
     int dimension_;
     double optical_tolerance_;
     double delta_distance_;
-    vector<shared_ptr<Surface> > boundary_surfaces_;
-    vector<shared_ptr<Surface> > surfaces_;
-    vector<shared_ptr<Region> > regions_;
-    vector<shared_ptr<Material> > materials_;
-    vector<shared_ptr<Boundary_Source> > boundary_sources_;
+    std::vector<std::shared_ptr<Surface> > boundary_surfaces_;
+    std::vector<std::shared_ptr<Surface> > surfaces_;
+    std::vector<std::shared_ptr<Region> > regions_;
+    std::vector<std::shared_ptr<Material> > materials_;
+    std::vector<std::shared_ptr<Boundary_Source> > boundary_sources_;
 };
 
 #endif

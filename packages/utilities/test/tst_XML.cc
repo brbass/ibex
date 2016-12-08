@@ -20,7 +20,7 @@ int test_xml_read(string input_folder)
     XML_Node cat = input.get_child("cat");
 
     // Test attributes
-    string breed = cat.get_attribute_value<string>("breed");
+    string breed = cat.get_attribute<string>("breed");
     if (breed != "siamese")
     {
         cerr << "tst_XML: breed incorrect" << endl;
@@ -50,8 +50,8 @@ int test_xml_read(string input_folder)
     }
 
     // Test default values
-    int hooves = cat.get_attribute_value<int>("hooves",
-                                              0);
+    int hooves = cat.get_attribute<int>("hooves",
+                                        0);
     if (hooves != 0)
     {
         cerr << "tst_XML: cats do not have hooves" << endl;

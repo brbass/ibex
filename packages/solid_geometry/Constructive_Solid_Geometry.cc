@@ -3,10 +3,14 @@
 #include <cmath>
 #include <limits>
 
+#include "Boundary_Source.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
+#include "Region.hh"
+#include "String_Functions.hh"
+#include "Surface.hh"
 #include "Vector_Functions.hh"
-#include "XML_Functions.hh"
+#include "XML_Node.hh"
 
 using namespace std;
 
@@ -404,8 +408,8 @@ optical_distance(vector<double> const &initial_position,
         if (region == NO_REGION)
         {
             string position_str;
-            XML_Functions::vector_to_string(position_str,
-                                            current_position);
+            String_Functions::vector_to_string(position_str,
+                                               current_position);
             
             AssertMsg(false, "no region found at " + position_str);
         }
@@ -474,56 +478,54 @@ check_class_invariants() const
 }
 
 void Constructive_Solid_Geometry::
-output(pugi::xml_node &output_node) const
+output(XML_Node output_node) const
 {
     // Constructive solid geometry information
     
-    pugi::xml_node solid_node = output_node.append_child("solid_geometry");
-
-    XML_Functions::append_child(solid_node, dimension_, "dimension");
+    output_node.set_child_value(dimension_, "dimension");
 
     // Surfaces
-    
-    pugi::xml_node surfaces_node = solid_node.append_child("surfaces");
+
+    XML_Node surfaces_node = output_node.append_child("surfaces");
     
     int number_of_surfaces = surfaces_.size();
     
     for (int i = 0; i < number_of_surfaces; ++i)
     {
-        surfaces_[i]->output(surfaces_node);
+        surfaces_[i]->output(surfaces_node.append_child("surface"));
     }
 
     // Regions
     
-    pugi::xml_node regions_node = solid_node.append_child("regions");
+    XML_Node regions_node = output_node.append_child("regions");
     
     int number_of_regions = regions_.size();
     
     for (int i = 0; i < number_of_regions; ++i)
     {
-        regions_[i]->output(regions_node);
+        regions_[i]->output(regions_node.append_child("region"));
     }
 
     // Materials
     
-    pugi::xml_node materials_node = solid_node.append_child("materials");
+    XML_Node materials_node = output_node.append_child("materials");
     
     int number_of_materials = materials_.size();
     
     for (int i = 0; i < number_of_materials; ++i)
     {
-        materials_[i]->output(materials_node);
+        materials_[i]->output(materials_node.append_child("material"));
     }
 
     // Boundary sources
     
-    pugi::xml_node boundary_sources_node = solid_node.append_child("boundary_sources");
+    XML_Node boundary_sources_node = output_node.append_child("boundary_sources");
     
     int number_of_boundary_sources = boundary_sources_.size();
     
     for (int i = 0; i < number_of_boundary_sources; ++i)
     {
-        boundary_sources_[i]->output(boundary_sources_node);
+        boundary_sources_[i]->output(boundary_sources_node.append_child("boundary_source"));
     }
 }
 

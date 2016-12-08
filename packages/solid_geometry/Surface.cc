@@ -6,7 +6,7 @@
 #include "Vector_Functions_2D.hh"
 #include "Vector_Functions_3D.hh"
 
-using std::numeric_limits;
+using namespace std;
 
 namespace vf2 = Vector_Functions_2D;
 namespace vf3 = Vector_Functions_3D;

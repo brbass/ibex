@@ -22,6 +22,8 @@ public:
     
     // Parse from XML node
     std::vector<std::shared_ptr<Boundary_Source> > parse_from_xml(XML_Node input_file);
+    std::shared_ptr<Boundary_Source> get_vacuum_boundary();
+    std::shared_ptr<Boundary_Source> get_reflective_boundary();
     
 private:
     

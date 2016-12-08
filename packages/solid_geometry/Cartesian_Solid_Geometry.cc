@@ -3,6 +3,7 @@
 #include <cmath>
 
 #include "Check.hh"
+#include "XML_Node.hh"
 
 using namespace std;
 
@@ -48,6 +49,8 @@ int Cartesian_Solid_Geometry::
 find_surface(vector<double> const &position) const
 {
     AssertMsg(false, "find_surface not yet implemented");
+    
+    return Geometry_Errors::NO_SURFACE;
 }
 
 int Cartesian_Solid_Geometry::
@@ -58,6 +61,8 @@ next_intersection(vector<double> const &initial_position,
                   vector<double> &final_position) const
 {
     AssertMsg(false, "next_intersection not yet implemented");
+
+    return Geometry_Errors::NO_SURFACE;
 }
 
 int Cartesian_Solid_Geometry::
@@ -68,6 +73,8 @@ next_boundary(vector<double> const &initial_position,
               vector<double> &final_position) const
 {
     AssertMsg(false, "next_boundary not yet implemented");
+
+    return Geometry_Errors::NO_SURFACE;
 }
 
 void Cartesian_Solid_Geometry::
@@ -94,9 +101,11 @@ material(vector<double> const &position) const
 void Cartesian_Solid_Geometry::
 check_class_invariants() const
 {
+    AssertMsg(false, "check_class_invariants not yet implemented");
 }
 
 void Cartesian_Solid_Geometry::
-output(pugi::xml_node &output_node) const
+output(XML_Node output_node) const
 {
+    AssertMsg(false, "output not yet implemented");
 }

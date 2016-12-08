@@ -1,13 +1,20 @@
 #include <iostream>
 #include <memory>
 
+#include "Angular_Discretization.hh"
 #include "Angular_Discretization_Parser.hh"
+#include "Boundary_Source.hh"
 #include "Boundary_Source_Parser.hh"
 #include "Check_Equality.hh"
-#include "Energy_Discretization_Parser.hh"
-#include "Material_Parser.hh"
+#include "Constructive_Solid_Geometry.hh"
 #include "Constructive_Solid_Geometry_Parser.hh"
+#include "Energy_Discretization.hh"
+#include "Energy_Discretization_Parser.hh"
+#include "Material.hh"
+#include "Material_Parser.hh"
 #include "Vector_Functions.hh"
+#include "XML_Document.hh"
+#include "XML_Node.hh"
 
 using namespace std;
 
@@ -18,36 +25,31 @@ namespace vf = Vector_Functions;
 
 shared_ptr<Constructive_Solid_Geometry> get_solid_geometry(string xml_input_filename)
 {
-    pugi::xml_document input_document;
+    XML_Document input_document(xml_input_filename);
     
-    if (!input_document.load_file(xml_input_filename.c_str()))
-    {
-        cout << "Could not open xml input file \"" + xml_input_filename + "\"" << endl;
-        return shared_ptr<Constructive_Solid_Geometry>();
-    }
+    XML_Node input_file = input_document.get_child("input");
     
-    pugi::xml_node input_file = input_document.child("input");
+    Angular_Discretization_Parser angular_parser;
+    shared_ptr<Angular_Discretization> angular
+        = angular_parser.parse_from_xml(input_file.get_child("angular_discretization"));
     
-    Angular_Discretization_Parser angular_parser(input_file);
-    shared_ptr<Angular_Discretization> angular = angular_parser.get_ptr();
+    Energy_Discretization_Parser energy_parser;
+    shared_ptr<Energy_Discretization> energy
+        = energy_parser.parse_from_xml(input_file.get_child("energy_discretization"));
     
-    Energy_Discretization_Parser energy_parser(input_file);
-    shared_ptr<Energy_Discretization> energy = energy_parser.get_ptr();
-    
-    Material_Parser material_parser(input_file,
-                                    angular,
+    Material_Parser material_parser(angular,
                                     energy);
-    vector<shared_ptr<Material> > materials = material_parser.get_ptr();
+    vector<shared_ptr<Material> > materials
+        = material_parser.parse_from_xml(input_file.get_child("materials"));
     
-    Boundary_Source_Parser boundary_parser(input_file,
-                                           angular,
+    Boundary_Source_Parser boundary_parser(angular,
                                            energy);
-    vector<shared_ptr<Boundary_Source> > boundary_sources = boundary_parser.get_ptr();
+    vector<shared_ptr<Boundary_Source> > boundary_sources
+        = boundary_parser.parse_from_xml(input_file.get_child("boundary_sources"));
     
-    Constructive_Solid_Geometry_Parser solid_parser(input_file,
-                                                     materials,
+    Constructive_Solid_Geometry_Parser solid_parser(materials,
                                                      boundary_sources);
-    return solid_parser.get_ptr();
+    return solid_parser.parse_from_xml(input_file.get_child("solid_geometry"));
 }
 
 int test_cylindrical_pincell(string input_folder)

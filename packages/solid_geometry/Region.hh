@@ -7,9 +7,7 @@
 #include "Surface.hh"
 
 class Material;
-
-using std::shared_ptr;
-using std::vector;
+class XML_Node;
 
 /* 
    Describes a solid geometry region
@@ -32,9 +30,9 @@ public:
 
     // Constructor
     Region(int index,
-           shared_ptr<Material> material,
-           vector<Surface::Relation> const &surface_relations,
-           vector<shared_ptr<Surface> > const &surfaces);
+           std::shared_ptr<Material> material,
+           std::vector<Surface::Relation> const &surface_relations,
+           std::vector<std::shared_ptr<Surface> > const &surfaces);
 
     int index() const
     {
@@ -44,7 +42,7 @@ public:
     {
         return surfaces_.size();
     }
-    shared_ptr<Material> material() const
+    std::shared_ptr<Material> material() const
     {
         return material_;
     }
@@ -52,27 +50,27 @@ public:
     {
         return surface_relations_[s];
     }
-    shared_ptr<Surface> const &surface(int s) const
+    std::shared_ptr<Surface> const &surface(int s) const
     {
         return surfaces_[s];
     }
-    vector<shared_ptr<Surface> > const &surfaces() const
+    std::vector<std::shared_ptr<Surface> > const &surfaces() const
     {
         return surfaces_;
     }
     
-    Relation relation(vector<double> const &point) const;
+    Relation relation(std::vector<double> const &point) const;
 
     virtual void check_class_invariants() const;
 
-    virtual void output(pugi::xml_node &output_node) const;
+    virtual void output(XML_Node output_node) const;
     
 private:
-
+    
     int index_;
-    shared_ptr<Material> material_;
-    vector<Surface::Relation> surface_relations_;
-    vector<shared_ptr<Surface> > surfaces_;
+    std::shared_ptr<Material> material_;
+    std::vector<Surface::Relation> surface_relations_;
+    std::vector<std::shared_ptr<Surface> > surfaces_;
 };
 
 #endif

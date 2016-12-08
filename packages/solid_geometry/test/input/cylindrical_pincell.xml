@@ -14,34 +14,25 @@
   <solid_geometry>
     <dimension>2</dimension>
     <surfaces>
-      <surface>
-        <index>0</index>
-        <shape>plane</shape>
-        <type>boundary</type>
+      <surface index='0' shape='plane' type='boundary'>
         <origin>-2 0</origin>
         <normal>-1 0</normal>
         <boundary_source>0</boundary_source>
       </surface>
       
-      <surface>
-        <index>1</index>
-        <shape>plane</shape>
-        <type>boundary</type>
+      <surface index='1' shape='plane' type='boundary'>
         <origin>2 0</origin>
         <normal>1 0</normal>
         <boundary_source>0</boundary_source>
       </surface>
       
-      <surface>
-        <index>2</index>
-        <shape>plane</shape>
-        <type>boundary</type>
+      <surface index='2' shape='plane' type='boundary'>
         <origin>0 -2</origin>
         <normal>0 -1</normal>
         <boundary_source>0</boundary_source>
       </surface>
       
-      <surface>
+      <surface index='3' shape='plane' type='boundary'>
         <index>3</index>
         <shape>plane</shape>
         <type>boundary</type>
@@ -50,7 +41,7 @@
         <boundary_source>0</boundary_source>
       </surface>
 
-      <surface>
+      <surface index='3' shape='plane' type='boundary'>
         <index>4</index>
         <shape>cylinder</shape>
         <type>internal</type>
@@ -60,44 +51,16 @@
     </surfaces>
 
     <regions>
-      <region>
-        <index>0</index>
-        <material>0</material>
-
-        <surface_relation>
-          <surface>4</surface>
-          <relation>inside</relation>
-        </surface_relation>
+      <region index='0' material='0'>
+        <surface_relation surface='4' relation='inside'/>
       </region>
 
-      <region>
-        <index>1</index>
-        <material>1</material>
-
-        <surface_relation>
-          <surface>0</surface>
-          <relation>inside</relation>
-        </surface_relation>
-
-        <surface_relation>
-          <surface>1</surface>
-          <relation>inside</relation>
-        </surface_relation>
-
-        <surface_relation>
-          <surface>2</surface>
-          <relation>inside</relation>
-        </surface_relation>
-
-        <surface_relation>
-          <surface>3</surface>
-          <relation>inside</relation>
-        </surface_relation>
-
-        <surface_relation>
-          <surface>4</surface>
-          <relation>outside</relation>
-        </surface_relation>
+      <region index='0' material='1'>
+        <surface_relation surface='0' relation='inside'/>
+        <surface_relation surface='1' relation='inside'/>
+        <surface_relation surface='2' relation='inside'/>
+        <surface_relation surface='3' relation='inside'/>
+        <surface_relation surface='4' relation='outside'/>
       </region>
     </regions>
   </solid_geometry>

@@ -11,7 +11,7 @@ class XML_Node;
 class Boundary_Source
 {
 public:
-    
+
     Boundary_Source(int index,
                     std::shared_ptr<Angular_Discretization> angular_discretization,
                     std::shared_ptr<Energy_Discretization> energy_discretization,

@@ -112,7 +112,7 @@ check_class_invariants() const
 void LDFE_Quadrature::
 output(XML_Node output_node) const
 {
-    output_node.set_child_value("ldfe_quadrature", "quadrature_type");
+    output_node.set_attribute("ldfe_quadrature", "quadrature_type");
     output_node.set_child_value(dimension_, "dimension");
     output_node.set_child_value(rule_, "rule");
     output_node.set_child_value(number_of_moments_, "number_of_moments");

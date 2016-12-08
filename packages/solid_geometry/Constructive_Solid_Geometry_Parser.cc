@@ -3,69 +3,66 @@
 #include <iterator>
 
 #include "Boundary_Source.hh"
+#include "Constructive_Solid_Geometry.hh"
 #include "Cylinder_2D.hh"
 #include "Cylinder_3D.hh"
 #include "Material.hh"
 #include "Plane_1D.hh"
 #include "Plane_2D.hh"
 #include "Plane_3D.hh"
+#include "Region.hh"
 #include "Sphere_3D.hh"
+#include "Surface.hh"
+#include "XML_Node.hh"
 
 using namespace std;
 
 Constructive_Solid_Geometry_Parser::
-Constructive_Solid_Geometry_Parser(pugi::xml_node &input_file,
-                      vector<shared_ptr<Material> > materials,
-                      vector<shared_ptr<Boundary_Source> > boundary_sources):
-    Parser(input_file),
+Constructive_Solid_Geometry_Parser(vector<shared_ptr<Material> > materials,
+                                   vector<shared_ptr<Boundary_Source> > boundary_sources):
     materials_(materials),
     boundary_sources_(boundary_sources)
 {
-    pugi::xml_node solid_node = input_file.child("solid_geometry");
-
-    solid_ = get_solid(solid_node);
 }
 
 shared_ptr<Constructive_Solid_Geometry> Constructive_Solid_Geometry_Parser::
-get_solid(pugi::xml_node &solid_node)
+parse_from_xml(XML_Node solid_node)
 {
-    int dimension = XML_Functions::child_value<int>(solid_node, "dimension");
+    int dimension = solid_node.get_child_value<int>("dimension");
     
-    pugi::xml_node surfaces_node = solid_node.child("surfaces");
-    vector<shared_ptr<Surface> > surfaces = get_surfaces(surfaces_node,
+    vector<shared_ptr<Surface> > surfaces = get_surfaces(solid_node.get_child("surfaces"),
                                                          dimension);
-
-    pugi::xml_node regions_node = solid_node.child("regions");
-    vector<shared_ptr<Region> > regions = get_regions(regions_node,
+    
+    vector<shared_ptr<Region> > regions = get_regions(solid_node.get_child("regions"),
                                                       surfaces);
     
     return make_shared<Constructive_Solid_Geometry>(dimension,
-                                                     surfaces,
-                                                     regions,
-                                                     materials_,
-                                                     boundary_sources_);
+                                                    surfaces,
+                                                    regions,
+                                                    materials_,
+                                                    boundary_sources_);
 }
 
 vector<shared_ptr<Surface> > Constructive_Solid_Geometry_Parser::
-get_surfaces(pugi::xml_node &surfaces_node,
+get_surfaces(XML_Node surfaces_node,
              int dimension)
 {
-    int number_of_surfaces = distance(surfaces_node.children("surface").begin(),
-                                      surfaces_node.children("surface").end());
+    int number_of_surfaces = surfaces_node.get_child_value<int>("number_of_surfaces");
     
     vector<shared_ptr<Surface> > surfaces(number_of_surfaces);
 
-    for (pugi::xml_node surface_node = surfaces_node.child("surface"); surface_node; surface_node = surface_node.next_sibling("surface"))
+    int checksum = 0;
+    for (XML_Node surface_node = surfaces_node.get_child("surface"); surface_node; surface_node = surface_node.get_sibling("surface"))
     {
-        int index = XML_Functions::child_value<int>(surface_node, "index");
-        string shape = XML_Functions::child_value<string>(surface_node, "shape");
+        int index = surface_node.get_attribute<int>("index");
+        string shape = surface_node.get_attribute<string>("shape");
         
         shared_ptr<Surface> surface;
         
         Surface::Surface_Type surface_type;
         
-        string type = XML_Functions::child_value<string>(surface_node, "type");
-
+        string type = surface_node.get_attribute<string>("type");
+        
         shared_ptr<Boundary_Source> boundary_source;
         
         if (type == "boundary")
@@ -83,8 +80,8 @@ get_surfaces(pugi::xml_node &surfaces_node,
 
         if (shape == "plane")
         {
-            vector<double> origin = XML_Functions::child_vector<double>(surface_node, "origin", dimension);
-            vector<double> normal = XML_Functions::child_vector<double>(surface_node, "normal", dimension);
+            vector<double> origin = surface_node.get_child_vector<double>("origin", dimension);
+            vector<double> normal = surface_node.get_child_vector<double>("normal", dimension);
 
             switch(dimension)
             {
@@ -112,9 +109,9 @@ get_surfaces(pugi::xml_node &surfaces_node,
         }
         else if (shape == "cylinder")
         {
-            double radius = XML_Functions::child_value<double>(surface_node, "radius");
-            vector<double> origin = XML_Functions::child_vector<double>(surface_node, "origin", dimension);
-
+            double radius = surface_node.get_child_value<double>("radius");
+            vector<double> origin = surface_node.get_child_vector<double>("origin", dimension);
+            
             switch(dimension)
             {
             case 2:
@@ -125,7 +122,7 @@ get_surfaces(pugi::xml_node &surfaces_node,
                 break;
             case 3:
             {
-                vector<double> direction = XML_Functions::child_vector<double>(surface_node, "direction", dimension);
+                vector<double> direction = surface_node.get_child_vector<double>("direction", dimension);
                 surface = make_shared<Cylinder_3D>(index,
                                                    surface_type,
                                                    radius,
@@ -140,9 +137,9 @@ get_surfaces(pugi::xml_node &surfaces_node,
         }
         else if (shape == "sphere")
         {
-            double radius = XML_Functions::child_value<double>(surface_node, "radius");
-            vector<double> origin = XML_Functions::child_vector<double>(surface_node, "origin", dimension);
-
+            double radius = surface_node.get_child_value<double>("radius");
+            vector<double> origin = surface_node.get_child_vector<double>("origin", dimension);
+            
             switch(dimension)
             {
             case 3:
@@ -159,44 +156,49 @@ get_surfaces(pugi::xml_node &surfaces_node,
         {
             AssertMsg(false, "surface shape not found");
         }
-
-        if (surface->surface_type() == Surface::Surface_Type::BOUNDARY)
+        
+        if (surface_type == Surface::Surface_Type::BOUNDARY)
         {
-            int boundary_source_number = XML_Functions::child_value<int>(surface_node, "boundary_source");
+            int boundary_source_number = surface_node.get_child_value<int>("boundary_source");
             
             surface->set_boundary_source(boundary_sources_[boundary_source_number]);
         }
         
         surfaces[index] = surface;
-    }
+
+        checksum += index;
+    } // surfaces
+
+    int checksum_expected = number_of_surfaces * (number_of_surfaces - 1) / 2;
+    AssertMsg(checksum == checksum_expected, "Surface indexing incorrect");
     
     return surfaces;
 }
 
 vector<shared_ptr<Region> > Constructive_Solid_Geometry_Parser::
-get_regions(pugi::xml_node &regions_node,
+get_regions(XML_Node regions_node,
             vector<shared_ptr<Surface> > const &surfaces)
 {
-    int number_of_regions = distance(regions_node.children("region").begin(),
-                                     regions_node.children("region").end());
+    int number_of_regions = regions_node.get_child_value<int>("number_of_regions");
     
     vector<shared_ptr<Region> > regions(number_of_regions);
 
-    for (pugi::xml_node region_node = regions_node.child("region"); region_node; region_node = region_node.next_sibling("region"))
+    int checksum = 0;
+    for (XML_Node region_node = regions_node.get_child("region"); region_node; region_node = region_node.get_sibling("region"))
     {
-        int index = XML_Functions::child_value<int>(region_node, "index");
-        int material_number = XML_Functions::child_value<int>(region_node, "material");
+        int index = region_node.get_attribute<int>("index");
+        int material_number = region_node.get_child_value<int>("material");
         
         vector<Surface::Relation> surface_relations;
         vector<shared_ptr<Surface> > local_surfaces;
- 
-        for (pugi::xml_node surface_relation_node = region_node.child("surface_relation"); surface_relation_node; surface_relation_node = surface_relation_node.next_sibling("surface_relation"))
+        
+        for (XML_Node surface_relation_node = region_node.get_child("surface_relation"); surface_relation_node; surface_relation_node = surface_relation_node.get_sibling("surface_relation"))
         {
-            int relation_number = XML_Functions::child_value<int>(surface_relation_node, "surface");
-            string relation_string = XML_Functions::child_value<string>(surface_relation_node, "relation");
+            int relation_number = surface_relation_node.get_attribute<int>("surface");
+            string relation_string = surface_relation_node.get_attribute<string>("relation");
             
             Surface::Relation relation;
-
+            
             if (relation_string == "positive")
             {
                 relation = Surface::Relation::POSITIVE;
@@ -221,16 +223,20 @@ get_regions(pugi::xml_node &regions_node,
             {
                 AssertMsg(false, "surface relation not found");
             }
-
+            
             surface_relations.push_back(relation);
             local_surfaces.push_back(surfaces[relation_number]);
-        }       
+        }
         
         regions[index] = make_shared<Region>(index,
                                              materials_[material_number],
                                              surface_relations,
                                              local_surfaces);
+
+        checksum += index;
     }
+    int checksum_expected = number_of_regions * (number_of_regions - 1) / 2;
+    AssertMsg(checksum == checksum_expected, "Region indexing incorrect");
     
     return regions;
 }
