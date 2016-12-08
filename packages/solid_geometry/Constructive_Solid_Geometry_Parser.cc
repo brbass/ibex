@@ -52,7 +52,10 @@ get_surfaces(XML_Node surfaces_node,
     vector<shared_ptr<Surface> > surfaces(number_of_surfaces);
 
     int checksum = 0;
-    for (XML_Node surface_node = surfaces_node.get_child("surface"); surface_node; surface_node = surface_node.get_sibling("surface"))
+    for (XML_Node surface_node = surfaces_node.get_child("surface");
+         surface_node;
+         surface_node = surface_node.get_sibling("surface",
+                                                 false))
     {
         int index = surface_node.get_attribute<int>("index");
         string shape = surface_node.get_attribute<string>("shape");
@@ -184,15 +187,21 @@ get_regions(XML_Node regions_node,
     vector<shared_ptr<Region> > regions(number_of_regions);
 
     int checksum = 0;
-    for (XML_Node region_node = regions_node.get_child("region"); region_node; region_node = region_node.get_sibling("region"))
+    for (XML_Node region_node = regions_node.get_child("region");
+         region_node;
+         region_node = region_node.get_sibling("region",
+                                               false))
     {
         int index = region_node.get_attribute<int>("index");
-        int material_number = region_node.get_child_value<int>("material");
+        int material_number = region_node.get_attribute<int>("material");
         
         vector<Surface::Relation> surface_relations;
         vector<shared_ptr<Surface> > local_surfaces;
         
-        for (XML_Node surface_relation_node = region_node.get_child("surface_relation"); surface_relation_node; surface_relation_node = surface_relation_node.get_sibling("surface_relation"))
+        for (XML_Node surface_relation_node = region_node.get_child("surface_relation");
+             surface_relation_node;
+             surface_relation_node = surface_relation_node.get_sibling("surface_relation",
+                                                                       false))
         {
             int relation_number = surface_relation_node.get_attribute<int>("surface");
             string relation_string = surface_relation_node.get_attribute<string>("relation");

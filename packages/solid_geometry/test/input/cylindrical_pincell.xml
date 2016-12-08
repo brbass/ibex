@@ -13,7 +13,10 @@
 
   <solid_geometry>
     <dimension>2</dimension>
+    
     <surfaces>
+      <number_of_surfaces>5</number_of_surfaces>
+      
       <surface index='0' shape='plane' type='boundary'>
         <origin>-2 0</origin>
         <normal>-1 0</normal>
@@ -33,29 +36,25 @@
       </surface>
       
       <surface index='3' shape='plane' type='boundary'>
-        <index>3</index>
-        <shape>plane</shape>
-        <type>boundary</type>
         <origin>0 2</origin>
         <normal>0 1</normal>
         <boundary_source>0</boundary_source>
       </surface>
 
-      <surface index='3' shape='plane' type='boundary'>
-        <index>4</index>
-        <shape>cylinder</shape>
-        <type>internal</type>
+      <surface index='4' shape='cylinder' type='internal'>
         <origin>0 0</origin>
         <radius>1</radius>
       </surface>
     </surfaces>
 
     <regions>
+      <number_of_regions>2</number_of_regions>
+      
       <region index='0' material='0'>
         <surface_relation surface='4' relation='inside'/>
       </region>
 
-      <region index='0' material='1'>
+      <region index='1' material='1'>
         <surface_relation surface='0' relation='inside'/>
         <surface_relation surface='1' relation='inside'/>
         <surface_relation surface='2' relation='inside'/>
@@ -68,9 +67,7 @@
   <materials>
     <number_of_materials>2</number_of_materials>
     
-    <material>
-      <index>0</index>
-      
+    <material index='0'>
       <sigma_t>1.0</sigma_t>
       <sigma_s>0.84</sigma_s>
       <nu>2.4</nu>
@@ -80,9 +77,7 @@
       <internal_source>0.0</internal_source>
     </material>
     
-    <material>
-      <index>1</index>
-      
+    <material index='1'>
       <sigma_t>2.0</sigma_t>
       <sigma_s>1.9</sigma_s>
       <nu>0.0</nu>
@@ -92,12 +87,11 @@
       <internal_source>0.0</internal_source>
     </material>
   </materials>
-
+  
   <boundary_sources>
     <number_of_boundary_sources>1</number_of_boundary_sources>
     
-    <boundary_source>
-      <index>0</index>
+    <boundary_source index='0'>
       <alpha>0</alpha>
       <isotropic_source>0</isotropic_source>
     </boundary_source>

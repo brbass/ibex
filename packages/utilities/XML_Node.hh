@@ -23,7 +23,7 @@ public:
     // Tests whether node exists
     inline operator bool() const
     {
-        return xml_node_;
+        return *xml_node_;
     }
     
     // Find a child node
@@ -84,11 +84,13 @@ public:
 protected:
     
     // Create an XML_Node (see XML_Document for public creation)
-    XML_Node(pugi::xml_node node);
+    XML_Node(std::shared_ptr<pugi::xml_node> node,
+             std::string name);
     
 private:
     
-    pugi::xml_node xml_node_;
+    std::shared_ptr<pugi::xml_node> xml_node_;
+    std::string name_;
 };
 
 /*
@@ -97,16 +99,15 @@ private:
 template<typename T> T XML_Node::
 get_attribute(std::string description)
 {
-    pugi::xml_attribute attr = xml_node_.attribute(description.c_str());
+    pugi::xml_attribute attr = xml_node_->attribute(description.c_str());
 
     if (attr.empty())
     {
-        std::string name = static_cast<std::string>(xml_node_.name());
         std::string error_message
             = "required attribute ("
             + description
             + ") in node ("
-            + name
+            + name_
             + ") not found";
         
         AssertMsg(false, error_message);
@@ -119,7 +120,7 @@ template<typename T> T XML_Node::
 get_attribute(std::string description,
               T def)
 {
-    pugi::xml_attribute attr = xml_node_.attribute(description.c_str());
+    pugi::xml_attribute attr = xml_node_->attribute(description.c_str());
 
     if (attr.empty())
     {
@@ -132,14 +133,13 @@ get_attribute(std::string description,
 template<typename T> T XML_Node::
 get_value()
 {
-    pugi::xml_text text = xml_node_.text();
-
+    pugi::xml_text text = xml_node_->text();
+    
     if (text.empty())
     {
-        std::string name = static_cast<std::string>(xml_node_.name());
         std::string error_message
             = "required value in node ("
-            + name
+            + name_
             + ") not found";
         
         AssertMsg(false, error_message);
@@ -151,14 +151,13 @@ get_value()
 template<typename T> std::vector<T> XML_Node::
 get_vector(int expected_size)
 {
-    pugi::xml_text text = xml_node_.text();
+    pugi::xml_text text = xml_node_->text();
 
     if (text.empty())
     {
-        std::string name = static_cast<std::string>(xml_node_.name());
         std::string error_message
             = "required value in node ("
-            + name
+            + name_
             + ") not found";
         
         AssertMsg(false, error_message);
@@ -168,10 +167,9 @@ get_vector(int expected_size)
 
     if (value.size() != expected_size)
     {
-        std::string name = static_cast<std::string>(xml_node_.name());
         std::string error_message
             = "num values of in node ("
-            + name
+            + name_
             + ") incorrect; expected ("
             + std::to_string(expected_size)
             + ") but calculated ("
@@ -187,7 +185,7 @@ get_vector(int expected_size)
 template<typename T> T XML_Node::
 get_value(T def)
 {
-    pugi::xml_text text = xml_node_.text();
+    pugi::xml_text text = xml_node_->text();
 
     if (text.empty())
     {
@@ -201,7 +199,7 @@ template<typename T> std::vector<T> XML_Node::
 get_vector(int expected_size,
            std::vector<T> def)
 {
-    pugi::xml_text text = xml_node_.text();
+    pugi::xml_text text = xml_node_->text();
 
     if (text.empty())
     {
@@ -212,10 +210,9 @@ get_vector(int expected_size,
 
     if (value.size() != expected_size)
     {
-        std::string name = static_cast<std::string>(xml_node_.name());
         std::string error_message
             = "size in node ("
-            + name
+            + name_
             + ") incorrect - expected ("
             + std::to_string(expected_size)
             + ") but calculated ("
@@ -271,7 +268,7 @@ set_attribute(T data,
                                 data,
                                 XML_PRECISION);
     
-    pugi::xml_attribute attr = xml_node_.append_attribute(description.c_str());
+    pugi::xml_attribute attr = xml_node_->append_attribute(description.c_str());
     attr.set_value(data_string.c_str());
 }
 
@@ -283,7 +280,7 @@ set_value(T data)
                                 data,
                                 XML_PRECISION);
                                 
-    xml_node_.append_child(pugi::node_pcdata).set_value(data_string.c_str());
+    xml_node_->append_child(pugi::node_pcdata).set_value(data_string.c_str());
 }
 
 template<typename T> void XML_Node::
@@ -294,8 +291,8 @@ set_vector(std::vector<T> const &data,
     String_Functions::vector_to_string(data_string,
                                        data,
                                        XML_PRECISION);
-
-    xml_node_.append_child(pugi::node_pcdata).set_value(data_string.c_str());
+    
+    xml_node_->append_child(pugi::node_pcdata).set_value(data_string.c_str());
 
     if (index_order != "")
     {

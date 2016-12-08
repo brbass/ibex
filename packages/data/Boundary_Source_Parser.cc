@@ -26,7 +26,10 @@ parse_from_xml(XML_Node input_node)
     vector<shared_ptr<Boundary_Source> > sources(number_of_boundary_sources);
 
     int checksum = 0;
-    for (XML_Node source_node = input_node.get_child("boundary_source"); source_node; source_node = source_node.get_sibling("boundary_source"))
+    for (XML_Node source_node = input_node.get_child("boundary_source");
+         source_node;
+         source_node = source_node.get_sibling("boundary_source",
+                                               false))
     {
         int a = source_node.get_attribute<int>("index");
         
@@ -52,7 +55,7 @@ parse_from_xml(XML_Node input_node)
         
         sources[a] = source;
         
-        checksum += 1;
+        checksum += a;
     } // boundary sources
 
     int checksum_expected = number_of_boundary_sources * (number_of_boundary_sources - 1) / 2;

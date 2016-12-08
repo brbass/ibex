@@ -29,13 +29,13 @@ shared_ptr<Constructive_Solid_Geometry> get_solid_geometry(string xml_input_file
     
     XML_Node input_file = input_document.get_child("input");
     
-    Angular_Discretization_Parser angular_parser;
-    shared_ptr<Angular_Discretization> angular
-        = angular_parser.parse_from_xml(input_file.get_child("angular_discretization"));
-    
     Energy_Discretization_Parser energy_parser;
     shared_ptr<Energy_Discretization> energy
         = energy_parser.parse_from_xml(input_file.get_child("energy_discretization"));
+    
+    Angular_Discretization_Parser angular_parser;
+    shared_ptr<Angular_Discretization> angular
+        = angular_parser.parse_from_xml(input_file.get_child("angular_discretization"));
     
     Material_Parser material_parser(angular,
                                     energy);

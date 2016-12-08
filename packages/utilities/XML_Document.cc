@@ -1,5 +1,7 @@
 #include "XML_Document.hh"
 
+#include "pugixml.hh"
+
 #include "Check.hh"
 #include "XML_Node.hh"
 
@@ -7,16 +9,16 @@ using namespace std;
 
 namespace
 {
-    pugi::xml_node get_empty_document()
+    shared_ptr<pugi::xml_node> get_empty_document()
     {
-        pugi::xml_document doc;
+        shared_ptr<pugi::xml_document> doc = make_shared<pugi::xml_document>();
 
         return doc;
     }
-    pugi::xml_node get_document(string filename)
+    shared_ptr<pugi::xml_node> get_document(string filename)
     {
-        pugi::xml_document doc;
-        pugi::xml_parse_result res = doc.load_file(filename.c_str());
+        shared_ptr<pugi::xml_document> doc = make_shared<pugi::xml_document>();
+        pugi::xml_parse_result res = doc->load_file(filename.c_str());
         
         if (!res)
         {
@@ -34,13 +36,15 @@ namespace
 
 XML_Document::
 XML_Document():
-    XML_Node(get_empty_document())
+    XML_Node(get_empty_document(),
+             "new_document")
 {
 }
 
 XML_Document::
 XML_Document(string filename):
-    XML_Node(get_document(filename))
+    XML_Node(get_document(filename),
+             filename)
 {
 }
 

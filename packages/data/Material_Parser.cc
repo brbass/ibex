@@ -28,7 +28,10 @@ parse_from_xml(XML_Node input_node)
     vector<shared_ptr<Material> > materials(number_of_materials);
 
     int checksum = 0;
-    for (XML_Node material_node = input_node.get_child("material"); material_node; material_node = material_node.get_sibling("material"))
+    for (XML_Node material_node = input_node.get_child("material");
+         material_node;
+         material_node = material_node.get_sibling("material",
+                                                   false))
     {
         int a = material_node.get_attribute<int>("index");
         

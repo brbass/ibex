@@ -3,8 +3,6 @@
 
 #include <string>
 
-#include "pugixml.hh"
-
 #include "XML_Node.hh"
 
 class XML_Document : public XML_Node

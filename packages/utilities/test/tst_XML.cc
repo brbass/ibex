@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 
+#include "pugixml.hh"
+
 #include "Check_Equality.hh"
 #include "XML_Document.hh"
 #include "XML_Node.hh"
