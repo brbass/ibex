@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "pugixml.hh"
+class XML_Node;
 
 using std::vector;
 
@@ -69,7 +69,7 @@ public:
     }
 
     // Output data to XML file
-    virtual void output(pugi::xml_node &output_node) const = 0;
+    virtual void output(XML_Node output_node) const = 0;
 
     virtual int reflect_ordinate(int o,
                                  vector<double> const &normal) const = 0;

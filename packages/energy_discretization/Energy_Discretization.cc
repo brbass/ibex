@@ -3,7 +3,7 @@
 #include <vector>
 
 #include "Check.hh"
-#include "XML_Functions.hh"
+#include "XML_Node.hh"
 
 using namespace std;
 
@@ -31,10 +31,8 @@ check_class_invariants() const
 }
 
 void Energy_Discretization::
-output(pugi::xml_node &output_node) const
+output(XML_Node output_node) const
 {
-    pugi::xml_node energy = output_node.append_child("energy_discretization");
-    
-    XML_Functions::append_child(energy, number_of_groups_, "number_of_groups");
-    XML_Functions::append_child(energy, energy_bounds_, "energy_bounds", "group_bound");
+    output_node.set_child_value(number_of_groups_, "number_of_groups");
+    output_node.set_child_vector(energy_bounds_, "energy_bounds", "group-bound");
 }

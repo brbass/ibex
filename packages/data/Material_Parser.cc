@@ -1,41 +1,43 @@
 #include "Material_Parser.hh"
 
-#include <iostream>
-
 #include "Angular_Discretization.hh"
 #include "Energy_Discretization.hh"
+#include "Material.hh"
+#include "XML_Node.hh"
 
 using namespace std;
 
 Material_Parser::
-Material_Parser(pugi::xml_node &input_file,
-                shared_ptr<Angular_Discretization> angular,
+Material_Parser(shared_ptr<Angular_Discretization> angular,
                 shared_ptr<Energy_Discretization> energy):
-    Vector_Parser(input_file),
     angular_(angular),
     energy_(energy)
 {
-    pugi::xml_node materials_node = input_file.child("materials");
+}
 
-    int number_of_materials = XML_Functions::child_value<int>(materials_node, "number_of_materials");
+vector<shared_ptr<Material> > Material_Parser::
+parse_from_xml(XML_Node input_node)
+{
+    int number_of_materials = input_node.get_child_value<int>("number_of_materials");
     
     int number_of_moments = angular_->number_of_scattering_moments();
     int number_of_groups = energy_->number_of_groups();
     
-    // parse the data for each material
-
-    materials_.resize(number_of_materials);
+    // Parse the data for each material
     
-    for (pugi::xml_node material_node = materials_node.child("material"); material_node; material_node = material_node.next_sibling("material"))
+    vector<shared_ptr<Material> > materials(number_of_materials);
+
+    int checksum = 0;
+    for (XML_Node material_node = input_node.get_child("material"); material_node; material_node = material_node.get_sibling("material"))
     {
-        int a = XML_Functions::child_value<int>(material_node, "index");
+        int a = material_node.get_child_value<int>("index");
         
-        vector<double> sigma_t = XML_Functions::child_vector<double>(material_node, "sigma_t", number_of_groups);
-        vector<double> sigma_s = XML_Functions::child_vector<double>(material_node, "sigma_s", number_of_groups * number_of_groups * number_of_moments);
-        vector<double> nu = XML_Functions::child_vector<double>(material_node, "nu", number_of_groups);
-        vector<double> sigma_f = XML_Functions::child_vector<double>(material_node, "sigma_f", number_of_groups);
-        vector<double> chi = XML_Functions::child_vector<double>(material_node, "chi", number_of_groups);
-        vector<double> internal_source = XML_Functions::child_vector<double>(material_node, "internal_source", number_of_groups);
+        vector<double> sigma_t = material_node.get_child_vector<double>("sigma_t", number_of_groups);
+        vector<double> sigma_s = material_node.get_child_vector<double>("sigma_s", number_of_groups * number_of_groups * number_of_moments);
+        vector<double> nu = material_node.get_child_vector<double>("nu", number_of_groups);
+        vector<double> sigma_f = material_node.get_child_vector<double>("sigma_f", number_of_groups);
+        vector<double> chi = material_node.get_child_vector<double>("chi", number_of_groups);
+        vector<double> internal_source = material_node.get_child_vector<double>("internal_source", number_of_groups);
         
         shared_ptr<Material> material = make_shared<Material>(a,
                                                               angular_,
@@ -46,7 +48,14 @@ Material_Parser(pugi::xml_node &input_file,
                                                               sigma_f,
                                                               chi,
                                                               internal_source);
-
-        materials_[a] = material;
+        
+        materials[a] = material;
+        
+        checksum += a;
     } // materials
-} // constructor
+    
+    int checksum_expected = number_of_materials * (number_of_materials - 1) / 2;
+    AssertMsg(checksum == checksum_expected, "Material indexing incorrect");
+
+    return materials;
+}

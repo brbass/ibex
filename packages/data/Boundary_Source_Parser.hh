@@ -1,33 +1,32 @@
 #ifndef Boundary_Source_Parser_hh
 #define Boundary_Source_Parser_hh
 
-#include "Boundary_Source.hh"
-#include "Vector_Parser.hh"
+#include <memory>
+#include <vector>
+
+class Angular_Discretization;
+class Boundary_Source;
+class Energy_Discretization;
+class XML_Node;
 
 /*
   Create a Boundary_Source object from XML file
 */
-class Boundary_Source_Parser : public Vector_Parser<Boundary_Source>
+class Boundary_Source_Parser
 {
 public:
 
     // Constructor
-    Boundary_Source_Parser(pugi::xml_node &input_file,
-                           shared_ptr<Angular_Discretization> angular,
-                           shared_ptr<Energy_Discretization> energy);
+    Boundary_Source_Parser(std::shared_ptr<Angular_Discretization> angular,
+                           std::shared_ptr<Energy_Discretization> energy);
     
-    // Return pointer to object
-    virtual vector<shared_ptr<Boundary_Source> > get_ptr() override
-    {
-        return sources_;
-    }
-
+    // Parse from XML node
+    std::vector<std::shared_ptr<Boundary_Source> > parse_from_xml(XML_Node input_file);
+    
 private:
     
-    vector<shared_ptr<Boundary_Source> > sources_;
-    
-    shared_ptr<Angular_Discretization> angular_;
-    shared_ptr<Energy_Discretization> energy_;
+    std::shared_ptr<Angular_Discretization> angular_;
+    std::shared_ptr<Energy_Discretization> energy_;
 };
 
 #endif

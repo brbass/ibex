@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "pugixml.hh"
+class XML_Node;
 
 using std::vector;
 
@@ -35,7 +35,7 @@ public:
     void check_class_invariants() const;
 
     // Output data to XML file
-    void output(pugi::xml_node &output_node) const;
+    void output(XML_Node output_node) const;
     
 private:
     

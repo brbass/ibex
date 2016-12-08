@@ -1,33 +1,32 @@
 #ifndef Material_Parser_hh
 #define Material_Parser_hh
 
-#include "Material.hh"
-#include "Vector_Parser.hh"
+#include <memory>
+#include <vector>
+
+class Angular_Discretization;
+class Energy_Discretization;
+class Material;
+class XML_Node;
 
 /*
   Create a Material object from XML file
 */
-class Material_Parser : public Vector_Parser<Material>
+class Material_Parser
 {
 public:
 
     // Constructor
-    Material_Parser(pugi::xml_node &input_file,
-                    shared_ptr<Angular_Discretization> angular,
-                    shared_ptr<Energy_Discretization> energy);
+    Material_Parser(std::shared_ptr<Angular_Discretization> angular,
+                    std::shared_ptr<Energy_Discretization> energy);
     
     // Return Material object
-    virtual vector<shared_ptr<Material> > get_ptr() override
-    {
-        return materials_;
-    }
+    std::vector<std::shared_ptr<Material> > parse_from_xml(XML_Node input_file);
     
 private:
     
-    vector<shared_ptr<Material> > materials_;
-
-    shared_ptr<Angular_Discretization> angular_;
-    shared_ptr<Energy_Discretization> energy_;
+    std::shared_ptr<Angular_Discretization> angular_;
+    std::shared_ptr<Energy_Discretization> energy_;
 };
 
 #endif

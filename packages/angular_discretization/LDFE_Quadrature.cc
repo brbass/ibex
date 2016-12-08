@@ -6,7 +6,7 @@
 #include <limits>
 
 #include "Check.hh"
-#include "XML_Functions.hh"
+#include "XML_Node.hh"
 
 using namespace std;
 
@@ -110,21 +110,19 @@ check_class_invariants() const
 }
 
 void LDFE_Quadrature::
-output(pugi::xml_node &output_node) const
+output(XML_Node output_node) const
 {
-    pugi::xml_node ldfe = output_node.append_child("angular_discretization");
-
-    XML_Functions::append_child(ldfe, "ldfe_quadrature", "quadrature_type");
-    XML_Functions::append_child(ldfe, dimension_, "dimension");
-    XML_Functions::append_child(ldfe, rule_, "rule");
-    XML_Functions::append_child(ldfe, number_of_moments_, "number_of_moments");
-    XML_Functions::append_child(ldfe, number_of_ordinates_, "number_of_ordinates");
-    XML_Functions::append_child(ldfe, ordinates_, "ordinates", "dimension-ordinate");
-    XML_Functions::append_child(ldfe, weights_, "weights", "ordinate");
-    XML_Functions::append_child(ldfe, mu_, "mu", "ordinate");
-    XML_Functions::append_child(ldfe, eta_, "eta", "ordinate");
-    XML_Functions::append_child(ldfe, xi_, "xi", "ordinate");
-    XML_Functions::append_child(ldfe, weights_, "weights", "ordinate");
+    output_node.set_child_value("ldfe_quadrature", "quadrature_type");
+    output_node.set_child_value(dimension_, "dimension");
+    output_node.set_child_value(rule_, "rule");
+    output_node.set_child_value(number_of_moments_, "number_of_moments");
+    output_node.set_child_value(number_of_ordinates_, "number_of_ordinates");
+    output_node.set_child_vector(ordinates_, "ordinates", "dimension-ordinate");
+    output_node.set_child_vector(weights_, "weights", "ordinate");
+    output_node.set_child_vector(mu_, "mu", "ordinate");
+    output_node.set_child_vector(eta_, "eta", "ordinate");
+    output_node.set_child_vector(xi_, "xi", "ordinate");
+    output_node.set_child_vector(weights_, "weights", "ordinate");
 }
 
 int LDFE_Quadrature::

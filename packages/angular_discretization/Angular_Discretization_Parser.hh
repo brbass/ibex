@@ -1,28 +1,23 @@
 #ifndef Angular_Discretization_Parser_hh
 #define Angular_Discretization_Parser_hh
 
-#include "Parser.hh"
-#include "Angular_Discretization.hh"
+#include <memory>
+
+class Angular_Discretization;
+class XML_Node;
 
 /* 
    Create an object of type Angular_Discretization from xml input file
 */
-class Angular_Discretization_Parser : public Parser<Angular_Discretization>
+class Angular_Discretization_Parser
 {
 public:
-
+    
     // Creator
-    Angular_Discretization_Parser(pugi::xml_node &input_file);
-
-    // Return pointer to created object
-    virtual std::shared_ptr<Angular_Discretization> get_ptr() override
-    {
-        return angular_;
-    }
+    Angular_Discretization_Parser();
     
-private:
-    
-    std::shared_ptr<Angular_Discretization> angular_;
+    // Parse from XML node
+    std::shared_ptr<Angular_Discretization> parse_from_xml(XML_Node input_node);
 };
 
 #endif

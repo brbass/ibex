@@ -1,16 +1,19 @@
 #include "Energy_Discretization_Parser.hh"
 
-#include "XML_Functions.hh"
+#include "Energy_Discretization.hh"
+#include "XML_Node.hh"
 
 using namespace std;
 
 Energy_Discretization_Parser::
-Energy_Discretization_Parser(pugi::xml_node &input_file):
-    Parser(input_file)
+Energy_Discretization_Parser()
 {
-    pugi::xml_node energy = input_file.child("energy_discretization");
+}
+
+shared_ptr<Energy_Discretization> Energy_Discretization_Parser::
+parse_from_xml(XML_Node input_node)
+{
+    int number_of_groups = input_node.get_child_value<int>("number_of_groups");
     
-    int number_of_groups = XML_Functions::child_value<int>(energy, "number_of_groups");
-    
-    energy_ = make_shared<Energy_Discretization>(number_of_groups);
+    return make_shared<Energy_Discretization>(number_of_groups);
 }

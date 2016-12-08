@@ -19,17 +19,24 @@
 class XML_Node
 {
 public:
-    
-    // Check for child node
-    bool check_child(std::string name);
+
+    // Tests whether node exists
+    inline operator bool() const
+    {
+        return xml_node_;
+    }
     
     // Find a child node
     XML_Node get_child(std::string name,
                        bool check = true);
     
+    // Find multiple child nodes
+    XML_Node get_sibling(std::string name,
+                         bool check = true);
+    
     // Append a child node
     XML_Node append_child(std::string name);
-
+    
     // Get an attribute of the node, insisting that it exists
     template<typename T> T get_attribute_value(std::string description);
 

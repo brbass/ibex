@@ -4,33 +4,31 @@
 #include <memory>
 #include <vector>
 
-#include "Angular_Discretization.hh"
-#include "Energy_Discretization.hh"
-
-using std::shared_ptr;
-using std::vector;
+class Angular_Discretization;
+class Energy_Discretization;
+class XML_Node;
 
 class Boundary_Source
 {
 public:
     
     Boundary_Source(int index,
-                    shared_ptr<Angular_Discretization> angular_discretization,
-                    shared_ptr<Energy_Discretization> energy_discretization,
-                    vector<double> const &boundary_source,
-                    vector<double> const &alpha);
+                    std::shared_ptr<Angular_Discretization> angular_discretization,
+                    std::shared_ptr<Energy_Discretization> energy_discretization,
+                    std::vector<double> const &boundary_source,
+                    std::vector<double> const &alpha);
     
     int index() const
     {
         return index_;
     }
     
-    vector<double> const &boundary_source() const
+    std::vector<double> const &boundary_source() const
     {
         return boundary_source_;
     }
 
-    vector<double> const &alpha() const
+    std::vector<double> const &alpha() const
     {
         return alpha_;
     }
@@ -39,17 +37,17 @@ public:
     
     void check_class_invariants() const;
     
-    void output(pugi::xml_node &output_node) const;
+    void output(XML_Node output_node) const;
 
 private:
 
     int index_;
     
-    shared_ptr<Angular_Discretization> angular_discretization_;
-    shared_ptr<Energy_Discretization> energy_discretization_;
+    std::shared_ptr<Angular_Discretization> angular_discretization_;
+    std::shared_ptr<Energy_Discretization> energy_discretization_;
 
-    vector<double> boundary_source_;
-    vector<double> alpha_;
+    std::vector<double> boundary_source_;
+    std::vector<double> alpha_;
 };
 
 #endif

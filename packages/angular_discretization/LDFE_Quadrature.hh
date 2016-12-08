@@ -58,8 +58,8 @@ public:
     virtual void check_class_invariants() const override;
 
     // Output data to XML file
-    virtual void output(pugi::xml_node &output_node) const override;
-
+    virtual void output(XML_Node output_node) const override;
+    
     // Get reflected directions
     virtual int reflect_ordinate(int o,
                                  vector<double> const &normal) const override;

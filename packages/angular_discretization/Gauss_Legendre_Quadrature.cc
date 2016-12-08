@@ -2,7 +2,7 @@
 
 #include "Check.hh"
 #include "Quadrature_Rule.hh"
-#include "XML_Functions.hh"
+#include "XML_Node.hh"
 
 Gauss_Legendre_Quadrature::
 Gauss_Legendre_Quadrature(int dimension,
@@ -36,14 +36,12 @@ check_class_invariants() const
 }
 
 void Gauss_Legendre_Quadrature::
-output(pugi::xml_node &output_node) const
+output(XML_Node output_node) const
 {
-    pugi::xml_node gauss = output_node.append_child("angular_discretization");
-
-    XML_Functions::append_child(gauss, "gauss_legendre_quadrature", "quadrature_type");
-    XML_Functions::append_child(gauss, dimension_, "dimension");
-    XML_Functions::append_child(gauss, number_of_moments_, "number_of_moments");
-    XML_Functions::append_child(gauss, number_of_ordinates_, "number_of_ordinates");
-    XML_Functions::append_child(gauss, ordinates_, "ordinates", "ordinate");
-    XML_Functions::append_child(gauss, weights_, "weights", "ordinate");
+    output_node.set_child_value("gauss_legendre_quadrature", "quadrature_type");
+    output_node.set_child_value(dimension_, "dimension");
+    output_node.set_child_value(number_of_moments_, "number_of_moments");
+    output_node.set_child_value(number_of_ordinates_, "number_of_ordinates");
+    output_node.set_child_vector(ordinates_, "ordinates", "ordinate");
+    output_node.set_child_vector(weights_, "weights", "ordinate");
 }

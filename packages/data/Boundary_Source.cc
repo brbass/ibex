@@ -1,10 +1,11 @@
 #include "Boundary_Source.hh"
 
-#include <cmath>
-#include <string>
-
+#include "Angular_Discretization.hh"
 #include "Check.hh"
-#include "XML_Functions.hh"
+#include "Energy_Discretization.hh"
+#include "XML_Node.hh"
+
+using namespace std;
 
 Boundary_Source::
 Boundary_Source(int index,
@@ -50,12 +51,11 @@ has_reflection() const
 }
 
 void Boundary_Source::
-output(pugi::xml_node &output_node) const
+output(XML_Node output_node) const
 {
-    pugi::xml_node source = output_node.append_child("boundary_source");
-    
-    XML_Functions::append_child(source, alpha_, "alpha", "boundary_cell");
-    XML_Functions::append_child(source, boundary_source_, "boundary_source", "group-ordinate");
+    output_node.set_attribute(index_, "index");
+    output_node.set_child_vector(alpha_, "alpha", "boundary_cell");
+    output_node.set_child_vector(boundary_source_, "boundary_source", "group-ordinate");
 }
 
 

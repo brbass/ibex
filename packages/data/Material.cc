@@ -3,7 +3,9 @@
 #include "Angular_Discretization.hh"
 #include "Check.hh"
 #include "Energy_Discretization.hh"
-#include "XML_Functions.hh"
+#include "XML_Node.hh"
+
+using namespace std;
 
 Material::
 Material(int index,
@@ -45,15 +47,13 @@ check_class_invariants() const
 }
 
 void Material::
-output(pugi::xml_node &output_node) const
+output(XML_Node output_node) const
 {
-    pugi::xml_node nuclear = output_node.append_child("material");
-
-    XML_Functions::append_child(nuclear, index_, "index");
-    XML_Functions::append_child(nuclear, sigma_t_, "sigma_t", "group");
-    XML_Functions::append_child(nuclear, sigma_s_, "sigma_s", "group_from-group_to-moment");
-    XML_Functions::append_child(nuclear, nu_, "nu", "group");
-    XML_Functions::append_child(nuclear, sigma_f_, "sigma_f", "group");
-    XML_Functions::append_child(nuclear, chi_, "chi", "group");
-    XML_Functions::append_child(nuclear, internal_source_, "internal_source", "group");
+    output_node.set_attribute(index_, "index");
+    output_node.set_child_vector(sigma_t_, "sigma_t", "group");
+    output_node.set_child_vector(sigma_s_, "sigma_s", "group_from-group_to-moment");
+    output_node.set_child_vector(nu_, "nu", "group");
+    output_node.set_child_vector(sigma_f_, "sigma_f", "group");
+    output_node.set_child_vector(chi_, "chi", "group");
+    output_node.set_child_vector(internal_source_, "internal_source", "group");
 }
