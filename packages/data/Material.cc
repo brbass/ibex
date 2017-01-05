@@ -34,6 +34,7 @@ void Material::
 check_class_invariants() const
 {
     int number_of_scattering_moments = angular_discretization_->number_of_scattering_moments();
+    int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_groups = energy_discretization_->number_of_groups();
     
     Assert(angular_discretization_);
