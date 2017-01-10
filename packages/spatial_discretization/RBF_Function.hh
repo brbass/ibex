@@ -20,7 +20,7 @@ public:
     
     virtual double radius() const override;
     virtual std::vector<double> position() const override;
-
+    
     virtual double basis(std::vector<double> const &r) const override;
     virtual double d_basis(int dim,
                            std::vector<double> const &r) const override;

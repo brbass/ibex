@@ -6,13 +6,16 @@
 /*
   Radial basis function of the form exp(-c^2 r^2)
 */
-class Gaussian_RBF : public RBF
+class Gaussian_RBF : public Global_RBF
 {
 public:
 
     // Constructor
     Gaussian_RBF();
-
+    
+    // Max distance
+    virtual double radius() const override;
+    
     // Value of basis function
     virtual double basis(double r) const override;
     

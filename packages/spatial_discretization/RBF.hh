@@ -3,8 +3,6 @@
 
 #include <string>
 
-using std::string;
-
 /*
   Pure virtual class to represent a radial basis function
   
@@ -16,9 +14,21 @@ class RBF
 {
 public:
 
+    enum class Range
+    {
+        LOCAL,
+        GLOBAL
+    }
+    
     // Constructor
     RBF();
 
+    // Range of function
+    virtual Range range() const = 0;
+    
+    // Distance from center the function is nonzero
+    virtual double radius() const = 0;
+    
     // Value of basis function
     virtual double basis(double r) const = 0;
     
@@ -32,13 +42,8 @@ public:
     virtual double dd_basis(double s,
                             double ds,
                             double dds) const;
-
-    virtual string description() const = 0;
-
-    virtual bool derivative_available(int derivative) const
-    {
-        return derivative < 3 ? true : false;
-    }
+    
+    virtual std::string description() const = 0;
 };
 
 #endif

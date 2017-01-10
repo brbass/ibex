@@ -27,10 +27,6 @@ public:
     virtual Point_Type point_type() const = 0;
     virtual std::shared_ptr<Material> material() const = 0;
     virtual std::vector<double> const &position() const = 0;
-
-    // For boundary points
-    virtual std::shared_ptr<Boundary_Source> boundary_source() const = 0;
-    virtual std::vector<double> const &normal() const = 0;
     
     // Data output and checking
     virtual void output(XML_Node output_node) const = 0;

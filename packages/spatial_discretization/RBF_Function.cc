@@ -17,6 +17,18 @@ RBF_Function(double shape,
 }
 
 double RBF_Function::
+radius() const
+{
+    switch(rbf_->range())
+    {
+    case RBF::Range::LOCAL:
+        return rbf_->radius() / shape;
+    case RBF::Range::GLOBAL:
+        return numeric_limits<double>::max();
+    }
+}
+
+double RBF_Function::
 basis(vector<double> const &r) const
 {
     double dist = distance_->distance(r,
