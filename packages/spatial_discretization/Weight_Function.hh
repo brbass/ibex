@@ -3,19 +3,31 @@
 
 #include "Point.hh"
 
+class Basis_Function;
+class Cartesian_Plane;
+class RBF_Function;
+
 class Weight_Function : public Point
 {
 public:
+    
     Weight_Function(int index,
                     int dimension,
-                    shared_ptr<Material> material,
                     vector<double> const &position,
-                    shared_ptr<RBF_Function> rbf,
-                    vector<shared_ptr<Basis_Function> > basis_functions);
+                    shared_ptr<Meshless_Function> meshless_function,
+                    vector<shared_ptr<Basis_Function> > basis_functions,
+                    shared_ptr<Solid_Geometry> solid_geometry,
+                    vector<shared_ptr<Cartesian_Plane> > boundary_surfaces);
 
 private:
-    shared_ptr<RBF_Function> rbf_function_;
+    
+    int index_;
+    int dimension_;
+    vector<double> position_;
+    shared_ptr<Meshless_Function> meshless_function_;
     vector<shared_ptr<Basis_Function> > basis_functions_;
+    shared_ptr<Solid_Geometry> solid_geometry_;
+    vector<shared_ptr<Cartesian_Plane> > boundary_surfaces_;
 
 }
 

@@ -19,6 +19,7 @@ public:
     /* Class of surface */
     enum class Surface_Class
     {
+        CARTESIAN_PLANE,
         PLANE,
         SPHERE,
         CYLINDER    

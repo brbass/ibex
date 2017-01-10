@@ -4,11 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "Boundary_Source.hh"
-#include "Material.hh"
-
-using std::string;
-using std::vector;
+class Boundary_Source;
+class Material;
+class XML_Node;
 
 class Point
 {
@@ -19,63 +17,29 @@ public:
         INTERNAL,
         BOUNDARY
     };
+
+    // Constructor
+    Point();
+
+    // Data access
+    virtual int index() const = 0;
+    virtual int dimension() const = 0;
+    virtual Point_Type point_type() const = 0;
+    virtual std::shared_ptr<Material> material() const = 0;
+    virtual std::vector<double> const &position() const = 0;
+
+    // For boundary points
+    virtual std::shared_ptr<Boundary_Source> boundary_source() const = 0;
+    virtual std::vector<double> const &normal() const = 0;
     
-    Point(int index,
-          int dimension,
-          shared_ptr<Material> material,
-          vector<double> const &position);
-    
-    Point(int index,
-          int dimension,
-          shared_ptr<Material> material,
-          shared_ptr<Boundary_Source> boundary_source,
-          vector<double> const &position,
-          vector<double> const &normal);
-    
-    virtual int index() const
-    {
-        return index_;
-    }
-    virtual int dimension() const
-    {
-        return dimension_;
-    }
-    virtual Point_Type point_type() const
-    {
-        return point_type_;
-    }
-    virtual shared_ptr<Material> material() const
-    {
-        return material_;
-    }
-    virtual shared_ptr<Boundary_Source> boundary_source() const
-    {
-        return boundary_source_;
-    }
-    virtual vector<double> const &position() const
-    {
-        return position_;
-    }
-    virtual vector<double> const &normal() const
-    {
-        return normal_;
-    }
-    
-    virtual void check_class_invariants() const;
-    
-    virtual void output(pugi::xml_node &output_node) const;
+    // Data output and checking
+    virtual void output(XML_Node output_node) const = 0;
+    virtual void check_class_invariants() const = 0;
     
 protected:
 
-    virtual string point_type_string() const;
-    
-    int index_;
-    int dimension_;
-    Point_Type point_type_;
-    shared_ptr<Material> material_;
-    shared_ptr<Boundary_Source> boundary_source_;
-    vector<double> position_;
-    vector<double> normal_;
+    // Convert Point_Type to string
+    virtual std::string point_type_string() const;
 };
 
 #endif

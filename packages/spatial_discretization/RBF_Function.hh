@@ -4,68 +4,40 @@
 #include <memory>
 #include <vector>
 
-#include "pugixml.hh"
+#include "XML_Node.hh"
 
-#include "Distance.hh"
-#include "RBF.hh"
+class Distance;
+class RBF;
 
-using std::shared_ptr;
-using std::vector;
-
-class RBF_Function
+class RBF_Function : public Meshless_Function
 {
 public:
 
-    RBF_Function(shared_ptr<RBF> rbf,
-                 shared_ptr<Distance> distance);
+    RBF_Function(double shape,
+                 std::vector<double> const &position,
+                 std::shared_ptr<RBF> rbf,
+                 std::shared_ptr<Distance> distance);
     
-    virtual shared_ptr<RBF> rbf() const
-    {
-        return rbf_;
-    }
+    virtual double radius() const override;
+    virtual std::vector<double> position() const override;
 
-    virtual shared_ptr<Distance> distance() const
-    {
-        return distance_;
-    }
-
-    virtual double basis(double shape,
-                         vector<double> const &r,
-                         vector<double> const &r0) const;
-    
+    virtual double basis(std::vector<double> const &r) const override;
     virtual double d_basis(int dim,
-                           double shape,
-                           vector<double> const &r,
-                           vector<double> const &r0) const;
-    
+                           std::vector<double> const &r) const override;
     virtual double dd_basis(int dim,
-                            double shape,
-                            vector<double> const &r,
-                            vector<double> const &r0) const;
+                            std::vector<double> const &r) const override;
+    virtual std::vector<double> gradient_basis(std::vector<double> const &r) const override;
+    virtual double laplacian(std::vector<double> const &r) const override;
     
-    virtual vector<double> gradient_basis(double shape,
-                                          vector<double> const &r,
-                                          vector<double> const &r0) const;
-    
-    virtual double laplacian(double shape,
-                             vector<double> const &r,
-                             vector<double> const &r0) const;
-    
-    virtual void output(pugi::xml_node &output_node) const;
-
-    virtual void check_class_invariants() const;
-
-    virtual bool derivative_available(int derivative) const
-    {
-        return (derivative < 3 ? true : false
-                && rbf_->derivative_available(derivative)
-                && distance_->derivative_available(derivative));
-    }
+    virtual void output(XML_Node output_node) const override;
+    virtual void check_class_invariants() const override;
     
 protected:
 
-    shared_ptr<RBF> rbf_;
-    shared_ptr<Distance> distance_;
+    double shape_;
+    std::vector<double> position_;
+    std::shared_ptr<RBF> rbf_;
+    std::shared_ptr<Distance> distance_;
 };
 
 #endif
