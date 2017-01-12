@@ -1,22 +1,19 @@
-#ifndef Wendland_RBF_hh
-#define Wendland_RBF_hh
+#ifndef Truncated_Gaussian_RBF_hh
+#define Truncated_Gaussian_RBF_hh
 
-#include "RBF.hh"
+#include "Local_RBF.hh"
 
-/*
-  Local polynomial radial basis function
-*/
-class Wendland_RBF : public Local_RBF
+class Truncated_Gaussian_RBF : public Local_RBF
 {
 public:
-
-    // Constructor
-    Wendland_RBF(int order);
     
+    // Constructor
+    Truncated_Gaussian_RBF(double radius = 5);
+
     // Distance from center the function is nonzero
     virtual double radius() const
     {
-        return 1.;
+        return radius_;
     }
     
     // Value of basis function
@@ -28,14 +25,14 @@ public:
     // Second derivative of the basis function
     virtual double dd_basis(double r) const override;
 
-    virtual std::string description() const override
-    {
-        return "wendland" + std::to_string(order_);
-    }
-    
-private:
+    // Description of RBF
+    virtual std::string description() const override;
 
-    int order_;
+private:
+    
+    double radius_;
+    double k1_;
+    double k2_;
 };
 
 #endif

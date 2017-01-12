@@ -5,7 +5,8 @@
 
 class Local_RBF : public RBF
 {
-   // Constructor
+public:
+    // Constructor
     Local_RBF();
 
     // Range of function

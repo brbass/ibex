@@ -16,6 +16,12 @@ RBF_Function(double shape,
 {
 }
 
+int RBF_Function::
+dimension() const
+{
+    return distance_->dimension();
+}
+
 double RBF_Function::
 radius() const
 {

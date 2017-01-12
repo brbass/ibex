@@ -1,18 +1,11 @@
 #include "Gaussian_RBF.hh"
 
 #include <cmath>
-#include <limits>
 
 Gaussian_RBF::
 Gaussian_RBF():
     RBF()
 {
-}
-
-double Gaussian_RBF::
-radius() const
-{
-    return numeric_limits<double>::max();
 }
 
 double Gaussian_RBF::

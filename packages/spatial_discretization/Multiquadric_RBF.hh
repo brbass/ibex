@@ -6,7 +6,7 @@
 /*
   Radial basis function of the form exp(-c^2 r^2)
 */
-class Multiquadric_RBF : public RBF
+class Multiquadric_RBF : public Global_RBF
 {
 public:
 
@@ -22,7 +22,7 @@ public:
     // Second derivative of the basis function
     virtual double dd_basis(double r) const override;
 
-    virtual string description() const override
+    virtual std::string description() const override
     {
         return "multiquadric";
     }

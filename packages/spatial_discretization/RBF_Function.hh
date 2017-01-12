@@ -4,10 +4,11 @@
 #include <memory>
 #include <vector>
 
-#include "XML_Node.hh"
+#include "Meshless_Function.hh"
 
 class Distance;
 class RBF;
+class XML_Node;
 
 class RBF_Function : public Meshless_Function
 {
@@ -17,10 +18,13 @@ public:
                  std::vector<double> const &position,
                  std::shared_ptr<RBF> rbf,
                  std::shared_ptr<Distance> distance);
-    
+
+    virtual int dimension() const override;
     virtual double radius() const override;
-    virtual std::vector<double> position() const override;
-    
+    virtual std::vector<double> position() const override
+    {
+        return position_;
+    }
     virtual double basis(std::vector<double> const &r) const override;
     virtual double d_basis(int dim,
                            std::vector<double> const &r) const override;

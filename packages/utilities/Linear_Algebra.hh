@@ -5,6 +5,20 @@
 
 #include <vector>
 
+/*
+  Includes linear solves for symmetric and asymmetric matrices
+  as well as direct inverses. The specific functions 
+  (e.g. linear_solve_2) do not check sizes, whereas the general
+  ones (e.g. linear_solve) do.
+
+  Linear solve:
+  |a[0] a[1]||x[0]| = |b[0]|
+  |a[2] a[3]||x[1]| = |b[1]|
+  
+  Symmetric linear solve:
+  |a[0] a[1]||x[0]| = |b[0]|
+  |a[1] a[2]||x[1]| = |b[1]|
+*/
 namespace Linear_Algebra
 {
     template<class T> void linear_solve_1(std::vector<T> const &a,
@@ -20,6 +34,13 @@ namespace Linear_Algebra
                                                     std::vector<T> &x)
     {
         x[0]=b[0]/a[0];
+        return;
+    }
+
+    template<class T> void direct_inverse_1(std::vector<T> const &a,
+                                            std::vector<T> &x)
+    {
+        x[0]=1/a[0];
         return;
     }
     
@@ -50,6 +71,24 @@ namespace Linear_Algebra
         T o13=b[1];
         x[0]=(-(o13*o3)+o11*o7)/(-o4+o6*o7);
         x[1]=(o11*o3-o13*o6)/(o4-o6*o7);
+        return;
+    }
+
+    template<class T> void direct_inverse_2(std::vector<T> const &a,
+                                            std::vector<T> &x)
+    {
+        T o3=a[3];
+        T o4=a[1];
+        T o5=a[2];
+        T o6=-(o4*o5);
+        T o7=a[0];
+        T o8=o3*o7;
+        T o9=o6+o8;
+        T o10=1/o9;
+        x[0]=o10*o3;
+        x[1]=-(o10*o4);
+        x[2]=-(o10*o5);
+        x[3]=o10*o7;
         return;
     }
 
@@ -110,6 +149,38 @@ namespace Linear_Algebra
         x[0]=o19*(o13*o20+o10*o15*o23-o15*o20*o4+o26*o3*o4-o10*o26*o8-o23*o3*o8);
         x[1]=o19*(-(o12*o15*o23)+o15*o20*o3+o23*o3*o4-o26*o7+o12*o26*o8-o20*o4*o8);
         x[2]=(-(o10*o26*o3)+o10*o23*o4+o12*o26*o4-o20*o5-o12*o23*o8+o20*o3*o8)/(-(o12*o13)-o10*o15*o3+o12*o15*o4-o3*o5+o10*o4*o8+o7*o8);        
+    }
+
+    template<class T> void direct_inverse_3(std::vector<T> const &a,
+                                            std::vector<T> &x)
+    {
+        T o6=a[4];
+        T o3=a[5];
+        T o11=a[6];
+        T o10=a[2];
+        T o4=a[7];
+        T o13=a[1];
+        T o15=a[3];
+        T o7=a[8];
+        T o17=a[0];
+        T o12=-(o10*o11*o6);
+        T o14=o11*o13*o3;
+        T o16=o10*o15*o4;
+        T o18=-(o17*o3*o4);
+        T o19=-(o13*o15*o7);
+        T o20=o17*o6*o7;
+        T o21=o12+o14+o16+o18+o19+o20;
+        T o22=1/o21;
+        x[0]=o22*(-(o3*o4)+o6*o7);
+        x[1]=o22*(o10*o4-o13*o7);
+        x[2]=o22*(o13*o3-o10*o6);
+        x[3]=o22*(o11*o3-o15*o7);
+        x[4]=o22*(-(o10*o11)+o17*o7);
+        x[5]=o22*(o10*o15-o17*o3);
+        x[6]=o22*(o15*o4-o11*o6);
+        x[7]=o22*(o11*o13-o17*o4);
+        x[8]=o22*(-(o13*o15)+o17*o6);        
+        return;
     }
 
     template<class T> void linear_solve_4(std::vector<T> const &a,
@@ -280,6 +351,70 @@ namespace Linear_Algebra
         x[1]=o43*(-(o3*o32*o44)-o11*o35*o44+o12*o3*o35*o44+2.*o24*o4*o44*o5+o22*o32*o51-o12*o22*o35*o51-o24*o3*o4*o51+o12*o3*o5*o51+o19*o24*o58+o22*o35*o4*o58-o22*o24*o5*o58-o3*o4*o5*o58-o12*o44*o6-o12*o19*o65+o11*o3*o65-o22*o24*o4*o65+o12*o22*o5*o65+o35*o4*o51*o8-o24*o5*o51*o8-o3*o35*o58*o8+o58*o6*o8+o24*o3*o65*o8-o4*o5*o65*o8);
         x[2]=o43*(o12*o24*o3*o44+o14*o35*o4*o44-o14*o24*o44*o5-o3*o35*o44*o5-o12*o4*o44*o5-o12*o22*o24*o51+o12*o3*o4*o51-o17*o35*o4*o51+o17*o24*o5*o51+o22*o35*o5*o51-o12*o19*o58-o14*o22*o35*o58+o17*o3*o35*o58+o12*o22*o5*o58+o14*o3*o5*o58-o3*o51*o6-o17*o58*o6+o14*o22*o24*o65-o17*o24*o3*o65-o14*o3*o4*o65+o19*o5*o65+o17*o4*o5*o65-o22*o6*o65+o44*o9);
         x[3]=(-(o149*(-(o129*o167)+o133*(-(o4*o44)+o22*o58)))+o155*(-(o144*o167)+o133*(-(o44*o5)+o22*o65)))/(-(o149*(-(o127*o129)+o133*(o135-o3*o4)))+o155*(-(o127*o144)+o133*(o22*o35-o3*o5)));
+        return;
+    }
+
+    template<class T> void direct_inverse_4(std::vector<T> const &a,
+                                            std::vector<T> &x)
+    {
+        T o5=a[13];
+        T o3=a[7];
+        T o8=a[11];
+        T o11=a[14];
+        T o7=a[6];
+        T o10=a[9];
+        T o13=a[5];
+        T o4=a[10];
+        T o15=a[15];
+        T o20=a[12];
+        T o19=a[3];
+        T o22=a[2];
+        T o25=a[1];
+        T o29=a[8];
+        T o32=a[4];
+        T o34=a[0];
+        T o21=o10*o19*o20*o7;
+        T o23=-(o10*o20*o22*o3);
+        T o24=-(o13*o19*o20*o4);
+        T o26=o20*o25*o3*o4;
+        T o27=o13*o20*o22*o8;
+        T o28=-(o20*o25*o7*o8);
+        T o30=-(o19*o29*o5*o7);
+        T o31=o22*o29*o3*o5;
+        T o33=o19*o32*o4*o5;
+        T o35=-(o3*o34*o4*o5);
+        T o36=-(o22*o32*o5*o8);
+        T o37=o34*o5*o7*o8;
+        T o38=o11*o13*o19*o29;
+        T o39=-(o11*o25*o29*o3);
+        T o40=-(o10*o11*o19*o32);
+        T o41=o10*o11*o3*o34;
+        T o42=o11*o25*o32*o8;
+        T o43=-(o11*o13*o34*o8);
+        T o44=-(o13*o15*o22*o29);
+        T o45=o15*o25*o29*o7;
+        T o46=o10*o15*o22*o32;
+        T o47=-(o10*o15*o34*o7);
+        T o48=-(o15*o25*o32*o4);
+        T o49=o13*o15*o34*o4;
+        T o50=o21+o23+o24+o26+o27+o28+o30+o31+o33+o35+o36+o37+o38+o39+o40+o41+o42+o43+o44+o45+o46+o47+o48+o49;
+        T o51=1/o50;
+        x[0]=o51*(o10*o11*o3+o13*o15*o4-o3*o4*o5-o10*o15*o7-o11*o13*o8+o5*o7*o8);
+        x[1]=o51*(-(o10*o11*o19)+o10*o15*o22-o15*o25*o4+o19*o4*o5+o11*o25*o8-o22*o5*o8);
+        x[2]=o51*(o11*o13*o19-o13*o15*o22-o11*o25*o3+o22*o3*o5+o15*o25*o7-o19*o5*o7);
+        x[3]=o51*(-(o10*o22*o3)-o13*o19*o4+o25*o3*o4+o10*o19*o7+o13*o22*o8-o25*o7*o8);
+        x[4]=o51*(-(o11*o29*o3)+o20*o3*o4-o15*o32*o4+o15*o29*o7+o11*o32*o8-o20*o7*o8);
+        x[5]=o51*(o11*o19*o29-o15*o22*o29-o19*o20*o4+o15*o34*o4+o20*o22*o8-o11*o34*o8);
+        x[6]=o51*(-(o20*o22*o3)-o11*o19*o32+o15*o22*o32+o11*o3*o34+o19*o20*o7-o15*o34*o7);
+        x[7]=o51*(o22*o29*o3+o19*o32*o4-o3*o34*o4-o19*o29*o7-o22*o32*o8+o34*o7*o8);
+        x[8]=o51*(-(o13*o15*o29)-o10*o20*o3+o10*o15*o32+o29*o3*o5+o13*o20*o8-o32*o5*o8);
+        x[9]=o51*(o10*o19*o20+o15*o25*o29-o10*o15*o34-o19*o29*o5-o20*o25*o8+o34*o5*o8);
+        x[10]=(-(o13*o19*o20)+o20*o25*o3-o15*o25*o32+o13*o15*o34+o19*o32*o5-o3*o34*o5)*o51;
+        x[11]=o51*(o13*o19*o29-o25*o29*o3-o10*o19*o32+o10*o3*o34+o25*o32*o8-o13*o34*o8);
+        x[12]=o51*(o11*o13*o29-o10*o11*o32-o13*o20*o4+o32*o4*o5+o10*o20*o7-o29*o5*o7);
+        x[13]=(-(o10*o20*o22)-o11*o25*o29+o10*o11*o34+o20*o25*o4+o22*o29*o5-o34*o4*o5)*o51;
+        x[14]=o51*(o13*o20*o22+o11*o25*o32-o11*o13*o34-o22*o32*o5-o20*o25*o7+o34*o5*o7);
+        x[15]=o51*(-(o13*o22*o29)+o10*o22*o32-o25*o32*o4+o13*o34*o4+o25*o29*o7-o10*o34*o7);        
         return;
     }
 
@@ -656,11 +791,191 @@ namespace Linear_Algebra
         return;
     }
 
+    template<class T> void direct_inverse_5(std::vector<T> const &a,
+                                            std::vector<T> &x)
+    {
+        T o5=a[17];
+        T o6=a[21];
+        T o3=a[9];
+        T o9=a[14];
+        T o12=a[18];
+        T o8=a[8];
+        T o11=a[12];
+        T o14=a[7];
+        T o4=a[13];
+        T o16=a[19];
+        T o19=a[16];
+        T o20=a[22];
+        T o23=a[11];
+        T o25=a[6];
+        T o29=a[23];
+        T o36=a[24];
+        T o45=a[20];
+        T o44=a[4];
+        T o47=a[3];
+        T o50=a[2];
+        T o57=a[1];
+        T o73=a[15];
+        T o80=a[10];
+        T o83=a[5];
+        T o85=a[0];
+        T o46=o11*o19*o44*o45*o8;
+        T o48=-(o11*o19*o3*o45*o47);
+        T o49=-(o14*o19*o4*o44*o45);
+        T o51=o19*o3*o4*o45*o50;
+        T o52=o14*o19*o45*o47*o9;
+        T o53=-(o19*o45*o50*o8*o9);
+        T o54=-(o23*o44*o45*o5*o8);
+        T o55=o23*o3*o45*o47*o5;
+        T o56=o25*o4*o44*o45*o5;
+        T o58=-(o3*o4*o45*o5*o57);
+        T o59=-(o25*o45*o47*o5*o9);
+        T o60=o45*o5*o57*o8*o9;
+        T o61=o12*o14*o23*o44*o45;
+        T o62=-(o12*o23*o3*o45*o50);
+        T o63=-(o11*o12*o25*o44*o45);
+        T o64=o11*o12*o3*o45*o57;
+        T o65=o12*o25*o45*o50*o9;
+        T o66=-(o12*o14*o45*o57*o9);
+        T o67=-(o14*o16*o23*o45*o47);
+        T o68=o16*o23*o45*o50*o8;
+        T o69=o11*o16*o25*o45*o47;
+        T o70=-(o11*o16*o45*o57*o8);
+        T o71=-(o16*o25*o4*o45*o50);
+        T o72=o14*o16*o4*o45*o57;
+        T o74=-(o11*o44*o6*o73*o8);
+        T o75=o11*o3*o47*o6*o73;
+        T o76=o14*o4*o44*o6*o73;
+        T o77=-(o3*o4*o50*o6*o73);
+        T o78=-(o14*o47*o6*o73*o9);
+        T o79=o50*o6*o73*o8*o9;
+        T o81=o44*o5*o6*o8*o80;
+        T o82=-(o3*o47*o5*o6*o80);
+        T o84=-(o4*o44*o5*o6*o83);
+        T o86=o3*o4*o5*o6*o85;
+        T o87=o47*o5*o6*o83*o9;
+        T o88=-(o5*o6*o8*o85*o9);
+        T o89=-(o12*o14*o44*o6*o80);
+        T o90=o12*o3*o50*o6*o80;
+        T o91=o11*o12*o44*o6*o83;
+        T o92=-(o11*o12*o3*o6*o85);
+        T o93=-(o12*o50*o6*o83*o9);
+        T o94=o12*o14*o6*o85*o9;
+        T o95=o14*o16*o47*o6*o80;
+        T o96=-(o16*o50*o6*o8*o80);
+        T o97=-(o11*o16*o47*o6*o83);
+        T o98=o11*o16*o6*o8*o85;
+        T o99=o16*o4*o50*o6*o83;
+        T o100=-(o14*o16*o4*o6*o85);
+        T o101=o20*o23*o44*o73*o8;
+        T o102=-(o20*o23*o3*o47*o73);
+        T o103=-(o20*o25*o4*o44*o73);
+        T o104=o20*o3*o4*o57*o73;
+        T o105=o20*o25*o47*o73*o9;
+        T o106=-(o20*o57*o73*o8*o9);
+        T o107=-(o19*o20*o44*o8*o80);
+        T o108=o19*o20*o3*o47*o80;
+        T o109=o19*o20*o4*o44*o83;
+        T o110=-(o19*o20*o3*o4*o85);
+        T o111=-(o19*o20*o47*o83*o9);
+        T o112=o19*o20*o8*o85*o9;
+        T o113=o12*o20*o25*o44*o80;
+        T o114=-(o12*o20*o3*o57*o80);
+        T o115=-(o12*o20*o23*o44*o83);
+        T o116=o12*o20*o23*o3*o85;
+        T o117=o12*o20*o57*o83*o9;
+        T o118=-(o12*o20*o25*o85*o9);
+        T o119=-(o16*o20*o25*o47*o80);
+        T o120=o16*o20*o57*o8*o80;
+        T o121=o16*o20*o23*o47*o83;
+        T o122=-(o16*o20*o23*o8*o85);
+        T o123=-(o16*o20*o4*o57*o83);
+        T o124=o16*o20*o25*o4*o85;
+        T o125=-(o14*o23*o29*o44*o73);
+        T o126=o23*o29*o3*o50*o73;
+        T o127=o11*o25*o29*o44*o73;
+        T o128=-(o11*o29*o3*o57*o73);
+        T o129=-(o25*o29*o50*o73*o9);
+        T o130=o14*o29*o57*o73*o9;
+        T o131=o14*o19*o29*o44*o80;
+        T o132=-(o19*o29*o3*o50*o80);
+        T o133=-(o11*o19*o29*o44*o83);
+        T o134=o11*o19*o29*o3*o85;
+        T o135=o19*o29*o50*o83*o9;
+        T o136=-(o14*o19*o29*o85*o9);
+        T o137=-(o25*o29*o44*o5*o80);
+        T o138=o29*o3*o5*o57*o80;
+        T o139=o23*o29*o44*o5*o83;
+        T o140=-(o23*o29*o3*o5*o85);
+        T o141=-(o29*o5*o57*o83*o9);
+        T o142=o25*o29*o5*o85*o9;
+        T o143=o16*o25*o29*o50*o80;
+        T o144=-(o14*o16*o29*o57*o80);
+        T o145=-(o16*o23*o29*o50*o83);
+        T o146=o14*o16*o23*o29*o85;
+        T o147=o11*o16*o29*o57*o83;
+        T o148=-(o11*o16*o25*o29*o85);
+        T o149=o14*o23*o36*o47*o73;
+        T o150=-(o23*o36*o50*o73*o8);
+        T o151=-(o11*o25*o36*o47*o73);
+        T o152=o11*o36*o57*o73*o8;
+        T o153=o25*o36*o4*o50*o73;
+        T o154=-(o14*o36*o4*o57*o73);
+        T o155=-(o14*o19*o36*o47*o80);
+        T o156=o19*o36*o50*o8*o80;
+        T o157=o11*o19*o36*o47*o83;
+        T o158=-(o11*o19*o36*o8*o85);
+        T o159=-(o19*o36*o4*o50*o83);
+        T o160=o14*o19*o36*o4*o85;
+        T o161=o25*o36*o47*o5*o80;
+        T o162=-(o36*o5*o57*o8*o80);
+        T o163=-(o23*o36*o47*o5*o83);
+        T o164=o23*o36*o5*o8*o85;
+        T o165=o36*o4*o5*o57*o83;
+        T o166=-(o25*o36*o4*o5*o85);
+        T o167=-(o12*o25*o36*o50*o80);
+        T o168=o12*o14*o36*o57*o80;
+        T o169=o12*o23*o36*o50*o83;
+        T o170=-(o12*o14*o23*o36*o85);
+        T o171=-(o11*o12*o36*o57*o83);
+        T o172=o11*o12*o25*o36*o85;
+        T o173=o100+o101+o102+o103+o104+o105+o106+o107+o108+o109+o110+o111+o112+o113+o114+o115+o116+o117+o118+o119+o120+o121+o122+o123+o124+o125+o126+o127+o128+o129+o130+o131+o132+o133+o134+o135+o136+o137+o138+o139+o140+o141+o142+o143+o144+o145+o146+o147+o148+o149+o150+o151+o152+o153+o154+o155+o156+o157+o158+o159+o160+o161+o162+o163+o164+o165+o166+o167+o168+o169+o170+o171+o172+o46+o48+o49+o51+o52+o53+o54+o55+o56+o58+o59+o60+o61+o62+o63+o64+o65+o66+o67+o68+o69+o70+o71+o72+o74+o75+o76+o77+o78+o79+o81+o82+o84+o86+o87+o88+o89+o90+o91+o92+o93+o94+o95+o96+o97+o98+o99;
+        T o174=1/o173;
+        x[0]=o174*(o14*o16*o23*o29-o11*o16*o25*o29+o12*o20*o23*o3+o11*o19*o29*o3-o12*o14*o23*o36+o11*o12*o25*o36+o16*o20*o25*o4-o19*o20*o3*o4+o14*o19*o36*o4-o23*o29*o3*o5-o25*o36*o4*o5-o11*o12*o3*o6-o14*o16*o4*o6+o3*o4*o5*o6-o16*o20*o23*o8-o11*o19*o36*o8+o23*o36*o5*o8+o11*o16*o6*o8-o12*o20*o25*o9-o14*o19*o29*o9+o25*o29*o5*o9+o12*o14*o6*o9+o19*o20*o8*o9-o5*o6*o8*o9);
+        x[1]=o174*(-(o12*o20*o23*o44)-o11*o19*o29*o44+o19*o20*o4*o44+o16*o20*o23*o47+o11*o19*o36*o47+o23*o29*o44*o5-o23*o36*o47*o5-o16*o23*o29*o50+o12*o23*o36*o50-o19*o36*o4*o50+o11*o16*o29*o57-o11*o12*o36*o57-o16*o20*o4*o57+o36*o4*o5*o57+o11*o12*o44*o6-o11*o16*o47*o6-o4*o44*o5*o6+o16*o4*o50*o6-o19*o20*o47*o9+o19*o29*o50*o9+o12*o20*o57*o9-o29*o5*o57*o9+o47*o5*o6*o9-o12*o50*o6*o9);
+        x[2]=o174*(o12*o20*o25*o44+o14*o19*o29*o44-o16*o20*o25*o47+o19*o20*o3*o47-o14*o19*o36*o47-o25*o29*o44*o5+o25*o36*o47*o5+o16*o25*o29*o50-o19*o29*o3*o50-o12*o25*o36*o50-o14*o16*o29*o57-o12*o20*o3*o57+o12*o14*o36*o57+o29*o3*o5*o57-o12*o14*o44*o6+o14*o16*o47*o6-o3*o47*o5*o6+o12*o3*o50*o6-o19*o20*o44*o8+o19*o36*o50*o8+o16*o20*o57*o8-o36*o5*o57*o8+o44*o5*o6*o8-o16*o50*o6*o8);
+        x[3]=o174*(-(o14*o23*o29*o44)+o11*o25*o29*o44-o20*o25*o4*o44-o20*o23*o3*o47+o14*o23*o36*o47-o11*o25*o36*o47+o23*o29*o3*o50+o25*o36*o4*o50-o11*o29*o3*o57+o20*o3*o4*o57-o14*o36*o4*o57+o14*o4*o44*o6+o11*o3*o47*o6-o3*o4*o50*o6+o20*o23*o44*o8-o23*o36*o50*o8+o11*o36*o57*o8-o11*o44*o6*o8+o20*o25*o47*o9-o25*o29*o50*o9+o14*o29*o57*o9-o14*o47*o6*o9-o20*o57*o8*o9+o50*o6*o8*o9);
+        x[4]=o174*(o12*o14*o23*o44-o11*o12*o25*o44-o14*o19*o4*o44-o14*o16*o23*o47+o11*o16*o25*o47-o11*o19*o3*o47+o25*o4*o44*o5+o23*o3*o47*o5-o12*o23*o3*o50-o16*o25*o4*o50+o19*o3*o4*o50+o11*o12*o3*o57+o14*o16*o4*o57-o3*o4*o5*o57+o11*o19*o44*o8-o23*o44*o5*o8+o16*o23*o50*o8-o11*o16*o57*o8+o14*o19*o47*o9-o25*o47*o5*o9+o12*o25*o50*o9-o12*o14*o57*o9-o19*o50*o8*o9+o5*o57*o8*o9);
+        x[5]=o174*(o11*o12*o3*o45+o14*o16*o4*o45-o3*o4*o45*o5-o11*o29*o3*o73+o20*o3*o4*o73-o14*o36*o4*o73-o11*o16*o45*o8+o11*o36*o73*o8-o14*o16*o29*o80-o12*o20*o3*o80+o12*o14*o36*o80+o29*o3*o5*o80+o16*o20*o8*o80-o36*o5*o8*o80+o11*o16*o29*o83-o11*o12*o36*o83-o16*o20*o4*o83+o36*o4*o5*o83-o12*o14*o45*o9+o14*o29*o73*o9+o45*o5*o8*o9-o20*o73*o8*o9+o12*o20*o83*o9-o29*o5*o83*o9);
+        x[6]=o174*(-(o11*o12*o44*o45)+o11*o16*o45*o47+o4*o44*o45*o5-o16*o4*o45*o50+o11*o29*o44*o73-o20*o4*o44*o73-o11*o36*o47*o73+o36*o4*o50*o73+o12*o20*o44*o80-o16*o20*o47*o80-o29*o44*o5*o80+o36*o47*o5*o80+o16*o29*o50*o80-o12*o36*o50*o80-o11*o16*o29*o85+o11*o12*o36*o85+o16*o20*o4*o85-o36*o4*o5*o85-o45*o47*o5*o9+o12*o45*o50*o9+o20*o47*o73*o9-o29*o50*o73*o9-o12*o20*o85*o9+o29*o5*o85*o9);
+        x[7]=o174*(o12*o14*o44*o45-o14*o16*o45*o47+o3*o45*o47*o5-o12*o3*o45*o50-o14*o29*o44*o73-o20*o3*o47*o73+o14*o36*o47*o73+o29*o3*o50*o73-o44*o45*o5*o8+o16*o45*o50*o8+o20*o44*o73*o8-o36*o50*o73*o8-o12*o20*o44*o83+o16*o20*o47*o83+o29*o44*o5*o83-o36*o47*o5*o83-o16*o29*o50*o83+o12*o36*o50*o83+o14*o16*o29*o85+o12*o20*o3*o85-o12*o14*o36*o85-o29*o3*o5*o85-o16*o20*o8*o85+o36*o5*o8*o85);
+        x[8]=o174*(-(o14*o4*o44*o45)-o11*o3*o45*o47+o3*o4*o45*o50+o11*o44*o45*o8+o14*o29*o44*o80+o20*o3*o47*o80-o14*o36*o47*o80-o29*o3*o50*o80-o20*o44*o8*o80+o36*o50*o8*o80-o11*o29*o44*o83+o20*o4*o44*o83+o11*o36*o47*o83-o36*o4*o50*o83+o11*o29*o3*o85-o20*o3*o4*o85+o14*o36*o4*o85-o11*o36*o8*o85+o14*o45*o47*o9-o45*o50*o8*o9-o20*o47*o83*o9+o29*o50*o83*o9-o14*o29*o85*o9+o20*o8*o85*o9);
+        x[9]=o174*(o14*o4*o44*o73+o11*o3*o47*o73-o3*o4*o50*o73-o11*o44*o73*o8-o12*o14*o44*o80+o14*o16*o47*o80-o3*o47*o5*o80+o12*o3*o50*o80+o44*o5*o8*o80-o16*o50*o8*o80+o11*o12*o44*o83-o11*o16*o47*o83-o4*o44*o5*o83+o16*o4*o50*o83-o11*o12*o3*o85-o14*o16*o4*o85+o3*o4*o5*o85+o11*o16*o8*o85-o14*o47*o73*o9+o50*o73*o8*o9+o47*o5*o83*o9-o12*o50*o83*o9+o12*o14*o85*o9-o5*o8*o85*o9);
+        x[10]=o174*(-(o12*o23*o3*o45)-o16*o25*o4*o45+o19*o3*o4*o45+o23*o29*o3*o73+o25*o36*o4*o73-o3*o4*o6*o73+o16*o23*o45*o8-o23*o36*o73*o8+o16*o25*o29*o80-o19*o29*o3*o80-o12*o25*o36*o80+o12*o3*o6*o80+o19*o36*o8*o80-o16*o6*o8*o80-o16*o23*o29*o83+o12*o23*o36*o83-o19*o36*o4*o83+o16*o4*o6*o83+o12*o25*o45*o9-o25*o29*o73*o9-o19*o45*o8*o9+o6*o73*o8*o9+o19*o29*o83*o9-o12*o6*o83*o9);
+        x[11]=o174*(o12*o23*o44*o45-o19*o4*o44*o45-o16*o23*o45*o47+o16*o4*o45*o57-o23*o29*o44*o73+o23*o36*o47*o73-o36*o4*o57*o73+o4*o44*o6*o73+o19*o29*o44*o80-o19*o36*o47*o80-o16*o29*o57*o80+o12*o36*o57*o80-o12*o44*o6*o80+o16*o47*o6*o80+o16*o23*o29*o85-o12*o23*o36*o85+o19*o36*o4*o85-o16*o4*o6*o85+o19*o45*o47*o9-o12*o45*o57*o9+o29*o57*o73*o9-o47*o6*o73*o9-o19*o29*o85*o9+o12*o6*o85*o9);
+        x[12]=o174*(-(o12*o25*o44*o45)+o16*o25*o45*o47-o19*o3*o45*o47+o12*o3*o45*o57+o25*o29*o44*o73-o25*o36*o47*o73-o29*o3*o57*o73+o3*o47*o6*o73+o19*o44*o45*o8-o16*o45*o57*o8+o36*o57*o73*o8-o44*o6*o73*o8-o19*o29*o44*o83+o19*o36*o47*o83+o16*o29*o57*o83-o12*o36*o57*o83+o12*o44*o6*o83-o16*o47*o6*o83-o16*o25*o29*o85+o19*o29*o3*o85+o12*o25*o36*o85-o12*o3*o6*o85-o19*o36*o8*o85+o16*o6*o8*o85);
+        x[13]=o174*(o25*o4*o44*o45+o23*o3*o45*o47-o3*o4*o45*o57-o23*o44*o45*o8-o25*o29*o44*o80+o25*o36*o47*o80+o29*o3*o57*o80-o3*o47*o6*o80-o36*o57*o8*o80+o44*o6*o8*o80+o23*o29*o44*o83-o23*o36*o47*o83+o36*o4*o57*o83-o4*o44*o6*o83-o23*o29*o3*o85-o25*o36*o4*o85+o3*o4*o6*o85+o23*o36*o8*o85-o25*o45*o47*o9+o45*o57*o8*o9-o29*o57*o83*o9+o47*o6*o83*o9+o25*o29*o85*o9-o6*o8*o85*o9);
+        x[14]=o174*(-(o25*o4*o44*o73)-o23*o3*o47*o73+o3*o4*o57*o73+o23*o44*o73*o8+o12*o25*o44*o80-o16*o25*o47*o80+o19*o3*o47*o80-o12*o3*o57*o80-o19*o44*o8*o80+o16*o57*o8*o80-o12*o23*o44*o83+o19*o4*o44*o83+o16*o23*o47*o83-o16*o4*o57*o83+o12*o23*o3*o85+o16*o25*o4*o85-o19*o3*o4*o85-o16*o23*o8*o85+o25*o47*o73*o9-o57*o73*o8*o9-o19*o47*o83*o9+o12*o57*o83*o9-o12*o25*o85*o9+o19*o8*o85*o9);
+        x[15]=o174*(-(o14*o16*o23*o45)+o11*o16*o25*o45-o11*o19*o3*o45+o23*o3*o45*o5-o20*o23*o3*o73+o14*o23*o36*o73-o11*o25*o36*o73+o11*o3*o6*o73-o16*o20*o25*o80+o19*o20*o3*o80-o14*o19*o36*o80+o25*o36*o5*o80+o14*o16*o6*o80-o3*o5*o6*o80+o16*o20*o23*o83+o11*o19*o36*o83-o23*o36*o5*o83-o11*o16*o6*o83+o14*o19*o45*o9-o25*o45*o5*o9+o20*o25*o73*o9-o14*o6*o73*o9-o19*o20*o83*o9+o5*o6*o83*o9);
+        x[16]=o174*(o11*o19*o44*o45-o23*o44*o45*o5+o16*o23*o45*o50-o11*o16*o45*o57+o20*o23*o44*o73-o23*o36*o50*o73+o11*o36*o57*o73-o11*o44*o6*o73-o19*o20*o44*o80+o19*o36*o50*o80+o16*o20*o57*o80-o36*o5*o57*o80+o44*o5*o6*o80-o16*o50*o6*o80-o16*o20*o23*o85-o11*o19*o36*o85+o23*o36*o5*o85+o11*o16*o6*o85-o19*o45*o50*o9+o45*o5*o57*o9-o20*o57*o73*o9+o50*o6*o73*o9+o19*o20*o85*o9-o5*o6*o85*o9);
+        x[17]=o174*(-(o14*o19*o44*o45)+o25*o44*o45*o5-o16*o25*o45*o50+o19*o3*o45*o50+o14*o16*o45*o57-o3*o45*o5*o57-o20*o25*o44*o73+o25*o36*o50*o73+o20*o3*o57*o73-o14*o36*o57*o73+o14*o44*o6*o73-o3*o50*o6*o73+o19*o20*o44*o83-o19*o36*o50*o83-o16*o20*o57*o83+o36*o5*o57*o83-o44*o5*o6*o83+o16*o50*o6*o83+o16*o20*o25*o85-o19*o20*o3*o85+o14*o19*o36*o85-o25*o36*o5*o85-o14*o16*o6*o85+o3*o5*o6*o85);
+        x[18]=o174*(o14*o23*o44*o45-o11*o25*o44*o45-o23*o3*o45*o50+o11*o3*o45*o57+o20*o25*o44*o80-o25*o36*o50*o80-o20*o3*o57*o80+o14*o36*o57*o80-o14*o44*o6*o80+o3*o50*o6*o80-o20*o23*o44*o83+o23*o36*o50*o83-o11*o36*o57*o83+o11*o44*o6*o83+o20*o23*o3*o85-o14*o23*o36*o85+o11*o25*o36*o85-o11*o3*o6*o85+o25*o45*o50*o9-o14*o45*o57*o9+o20*o57*o83*o9-o50*o6*o83*o9-o20*o25*o85*o9+o14*o6*o85*o9);
+        x[19]=o174*(-(o14*o23*o44*o73)+o11*o25*o44*o73+o23*o3*o50*o73-o11*o3*o57*o73+o14*o19*o44*o80-o25*o44*o5*o80+o16*o25*o50*o80-o19*o3*o50*o80-o14*o16*o57*o80+o3*o5*o57*o80-o11*o19*o44*o83+o23*o44*o5*o83-o16*o23*o50*o83+o11*o16*o57*o83+o14*o16*o23*o85-o11*o16*o25*o85+o11*o19*o3*o85-o23*o3*o5*o85-o25*o50*o73*o9+o14*o57*o73*o9+o19*o50*o83*o9-o5*o57*o83*o9-o14*o19*o85*o9+o25*o5*o85*o9);
+        x[20]=o174*(o12*o14*o23*o45-o11*o12*o25*o45-o14*o19*o4*o45+o25*o4*o45*o5-o14*o23*o29*o73+o11*o25*o29*o73-o20*o25*o4*o73+o14*o4*o6*o73+o11*o19*o45*o8-o23*o45*o5*o8+o20*o23*o73*o8-o11*o6*o73*o8+o12*o20*o25*o80+o14*o19*o29*o80-o25*o29*o5*o80-o12*o14*o6*o80-o19*o20*o8*o80+o5*o6*o8*o80-o12*o20*o23*o83-o11*o19*o29*o83+o19*o20*o4*o83+o23*o29*o5*o83+o11*o12*o6*o83-o4*o5*o6*o83);
+        x[21]=o174*(-(o11*o19*o45*o47)+o23*o45*o47*o5-o12*o23*o45*o50+o19*o4*o45*o50+o11*o12*o45*o57-o4*o45*o5*o57-o20*o23*o47*o73+o23*o29*o50*o73-o11*o29*o57*o73+o20*o4*o57*o73+o11*o47*o6*o73-o4*o50*o6*o73+o19*o20*o47*o80-o19*o29*o50*o80-o12*o20*o57*o80+o29*o5*o57*o80-o47*o5*o6*o80+o12*o50*o6*o80+o12*o20*o23*o85+o11*o19*o29*o85-o19*o20*o4*o85-o23*o29*o5*o85-o11*o12*o6*o85+o4*o5*o6*o85);
+        x[22]=o174*(o14*o19*o45*o47-o25*o45*o47*o5+o12*o25*o45*o50-o12*o14*o45*o57+o20*o25*o47*o73-o25*o29*o50*o73+o14*o29*o57*o73-o14*o47*o6*o73-o19*o45*o50*o8+o45*o5*o57*o8-o20*o57*o73*o8+o50*o6*o73*o8-o19*o20*o47*o83+o19*o29*o50*o83+o12*o20*o57*o83-o29*o5*o57*o83+o47*o5*o6*o83-o12*o50*o6*o83-o12*o20*o25*o85-o14*o19*o29*o85+o25*o29*o5*o85+o12*o14*o6*o85+o19*o20*o8*o85-o5*o6*o8*o85);
+        x[23]=o174*(-(o14*o23*o45*o47)+o11*o25*o45*o47-o25*o4*o45*o50+o14*o4*o45*o57+o23*o45*o50*o8-o11*o45*o57*o8-o20*o25*o47*o80+o25*o29*o50*o80-o14*o29*o57*o80+o14*o47*o6*o80+o20*o57*o8*o80-o50*o6*o8*o80+o20*o23*o47*o83-o23*o29*o50*o83+o11*o29*o57*o83-o20*o4*o57*o83-o11*o47*o6*o83+o4*o50*o6*o83+o14*o23*o29*o85-o11*o25*o29*o85+o20*o25*o4*o85-o14*o4*o6*o85-o20*o23*o8*o85+o11*o6*o8*o85);
+        x[24]=o174*(o14*o23*o47*o73-o11*o25*o47*o73+o25*o4*o50*o73-o14*o4*o57*o73-o23*o50*o73*o8+o11*o57*o73*o8-o14*o19*o47*o80+o25*o47*o5*o80-o12*o25*o50*o80+o12*o14*o57*o80+o19*o50*o8*o80-o5*o57*o8*o80+o11*o19*o47*o83-o23*o47*o5*o83+o12*o23*o50*o83-o19*o4*o50*o83-o11*o12*o57*o83+o4*o5*o57*o83-o12*o14*o23*o85+o11*o12*o25*o85+o14*o19*o4*o85-o25*o4*o5*o85-o11*o19*o8*o85+o23*o5*o8*o85);        
+        return;
+    }
+
     template<class T> void linear_solve(std::vector<T> const &a,
                                         std::vector<T> const &b,
                                         std::vector<T> &x)
     {
         int size = x.size();
+        Check(b.size() == size);
+        Check(a.size() == size * size);
         
         switch(size)
         {
@@ -685,6 +1000,8 @@ namespace Linear_Algebra
                                                   std::vector<T> &x)
     {
         int size = x.size();
+        Check(b.size() == size);
+        Check(a.size() == size * (size + 1) / 2);
 
         switch(size)
         {
@@ -703,6 +1020,30 @@ namespace Linear_Algebra
             return;
         }
     }
-}
+
+    template<class T> void direct_inverse(std::vector<T> const &a,
+                                          std::vector<T> &x)
+    {
+        int size = a.size();
+        Check(x.size() == size);
+        
+        switch(size)
+        {
+        case 1:
+            return direct_inverse_solve_1(a, b, x);
+        case 4:
+            return direct_inverse_solve_2(a, b, x);
+        case 9:
+            return direct_inverse_solve_3(a, b, x);
+        case 16:
+            return direct_inverse_solve_4(a, b, x);
+        case 25:
+            return direct_inverse_solve_5(a, b, x);
+        default:
+            AssertMsg(false, "direct inverse of that size not implemented");
+            return;
+        }
+    }
+} // end namespace Linear_Algebra
 
 #endif
