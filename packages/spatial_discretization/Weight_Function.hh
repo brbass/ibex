@@ -44,19 +44,19 @@ public:
     {
         return number_of_boundary_surfaces_;
     }
-    shared_ptr<Meshless_Function> function() const
+    virtual shared_ptr<Meshless_Function> function() const
     {
         return meshless_function_;
     }
-    shared_ptr<Basis_Function> basis_function(int i) const
+    virtual shared_ptr<Basis_Function> basis_function(int i) const
     {
         return basis_functions_[i];
     }
-    shared_ptr<Solid_Geometry> solid_geometry() const
+    virtual shared_ptr<Solid_Geometry> solid_geometry() const
     {
         return solid_geometry_;
     }
-    shared_ptr<Cartesian_Plane> boundary_surface(int i) const
+    virtual shared_ptr<Cartesian_Plane> boundary_surface(int i) const
     {
         return boundary_surfaces_[i];
     }

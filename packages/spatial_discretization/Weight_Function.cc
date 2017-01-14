@@ -71,7 +71,7 @@ get_basis_quadrature_1d(int i,
                         vector<double> &weight)
 {
     shared_ptr<Basis_Function> basis = basis_function(i);
-
+    
     
 }
 
