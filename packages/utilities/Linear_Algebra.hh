@@ -91,7 +91,7 @@ namespace Linear_Algebra
         x[3]=o10*o7;
         return;
     }
-
+    
     template<class T> void linear_solve_3(std::vector<T> const &a,
                                           std::vector<T> const &b,
                                           std::vector<T> &x)

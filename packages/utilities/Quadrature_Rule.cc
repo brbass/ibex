@@ -65,6 +65,14 @@ namespace Quadrature_Rule
                       vector<double> &ordinates,
                       vector<double> &weights)
     {
+        if (x1 > x2)
+        {
+            cerr << "cartesian_1d: x1 > x2" << endl;
+            ordinates.assign(1, x1);
+            weights.assign(1, 0);
+            return false;
+        }
+        
         // Get quadrature set
         quadrature_1d(quadrature_type,
                       n,
@@ -96,6 +104,23 @@ namespace Quadrature_Rule
                       vector<double> &ordinates_y,
                       vector<double> &weights)
     {
+        if (x1 > x2)
+        {
+            cerr << "cartesian_2d: x1 > x2" << endl;
+            ordinates_x.assign(1, x1);
+            ordinates_y.assign(1, y1);
+            weights.assign(1, 0);
+            return false;
+        }
+        if (y1 > y2)
+        {
+            cerr << "cartesian_2d: y1 > y2" << endl;
+            ordinates_x.assign(1, x1);
+            ordinates_y.assign(1, y1);
+            weights.assign(1, 0);
+            return false;
+        }
+
         // Get 1D quadrature sets
         
         vector<double> ord_x;
@@ -155,6 +180,34 @@ namespace Quadrature_Rule
                       std::vector<double> &ordinates_z,
                       std::vector<double> &weights)
     {
+        if (x1 > x2)
+        {
+            cerr << "cartesian_2d: x1 > x2" << endl;
+            ordinates_x.assign(1, x1);
+            ordinates_y.assign(1, y1);
+            ordinates_z.assign(1, z1);
+            weights.assign(1, 0);
+            return false;
+        }
+        if (y1 > y2)
+        {
+            cerr << "cartesian_2d: y1 > y2" << endl;
+            ordinates_x.assign(1, x1);
+            ordinates_y.assign(1, y1);
+            ordinates_z.assign(1, z1);
+            weights.assign(1, 0);
+            return false;
+        }
+        if (z1 > z2)
+        {
+            cerr << "cartesian_3d: z1 > z2" << endl;
+            ordinates_x.assign(1, x1);
+            ordinates_y.assign(1, y1);
+            ordinates_z.assign(1, z1);
+            weights.assign(1, 0);
+            return false;
+        }
+        
         // Get 1D quadrature sets
         
         vector<double> ord_x;
@@ -224,6 +277,23 @@ namespace Quadrature_Rule
                         vector<double> &ordinates_y,
                         vector<double> &weights)
     {
+        if (r1 > r2)
+        {
+            cerr << "cylindrical_2d: r1 > r2" << endl;
+            ordinates_x.assign(1, x0);
+            ordinates_y.assign(1, y0);
+            weights.assign(1, 0);
+            return false;
+        }
+        if (t1 > t2)
+        {
+            cerr << "cylindrical_2d: r1 > r2" << endl;
+            ordinates_x.assign(1, x0);
+            ordinates_y.assign(1, y0);
+            weights.assign(1, 0);
+            return false;
+        }
+
         // Get 1D quadrature sets
         
         vector<double> ord_r;
@@ -289,6 +359,35 @@ namespace Quadrature_Rule
                       std::vector<double> &ordinates_z,
                       std::vector<double> &weights)
     {
+        if (r1 > r2)
+        {
+            cerr << "spherical_3d: r1 > r2" << endl;
+            ordinates_x.assign(1, x0);
+            ordinates_y.assign(1, y0);
+            ordinates_z.assign(1, z0);
+            weights.assign(1, 0);
+            return false;
+        }
+        if (t1 > t2)
+        {
+            cerr << "spherical_3d: t1 > t2" << endl;
+            ordinates_x.assign(1, x0);
+            ordinates_y.assign(1, y0);
+            ordinates_z.assign(1, z0);
+            weights.assign(1, 0);
+            return false;
+        }
+        if (f1 > f2)
+        {
+            cerr << "spherical_3d: f1 > f2" << endl;
+            ordinates_x.assign(1, x0);
+            ordinates_y.assign(1, y0);
+            ordinates_z.assign(1, z0);
+            weights.assign(1, 0);
+            return false;
+        }
+
+
         // Get 1D quadrature sets
         
         vector<double> ord_r;
@@ -355,9 +454,9 @@ namespace Quadrature_Rule
                                int neta,
                                double x1,
                                double y1,
+                               double r1,
                                double x2,
                                double y2,
-                               double r1,
                                double r2,
                                vector<double> &ordinates_x,
                                vector<double> &ordinates_y,
@@ -555,14 +654,49 @@ namespace Quadrature_Rule
             weights.assign(1, 0);
             return false;
         }
+        if (xminb > xmaxb)
+        {
+            cerr << "cartesian_bounded_cylindrial_2d: xminb > xmaxb" << endl;
+            ordinates_x.assign(1, x0);
+            ordinates_y.assign(1, y0);
+            weights.assign(1, 0);
+            return false;
+        }
+        if (yminb > ymaxb)
+        {
+            cerr << "cartesian_bounded_cylindrial_2d: yminb > ymaxb" << endl;
+            ordinates_x.assign(1, x0);
+            ordinates_y.assign(1, y0);
+            weights.assign(1, 0);
+            return false;
+        }
 
+        // Check for intersection with boundaries: if none, return cylindrical
+        
+        if (x0-r > xminb && x0+r < xmaxb && y0-r > yminb && y0+r < ymaxb)
+        {
+            return cylindrical_2d(quadrature_type_xi,
+                                  quadrature_type_eta,
+                                  nxi,
+                                  neta,
+                                  x0,
+                                  y0,
+                                  0, /*r1*/
+                                  r,
+                                  0, /*t1*/
+                                  2 * M_PI, /*t2*/
+                                  ordiantes_x,
+                                  ordiantes_y,
+                                  weights);
+        }
+        
         // Get 1D quadratures
         
         vector<double> ord_xi;
         vector<double> ord_eta;
         vector<double> wei_xi;
         vector<double> wei_eta;
-            
+        
         quadrature_1d(quadrature_type_xi,
                       nxi,
                       ord_xi,
@@ -571,7 +705,7 @@ namespace Quadrature_Rule
                       neta,
                       ord_eta,
                       wei_eta);
-
+        
         // Get 2D quadrature
         
         int n = nxi * neta;
@@ -579,9 +713,9 @@ namespace Quadrature_Rule
         ordinates_y.resize(n);
         weights.resize(n);
         
-        double ymin = yminb > yminc ? yminb : yminc;
-        double ymax = ymaxb < ymaxc ? ymaxb : ymaxc;
-
+        double ymin = max(yminb, yminc); // yminb > yminc ? yminb : yminc;
+        double ymax = min(ymaxb, ymaxc); // ymaxb < ymaxc ? ymaxb : ymaxc;
+        
         for (int j = 0; j < neta; ++j)
         {
             double eta = ord_eta[j];
@@ -590,8 +724,8 @@ namespace Quadrature_Rule
             double sqrtry = sqrt(r * r - dy * dy);
             double xminc = x0 - sqrtry;
             double xmaxc = x0 + sqrtry;
-            double xmin = xminb > xminc ? xminb : xminc;
-            double xmax = xmaxb < xmaxc ? xmaxb : xmaxc;
+            double xmin = max(xminb, xminc); // xminb > xminc ? xminb : xminc;
+            double xmax = min(xmaxb, xmaxc); // xmaxb < xmaxc ? xmaxb : xmaxc;
             
             for (int i = 0; i < nxi; ++i)
             {
@@ -609,4 +743,71 @@ namespace Quadrature_Rule
         return true;
     }
                                   
+    bool cartesian_bounded_double_cylindrical_2d(Quadrature_Type quadrature_type_xi,
+                                                 Quadrature_Type quadrature_type_eta,
+                                                 int nxi,
+                                                 int neta,
+                                                 double x1,
+                                                 double y1,
+                                                 double r1,
+                                                 double x2,
+                                                 double y2,
+                                                 double r2,
+                                                 double xminb,
+                                                 double xmaxb,
+                                                 double yminb,
+                                                 double ymaxb,
+                                                 vector<double> &ordinates_x,
+                                                 vector<double> &ordinates_y,
+                                                 vector<double> &weights)
+    {
+        double x1min = x1 - r1;
+        double x1max = x1 + r1;
+        double y1min = y1 - r1;
+        double y1max = y1 + r1;
+        double x2min = x2 - r2;
+        double x2max = x2 + r1;
+        double y2min = y2 - r2;
+        double y2max = y2 + r1;
+
+        double xmin = max(x1min, x2min);
+        double xmax = min(x1max, x2max);
+        double ymin = max(y1min, y2min);
+        double ymax = min(y1max, y2max);
+
+        // Return normal double_cylindrical if no boundaries intersect
+        if (xmin > xminb && xmax < xmaxb && ymin > yminb && ymax < ymaxb)
+        {
+            return double_cylindrical_2d(quadrature_type_xi,
+                                         quadrature_type_eta,
+                                         nxi,
+                                         neta,
+                                         x1,
+                                         y1,
+                                         r1,
+                                         x2,
+                                         y2,
+                                         r2,
+                                         ordiantes_x,
+                                         ordinates_y,
+                                         weights);
+        }
+        
+        xmin = max(xminb, xmin);
+        xmax = min(xmaxb, xmax);
+        ymin = max(yminb, ymin);
+        ymax = min(ymaxb, ymax);
+        
+        return cartesian_2d(quadrature_type_xi,
+                            quadrature_type_eta,
+                            nxi,
+                            neta,
+                            xmin,
+                            xmax,
+                            ymin,
+                            ymax,
+                            ordiantes_x,
+                            ordinates_y,
+                            weights);
+    }
 }

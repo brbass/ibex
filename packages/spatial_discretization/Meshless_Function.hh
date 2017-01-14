@@ -8,9 +8,9 @@ class XML_Node;
 class Meshless_Function
 {
 public:
-
+    
     Meshless_Function();
-
+    
     virtual int dimension() const = 0;
     virtual double radius() const = 0;
     virtual std::vector<double> position() const = 0;
