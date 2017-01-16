@@ -4,12 +4,8 @@
 #include <memory>
 #include <vector>
 
-#include "pugixml.hh"
-
-#include "Point.hh"
-
-using std::shared_ptr;
-using std::vector;
+class Point;
+class XML_Node;
 
 /*
   Pure virtual class for a spatial discretization
@@ -34,13 +30,13 @@ public:
     virtual int number_of_nodes() const = 0;
     
     // Spatial points on the problem boundary
-    virtual vector<int> const &boundary_points() const = 0;
+    virtual std::vector<int> const &boundary_points() const = 0;
     
     // Return point
-    virtual shared_ptr<Point> point(int point_index) const = 0;
+    virtual std::shared_ptr<Point> point(int point_index) const = 0;
     
     // Output data to XML file
-    virtual void output(pugi::xml_node &output_node) const = 0;
+    virtual void output(XML_Node output_node) const = 0;
 
     // Check class invariants
     virtual void check_class_invariants() const = 0;

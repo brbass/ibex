@@ -3,6 +3,8 @@
 #include "Cartesian_Plane.hh"
 #include "Meshless_Function.hh"
 
+using namespace std;
+
 Basis_Function::
 Basis_Function(int index,
                int dimension,
@@ -10,7 +12,7 @@ Basis_Function(int index,
                vector<shared_ptr<Cartesian_Plane> > boundary_surfaces):
     index_(index),
     dimension_(dimension),
-    number_of_boundary_surface_(boundary_surfaces.size()),
+    number_of_boundary_surfaces_(boundary_surfaces.size()),
     meshless_function_(meshless_function),
     boundary_surfaces_(boundary_surfaces)
 {

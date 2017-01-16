@@ -18,7 +18,7 @@ public:
     {
         LOCAL,
         GLOBAL
-    }
+    };
     
     // Constructor
     RBF();

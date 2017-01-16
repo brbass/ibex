@@ -685,8 +685,8 @@ namespace Quadrature_Rule
                                   r,
                                   0, /*t1*/
                                   2 * M_PI, /*t2*/
-                                  ordiantes_x,
-                                  ordiantes_y,
+                                  ordinates_x,
+                                  ordinates_y,
                                   weights);
         }
         
@@ -788,7 +788,7 @@ namespace Quadrature_Rule
                                          x2,
                                          y2,
                                          r2,
-                                         ordiantes_x,
+                                         ordinates_x,
                                          ordinates_y,
                                          weights);
         }
@@ -806,7 +806,7 @@ namespace Quadrature_Rule
                             xmax,
                             ymin,
                             ymax,
-                            ordiantes_x,
+                            ordinates_x,
                             ordinates_y,
                             weights);
     }

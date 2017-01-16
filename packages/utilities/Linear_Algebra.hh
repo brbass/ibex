@@ -1030,15 +1030,15 @@ namespace Linear_Algebra
         switch(size)
         {
         case 1:
-            return direct_inverse_solve_1(a, b, x);
+            return direct_inverse_1(a, x);
         case 4:
-            return direct_inverse_solve_2(a, b, x);
+            return direct_inverse_2(a, x);
         case 9:
-            return direct_inverse_solve_3(a, b, x);
+            return direct_inverse_3(a, x);
         case 16:
-            return direct_inverse_solve_4(a, b, x);
+            return direct_inverse_4(a, x);
         case 25:
-            return direct_inverse_solve_5(a, b, x);
+            return direct_inverse_5(a, x);
         default:
             AssertMsg(false, "direct inverse of that size not implemented");
             return;

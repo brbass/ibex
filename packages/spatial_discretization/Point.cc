@@ -1,5 +1,7 @@
 #include "Point.hh"
 
+using std::string;
+
 Point::
 Point()
 {

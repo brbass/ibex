@@ -265,17 +265,19 @@ int test_vector_functions_3d()
         checksum += 1;
     }
 
-    vector<double> const cross_xy = {34, -29, -45};
+    vector<double> const cross_xy ={16, 3, -18};
     if (!ce::approx(cross_xy,
                     vf3::cross(x, y),
                     tol))
     {
         cout << "vf3 cross failed" << endl;
+        vector<double> hi = vf3::cross(x, y);
+        cout << hi[0] << hi[1] << hi[2] << endl;
         checksum += 1;
     }
     // Not implemented for vf
     
-    vector<double> const tensor_dot_tx = {16, 3, -18};
+    vector<double> const tensor_dot_tx = {34, -29, -45};
     // Not implemented for vf3
     if (!ce::approx(tensor_dot_tx,
                     vf::tensor_dot(t, x),
@@ -352,4 +354,6 @@ int main()
 
     checksum += test_vector_functions_2d();
     checksum += test_vector_functions_3d();
+
+    return checksum;
 }

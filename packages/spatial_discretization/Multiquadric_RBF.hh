@@ -1,7 +1,7 @@
 #ifndef Multiquadric_RBF_hh
 #define Multiquadric_RBF_hh
 
-#include "RBF.hh"
+#include "Global_RBF.hh"
 
 /*
   Radial basis function of the form exp(-c^2 r^2)

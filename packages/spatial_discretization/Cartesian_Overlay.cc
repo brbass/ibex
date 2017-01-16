@@ -117,8 +117,7 @@ has_neighbor(double minimum_distance,
         {
             vector<double> const cell_position = position_by_index_[indices[k]];
             
-            double distance = distance_->distance(0, //group,
-                                                  position,
+            double distance = distance_->distance(position,
                                                   cell_position);
 
             if (distance < minimum_distance)
