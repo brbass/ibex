@@ -1486,7 +1486,7 @@ Thus, the integrands become functions of the known
 :
 \begin_inset Formula 
 \begin{equation}
-\beta_{i,\ell,g}^{m}=\sum_{n=1}^{N}w_{n}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\alpha_{i,n,g}.\label{eq:coefficient-relation}
+\beta_{i,\ell,g}^{m}\equiv\sum_{n=1}^{N}w_{n}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\alpha_{i,n,g}.\label{eq:coefficient-relation}
 \end{equation}
 
 \end_inset
@@ -1858,7 +1858,31 @@ This approximation would be truncated to some finite value of
  This would increase the number of integrals, but not significantly when
  compared, for instance, to the number required for the scattering cross
  section.
- 
+ To simply this to total cross section 
+\begin_inset Quotes eld
+\end_inset
+
+moments,
+\begin_inset Quotes erd
+\end_inset
+
+ define 
+\begin_inset Formula 
+\[
+\Sigma_{t;j,g,\ell}^{m}\equiv\dfrac{\int_{V_{j}}\Sigma_{t;g}\left(\bm{x}\right)\Phi_{\ell,g}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV}{\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\int_{V_{j}}\Phi_{\ell,g}^{m}\left(\bm{x}\right)w_{j}\left(\bm{x}\right)dV},
+\]
+
+\end_inset
+
+after which the cross section becomes
+\begin_inset Formula 
+\[
+\Sigma_{t;j,g,n}=\sum_{\ell=0}^{\infty}\frac{2\ell+1}{4\pi}\sum_{m=-\ell}^{\ell}Y_{\ell}^{m}\left(\bm{\Omega}_{n}\right)\Sigma_{t;j,g,\ell}^{m}.
+\]
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Part

@@ -62,8 +62,10 @@ public:
     }
     
     // Quadrature methods
-    virtual void get_full_quadrature(vector<double> &quadrature,
-                                     vector<double> &weight) const;
+    virtual void get_full_quadrature_1d(vector<double> &quadrature,
+                                        vector<double> &weight) const;
+    virtual void get_full_quadrature_2d(vector<double> &quadrature,
+                                        vector<double> &weight) const;
     virtual void get_basis_quadrature(int i,
                                       vector<double> &quadrature,
                                       vector<double> &weight) const;
