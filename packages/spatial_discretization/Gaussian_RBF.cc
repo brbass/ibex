@@ -3,8 +3,7 @@
 #include <cmath>
 
 Gaussian_RBF::
-Gaussian_RBF():
-    RBF()
+Gaussian_RBF()
 {
 }
 

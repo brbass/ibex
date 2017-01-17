@@ -2,6 +2,9 @@
 
 #include "XML_Functions.hh"
 
+using std::shared_ptr;
+using std::vector;
+
 RBF_Point::
 RBF_Point(int index,
           int dimension,
@@ -12,12 +15,11 @@ RBF_Point(int index,
           vector<double> const &position,
           vector<double> const &shape_parameter,
           vector<double> const &mean_distance):
-    Point(index,
-          dimension,
-          material,
-          position),
+    index_(index),
+    dimension_(dimension),
     neighbors_set_(false),
     number_of_neighbors_(number_of_neighbors),
+    material_(material),
     neighbor_indices_(neighbor_indices),
     shape_parameter_(shape_parameter),
     mean_distance_(mean_distance),

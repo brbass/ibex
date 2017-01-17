@@ -3,8 +3,7 @@
 #include <cmath>
 
 Inverse_Multiquadric_RBF::
-Inverse_Multiquadric_RBF():
-    RBF()
+Inverse_Multiquadric_RBF()
 {
 }
 

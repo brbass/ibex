@@ -82,7 +82,7 @@ public:
     // Output data to XML file
     virtual void output(XML_Node output_node) const;
 
-private:
+protected:
     
     int index_;
     

@@ -7,7 +7,6 @@
 class Point;
 class XML_Node;
 
-
 /*
   Pure virtual class for a spatial discretization
 */

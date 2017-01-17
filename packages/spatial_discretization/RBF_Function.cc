@@ -2,7 +2,9 @@
 
 #include "Distance.hh"
 #include "RBF.hh"
-#include "XML_Functions.hh"
+#include "XML_Node.hh"
+
+using namespace std;
 
 RBF_Function::
 RBF_Function(double shape,
@@ -28,7 +30,7 @@ radius() const
     switch(rbf_->range())
     {
     case RBF::Range::LOCAL:
-        return rbf_->radius() / shape;
+        return rbf_->radius() / shape_;
     case RBF::Range::GLOBAL:
         return numeric_limits<double>::max();
     }
@@ -78,8 +80,7 @@ dd_basis(int dim,
 vector<double> RBF_Function::
 gradient_basis(vector<double> const &r) const               
 {
-    double dist = distance_->distance(group,
-                                      r,
+    double dist = distance_->distance(r,
                                       position_);
     vector<double> grad = distance_->gradient_distance(r,
                                                        position_);
@@ -98,7 +99,7 @@ gradient_basis(vector<double> const &r) const
 }
 
 double RBF_Function::
-laplacian(vector<double> const &r)
+laplacian(vector<double> const &r) const
 {
     double dist = distance_->distance(r,
                                       position_);

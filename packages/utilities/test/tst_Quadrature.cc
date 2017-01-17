@@ -594,7 +594,7 @@ int main()
     }
     
     checksum += test_gaussian_2d(64, 1e-10);
-    checksum += test_double_gaussian_2d(64, 1e-12);
+    checksum += test_double_gaussian_2d(64, 1e-11);
     checksum += test_boundary_gaussian_2d(64, 1e-3);
     
     return checksum;

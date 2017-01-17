@@ -1,6 +1,10 @@
 #include "Cartesian_Plane.hh"
 
+#include <cmath>
 #include <vector>
+
+#include "Boundary_Source.hh"
+#include "XML_Node.hh"
 
 using namespace std;
 
@@ -20,7 +24,7 @@ Cartesian_Plane(int index,
 {
 }
 
-Relation Cartesian_Plane::
+Cartesian_Plane::Relation Cartesian_Plane::
 relation(vector<double> const &position,
          bool check_equality) const
 {
@@ -44,7 +48,7 @@ relation(vector<double> const &position,
     }
 }
 
-Intersection Cartesian_Plane::
+Cartesian_Plane::Intersection Cartesian_Plane::
 intersection(vector<double> const &initial_position,
              vector<double> const &initial_direction,
              double &distance,
@@ -55,7 +59,7 @@ intersection(vector<double> const &initial_position,
         return Intersection::PARALLEL;
     }
 
-    distance = (position_ - initial_position_[surface_dimension_]) / initial_direction_[surface_dimension_];
+    distance = (position_ - initial_position[surface_dimension_]) / initial_direction[surface_dimension_];
 
     final_position.assign(dimension_, 0);
     final_position[surface_dimension_] = position_;
@@ -88,7 +92,7 @@ normal_direction(vector<double> const &position,
 }
 
 void Cartesian_Plane::
-output(XML_Node output_node) oncst
+output(XML_Node output_node) const
 {
     output_node.set_attribute(index_, "index");
     output_node.set_attribute("cartesian_plane", "shape");

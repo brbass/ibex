@@ -1,6 +1,10 @@
 #ifndef Cartesian_Plane_hh
 #define Cartesian_Plane_hh
 
+#include "Surface.hh"
+
+#include <vector>
+
 class Cartesian_Plane : public Surface
 {
 public:

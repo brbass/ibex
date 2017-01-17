@@ -131,8 +131,7 @@ double_gradient_distance(vector<double> const &r,
 }
 
 double Cartesian_Distance::
-laplacian_distance(int /*group*/,
-                   vector<double> const &r,
+laplacian_distance(vector<double> const &r,
                    vector<double> const &r0) const
 {
     double const dist = distance(r,

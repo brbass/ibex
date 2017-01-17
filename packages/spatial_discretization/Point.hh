@@ -1,6 +1,7 @@
 #ifndef Point_hh
 #define Point_hh
 
+#include <memory>
 #include <string>
 #include <vector>
 
