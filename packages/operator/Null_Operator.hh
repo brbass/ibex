@@ -5,8 +5,6 @@
 
 #include "Vector_Operator.hh"
 
-using std::vector;
-
 /*
   Zeroes out any vector given it
 */
@@ -23,7 +21,7 @@ public:
     
 private:
     
-    virtual void apply(vector<double> &x) const override;
+    virtual void apply(std::vector<double> &x) const override;
 };
 
 #endif

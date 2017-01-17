@@ -5,8 +5,6 @@
 
 #include "Vector_Operator.hh"
 
-using std::vector;
-
 /*
   Return the given vector
 */
@@ -23,7 +21,7 @@ public:
     
 private:
 
-    virtual void apply(vector<double> &x) const override;
+    virtual void apply(std::vector<double> &x) const override;
 };
 
 #endif

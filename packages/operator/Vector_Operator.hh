@@ -5,8 +5,6 @@
 
 #include "Check.hh"
 
-using std::vector;
-
 /*
   Pure virtual class to represent a vector operator
 */
@@ -19,7 +17,7 @@ public:
                     int column_size);
 
     // Apply the operator
-    vector<double> &operator()(vector<double> &x)
+    std::vector<double> &operator()(std::vector<double> &x)
     {
         Check(x.size() == column_size_);
         
@@ -52,7 +50,7 @@ public:
     
 private:
     
-    virtual void apply(vector<double> &x) const = 0;
+    virtual void apply(std::vector<double> &x) const = 0;
     
     int row_size_;
     int column_size_;

@@ -10,9 +10,6 @@ class Angular_Discretization;
 class Energy_Discretization;
 class Spatial_Discretization;
 
-using std::shared_ptr;
-using std::vector;
-
 /*
   Pure virtual class to apply scattering to a moment representation of the flux
 */
@@ -29,9 +26,9 @@ public:
     };
 
     // Constructor
-    Scattering_Operator(shared_ptr<Spatial_Discretization> spatial_discretization,
-                        shared_ptr<Angular_Discretization> angular_discretization,
-                        shared_ptr<Energy_Discretization> energy_discretization,
+    Scattering_Operator(std::shared_ptr<Spatial_Discretization> spatial_discretization,
+                        std::shared_ptr<Angular_Discretization> angular_discretization,
+                        std::shared_ptr<Energy_Discretization> energy_discretization,
                         Scattering_Type scattering_type = Scattering_Type::FULL);
 
     virtual void check_class_invariants() const override;
@@ -41,23 +38,23 @@ protected:
     // Type of scattering
     Scattering_Type scattering_type_;
 
-    shared_ptr<Spatial_Discretization> spatial_discretization_;
-    shared_ptr<Angular_Discretization> angular_discretization_;
-    shared_ptr<Energy_Discretization> energy_discretization_;
+    std::shared_ptr<Spatial_Discretization> spatial_discretization_;
+    std::shared_ptr<Angular_Discretization> angular_discretization_;
+    std::shared_ptr<Energy_Discretization> energy_discretization_;
 
 private: 
 
     // Apply scattering of chosen type
-    virtual void apply(vector<double> &x) const override;
+    virtual void apply(std::vector<double> &x) const override;
 
     // Apply within-group and out-of-group scattering
-    virtual void apply_full(vector<double> &x) const = 0;
+    virtual void apply_full(std::vector<double> &x) const = 0;
     
     // Apply only within-group scattering
-    virtual void apply_coherent(vector<double> &x) const = 0;
+    virtual void apply_coherent(std::vector<double> &x) const = 0;
     
     // Apply only out-of-group scattering
-    virtual void apply_incoherent(vector<double> &x) const;
+    virtual void apply_incoherent(std::vector<double> &x) const;
 };
 
 #endif

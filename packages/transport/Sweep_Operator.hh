@@ -12,8 +12,6 @@ class Transport_Discretization;
 
 #include "pugixml.hh"
 
-using std::shared_ptr;
-
 /*
   Transport inverse operator
   
@@ -31,7 +29,7 @@ public:
     
     // Constructor
     Sweep_Operator(Sweep_Type sweep_type,
-                   shared_ptr<Transport_Discretization> transport_discretization);
+                   std::shared_ptr<Transport_Discretization> transport_discretization);
     
     // Include boundary source in sweep
     virtual bool include_boundary_source() const
@@ -50,10 +48,10 @@ public:
     }
     
     // Data
-    virtual shared_ptr<Spatial_Discretization> spatial_discretization() const = 0;
-    virtual shared_ptr<Angular_Discretization> angular_discretization() const = 0;
-    virtual shared_ptr<Energy_Discretization> energy_discretization() const = 0;
-    virtual shared_ptr<Transport_Discretization> transport_discretization() const
+    virtual std::shared_ptr<Spatial_Discretization> spatial_discretization() const = 0;
+    virtual std::shared_ptr<Angular_Discretization> angular_discretization() const = 0;
+    virtual std::shared_ptr<Energy_Discretization> energy_discretization() const = 0;
+    virtual std::shared_ptr<Transport_Discretization> transport_discretization() const
     {
         return transport_discretization_;
     }
@@ -65,7 +63,7 @@ protected:
     
     bool include_boundary_source_;
     Sweep_Type sweep_type_;
-    shared_ptr<Transport_Discretization> transport_discretization_;
+    std::shared_ptr<Transport_Discretization> transport_discretization_;
     
 private:
     

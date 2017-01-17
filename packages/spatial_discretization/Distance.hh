@@ -4,9 +4,6 @@
 #include <string>
 #include <vector>
 
-using std::string;
-using std::vector;
-
 class Distance
 {
 public:
@@ -17,25 +14,25 @@ public:
     
     virtual int dimension() const = 0;
     
-    virtual double distance(vector<double> const &r,
-                            vector<double> const &r0) const = 0;
+    virtual double distance(std::vector<double> const &r,
+                            std::vector<double> const &r0) const = 0;
     
     virtual double d_distance(int dim,
-                              vector<double> const &r,
-                              vector<double> const &r0) const = 0;
+                              std::vector<double> const &r,
+                              std::vector<double> const &r0) const = 0;
     
     virtual double dd_distance(int dim,
-                               vector<double> const &r,
-                               vector<double> const &r0) const = 0;
+                               std::vector<double> const &r,
+                               std::vector<double> const &r0) const = 0;
 
-    virtual vector<double> gradient_distance(vector<double> const &r,
-                                             vector<double> const &r0) const = 0;
+    virtual std::vector<double> gradient_distance(std::vector<double> const &r,
+                                             std::vector<double> const &r0) const = 0;
 
-    virtual vector<double> double_gradient_distance(vector<double> const &r,
-                                                    vector<double> const &r0) const = 0;
+    virtual std::vector<double> double_gradient_distance(std::vector<double> const &r,
+                                                    std::vector<double> const &r0) const = 0;
     
-    virtual double laplacian_distance(vector<double> const &r,
-                                      vector<double> const &r0) const = 0;
+    virtual double laplacian_distance(std::vector<double> const &r,
+                                      std::vector<double> const &r0) const = 0;
 
     virtual string description() const = 0;
     

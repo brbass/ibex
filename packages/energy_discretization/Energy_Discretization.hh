@@ -5,8 +5,6 @@
 
 class XML_Node;
 
-using std::vector;
-
 /* 
    Simple multigroup representation of energy
 */
@@ -16,7 +14,7 @@ public:
 
     // Constructors
     Energy_Discretization(int number_of_groups,
-                          vector<double> const &energy_bounds);
+                          std::vector<double> const &energy_bounds);
     Energy_Discretization(int number_of_groups);
     
     // Number of energy groups
@@ -26,7 +24,7 @@ public:
     }
 
     // Bounds of energy groups
-    vector<double> const &energy_bounds() const
+    std::vector<double> const &energy_bounds() const
     {
         return energy_bounds_;
     }
@@ -40,7 +38,7 @@ public:
 private:
     
     int number_of_groups_;
-    vector<double> energy_bounds_;
+    std::vector<double> energy_bounds_;
 
 };
 

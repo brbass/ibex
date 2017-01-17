@@ -3,8 +3,6 @@
 
 #include <vector>
 
-using std::vector;
-
 class Particle
 {
 public:
@@ -12,8 +10,8 @@ public:
     Particle(int dimension,
              int group,
              double weight,
-             vector<double> position,
-             vector<double> direction);
+             std::vector<double> position,
+             std::vector<double> direction);
     
     // View data
     
@@ -32,12 +30,12 @@ public:
         return weight_;
     }
     
-    vector<double> const &position() const
+    std::vector<double> const &position() const
     {
         return position_;
     }
     
-    vector<double> const &angle() const
+    std::vector<double> const &angle() const
     {
         return angle_;
     }
@@ -54,12 +52,12 @@ public:
         weight_ = weight;
     }
     
-    void set_position(vector<double> &position)
+    void set_position(std::vector<double> &position)
     {
         position_ = position;
     }
     
-    void set_angle(vector<double> &angle)
+    void set_angle(std::vector<double> &angle)
     {
         angle_ = angle;
     }
@@ -71,8 +69,8 @@ private:
     int dimension_;
     int group_;
     double weight_;
-    vector<double> position_;
-    vector<double> angle_;
+    std::vector<double> position_;
+    std::vector<double> angle_;
 };
 
 #endif

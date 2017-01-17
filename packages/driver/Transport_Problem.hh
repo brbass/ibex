@@ -8,9 +8,6 @@
 
 class Solver;
 
-using std::shared_ptr;
-using std::vector;
-
 /*
   High-level class to run a transport problem
 */
@@ -28,7 +25,7 @@ public:
 
     // Creator
     Transport_Problem(Problem_Type problem_type,
-                      shared_ptr<Solver> solver);
+                      std::shared_ptr<Solver> solver);
 
     // Solve transport problem
     void solve();
@@ -42,8 +39,8 @@ private:
     shared_ptr<Solver> solver_;
 
     double k_eigenvalue_;
-    vector<double> phi_;
-    vector<double> psi_;
+    std::vector<double> phi_;
+    std::vector<double> psi_;
 };
 
 #endif

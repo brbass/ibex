@@ -7,15 +7,13 @@ class Angular_Discretization;
 class Energy_Discretization;
 class Spatial_Discretization;
 
-using std::shared_ptr;
-
 class Transport_Discretization
 {
 public:
     
-    Transport_Discretization(shared_ptr<Spatial_Discretization> spatial,
-                             shared_ptr<Angular_Discretization> angular,
-                             shared_ptr<Energy_Discretization> energy);
+    Transport_Discretization(std::shared_ptr<Spatial_Discretization> spatial,
+                             std::shared_ptr<Angular_Discretization> angular,
+                             std::shared_ptr<Energy_Discretization> energy);
 
     bool has_reflection() const
     {
@@ -41,9 +39,9 @@ private:
     int psi_size_;
     int number_of_augments_;
 
-    shared_ptr<Spatial_Discretization> spatial_;
-    shared_ptr<Angular_Discretization> angular_;
-    shared_ptr<Energy_Discretization> energy_;
+    std::shared_ptr<Spatial_Discretization> spatial_;
+    std::shared_ptr<Angular_Discretization> angular_;
+    std::shared_ptr<Energy_Discretization> energy_;
 };
 
 #endif

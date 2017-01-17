@@ -20,8 +20,6 @@ class Spatial_Discretization;
 class Sweep_Operator;
 class Transport_Discretization;
 
-using std::shared_ptr;
-
 /*
   Uses power iteration to solve the problem 
   (I - D Linv M S) phi = D Linv M F phi / k
@@ -44,16 +42,16 @@ public:
                      int kspace, // Number of past guesses to store
                      int solver_print, 
                      double tolerance,
-                     shared_ptr<Spatial_Discretization> spatial_discretization,
-                     shared_ptr<Angular_Discretization> angular_discretization,
-                     shared_ptr<Energy_Discretization> energy_discretization,
-                     shared_ptr<Transport_Discretization> transport_discretization,
-                     shared_ptr<Sweep_Operator> sweeper,
-                     shared_ptr<Discrete_To_Moment> discrete_to_moment,
-                     shared_ptr<Moment_To_Discrete> moment_to_discrete,
-                     shared_ptr<Scattering> scattering,
-                     shared_ptr<Fission> fission,
-                     shared_ptr<Preconditioner> preconditioner = shared_ptr<Preconditioner>());
+                     std::shared_ptr<Spatial_Discretization> spatial_discretization,
+                     std::shared_ptr<Angular_Discretization> angular_discretization,
+                     std::shared_ptr<Energy_Discretization> energy_discretization,
+                     std::shared_ptr<Transport_Discretization> transport_discretization,
+                     std::shared_ptr<Sweep_Operator> sweeper,
+                     std::shared_ptr<Discrete_To_Moment> discrete_to_moment,
+                     std::shared_ptr<Moment_To_Discrete> moment_to_discrete,
+                     std::shared_ptr<Scattering> scattering,
+                     std::shared_ptr<Fission> fission,
+                     std::shared_ptr<Preconditioner> preconditioner = std::shared_ptr<Preconditioner>());
     
     // Solve fixed source problem
     virtual void solve_steady_state(vector<double> &x) override;
@@ -88,16 +86,16 @@ private:
     int total_iterations_;
     double tolerance_;
 
-    shared_ptr<Spatial_Discretization> spatial_discretization_;
-    shared_ptr<Angular_Discretization> angular_discretization_;
-    shared_ptr<Energy_Discretization> energy_discretization_;
-    shared_ptr<Transport_Discretization> transport_discretization_;
-    shared_ptr<Sweep_Operator> sweeper_;
-    shared_ptr<Discrete_To_Moment> discrete_to_moment_;
-    shared_ptr<Moment_To_Discrete> moment_to_discrete_;
-    shared_ptr<Scattering> scattering_;
-    shared_ptr<Fission> fission_;
-    shared_ptr<Preconditioner> preconditioner_;
+    std::shared_ptr<Spatial_Discretization> spatial_discretization_;
+    std::shared_ptr<Angular_Discretization> angular_discretization_;
+    std::shared_ptr<Energy_Discretization> energy_discretization_;
+    std::shared_ptr<Transport_Discretization> transport_discretization_;
+    std::shared_ptr<Sweep_Operator> sweeper_;
+    std::shared_ptr<Discrete_To_Moment> discrete_to_moment_;
+    std::shared_ptr<Moment_To_Discrete> moment_to_discrete_;
+    std::shared_ptr<Scattering> scattering_;
+    std::shared_ptr<Fission> fission_;
+    std::shared_ptr<Preconditioner> preconditioner_;
     
     /*
       Iteratively computes the moments of the flux using Power methods
@@ -162,8 +160,8 @@ private:
 
         // Constructor
         Eigenvalue_Iterator(Power_Iteration const &power_iteration,
-                            shared_ptr<Epetra_Comm> comm,
-                            shared_ptr<Epetra_Map> map);
+                            std::shared_ptr<Epetra_Comm> comm,
+                            std::shared_ptr<Epetra_Map> map);
         
         virtual void check_class_invariants() const override
         {
@@ -174,8 +172,8 @@ private:
         virtual void apply(vector<double> &x) const override;
         
         Power_Iteration const &pi_;
-        shared_ptr<Epetra_Comm> comm_;
-        shared_ptr<Epetra_Map> map_;
+        std::shared_ptr<Epetra_Comm> comm_;
+        std::shared_ptr<Epetra_Map> map_;
     };
 };
 

@@ -5,8 +5,6 @@
 
 #include <memory>
 
-using std::shared_ptr;
-
 /* 
    Gives the sum of two vector operators,
    
@@ -16,8 +14,8 @@ class Vector_Operator_Sum : public Vector_Operator
 {
 public:
 
-    Vector_Operator_Sum(shared_ptr<Vector_Operator> op1,
-                        shared_ptr<Vector_Operator> op2);
+    Vector_Operator_Sum(std::shared_ptr<Vector_Operator> op1,
+                        std::shared_ptr<Vector_Operator> op2);
 
     virtual void check_class_invariants() const override;
     
@@ -25,8 +23,8 @@ private:
 
     virtual void apply(vector<double> &x) const override;
     
-    shared_ptr<Vector_Operator> op1_;
-    shared_ptr<Vector_Operator> op2_;
+    std::shared_ptr<Vector_Operator> op1_;
+    std::shared_ptr<Vector_Operator> op2_;
 };
 
 #endif

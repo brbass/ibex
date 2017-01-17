@@ -16,8 +16,6 @@ class Epetra_SerialDenseMatrix;
 class Epetra_SerialDenseSolver;
 class Epetra_Vector;
 
-using std::shared_ptr;
-
 class RBF_Collocation_Sweep : public Sweep_Operator
 {
 public:
@@ -45,24 +43,24 @@ public:
     RBF_Collocation_Sweep(Solution_Variable solution_variable,
                           Matrix_Solver matrix_solver,
                           Condition_Calculation condition_calculation,
-                          shared_ptr<RBF_Discretization> rbf_discretization,
-                          shared_ptr<Angular_Discretization> angular_discretization,
-                          shared_ptr<Energy_Discretization> energy_discretization,
-                          shared_ptr<Transport_Discretization> transport_discretization);
+                          std::shared_ptr<RBF_Discretization> rbf_discretization,
+                          std::shared_ptr<Angular_Discretization> angular_discretization,
+                          std::shared_ptr<Energy_Discretization> energy_discretization,
+                          std::shared_ptr<Transport_Discretization> transport_discretization);
 
-    virtual shared_ptr<RBF_Discretization> rbf_discretization() const
+    virtual std::shared_ptr<RBF_Discretization> rbf_discretization() const
     {
         return rbf_discretization_;
     }
-    virtual shared_ptr<Spatial_Discretization> spatial_discretization() const override
+    virtual std::shared_ptr<Spatial_Discretization> spatial_discretization() const override
     {
         return rbf_discretization_;
     }
-    virtual shared_ptr<Angular_Discretization> angular_discretization() const override
+    virtual std::shared_ptr<Angular_Discretization> angular_discretization() const override
     {
         return angular_discretization_;
     }
-    virtual shared_ptr<Energy_Discretization> energy_discretization() const override
+    virtual std::shared_ptr<Energy_Discretization> energy_discretization() const override
     {
         return energy_discretization_;
     }
@@ -72,7 +70,7 @@ public:
 
 private:
 
-    virtual void apply(vector<double> &x) const override;
+    virtual void apply(std::vector<double> &x) const override;
     
     void calculate_condition_numbers();
     void initialize_trilinos();
@@ -89,16 +87,16 @@ private:
                           int i,
                           int o,
                           int g,
-                          vector<double> const &x) const;
+                          std::vector<double> const &x) const;
     void set_internal_rhs(int i,
                           int o,
                           int g,
-                          vector<double> const &x) const;
+                          std::vector<double> const &x) const;
 
     void convert_to_psi(int i,
                         int g,
                         int o,
-                        vector<double> &data) const;
+                        std::vector<double> &data) const;
     
     void update_local_matrix(int i,
                              int g,
@@ -110,32 +108,32 @@ private:
     Solution_Variable solution_variable_;
     Condition_Calculation condition_calculation_;
     Matrix_Solver matrix_solver_;
-    shared_ptr<RBF_Discretization> rbf_discretization_;
-    shared_ptr<Angular_Discretization> angular_discretization_;
-    shared_ptr<Energy_Discretization> energy_discretization_;
+    std::shared_ptr<RBF_Discretization> rbf_discretization_;
+    std::shared_ptr<Angular_Discretization> angular_discretization_;
+    std::shared_ptr<Energy_Discretization> energy_discretization_;
 
     double reflection_tolerance_;
 
-    shared_ptr<Epetra_Comm> comm_;
-    shared_ptr<Epetra_Map> map_;
-    shared_ptr<Epetra_Vector> lhs_;
-    shared_ptr<Epetra_Vector> rhs_;
-    vector<shared_ptr<Epetra_CrsMatrix> > mat_;
-    vector<shared_ptr<Epetra_LinearProblem> > problem_;
+    std::shared_ptr<Epetra_Comm> comm_;
+    std::shared_ptr<Epetra_Map> map_;
+    std::shared_ptr<Epetra_Vector> lhs_;
+    std::shared_ptr<Epetra_Vector> rhs_;
+    std::vector<std::shared_ptr<Epetra_CrsMatrix> > mat_;
+    std::vector<std::shared_ptr<Epetra_LinearProblem> > problem_;
 
     int max_iterations_;
     double tolerance_;
-    mutable vector<int> num_calls_;
-    mutable vector<int> num_iterations_;
-    vector<shared_ptr<AztecOO> > aztec_solver_;
-    vector<shared_ptr<Amesos_BaseSolver*> > amesos_solver_;
+    mutable std::vector<int> num_calls_;
+    mutable std::vector<int> num_iterations_;
+    std::vector<std::shared_ptr<AztecOO> > aztec_solver_;
+    std::vector<std::shared_ptr<Amesos_BaseSolver*> > amesos_solver_;
     
-    vector<double> condition_numbers_;
+    std::vector<double> condition_numbers_;
     
-    shared_ptr<Epetra_SerialDenseMatrix> local_mat_;
-    shared_ptr<Epetra_SerialDenseSolver> local_solver_;
-    mutable vector<int> num_averages_;
-    mutable vector<double> average_local_condition_numbers_;
+    std::shared_ptr<Epetra_SerialDenseMatrix> local_mat_;
+    std::shared_ptr<Epetra_SerialDenseSolver> local_solver_;
+    mutable std::vector<int> num_averages_;
+    mutable std::vector<double> average_local_condition_numbers_;
 };
 
 #endif

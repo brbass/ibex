@@ -5,8 +5,6 @@
 
 #include "Particle.hh"
 
-using std::stack;
-
 class Particle_Bank
 {
 public:
@@ -38,7 +36,7 @@ public:
 private:
     
     int number_of_particles_;
-    stack<Particle> particle_bank_;
+    std::stack<Particle> particle_bank_;
 };
 
 #endif

@@ -8,6 +8,8 @@
 
 using std::floor;
 using std::make_shared;
+using std::shared_ptr;
+using std::vector;
 
 Cartesian_Overlay::
 Cartesian_Overlay(int dimension,

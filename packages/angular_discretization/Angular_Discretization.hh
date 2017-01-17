@@ -5,8 +5,6 @@
 
 class XML_Node;
 
-using std::vector;
-
 /*
   Pure virtual class for an S_N angular discretization
 */
@@ -50,20 +48,20 @@ public:
     }
 
     // Return a direction for a single ordinate
-    virtual vector<double> const &direction(int ord) const = 0;
+    virtual std::vector<double> const &direction(int ord) const = 0;
     
-    // Return vector of ordinates
-    virtual vector<double> const &ordinates() const = 0;
+    // Return std::vector of ordinates
+    virtual std::vector<double> const &ordinates() const = 0;
 
-    // Return vector of weights
-    virtual vector<double> const &weights() const = 0;
+    // Return std::vector of weights
+    virtual std::vector<double> const &weights() const = 0;
 
     // Find a value of the moment in a particular ordinate direction
     virtual double moment(int mom,
                           int ord);
     
     // Return base index of spherical harmonics function
-    virtual vector<int> const &scattering_indices() const
+    virtual std::vector<int> const &scattering_indices() const
     {
         return l_indices_;
     }
@@ -72,7 +70,7 @@ public:
     virtual void output(XML_Node output_node) const = 0;
 
     virtual int reflect_ordinate(int o,
-                                 vector<double> const &normal) const = 0;
+                                 std::vector<double> const &normal) const = 0;
 
     virtual void check_class_invariants() const = 0;
     
@@ -88,8 +86,8 @@ private:
 
     virtual void initialize_moment_data();
     
-    vector<int> l_indices_;
-    vector<int> m_indices_;
+    std::vector<int> l_indices_;
+    std::vector<int> m_indices_;
 };
 
 #endif

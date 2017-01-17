@@ -11,19 +11,17 @@
 */
 namespace Vector_Functions
 {
-    using std::vector;
-
     // Vector/vector functions
     
-    template<class T> vector<T> add(vector<T> const &x,
-                                    vector<T> const &y)
+    template<class T> std::vector<T> add(std::vector<T> const &x,
+                                         std::vector<T> const &y)
     {
         int x_size = x.size();
         int y_size = y.size();
         
         Check(x_size == y_size);
 
-        vector<T> result(x_size);
+        std::vector<T> result(x_size);
         
         for (int i = 0; i < x_size; ++i)
         {
@@ -33,15 +31,15 @@ namespace Vector_Functions
         return result;
     }
 
-    template<class T> vector<T> subtract(vector<T> const &x,
-                                         vector<T> const &y)
+    template<class T> std::vector<T> subtract(std::vector<T> const &x,
+                                              std::vector<T> const &y)
     {
         int x_size = x.size();
         int y_size = y.size();
         
         Check(x_size == y_size);
 
-        vector<T> result(x_size);
+        std::vector<T> result(x_size);
         
         for (int i = 0; i < x_size; ++i)
         {
@@ -51,8 +49,8 @@ namespace Vector_Functions
         return result;
     }
     
-    template<class T> T dot(vector<T> const &x,
-                            vector<T> const &y)
+    template<class T> T dot(std::vector<T> const &x,
+                            std::vector<T> const &y)
     {
         int x_size = x.size();
         int y_size = y.size();
@@ -70,8 +68,8 @@ namespace Vector_Functions
         return result;
     }
 
-    template<class T> vector<T> tensor_dot(vector<T> const &x,
-                                           vector<T> const &y)
+    template<class T> std::vector<T> tensor_dot(std::vector<T> const &x,
+                                                std::vector<T> const &y)
     {
         int x_size = x.size();
         int y_size = y.size();
@@ -81,7 +79,7 @@ namespace Vector_Functions
 
         int r_size = x_size / y_size;
         
-        vector<T> result(r_size);
+        std::vector<T> result(r_size);
         
         for (int i = 0; i < r_size; ++i)
         {
@@ -98,8 +96,8 @@ namespace Vector_Functions
         return result;
     }
     
-    template<class T> vector<T> tensor_product(vector<T> const &x,
-                                               vector<T> const &y)
+    template<class T> std::vector<T> tensor_product(std::vector<T> const &x,
+                                                    std::vector<T> const &y)
     {
         int x_size = x.size();
         int y_size = y.size();
@@ -107,7 +105,7 @@ namespace Vector_Functions
         Check(x_size == y_size);
         Check(x_size > 0);
 
-        vector<T> result(x_size * x_size);
+        std::vector<T> result(x_size * x_size);
 
         for (int i = 0; i < x_size; ++i)
         {
@@ -122,8 +120,8 @@ namespace Vector_Functions
         return result;
     }
 
-    template<class T> vector<T> mean(vector<T> const &x,
-                                     vector<T> const &y)
+    template<class T> std::vector<T> mean(std::vector<T> const &x,
+                                          std::vector<T> const &y)
     {
         int x_size = x.size();
         int y_size = y.size();
@@ -131,7 +129,7 @@ namespace Vector_Functions
         Check(x_size == y_size);
         Check(x_size > 0);
         
-        vector<T> result(y_size);
+        std::vector<T> result(y_size);
 
         for (int i = 0; i < x_size; ++i)
         {
@@ -143,12 +141,12 @@ namespace Vector_Functions
     
     // Vector/scalar functions
     
-    template<class T> vector<T> add(vector<T> const &x,
-                                    T const y)
+    template<class T> std::vector<T> add(std::vector<T> const &x,
+                                         T const y)
     {
         int x_size = x.size();
         
-        vector<T> result(x_size);
+        std::vector<T> result(x_size);
         
         for (int i = 0; i < x_size; ++i)
         {
@@ -158,12 +156,12 @@ namespace Vector_Functions
         return result;
     }
     
-    template<class T> vector<T> subtract(vector<T> const &x,
-                                         T const y)
+    template<class T> std::vector<T> subtract(std::vector<T> const &x,
+                                              T const y)
     {
         int x_size = x.size();
         
-        vector<T> result(x_size);
+        std::vector<T> result(x_size);
         
         for (int i = 0; i < x_size; ++i)
         {
@@ -173,12 +171,12 @@ namespace Vector_Functions
         return result;
     }
 
-    template<class T> vector<T> multiply(vector<T> const &x,
-                                         T const t)
+    template<class T> std::vector<T> multiply(std::vector<T> const &x,
+                                              T const t)
     {
         int x_size = x.size();
         
-        vector<T> result(x_size);
+        std::vector<T> result(x_size);
         
         for (int i = 0; i < x_size; ++i)
         {
@@ -188,12 +186,12 @@ namespace Vector_Functions
         return result;
     }
 
-    template<class T> vector<T> power(vector<T> const &x,
-                                      T const t)
+    template<class T> std::vector<T> power(std::vector<T> const &x,
+                                           T const t)
     {
         int x_size = x.size();
         
-        vector<T> result(x_size);
+        std::vector<T> result(x_size);
         
         for (int i = 0; i < x_size; ++i)
         {
@@ -205,11 +203,11 @@ namespace Vector_Functions
 
     // Vector functions
     
-    template<class T> vector<T> abs(vector<T> const &x)
+    template<class T> std::vector<T> abs(std::vector<T> const &x)
     {
         int x_size = x.size();
 
-        vector<T> result(x_size);
+        std::vector<T> result(x_size);
 
         for (int i = 0; i < x_size; ++i)
         {
@@ -219,7 +217,7 @@ namespace Vector_Functions
         return result;
     }
     
-    template<class T> T magnitude(vector<T> const &x)
+    template<class T> T magnitude(std::vector<T> const &x)
     {
         int x_size = x.size();
 
@@ -235,7 +233,7 @@ namespace Vector_Functions
         return sqrt(result);
     }
 
-    template<class T> T magnitude_squared(vector<T> const &x)
+    template<class T> T magnitude_squared(std::vector<T> const &x)
     {
         int x_size = x.size();
 
@@ -251,7 +249,7 @@ namespace Vector_Functions
         return result;
     }
     
-    template<class T> vector<T> normalize(vector<T> const &x)
+    template<class T> std::vector<T> normalize(std::vector<T> const &x)
     {
         int x_size = x.size();
 
@@ -266,7 +264,7 @@ namespace Vector_Functions
 
         T norm = sqrt(sum);
 
-        vector<T> result(x_size);
+        std::vector<T> result(x_size);
         
         for (int i = 0; i < x_size; ++i)
         {
@@ -276,7 +274,7 @@ namespace Vector_Functions
         return result;
     }
     
-    template<class T> T max(vector<T> const &x)
+    template<class T> T max(std::vector<T> const &x)
     {
         int x_size = x.size();
 
@@ -295,7 +293,7 @@ namespace Vector_Functions
         return result;
     }
 
-    template<class T> T min(vector<T> const &x)
+    template<class T> T min(std::vector<T> const &x)
     {
         int x_size = x.size();
 

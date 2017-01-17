@@ -5,8 +5,6 @@
 
 #include "Angular_Discretization.hh"
 
-using std::vector;
-
 /*
   Holds Gauss Legendre quadrature
 */
@@ -20,19 +18,19 @@ public:
                               int number_of_ordinates);
 
     // Return direction
-    virtual vector<double> const &direction(int ord) const override
+    virtual std::vector<double> const &direction(int ord) const override
     {
         return directions_[ord];
     }
     
     // Return Gauss-Legendre ordinates
-    virtual vector<double> const &ordinates() const override
+    virtual std::vector<double> const &ordinates() const override
     {
         return ordinates_;
     }
     
     // Return Gauss-Legendre weights
-    virtual vector<double> const &weights() const override
+    virtual std::vector<double> const &weights() const override
     {
         return weights_;
     }
@@ -44,16 +42,16 @@ public:
     virtual void output(XML_Node output_node) const override;
 
     virtual int reflect_ordinate(int o,
-                                 vector<double> const &/*normal*/) const override
+                                 std::vector<double> const &/*normal*/) const override
     {
         return number_of_ordinates_ - o - 1;
     }
     
 private:
 
-    vector<double> ordinates_;
-    vector<double> weights_;
-    vector<vector<double> > directions_;
+    std::vector<double> ordinates_;
+    std::vector<double> weights_;
+    std::vector<std::vector<double> > directions_;
 };
 
 #endif

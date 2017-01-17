@@ -14,8 +14,6 @@
 
 #include "Vector_Operator.hh"
 
-using std::shared_ptr;
-
 /*
   Wraps a Vector_Operator to create an Epetra_Operator object
   
@@ -26,9 +24,9 @@ class Epetra_Operator_Interface: public Epetra_Operator
 public:
 
     // Creator
-    Epetra_Operator_Interface(shared_ptr<Epetra_Comm> const &comm,
-                              shared_ptr<Epetra_Map> const &map,
-                              shared_ptr<Vector_Operator> const &oper);
+    Epetra_Operator_Interface(std::shared_ptr<Epetra_Comm> const &comm,
+                              std::shared_ptr<Epetra_Map> const &map,
+                              std::shared_ptr<Vector_Operator> const &oper);
 
     // Destructor
     ~Epetra_Operator_Interface();
@@ -95,9 +93,9 @@ public:
 
 private:
     
-    shared_ptr<Epetra_Comm> comm_;
-    shared_ptr<Epetra_Map> map_;
-    shared_ptr<Vector_Operator> oper_;
+    std::shared_ptr<Epetra_Comm> comm_;
+    std::shared_ptr<Epetra_Map> map_;
+    std::shared_ptr<Vector_Operator> oper_;
 };
 
 #endif

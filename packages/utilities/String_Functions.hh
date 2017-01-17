@@ -11,12 +11,9 @@
 
 namespace String_Functions
 {
-    using std::string;
-    using std::vector;
-
     // Convert data to string
-    template<class T> string
-    to_string(string &data_string,
+    template<class T> std::string
+    to_string(std::string &data_string,
               T &data,
               int precision = 16)
     {
@@ -29,18 +26,18 @@ namespace String_Functions
     
     // Convert a string to a vector
     template<class T> void 
-    string_to_vector(string const &data_string,
-                     vector<T> &data)
+    string_to_vector(std::string const &data_string,
+                     std::vector<T> &data)
     {
         std::istringstream iss(data_string);
         
-        data = vector<T>{std::istream_iterator<T>(iss), std::istream_iterator<T>()};
+        data = std::vector<T>{std::istream_iterator<T>(iss), std::istream_iterator<T>()};
     }
 
     // Convert a vector to a string
     template<class T> void
-    vector_to_string(string &data_string,
-                     vector<T> const &data,
+    vector_to_string(std::string &data_string,
+                     std::vector<T> const &data,
                      int precision = 16)
     {
         std::ostringstream oss;

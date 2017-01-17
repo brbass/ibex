@@ -14,9 +14,6 @@ class Nuclear_Data;
 class Source_Data;
 class Spatial_Discretization;
 
-using std::shared_ptr;
-using std::vector;
-
 /*
   Pure virtual class for a preconditioner
 */
@@ -27,24 +24,24 @@ public:
     // Constructor
     Preconditioner(int row_size,
                    int column_size,
-                   shared_ptr<Spatial_Discretization> spatial_discretization,
-                   shared_ptr<Angular_Discretization> angular_discretization,
-                   shared_ptr<Energy_Discretization> energy_discretization,
-                   shared_ptr<Sweep_Operator> sweeper);
+                   std::shared_ptr<Spatial_Discretization> spatial_discretization,
+                   std::shared_ptr<Angular_Discretization> angular_discretization,
+                   std::shared_ptr<Energy_Discretization> energy_discretization,
+                   std::shared_ptr<Sweep_Operator> sweeper);
 
-    shared_ptr<Sweep_Operator> sweeper()
+    std::shared_ptr<Sweep_Operator> sweeper()
     {
         return sweeper_;
     }
     
 protected:
 
-    virtual void apply(vector<double> &x) const override = 0;
+    virtual void apply(std::vector<double> &x) const override = 0;
     
-    shared_ptr<Spatial_Discretization> spatial_discretization_;
-    shared_ptr<Angular_Discretization> angular_discretization_;
-    shared_ptr<Energy_Discretization> energy_discretization_;
-    shared_ptr<Sweep_Operator> sweeper_;
+    std::shared_ptr<Spatial_Discretization> spatial_discretization_;
+    std::shared_ptr<Angular_Discretization> angular_discretization_;
+    std::shared_ptr<Energy_Discretization> energy_discretization_;
+    std::shared_ptr<Sweep_Operator> sweeper_;
 };
 
 #endif

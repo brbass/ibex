@@ -9,15 +9,13 @@
 */
 namespace ch_ns
 {
-    using std::string;
-    
-    void check(string condition,
-               string file,
+    void check(std::string condition,
+               std::string file,
                int line);
-
-    void check(string condition,
-               string message,
-               string file,
+    
+    void check(std::string condition,
+               std::string message,
+               std::string file,
                int line);
 } // namespace ch_ns
 
