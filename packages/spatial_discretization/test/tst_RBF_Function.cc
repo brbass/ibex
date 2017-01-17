@@ -8,37 +8,29 @@
 #include "Multiquadric_RBF.hh"
 #include "RBF.hh"
 #include "RBF_Function.hh"
-#include "XML_Functions.hh"
+#include "String_Functions.hh"
 
 using namespace std;
 
 namespace ce = Check_Equality;
-namespace xf = XML_Functions;
+namespace sf = String_Functions;
 
 int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
                       string test_case,
                       int dimension,
-                      double const shape,
                       double const expected_basis,
                       vector<double> const &expected_grad,
                       vector<double> const &expected_double_grad,
-                      vector<double> const &r,
-                      vector<double> const &r0,
-                      vector<double> const &direction)
+                      vector<double> const &r)
 {
     int checksum = 0;
 
-    int group = 0;
     double tol = 1e-15;
     
     // Check basis
     
-    double basis = rbf_function->basis(group,
-                                       shape,
-                                       r,
-                                       r0,
-                                       direction);
-
+    double basis = rbf_function->basis(r);
+    
     if (!ce::approx(basis, expected_basis, tol))
     {
         cout << "basis failed for ";
@@ -54,112 +46,90 @@ int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
 
     // Check first derivatives
     
-    if (rbf_function->derivative_available(1))
+    for (int d = 0; d < dimension; ++d)
     {
-        for (int d = 0; d < dimension; ++d)
-        {
-            double d_basis = rbf_function->d_basis(group,
-                                                   d,
-                                                   shape,
-                                                   r,
-                                                   r0,
-                                                   direction);
+        double d_basis = rbf_function->d_basis(d,
+                                               r);
             
-            if (!ce::approx(d_basis, expected_grad[d], tol))
-            {
-                cout << "d_basis in dimension ";
-                cout << d;
-                cout << " failed for ";
-                cout << test_case;
-                cout << endl;
-                cout << "\texpected: ";
-                cout << expected_grad[d];
-                cout << "\tcalculated: ";
-                cout << d_basis;
-                cout << endl;
-                checksum += 1;
-            }
-        }
-        
-        vector<double> grad = rbf_function->gradient_basis(group,
-                                                           shape,
-                                                           r,
-                                                           r0,
-                                                           direction);
-
-        if (!ce::approx(grad, expected_grad, tol))
+        if (!ce::approx(d_basis, expected_grad[d], tol))
         {
-            string eg, gr;
-            xf::vector_to_string(eg, expected_grad);
-            xf::vector_to_string(gr, grad);
-            
-            cout << "grad basis failed for ";
+            cout << "d_basis in dimension ";
+            cout << d;
+            cout << " failed for ";
             cout << test_case;
             cout << endl;
             cout << "\texpected: ";
-            cout << eg;
-            cout << endl;
+            cout << expected_grad[d];
             cout << "\tcalculated: ";
-            cout << gr;
+            cout << d_basis;
+            cout << endl;
+            checksum += 1;
+        }
+    }
+        
+    vector<double> grad = rbf_function->gradient_basis(r);
+        
+    if (!ce::approx(grad, expected_grad, tol))
+    {
+        string eg, gr;
+        sf::vector_to_string(eg, expected_grad);
+        sf::vector_to_string(gr, grad);
+            
+        cout << "grad basis failed for ";
+        cout << test_case;
+        cout << endl;
+        cout << "\texpected: ";
+        cout << eg;
+        cout << endl;
+        cout << "\tcalculated: ";
+        cout << gr;
+        cout << endl;
+        checksum += 1;
+    }
+
+    // Check second derivatives
+    
+    for (int d = 0; d < dimension; ++d)
+    {
+        double dd_basis = rbf_function->dd_basis(d,
+                                                 r);
+            
+        if (!ce::approx(dd_basis, expected_double_grad[d + dimension * d], tol))
+        {
+            cout << "dd_basis in dimension ";
+            cout << d;
+            cout << " failed for ";
+            cout << test_case;
+            cout << endl;
+            cout << "\texpected: ";
+            cout << expected_double_grad[d + dimension * d];
+            cout << "\tcalculated: ";
+            cout << dd_basis;
             cout << endl;
             checksum += 1;
         }
     }
 
-    // Check second derivatives
-
-    if (rbf_function->derivative_available(2))
+    double expected_laplacian = 0;
+        
+    for (int d = 0; d < dimension; ++d)
     {
-        for (int d = 0; d < dimension; ++d)
-        {
-            double dd_basis = rbf_function->dd_basis(group,
-                                                     d,
-                                                     shape,
-                                                     r,
-                                                     r0,
-                                                     direction);
-            
-            if (!ce::approx(dd_basis, expected_double_grad[d + dimension * d], tol))
-            {
-                cout << "dd_basis in dimension ";
-                cout << d;
-                cout << " failed for ";
-                cout << test_case;
-                cout << endl;
-                cout << "\texpected: ";
-                cout << expected_double_grad[d + dimension * d];
-                cout << "\tcalculated: ";
-                cout << dd_basis;
-                cout << endl;
-                checksum += 1;
-            }
-        }
+        expected_laplacian += expected_double_grad[d + dimension * d];
+    }
 
-        double expected_laplacian = 0;
+    double laplacian = rbf_function->laplacian(r);
         
-        for (int d = 0; d < dimension; ++d)
-        {
-            expected_laplacian += expected_double_grad[d + dimension * d];
-        }
-
-        double laplacian = rbf_function->laplacian(group,
-                                                   shape,
-                                                   r,
-                                                   r0,
-                                                   direction);
-        
-        if (!ce::approx(laplacian, expected_laplacian, tol))
-        {
-            cout << "laplacian failed for ";
-            cout << test_case;
-            cout << endl;
-            cout << "\texpected: ";
-            cout << expected_laplacian;
-            cout << "\tcalculated: ";
-            cout << laplacian;
-            cout << endl;
-            checksum += 1;
-        }
+    if (!ce::approx(laplacian, expected_laplacian, tol))
+    {
+        cout << "laplacian failed for ";
+        cout << test_case;
+        cout << endl;
+        cout << "\texpected: ";
+        cout << expected_laplacian;
+        cout << "\tcalculated: ";
+        cout << laplacian;
+        cout << endl;
+        checksum += 1;
     }
     
     return checksum;
@@ -194,7 +164,9 @@ int main()
             string test_case = "standard rbf";
             
             shared_ptr<RBF_Function> rbf_function
-                = make_shared<RBF_Function>(rbf,
+                = make_shared<RBF_Function>(shape,
+                                            r0,
+                                            rbf,
                                             distance);
             
             double const expected_basis = sqrt(545.);
@@ -208,13 +180,10 @@ int main()
             checksum += test_rbf_function(rbf_function,
                                           test_case,
                                           dimension,
-                                          shape,
                                           expected_basis,
                                           expected_grad,
                                           expected_double_grad,
-                                          r,
-                                          r0,
-                                          direction);
+                                          r);
         }
     }
     

@@ -5,12 +5,13 @@
 #include "Boundary_Source_Parser.hh"
 #include "Cartesian_Distance.hh"
 #include "Check_Equality.hh"
+#include "Constructive_Solid_Geometry_Parser.hh"
 #include "Distance.hh"
 #include "Energy_Discretization_Parser.hh"
 #include "Material_Parser.hh"
-#include "Optical_Distance.hh"
-#include "Constructive_Solid_Geometry_Parser.hh"
+// #include "Optical_Distance.hh"
 #include "Vector_Functions.hh"
+#include "XML_Document.hh"
 
 using namespace std;
 
@@ -21,36 +22,31 @@ namespace vf = Vector_Functions;
 
 shared_ptr<Constructive_Solid_Geometry> get_solid_geometry(string xml_input_filename)
 {
-    pugi::xml_document input_document;
+    XML_Document input_document(xml_input_filename);
     
-    if (!input_document.load_file(xml_input_filename.c_str()))
-    {
-        cout << "Could not open xml input file \"" + xml_input_filename + "\"" << endl;
-        return shared_ptr<Constructive_Solid_Geometry>();
-    }
+    XML_Node input_file = input_document.get_child("input");
     
-    pugi::xml_node input_file = input_document.child("input");
+    Energy_Discretization_Parser energy_parser;
+    shared_ptr<Energy_Discretization> energy
+        = energy_parser.parse_from_xml(input_file.get_child("energy_discretization"));
     
-    Angular_Discretization_Parser angular_parser(input_file);
-    shared_ptr<Angular_Discretization> angular = angular_parser.get_ptr();
+    Angular_Discretization_Parser angular_parser;
+    shared_ptr<Angular_Discretization> angular
+        = angular_parser.parse_from_xml(input_file.get_child("angular_discretization"));
     
-    Energy_Discretization_Parser energy_parser(input_file);
-    shared_ptr<Energy_Discretization> energy = energy_parser.get_ptr();
-    
-    Material_Parser material_parser(input_file,
-                                    angular,
+    Material_Parser material_parser(angular,
                                     energy);
-    vector<shared_ptr<Material> > materials = material_parser.get_ptr();
+    vector<shared_ptr<Material> > materials
+        = material_parser.parse_from_xml(input_file.get_child("materials"));
     
-    Boundary_Source_Parser boundary_parser(input_file,
-                                           angular,
+    Boundary_Source_Parser boundary_parser(angular,
                                            energy);
-    vector<shared_ptr<Boundary_Source> > boundary_sources = boundary_parser.get_ptr();
+    vector<shared_ptr<Boundary_Source> > boundary_sources
+        = boundary_parser.parse_from_xml(input_file.get_child("boundary_sources"));
     
-    Constructive_Solid_Geometry_Parser solid_parser(input_file,
-                                       materials,
-                                       boundary_sources);
-    return solid_parser.get_ptr();
+    Constructive_Solid_Geometry_Parser solid_parser(materials,
+                                                     boundary_sources);
+    return solid_parser.parse_from_xml(input_file.get_child("solid_geometry"));
 }
 
 int test_distance(int test_case,
@@ -63,15 +59,13 @@ int test_distance(int test_case,
 {
     int checksum = 0;
     int number_of_groups = 1;
-    int group = 0;
     int dimension = 2;
     double tol = 1e-15;
     string description = distance_metric->description();
     
     // Check distance and mean_distance
     
-    double distance = distance_metric->distance(group,
-                                                final_position,
+    double distance = distance_metric->distance(final_position,
                                                 initial_position);
     
     if (!ce::approx(distance, expected_distance, tol))
@@ -92,8 +86,7 @@ int test_distance(int test_case,
 
     for (int d = 0; d < dimension; ++d)
     {
-        double d_distance = distance_metric->d_distance(group,
-                                                        d,
+        double d_distance = distance_metric->d_distance(d,
                                                         final_position,
                                                         initial_position);
         
@@ -111,8 +104,7 @@ int test_distance(int test_case,
 
     for (int d = 0; d < dimension; ++d)
     {
-        double dd_distance = distance_metric->dd_distance(group,
-                                                          d,
+        double dd_distance = distance_metric->dd_distance(d,
                                                           final_position,
                                                           initial_position);
         
@@ -128,8 +120,7 @@ int test_distance(int test_case,
 
     // Check gradient_distance
 
-    vector<double> gradient_distance = distance_metric->gradient_distance(group,
-                                                                          final_position,
+    vector<double> gradient_distance = distance_metric->gradient_distance(final_position,
                                                                           initial_position);
     
     if (!ce::approx(gradient_distance, expected_gradient_distance, tol))
@@ -143,8 +134,7 @@ int test_distance(int test_case,
     
     // Check double gradient distance
 
-    vector<double> double_gradient_distance = distance_metric->double_gradient_distance(group,
-                                                                                        final_position,
+    vector<double> double_gradient_distance = distance_metric->double_gradient_distance(final_position,
                                                                                         initial_position);
 
     if (!ce::approx(double_gradient_distance, expected_double_gradient_distance, tol))
@@ -158,8 +148,7 @@ int test_distance(int test_case,
 
     // Check laplacian distance
     
-    double laplacian_distance = distance_metric->laplacian_distance(group,
-                                                                    final_position,
+    double laplacian_distance = distance_metric->laplacian_distance(final_position,
                                                                     initial_position);
 
     double expected_laplacian_distance = 0;
@@ -200,9 +189,9 @@ int main(int argc, char **argv)
 
     shared_ptr<Distance> cartesian
         = make_shared<Cartesian_Distance>(dimension);
-    shared_ptr<Distance> optical
-        = make_shared<Optical_Distance>(dimension,
-                                        solid);
+    // shared_ptr<Distance> optical
+    //     = make_shared<Optical_Distance>(dimension,
+    //                                     solid);
 
     double const st_fuel = 1.0;
     double const st_mod = 2.0;
@@ -230,13 +219,13 @@ int main(int argc, char **argv)
                                   initial,
                                   final);
         
-        checksum += test_distance(test_case,
-                                  optical,
-                                  opt_dist,
-                                  opt_grad,
-                                  opt_double_grad,
-                                  initial,
-                                  final);
+        // checksum += test_distance(test_case,
+        //                           optical,
+        //                           opt_dist,
+        //                           opt_grad,
+        //                           opt_double_grad,
+        //                           initial,
+        //                           final);
     }
     
     return checksum;

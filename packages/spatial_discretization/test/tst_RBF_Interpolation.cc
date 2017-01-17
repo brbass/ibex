@@ -8,7 +8,7 @@
 #include "Check_Equality.hh"
 #include "Energy_Discretization_Parser.hh"
 #include "Material_Parser.hh"
-#include "RBF_Discretization.hh"
+#include "Strong_RBF_Discretization.hh"
 #include "Spatial_Discretization_Parser.hh"
 #include "Trilinos_Dense_Solve.hh"
 #include "Vector_Functions.hh"
