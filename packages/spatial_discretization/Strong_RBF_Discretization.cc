@@ -2,12 +2,7 @@
 
 #include <iostream>
 
-#include "Angular_Discretization.hh"
-#include "Energy_Discretization.hh"
-#include "Material.hh"
-#include "RBF_Point.hh"
 #include "Constructive_Solid_Geometry.hh"
-#include "Symmetric_Sparse_Storage.hh"
 #include "XML_Node.hh"
 
 using namespace std;
@@ -20,9 +15,8 @@ Strong_RBF_Discretization(int dimension,
                           int number_of_neighbors,
                           vector<int> const &internal_points,
                           vector<int> const &boundary_points,
-                          vector<shared_ptr<RBF_Point> > const &rbf_points,
+                          vector<shared_ptr<Strong_RBF_Point> > const &rbf_points,
                           shared_ptr<Constructive_Solid_Geometry> solid_geometry):
-    Spatial_Discretization(),
     dimension_(dimension),
     number_of_points_(number_of_points),
     number_of_internal_points_(number_of_internal_points),
@@ -31,9 +25,7 @@ Strong_RBF_Discretization(int dimension,
     internal_points_(internal_points),
     boundary_points_(boundary_points),
     rbf_points_(rbf_points),
-    solid_geometry_(solid_geometry),
-    angular_discretization_(rbf_points[0]->material()->angular_discretization()),
-    energy_discretization_(rbf_points[0]->material()->energy_discretization())
+    solid_geometry_(solid_geometry)
 {
     check_class_invariants();
 }

@@ -8,7 +8,7 @@ Global_RBF()
 }
 
 double Global_RBF::
-radius()
+radius() const
 {
     return std::numeric_limits<double>::max();
 }

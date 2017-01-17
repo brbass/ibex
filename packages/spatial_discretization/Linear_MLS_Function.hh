@@ -63,10 +63,11 @@ private:
     
     // Data
     int dimension_;
+    int number_of_polynomials_;
     int number_of_functions_;
-    vector<double> position_;
+    std::vector<double> position_;
     std::shared_ptr<Meshless_Function> function_;
     std::vector<std::shared_ptr<Meshless_Function> > neighbor_functions_;
-}
+};
 
 #endif

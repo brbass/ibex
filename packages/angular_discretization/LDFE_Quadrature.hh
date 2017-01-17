@@ -19,37 +19,37 @@ public:
                     int rule);
 
     // Return direction
-    virtual vector<double> const &direction(int ord) const override
+    virtual std::vector<double> const &direction(int ord) const override
     {
         return directions_[ord];
     }
     
     // Return all ordinates
-    virtual vector<double> const &ordinates() const override
+    virtual std::vector<double> const &ordinates() const override
     {
         return ordinates_;
     }
 
     // Return weights
-    virtual vector<double> const &weights() const override
+    virtual std::vector<double> const &weights() const override
     {
         return weights_;
     }
     
     // X component of ordinates
-    virtual vector<double> const &mu() const
+    virtual std::vector<double> const &mu() const
     {
         return mu_;
     }
 
     // Y component of ordinates
-    virtual vector<double> const &eta() const
+    virtual std::vector<double> const &eta() const
     {
         return mu_;
     }
     
     // Z component of ordinates
-    virtual vector<double> const &xi() const
+    virtual std::vector<double> const &xi() const
     {
         return mu_;
     }
@@ -62,7 +62,7 @@ public:
     
     // Get reflected directions
     virtual int reflect_ordinate(int o,
-                                 vector<double> const &normal) const override;
+                                 std::vector<double> const &normal) const override;
 
 private:
 
@@ -75,12 +75,12 @@ private:
 
     double reflection_tolerance_;
 
-    vector<double> mu_;
-    vector<double> eta_;
-    vector<double> xi_;
-    vector<double> ordinates_;
-    vector<double> weights_;
-    vector<vector<double> > directions_;
+    std::vector<double> mu_;
+    std::vector<double> eta_;
+    std::vector<double> xi_;
+    std::vector<double> ordinates_;
+    std::vector<double> weights_;
+    std::vector<std::vector<double> > directions_;
 };
 
 #endif

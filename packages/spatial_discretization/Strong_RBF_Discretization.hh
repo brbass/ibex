@@ -1,13 +1,10 @@
 #ifndef Strong_RBF_Discretization_hh
 #define Strong_RBF_Discretization_hh
 
-#include "RBF_Point.hh"
 #include "Spatial_Discretization.hh"
+#include "Strong_RBF_Point.hh"
 
-class Angular_Discretization;
-class Energy_Discretization;
 class Constructive_Solid_Geometry;
-template<class Ordinal, class Scalar> class Symmetric_Sparse_Storage;
 
 class Strong_RBF_Discretization : public Spatial_Discretization
 {
@@ -20,7 +17,7 @@ public:
                               int number_of_neighbors,
                               std::vector<int> const &internal_points,
                               std::vector<int> const &boundary_points,
-                              std::vector<std::shared_ptr<RBF_Point> > const &rbf_points,
+                              std::vector<std::shared_ptr<Strong_RBF_Point> > const &rbf_points,
                               std::shared_ptr<Constructive_Solid_Geometry> solid_geometry);
 
     // Spatial_Discretization functions
@@ -65,7 +62,7 @@ public:
     {
         return number_of_neighbors_;
     }
-    virtual std::shared_ptr<RBF_Point> rbf_point(int point_index) const
+    virtual std::shared_ptr<Strong_RBF_Point> rbf_point(int point_index) const
     {
         return rbf_points_[point_index];
     }
@@ -83,10 +80,8 @@ private:
     int number_of_neighbors_;
     std::vector<int> internal_points_;
     std::vector<int> boundary_points_;
-    std::vector<std::shared_ptr<RBF_Point> > rbf_points_;
+    std::vector<std::shared_ptr<Strong_RBF_Point> > rbf_points_;
     std::shared_ptr<Constructive_Solid_Geometry> solid_geometry_;
-    std::shared_ptr<Angular_Discretization> angular_discretization_;
-    std::shared_ptr<Energy_Discretization> energy_discretization_;
 };
 
 #endif

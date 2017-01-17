@@ -14,27 +14,27 @@ public:
         return dimension_;
     }
     
-    virtual double distance(vector<double> const &r,
-                            vector<double> const &r0) const override;
+    virtual double distance(std::vector<double> const &r,
+                            std::vector<double> const &r0) const override;
     
     virtual double d_distance(int dim,
-                              vector<double> const &r,
-                              vector<double> const &r0) const override;
+                              std::vector<double> const &r,
+                              std::vector<double> const &r0) const override;
     
     virtual double dd_distance(int dim,
-                               vector<double> const &r,
-                               vector<double> const &r0) const override;
+                               std::vector<double> const &r,
+                               std::vector<double> const &r0) const override;
 
-    virtual vector<double> gradient_distance(vector<double> const &r,
-                                             vector<double> const &r0) const override;
+    virtual std::vector<double> gradient_distance(std::vector<double> const &r,
+                                                  std::vector<double> const &r0) const override;
 
-    virtual vector<double> double_gradient_distance(vector<double> const &r,
-                                                    vector<double> const &r0) const override;
+    virtual std::vector<double> double_gradient_distance(std::vector<double> const &r,
+                                                         std::vector<double> const &r0) const override;
     
-    virtual double laplacian_distance(vector<double> const &r,
-                                      vector<double> const &r0) const override;
+    virtual double laplacian_distance(std::vector<double> const &r,
+                                      std::vector<double> const &r0) const override;
     
-    virtual string description() const override
+    virtual std::string description() const override
     {
         return "cartesian";
     }

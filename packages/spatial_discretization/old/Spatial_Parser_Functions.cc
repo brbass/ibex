@@ -6,7 +6,6 @@
 #include "Cartesian_Overlay.hh"
 #include "Distance.hh"
 #include "Material.hh"
-#include "Optical_Distance.hh"
 #include "Random_Number_Generator.hh"
 #include "Constructive_Solid_Geometry.hh"
 #include "Vector_Functions_2D.hh"

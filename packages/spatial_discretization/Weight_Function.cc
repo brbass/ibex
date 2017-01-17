@@ -4,6 +4,10 @@
 #include "Cartesian_Plane.hh"
 #include "Meshless_Function.hh"
 #include "Solid_Geometry.hh"
+#include "Quadrature_Rule.hh"
+
+using std::shared_ptr;
+using std::vector;
 
 Weight_Function::
 Weight_Function(int index,
@@ -27,8 +31,8 @@ Weight_Function(int index,
 }
 
 void Weight_Function::
-get_full_quadrature_1d(vector<double> &quadrature,
-                       vector<double> &weight)
+get_full_quadrature_1d(vector<double> &ordinates,
+                       vector<double> &weights) const
 {
     double radius = function()->radius();
     double position = function()->position()[0];
@@ -37,7 +41,7 @@ get_full_quadrature_1d(vector<double> &quadrature,
     
     for (int i = 0; i < number_of_boundary_surfaces_; ++i)
     {
-        shared_ptr<Cartesian_Plane> surface = boundary_surfaces(i);
+        shared_ptr<Cartesian_Plane> surface = boundary_surface(i);
         double x_sur = surface->position();
         double n_sur = surface->normal();
         
@@ -58,7 +62,7 @@ get_full_quadrature_1d(vector<double> &quadrature,
     }
     
     Assert(cartesian_1d(Quadrature_Rule::Quadrature_Type::GAUSS_LEGENDRE,
-                        integration_ordinates,
+                        integration_ordinates_,
                         x1,
                         x2,
                         ordinates,
@@ -67,8 +71,8 @@ get_full_quadrature_1d(vector<double> &quadrature,
 
 void Weight_Function::
 get_basis_quadrature_1d(int i,
-                        vector<double> &quadrature,
-                        vector<double> &weight)
+                        vector<double> &ordinates,
+                        vector<double> &weights) const
 {
     shared_ptr<Basis_Function> basis = basis_function(i);
     
@@ -76,17 +80,17 @@ get_basis_quadrature_1d(int i,
 }
 
 void Weight_Function::
-calculate_integrals_1d()
+calculate_integrals_1d() const
 {
     for (int i = 0; i < number_of_basis_functions_; ++i)
     {
-        vector<double> quadrature;
-        vector<double> weight;
+        vector<double> ordinates;
+        vector<double> weights;
 
-        get_basis_quadrature(i,
-                             quadrature,
-                             weight);
+        get_basis_quadrature_1d(i,
+                                ordinates,
+                                weights);
         
-        for (int 
+
     }
 }

@@ -11,7 +11,6 @@ using std::to_string;
 
 Wendland_RBF::
 Wendland_RBF(int order):
-    RBF(),
     order_(order)
 {
 }

@@ -14,38 +14,38 @@ Compact_Gaussian_RBF(double radius):
 double Compact_Gaussian_RBF::
 basis(double r) const
 {
-    if (r < radius)
+    if (r < radius_)
     {
         return k1_ * exp(-r * r) - k2_;
     }
     else
     {
-        return 0.
+        return 0.;
     }
 }
 
 double Compact_Gaussian_RBF::
 d_basis(double r) const
 {
-    if (r < radius)
+    if (r < radius_)
     {
         return -2 * k1_ * r * exp(-r * r);
     }
     else
     {
-        return 0.
+        return 0.;
     }
 }
 
 double Compact_Gaussian_RBF::
 dd_basis(double r) const
 {
-    if (r < radius)
+    if (r < radius_)
     {
         return 2 * (2 * r * r - 1) * k1_ * exp(-r * r);
     }
     else
     {
-        return 0.
+        return 0.;
     }
 }

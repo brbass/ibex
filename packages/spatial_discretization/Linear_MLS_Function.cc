@@ -3,6 +3,7 @@
 #include "Linear_Algebra.hh"
 #include "Matrix_Functions.hh"
 #include "Vector_Functions.hh"
+#include "XML_Node.hh"
 
 namespace la = Linear_Algebra;
 namespace mf = Matrix_Functions;
@@ -19,6 +20,7 @@ Linear_MLS_Function(vector<shared_ptr<Meshless_Function> > neighbor_functions):
     function_(neighbor_functions[0]),
     neighbor_functions_(neighbor_functions)
 {
+    number_of_polynomials_ = dimension_ + 1;
 }
 
 double Linear_MLS_Function::
@@ -30,26 +32,24 @@ radius() const
 double Linear_MLS_Function::
 basis(vector<double> const &r) const
 {
-    int num_poly = dimension_ + 1;
-
     // Get A
-    vector<double> a_mat(num_poly * num_poly);
+    vector<double> a_mat(number_of_polynomials_ * number_of_polynomials_);
     get_a(r,
           a_mat);
 
     // Get B
-    vector<double> b_vec(num_poly);
+    vector<double> b_vec(number_of_polynomials_);
     get_b(r,
           b_vec);
     
     // Get x = A^-1 B
-    vector<double> x_vec(num_poly);
+    vector<double> x_vec(number_of_polynomials_);
     la::linear_solve(a_mat,
                      b_vec,
                      x_vec);
     
     // Get p
-    vector<double> p_vec(num_poly);
+    vector<double> p_vec(number_of_polynomials_);
     get_polynomial(r,
                    p_vec);
 
@@ -62,54 +62,55 @@ d_basis(int dim,
         vector<double> const &r) const
 {
     // Get A
-    vector<double> a_mat(num_poly * num_poly);
-    vector<double> d_a_mat(num_poly * num_poly);
+    vector<double> a_mat(number_of_polynomials_ * number_of_polynomials_);
+    vector<double> d_a_mat(number_of_polynomials_ * number_of_polynomials_);
     get_d_a(dim,
             r,
             a_mat,
             d_a_mat);
     
     // Get A inverse
-    vector<double> a_inv_mat(num_poly * num_poly);
+    vector<double> a_inv_mat(number_of_polynomials_ * number_of_polynomials_);
     la::direct_inverse(a_mat,
                        a_inv_mat);
-    vector<double> d_a_inv_mat(num_poly * num_poly);
-    d_a_inv_mat = mf::square_matrix_matrix_product(num_poly,
+    vector<double> d_a_inv_mat(number_of_polynomials_ * number_of_polynomials_);
+    d_a_inv_mat = mf::square_matrix_matrix_product(number_of_polynomials_,
                                                    d_a_mat,
                                                    a_inv_mat);
-    d_a_inv_mat = mf::square_matrix_matrix_product(num_poly,
+    d_a_inv_mat = mf::square_matrix_matrix_product(number_of_polynomials_,
                                                    a_inv_mat,
                                                    d_a_inv_mat);
     d_a_inv_mat = vf::multiply(d_a_inv_mat,
                                -1.);
     
     // Get B
-    vector<double> b_vec(num_poly);
-    vector<double> d_b_vec(num_poly);
+    vector<double> b_vec(number_of_polynomials_);
+    vector<double> d_b_vec(number_of_polynomials_);
     get_d_b(dim,
             r,
             b_vec,
             d_b_vec);
     
     // Get p
-    vector<double> p_vec(num_poly);
+    vector<double> p_vec(number_of_polynomials_);
     get_polynomial(r,
                    p_vec);
-    vector<double> d_p_vec(num_poly);
-    get_d_polynomial(r,
+    vector<double> d_p_vec(number_of_polynomials_);
+    get_d_polynomial(dim,
+                     r,
                      p_vec);
 
     // Calculate terms
     double t1 = vf::dot(d_p_vec,
-                        mf::square_matrix_vector_product(num_poly,
+                        mf::square_matrix_vector_product(number_of_polynomials_,
                                                          a_inv_mat,
                                                          b_vec));
     double t2 = vf::dot(p_vec,
-                        mf::square_matrix_vector_product(num_poly,
+                        mf::square_matrix_vector_product(number_of_polynomials_,
                                                          d_a_inv_mat,
                                                          b_vec));
     double t3 = vf::dot(p_vec,
-                        mf::square_matrix_vector_product(num_poly,
+                        mf::square_matrix_vector_product(number_of_polynomials_,
                                                          a_inv_mat,
                                                          d_b_vec));
 
@@ -140,7 +141,7 @@ gradient_basis(vector<double> const &r) const
 }
 
 double Linear_MLS_Function::
-laplacian(vector<double> const &r)
+laplacian(vector<double> const &r) const
 {
     AssertMsg(false, "laplacian not available for Linear_MLS");
 }
@@ -190,9 +191,7 @@ void Linear_MLS_Function::
 get_a(vector<double> const &position,
       vector<double> &a) const
 {
-    int num_poly = dimension_ + 1;
-
-    a.assign(num_poly * num_poly, 0);
+    a.assign(number_of_polynomials_ * number_of_polynomials_, 0);
     for (int i = 0; i < number_of_functions_; ++i)
     {
         shared_ptr<Meshless_Function> func = neighbor_functions_[i];
@@ -201,11 +200,11 @@ get_a(vector<double> const &position,
                        poly);
         double weight = func->basis(position);
         
-        for (int j = 0; j < num_poly; ++j)
+        for (int j = 0; j < number_of_polynomials_; ++j)
         {
-            for (int k = 0; k < num_poly; ++k)
+            for (int k = 0; k < number_of_polynomials_; ++k)
             {
-                int l = j + num_poly * k;
+                int l = j + number_of_polynomials_ * k;
                 double polyprod = poly[j] * poly[k];
                 a[l] += weight * polyprod;
             }
@@ -219,10 +218,8 @@ get_d_a(int dim,
         vector<double> &a,
         vector<double> &d_a) const
 {
-    int num_poly = dimension_ + 1;
-    
-    a.assign(num_poly * num_poly, 0);
-    d_a.assign(num_poly * num_poly, 0);
+    a.assign(number_of_polynomials_ * number_of_polynomials_, 0);
+    d_a.assign(number_of_polynomials_ * number_of_polynomials_, 0);
     
     for (int i = 0; i < number_of_functions_; ++i)
     {
@@ -234,11 +231,11 @@ get_d_a(int dim,
         double d_weight = func->d_basis(dim,
                                         position);
         
-        for (int j = 0; j < num_poly; ++j)
+        for (int j = 0; j < number_of_polynomials_; ++j)
         {
-            for (int k = 0; k < num_poly; ++k)
+            for (int k = 0; k < number_of_polynomials_; ++k)
             {
-                int l = j + num_poly * k;
+                int l = j + number_of_polynomials_ * k;
                 double polyprod = poly[j] * poly[k];
                 a[l] += weight * polyprod;
                 d_a[l] += d_weight * polyprod;
@@ -251,14 +248,14 @@ void Linear_MLS_Function::
 get_b(vector<double> const &position,
       vector<double> &b) const
 {
-    b.resize(num_poly);
+    b.resize(number_of_polynomials_);
     
     vector<double> poly;
-    get_polynomial(function_->position,
+    get_polynomial(function_->position(),
                    poly);
     double weight = function_->basis(position);
     
-    for (int i = 0; i < num_poly; ++i)
+    for (int i = 0; i < number_of_polynomials_; ++i)
     {
         b[i] = poly[i] * weight;
     }
@@ -270,17 +267,17 @@ get_d_b(int dim,
         vector<double> &b,
         vector<double> &d_b) const
 {
-    b.resize(num_poly);
-    d_b.resize(num_poly);
+    b.resize(number_of_polynomials_);
+    d_b.resize(number_of_polynomials_);
     
     vector<double> poly;
-    get_polynomial(function_->position,
+    get_polynomial(function_->position(),
                    poly);
     double weight = function_->basis(position);
     double d_weight = function_->d_basis(dim,
                                          position);
     
-    for (int i = 0; i < num_poly; ++i)
+    for (int i = 0; i < number_of_polynomials_; ++i)
     {
         b[i] = poly[i] * weight;
         d_b[i] = poly[i] * d_weight;

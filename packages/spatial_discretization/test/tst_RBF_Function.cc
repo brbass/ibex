@@ -4,7 +4,6 @@
 
 #include "Cartesian_Distance.hh"
 #include "Check_Equality.hh"
-#include "Derivative_RBF_Function.hh"
 #include "Distance.hh"
 #include "Multiquadric_RBF.hh"
 #include "RBF.hh"
@@ -205,32 +204,6 @@ int main()
                                                          192. / (109. * sqrt(545.)),
                                                          192. / (109. * sqrt(545.)),
                                                          116. / (109. * sqrt(545.))};
-            
-            checksum += test_rbf_function(rbf_function,
-                                          test_case,
-                                          dimension,
-                                          shape,
-                                          expected_basis,
-                                          expected_grad,
-                                          expected_double_grad,
-                                          r,
-                                          r0,
-                                          direction);
-        }
-
-        // Derivative (directional) RBF
-        
-        {
-            string test_case = "directional rbf";
-            
-            shared_ptr<RBF_Function> rbf_function
-                = make_shared<Derivative_RBF_Function>(rbf,
-                                                       distance);
-            
-            double const expected_basis = 8. * (3 - 5 * sqrt(2.)) / sqrt(1635.);
-            vector<double> const expected_grad = {4. * (401. + 240. * sqrt(2.)) / (545. * sqrt(1635.)),
-                                                  4. * (48. + 29. * sqrt(2)) / (109. * sqrt(1635.))};
-            vector<double> const expected_double_grad(dimension * dimension, 0);
             
             checksum += test_rbf_function(rbf_function,
                                           test_case,

@@ -13,13 +13,13 @@
 */
 namespace Matrix_Functions
 {
-    template<class T> vector<T> transpose(int i_size, // rows
-                                          int j_size, // cols
-                                          vector<T> const &a)
+    template<class T> std::vector<T> transpose(int i_size, // rows
+                                               int j_size, // cols
+                                               std::vector<T> const &a)
     {
         Check(a.size() == i_size * j_size);
         
-        vector<T> x(i_size * j_size);
+        std::vector<T> x(i_size * j_size);
         for (int i = 0; i < i_size; ++i)
         {
             for (int j = 0; j < j_size; ++j)
@@ -31,14 +31,14 @@ namespace Matrix_Functions
         return x;
     }
     
-    template<class T> vector<T> square_matrix_vector_product(int size,
-                                                             vector<T> const &a,
-                                                             vector<T> const &b)
+    template<class T> std::vector<T> square_matrix_vector_product(int size,
+                                                                  std::vector<T> const &a,
+                                                                  std::vector<T> const &b)
     {
-        Check(a.size() = size * size);
+        Check(a.size() == size * size);
         Check(b.size() == size);
         
-        vector<T> x(size);
+        std::vector<T> x(size);
         for (int i = 0; i < size; ++i)
         {
             T sum = b[0] * a[size * i];
@@ -52,14 +52,14 @@ namespace Matrix_Functions
         return x;
     }
 
-    template<class T> vector<T> square_matrix_matrix_product(int size,
-                                                             vector<T> const &a,
-                                                             vector<T> const &b)
+    template<class T> std::vector<T> square_matrix_matrix_product(int size,
+                                                                  std::vector<T> const &a,
+                                                                  std::vector<T> const &b)
     {
         Check(a.size() == size * size);
         Check(b.size() == size * size);
 
-        vector<double> x(size * size);
+        std::vector<double> x(size * size);
         for (int i = 0; i < size; ++i)
         {
             for (int j = 0; j < size; ++j)
@@ -76,16 +76,16 @@ namespace Matrix_Functions
         return x;
     }
 
-    template<class T> vector<T> matrix_matrix_product(int i_size, // a rows
-                                                      int k_size, // a cols / b rows
-                                                      int j_size, // b cols
-                                                      vector<T> const &a,
-                                                      vector<T> const &b);
+    template<class T> std::vector<T> matrix_matrix_product(int i_size, // a rows
+                                                           int k_size, // a cols / b rows
+                                                           int j_size, // b cols
+                                                           std::vector<T> const &a,
+                                                           std::vector<T> const &b)
     {
         Check(a.size() == i_size * k_size);
         Check(b.size() == k_size * j_size);
         
-        vector<T> x(i_size * j_size);
+        std::vector<T> x(i_size * j_size);
         for (int i = 0; i < i_size; ++i)
         {
             for (int j = 0; j < j_size; ++j)
@@ -102,3 +102,5 @@ namespace Matrix_Functions
         return x;
     }
 } // end namespace Matrix_Functions
+
+#endif

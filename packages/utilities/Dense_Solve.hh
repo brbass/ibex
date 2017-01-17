@@ -31,7 +31,6 @@ public:
 private:
     
     unsigned size_;
-    
     std::shared_ptr<Trilinos_Dense_Solve> trilinos_solver_;
 };
 

@@ -7,6 +7,7 @@
 
 using std::make_shared;
 using std::sqrt;
+using std::vector;
 
 Cartesian_Distance::
 Cartesian_Distance(int dimension):

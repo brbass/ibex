@@ -4,6 +4,8 @@
 #include "Quadrature_Rule.hh"
 #include "XML_Node.hh"
 
+using std::vector;
+
 Gauss_Legendre_Quadrature::
 Gauss_Legendre_Quadrature(int dimension,
                           int number_of_moments,

@@ -14,38 +14,38 @@ Truncated_Gaussian_RBF(double radius):
 double Truncated_Gaussian_RBF::
 basis(double r) const
 {
-    if (r < radius)
+    if (r < radius_)
     {
         return exp(-r * r);
     }
     else
     {
-        return 0.
+        return 0.;
     }
 }
 
 double Truncated_Gaussian_RBF::
 d_basis(double r) const
 {
-    if (r < radius)
+    if (r < radius_)
     {
         return -2 * r * exp(-r * r);
     }
     else
     {
-        return 0.
+        return 0.;
     }
 }
 
 double Truncated_Gaussian_RBF::
 dd_basis(double r) const
 {
-    if (r < radius)
+    if (r < radius_)
     {
         return (-2 + 4 * r * r) * exp(- r * r);
     }
     else
     {
-        return 0.
+        return 0.;
     }
 }

@@ -34,7 +34,7 @@ public:
     virtual double laplacian_distance(std::vector<double> const &r,
                                       std::vector<double> const &r0) const = 0;
 
-    virtual string description() const = 0;
+    virtual std::string description() const = 0;
     
     virtual void check_class_invariants() const = 0;
 

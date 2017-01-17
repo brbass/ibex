@@ -1,7 +1,7 @@
 #ifndef Wendland_RBF_hh
 #define Wendland_RBF_hh
 
-#include "RBF.hh"
+#include "Local_RBF.hh"
 
 /*
   Local polynomial radial basis function
