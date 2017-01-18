@@ -16,7 +16,7 @@ public:
                    int dimension,
                    std::shared_ptr<Meshless_Function> meshless_function,
                    std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces);
-
+    
     // Data access
     virtual int index() const
     {
