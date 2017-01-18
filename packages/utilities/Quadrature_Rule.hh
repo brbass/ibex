@@ -196,6 +196,20 @@ namespace Quadrature_Rule
                                                  std::vector<double> &ordinates_x,
                                                  std::vector<double> &ordinates_y,
                                                  std::vector<double> &weights);
+
+    /*
+      Convert quadrature from vector<double> for each set of ordinates
+      to position-based ordinates of form vector<vector<double> >
+    */
+    void convert_to_position_1d(std::vector<double> const &ordinates_x,
+                                std::vector<std::vector<double> > &ordinates);
+    void convert_to_position_2d(std::vector<double> const &ordinates_x,
+                                std::vector<double> const &ordinates_y,
+                                std::vector<std::vector<double> > &ordinates);
+    void convert_to_position_3d(std::vector<double> const &ordinates_x,
+                                std::vector<double> const &ordinates_y,
+                                std::vector<double> const &ordinates_z,
+                                std::vector<std::vector<double> > &ordinates);
 }
 
 #endif

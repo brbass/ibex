@@ -28,15 +28,31 @@ public:
                     std::shared_ptr<Solid_Geometry> solid_geometry,
                     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces);
 
-    // Data access
-    virtual int index() const
+    // Point functions
+    virtual int index() const override
     {
         return index_;
     }
-    virtual int dimension() const
+    virtual int dimension() const override
     {
         return dimension_;
     }
+    virtual Point_Type point_type() const override
+    {
+        return point_type_;
+    }
+    virtual std::shared_ptr<Material> material() const override
+    {
+        return material_;
+    }
+    virtual std::vector<double> const &position() const override
+    {
+        return position_;
+    }
+    virtual void output(XML_Node output_node) const override;
+    virtual void check_class_invariants() const override;
+
+    // Weight_Function functions
     virtual int number_of_basis_functions() const
     {
         return number_of_basis_functions_;
@@ -63,30 +79,55 @@ public:
     }
     
     // Quadrature methods
-    virtual void get_full_quadrature_1d(std::vector<double> &ordinates,
+    virtual bool get_full_quadrature_1d(std::vector<double> &ordinates,
                                         std::vector<double> &weights) const;
-    virtual void get_basis_quadrature_1d(int i,
+    virtual bool get_full_quadrature_2d(std::vector<double> &ordinates_x,
+                                        std::vector<double> &ordinates_y,
+                                        std::vector<double> &weights) const;
+    virtual bool get_basis_quadrature_1d(int i,
                                          std::vector<double> &ordinates,
                                          std::vector<double> &weights) const;
-    
+    virtual bool get_basis_quadrature_2d(int i,
+                                         std::vector<double> &ordinates_x,
+                                         std::vector<double> &ordinates_y,
+                                         std::vector<double> &weights) const;
+
 private:
-    
+
     // Integration methods
-    virtual void calculate_integrals_1d() const;
+    virtual void calculate_integrals_1d();
+    virtual void calculate_integrals_2d();
+
+    // Helper methods
+    virtual void get_mutual_boundary_surfaces(int i,
+                                              std::vector<std::shared_ptr<Cartesian_Plane> > &shared_surfaces) const;
     
-    // Data
+    // Point data
     int index_;
     int dimension_;
+    Point_Type point_type_;
+    std::shared_ptr<Material> material_;
+    std::vector<double> position_;
+
+    // Weight_Function data
     int integration_ordinates_;
     int number_of_basis_functions_;
     int number_of_boundary_surfaces_;
+    double radius_;
     std::shared_ptr<Meshless_Function> meshless_function_;
     std::vector<std::shared_ptr<Basis_Function> > basis_functions_;
     std::shared_ptr<Solid_Geometry> solid_geometry_;
     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces_;
 
     // Calculated data
+    std::vector<double> min_boundary_limits_;
+    std::vector<double> max_boundary_limits_;
     
+    // Integrals
+    vector<double> is_b_w_;
+    vector<double> iv_b_w_;
+    vector<double> iv_b_dw_;
+    vector<double> iv_db_dw_;
 };
 
 #endif

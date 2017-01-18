@@ -30,6 +30,14 @@ public:
     {
         return number_of_boundary_surfaces_;
     }
+    virtual double radius() const
+    {
+        return radius_;
+    }
+    virtual std::vector<double> const &position() const
+    {
+        return position_;
+    }
     virtual std::shared_ptr<Meshless_Function> function() const
     {
         return meshless_function_;
@@ -38,6 +46,8 @@ public:
     {
         return boundary_surfaces_[i];
     }
+    virtual void output(XML_Node output_node) const override;
+    virtual void check_class_invariants() const override;
     
 private:
     
@@ -45,6 +55,8 @@ private:
     int index_;
     int dimension_;
     int number_of_boundary_surfaces_;
+    double radius_;
+    std::vector<double> position_;
     std::shared_ptr<Meshless_Function> meshless_function_;
     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces_;
 };

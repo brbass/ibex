@@ -13,6 +13,8 @@ Basis_Function(int index,
     index_(index),
     dimension_(dimension),
     number_of_boundary_surfaces_(boundary_surfaces.size()),
+    radius_(meshless_function->radius()),
+    position_(meshless_function->position()),
     meshless_function_(meshless_function),
     boundary_surfaces_(boundary_surfaces)
 {

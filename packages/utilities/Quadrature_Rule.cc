@@ -810,4 +810,48 @@ namespace Quadrature_Rule
                             ordinates_y,
                             weights);
     }
+    
+    void convert_to_position_1d(vector<double> const &ordinates_x,
+                                vector<vector<double> > &ordinates)
+    {
+        int dimension = 2;
+        int number_of_ordinates = ordinates_x.size();
+        vector<double> position_template(dimension, 0);
+        ordinates.assign(number_of_ordinates, position_template);
+        for (int i = 0; i < number_of_ordinates; ++i)
+        {
+            ordiantes[i][0] = ordinates_x[i];
+        }
+    }
+    
+    void convert_to_position_2d(vector<double> const &ordinates_x,
+                                vector<double> const &ordinates_y,
+                                vector<vector<double> > &ordinates)
+    {
+        int dimension = 2;
+        int number_of_ordinates = ordinates_x.size();
+        vector<double> position_template(dimension, 0);
+        ordinates.assign(number_of_ordinates, position_template);
+        for (int i = 0; i < number_of_ordinates; ++i)
+        {
+            ordiantes[i][0] = ordinates_x[i];
+            ordinates[i][1] = ordinates_y[i];
+        }
+    }
+    void convert_to_position_3d(vector<double> const &ordinates_x,
+                                vector<double> const &ordinates_y,
+                                vector<double> const &ordinates_z,
+                                vector<vector<double> > &ordinates)
+    {
+        int dimension = 3;
+        int number_of_ordinates = ordinates_x.size();
+        vector<double> position_template(dimension, 0);
+        ordinates.assign(number_of_ordinates, position_template);
+        for (int i = 0; i < number_of_ordinates; ++i)
+        {
+            ordiantes[i][0] = ordinates_x[i];
+            ordinates[i][1] = ordinates_y[i];
+            ordinates[i][2] = ordinates_z[i];
+        }
+    }
 }

@@ -15,4 +15,5 @@ target_link_libraries(${library_name} ${library_dependencies})
 
 install(TARGETS ${library_name} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
-add_subdirectory(test)
+# add_subdirectory(test)
+message("Temporarily disabled tests in spatial_discretization.")
