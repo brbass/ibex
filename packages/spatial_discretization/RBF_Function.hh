@@ -25,13 +25,13 @@ public:
     {
         return position_;
     }
-    virtual double basis(std::vector<double> const &r) const override;
-    virtual double d_basis(int dim,
+    virtual double value(std::vector<double> const &r) const override;
+    virtual double d_value(int dim,
                            std::vector<double> const &r) const override;
-    virtual double dd_basis(int dim,
+    virtual double dd_value(int dim,
                             std::vector<double> const &r) const override;
-    virtual std::vector<double> gradient_basis(std::vector<double> const &r) const override;
-    virtual double laplacian(std::vector<double> const &r) const override;
+    virtual std::vector<double> gradient_value(std::vector<double> const &r) const override;
+    virtual double laplacian_value(std::vector<double> const &r) const override;
     
     virtual void output(XML_Node output_node) const override;
     virtual void check_class_invariants() const override;

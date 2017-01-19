@@ -37,15 +37,15 @@ radius() const
 }
 
 double RBF_Function::
-basis(vector<double> const &r) const
+value(vector<double> const &r) const
 {
     double dist = distance_->distance(r,
                                       position_);
-    return rbf_->basis(shape_ * dist);
+    return rbf_->value(shape_ * dist);
 }
 
 double RBF_Function::
-d_basis(int dim,
+d_value(int dim,
         vector<double> const &r) const
 {
     double dist = distance_->distance(r,
@@ -54,13 +54,13 @@ d_basis(int dim,
                                           r,
                                           position_);
     
-    return rbf_->d_basis(shape_ * dist,
+    return rbf_->d_value(shape_ * dist,
                          shape_ * d_dist);
 }
 
 
 double RBF_Function::
-dd_basis(int dim,
+dd_value(int dim,
          vector<double> const &r) const
 {
     double dist = distance_->distance(r,
@@ -72,13 +72,13 @@ dd_basis(int dim,
                                             r,
                                             position_);
 
-    return rbf_->dd_basis(shape_ * dist,
+    return rbf_->dd_value(shape_ * dist,
                           shape_ * shape_ * d_dist * d_dist,
                           shape_ * dd_dist);
 }
 
 vector<double> RBF_Function::
-gradient_basis(vector<double> const &r) const               
+gradient_value(vector<double> const &r) const               
 {
     double dist = distance_->distance(r,
                                       position_);
@@ -91,7 +91,7 @@ gradient_basis(vector<double> const &r) const
     
     for (int d = 0; d < dimension; ++d)
     {
-        res[d] = rbf_->d_basis(shape_ * dist,
+        res[d] = rbf_->d_value(shape_ * dist,
                                shape_ * grad[d]);
     }
 
@@ -99,7 +99,7 @@ gradient_basis(vector<double> const &r) const
 }
 
 double RBF_Function::
-laplacian(vector<double> const &r) const
+laplacian_value(vector<double> const &r) const
 {
     double dist = distance_->distance(r,
                                       position_);
@@ -116,7 +116,7 @@ laplacian(vector<double> const &r) const
         grad2 += grad[d] * grad[d];
     }
     
-    return rbf_->dd_basis(shape_ * dist,
+    return rbf_->dd_value(shape_ * dist,
                           shape_ * shape_ * grad2 * grad2,
                           shape_ * lap);
 }

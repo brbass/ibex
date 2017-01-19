@@ -30,16 +30,16 @@ public:
     virtual double radius() const = 0;
     
     // Value of basis function
-    virtual double basis(double r) const = 0;
+    virtual double value(double r) const = 0;
     
     // Derivative of basis function
-    virtual double d_basis(double r) const = 0;
-    virtual double d_basis(double s,
+    virtual double d_value(double r) const = 0;
+    virtual double d_value(double s,
                            double ds) const;
     
     // Second derivative of the basis function
-    virtual double dd_basis(double r) const = 0;
-    virtual double dd_basis(double s,
+    virtual double dd_value(double r) const = 0;
+    virtual double dd_value(double s,
                             double ds,
                             double dds) const;
     

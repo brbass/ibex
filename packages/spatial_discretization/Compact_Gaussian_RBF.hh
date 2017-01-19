@@ -17,13 +17,13 @@ public:
     }
     
     // Value of basis function
-    virtual double basis(double r) const override;
+    virtual double value(double r) const override;
     
     // Derivative of basis function
-    virtual double d_basis(double r) const override;
+    virtual double d_value(double r) const override;
     
     // Second derivative of the basis function
-    virtual double dd_basis(double r) const override;
+    virtual double dd_value(double r) const override;
 
     // Description of RBF
     virtual std::string description() const override;

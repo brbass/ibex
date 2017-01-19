@@ -12,7 +12,7 @@ Truncated_Gaussian_RBF(double radius):
 }
 
 double Truncated_Gaussian_RBF::
-basis(double r) const
+value(double r) const
 {
     if (r < radius_)
     {
@@ -25,7 +25,7 @@ basis(double r) const
 }
 
 double Truncated_Gaussian_RBF::
-d_basis(double r) const
+d_value(double r) const
 {
     if (r < radius_)
     {
@@ -38,7 +38,7 @@ d_basis(double r) const
 }
 
 double Truncated_Gaussian_RBF::
-dd_basis(double r) const
+dd_value(double r) const
 {
     if (r < radius_)
     {

@@ -8,19 +8,19 @@ Gaussian_RBF()
 }
 
 double Gaussian_RBF::
-basis(double r) const
+value(double r) const
 {
     return exp(-r * r);
 }
 
 double Gaussian_RBF::
-d_basis(double r) const
+d_value(double r) const
 {
     return -2 * r * exp(-r * r);
 }
 
 double Gaussian_RBF::
-dd_basis(double r) const
+dd_value(double r) const
 {
     return (-2 + 4 * r * r) * exp(- r * r);
 }

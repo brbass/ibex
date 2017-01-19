@@ -68,8 +68,8 @@ namespace Quadrature_Rule
         if (x1 > x2)
         {
             cerr << "cartesian_1d: x1 > x2" << endl;
-            ordinates.assign(1, x1);
-            weights.assign(1, 0);
+            ordinates.resize(0);
+            weights.resize(0);
             return false;
         }
         
@@ -107,17 +107,17 @@ namespace Quadrature_Rule
         if (x1 > x2)
         {
             cerr << "cartesian_2d: x1 > x2" << endl;
-            ordinates_x.assign(1, x1);
-            ordinates_y.assign(1, y1);
-            weights.assign(1, 0);
+            ordinates_x.resize(0);
+            ordinates_y.resize(0);
+            weights.resize(0);
             return false;
         }
         if (y1 > y2)
         {
             cerr << "cartesian_2d: y1 > y2" << endl;
-            ordinates_x.assign(1, x1);
-            ordinates_y.assign(1, y1);
-            weights.assign(1, 0);
+            ordinates_x.resize(0);
+            ordinates_y.resize(0);
+            weights.resize(0);
             return false;
         }
 
@@ -183,28 +183,28 @@ namespace Quadrature_Rule
         if (x1 > x2)
         {
             cerr << "cartesian_2d: x1 > x2" << endl;
-            ordinates_x.assign(1, x1);
-            ordinates_y.assign(1, y1);
-            ordinates_z.assign(1, z1);
-            weights.assign(1, 0);
+            ordinates_x.resize(0);
+            ordinates_y.resize(0);
+            ordinates_z.resize(0);
+            weights.resize(0);
             return false;
         }
         if (y1 > y2)
         {
             cerr << "cartesian_2d: y1 > y2" << endl;
-            ordinates_x.assign(1, x1);
-            ordinates_y.assign(1, y1);
-            ordinates_z.assign(1, z1);
-            weights.assign(1, 0);
+            ordinates_x.resize(0);
+            ordinates_y.resize(0);
+            ordinates_z.resize(0);
+            weights.resize(0);
             return false;
         }
         if (z1 > z2)
         {
             cerr << "cartesian_3d: z1 > z2" << endl;
-            ordinates_x.assign(1, x1);
-            ordinates_y.assign(1, y1);
-            ordinates_z.assign(1, z1);
-            weights.assign(1, 0);
+            ordinates_x.resize(0);
+            ordinates_y.resize(0);
+            ordinates_z.resize(0);
+            weights.resize(0);
             return false;
         }
         
@@ -280,17 +280,17 @@ namespace Quadrature_Rule
         if (r1 > r2)
         {
             cerr << "cylindrical_2d: r1 > r2" << endl;
-            ordinates_x.assign(1, x0);
-            ordinates_y.assign(1, y0);
-            weights.assign(1, 0);
+            ordinates_x.resize(0);
+            ordinates_y.resize(0);
+            weights.resize(0);
             return false;
         }
         if (t1 > t2)
         {
             cerr << "cylindrical_2d: r1 > r2" << endl;
-            ordinates_x.assign(1, x0);
-            ordinates_y.assign(1, y0);
-            weights.assign(1, 0);
+            ordinates_x.resize(0);
+            ordinates_y.resize(0);
+            weights.resize(0);
             return false;
         }
 
@@ -362,28 +362,28 @@ namespace Quadrature_Rule
         if (r1 > r2)
         {
             cerr << "spherical_3d: r1 > r2" << endl;
-            ordinates_x.assign(1, x0);
-            ordinates_y.assign(1, y0);
-            ordinates_z.assign(1, z0);
-            weights.assign(1, 0);
+            ordinates_x.resize(0);
+            ordinates_y.resize(0);
+            ordinates_z.resize(0);
+            weights.resize(0);
             return false;
         }
         if (t1 > t2)
         {
             cerr << "spherical_3d: t1 > t2" << endl;
-            ordinates_x.assign(1, x0);
-            ordinates_y.assign(1, y0);
-            ordinates_z.assign(1, z0);
-            weights.assign(1, 0);
+            ordinates_x.resize(0);
+            ordinates_y.resize(0);
+            ordinates_z.resize(0);
+            weights.resize(0);
             return false;
         }
         if (f1 > f2)
         {
             cerr << "spherical_3d: f1 > f2" << endl;
-            ordinates_x.assign(1, x0);
-            ordinates_y.assign(1, y0);
-            ordinates_z.assign(1, z0);
-            weights.assign(1, 0);
+            ordinates_x.resize(0);
+            ordinates_y.resize(0);
+            ordinates_z.resize(0);
+            weights.resize(0);
             return false;
         }
 
@@ -473,9 +473,9 @@ namespace Quadrature_Rule
         if (d >= r1 + r2) // circles do not have any common points
         {
             cerr << "double_cylindrical_2d: no intersections" << endl;
-            ordinates_x.assign(1, x1);
-            ordinates_y.assign(1, y1);
-            weights.assign(1, 0);
+            ordinates_x.resize(0);
+            ordinates_y.resize(0);
+            weights.resize(0);
             return false;
         }
         else if (d < abs(r1 - r2) + 1e-15) // one circle contained in other
@@ -649,25 +649,25 @@ namespace Quadrature_Rule
         if (xmaxb < xminc || xminb > xmaxc || ymaxb < yminc || yminb > xmaxc)
         {
             cerr << "cartesian_bounded_cylindrial_2d: no intersections" << endl;
-            ordinates_x.assign(1, x0);
-            ordinates_y.assign(1, y0);
-            weights.assign(1, 0);
+            ordinates_x.resize(0);
+            ordinates_y.resize(0);
+            weights.resize(0);
             return false;
         }
         if (xminb > xmaxb)
         {
             cerr << "cartesian_bounded_cylindrial_2d: xminb > xmaxb" << endl;
-            ordinates_x.assign(1, x0);
-            ordinates_y.assign(1, y0);
-            weights.assign(1, 0);
+            ordinates_x.resize(0);
+            ordinates_y.resize(0);
+            weights.resize(0);
             return false;
         }
         if (yminb > ymaxb)
         {
             cerr << "cartesian_bounded_cylindrial_2d: yminb > ymaxb" << endl;
-            ordinates_x.assign(1, x0);
-            ordinates_y.assign(1, y0);
-            weights.assign(1, 0);
+            ordinates_x.resize(0);
+            ordinates_y.resize(0);
+            weights.resize(0); 
             return false;
         }
 

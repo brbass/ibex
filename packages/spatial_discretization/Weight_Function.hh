@@ -79,28 +79,39 @@ public:
     }
     
     // Quadrature methods
-    virtual bool get_full_quadrature_1d(std::vector<double> &ordinates,
+    virtual bool get_full_quadrature(std::vector<std::vector<double> > &ordinates,
+                                     std::vector<double> &weights) const;
+    virtual bool get_full_quadrature_1d(std::vector<std::vector<double> > &ordinates,
                                         std::vector<double> &weights) const;
-    virtual bool get_full_quadrature_2d(std::vector<double> &ordinates_x,
-                                        std::vector<double> &ordinates_y,
+    virtual bool get_full_quadrature_2d(std::vector<std::vector<double> > &ordinates,
                                         std::vector<double> &weights) const;
+    virtual bool get_basis_quadrature(int i,
+                                      std::vector<std::vector<double> > &ordinates,
+                                      std::vector<double> &weights) const;
     virtual bool get_basis_quadrature_1d(int i,
-                                         std::vector<double> &ordinates,
+                                         std::vector<std::vector<double> > &ordinates,
                                          std::vector<double> &weights) const;
     virtual bool get_basis_quadrature_2d(int i,
-                                         std::vector<double> &ordinates_x,
-                                         std::vector<double> &ordinates_y,
+                                         std::vector<std::vector<double> > &ordinates,
                                          std::vector<double> &weights) const;
-
+    virtual bool get_full_surface_quadrature(int s,
+                                             std::vector<std::vector<double> > &ordinates,
+                                             std::vector<double> &weights) const;
+    virtual bool get_full_surface_quadrature_2d(int s,
+                                                std::vector<std::vector<double> > &ordinates,
+                                                std::vector<double> &weights) const;
+    virtual bool get_basis_surface_quadrature(int i,
+                                              int s,
+                                              std::vector<std::vector<double> > &ordinates,
+                                              std::vector<double> &weights) const;
+    virtual bool get_basis_surface_quadrature_2d(int i,
+                                                 int s,
+                                                 std::vector<std::vector<double> > &ordinates,
+                                                 std::vector<double> &weights) const;
 private:
 
     // Integration methods
-    virtual void calculate_integrals_1d();
-    virtual void calculate_integrals_2d();
-
-    // Helper methods
-    virtual void get_mutual_boundary_surfaces(int i,
-                                              std::vector<std::shared_ptr<Cartesian_Plane> > &shared_surfaces) const;
+    virtual void calculate_integrals();
     
     // Point data
     int index_;
@@ -127,6 +138,7 @@ private:
     vector<double> is_b_w_;
     vector<double> iv_b_w_;
     vector<double> iv_b_dw_;
+    vector<double> iv_db_w_;
     vector<double> iv_db_dw_;
 };
 

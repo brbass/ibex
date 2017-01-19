@@ -8,16 +8,16 @@ RBF()
 }
 
 double RBF::
-d_basis(double s,
+d_value(double s,
         double ds) const
 {
-    return d_basis(s) * ds;
+    return d_value(s) * ds;
 }
 
 double RBF::
-dd_basis(double s,
+dd_value(double s,
          double ds2,
          double dds) const
 {
-    return dd_basis(s) * ds2 + d_basis(s) * dds;
+    return dd_value(s) * ds2 + d_value(s) * dds;
 }

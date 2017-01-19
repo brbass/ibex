@@ -63,14 +63,31 @@ Weight_Function(int index,
             }
         }
     }
-    
+
     check_class_invariants();
     calculate_material();
     calculate_integrals();
 }
 
 bool Weight_Function::
-get_full_quadrature_1d(vector<double> &ordinates,
+get_full_quadrature(vector<vector<double> > &ordinates,
+                    vector<double> &weights) const
+{
+    switch (dimension_)
+    {
+    case 1:
+        return get_full_quadrature_1d(ordinates,
+                                      weights);
+    case 2:
+        return get_full_quadrature_2d(ordinates,
+                                      weights);
+    default:
+        return false;
+    }
+}
+
+bool Weight_Function::
+get_full_quadrature_1d(vector<vector<double> > &ordinates,
                        vector<double> &weights) const
 {
     // Get min and max of weight
@@ -79,80 +96,93 @@ get_full_quadrature_1d(vector<double> &ordinates,
     double x2 = position + radius_;
 
     // Compare to boundaries
-    if (x1 < boundary_limits[0]
-    for (int i = 0; i < number_of_boundary_surfaces_; ++i)
-    {
-        shared_ptr<Cartesian_Plane> surface = boundary_surface(i);
-        double x_sur = surface->position();
-        double n_sur = surface->normal();
-        
-        if (n_sur < 0)
-        {
-            if (x_sur > x1)
-            {
-                x1 = x_sur;
-            }
-        }
-        else
-        {
-            if (x_sur < x2)
-            {
-                x2 = x_sur;
-            }
-        }
-    }
-
+    x1 = max(x1, min_boundary_limits_[0]);
+    x2 = min(x2, max_boundary_limits_[0]);
+    
     // Get quadrature
-    return qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                            integration_ordinates_,
-                            x1,
-                            x2,
-                            ordinates,
-                            weights);
+    vector<double> ordinates_x;
+    bool success =  qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
+                                     integration_ordinates_,
+                                     x1,
+                                     x2,
+                                     ordinates_x,
+                                     weights);
+    qr::convert_to_position_1d(ordinates_x,
+                               ordinates);
+    return success;
 }
-
+    
 bool Weight_Function::
-get_full_quadrature_2d(vector<double> &ordinates_x,
-                       vector<double> &ordinates_y,
+get_full_quadrature_2d(vector<vector<double> > &ordinates,
                        vector<double> &weights) const
 {
     // Return standard cylindrical quadrature if no boundary surfaces
+    bool success = false;
+    vector<double> ordinates_x;
+    vector<double> ordinates_y;
     if (number_of_boundary_surfaces_ == 0)
     {
-        return qr::cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                  qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                  integration_ordinates_,
-                                  integration_ordinates_,
-                                  position_[0],
-                                  position_[1],
-                                  0.,
-                                  radius_,
-                                  0.,
-                                  2. * M_PI,
-                                  ordinates_x,
-                                  ordinates_y);
+        success = qr::cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
+                                     qr::Quadrature_Type::GAUSS_LEGENDRE,
+                                     integration_ordinates_,
+                                     integration_ordinates_,
+                                     position_[0],
+                                     position_[1],
+                                     0.,
+                                     radius_,
+                                     0.,
+                                     2. * M_PI,
+                                     ordinates_x,
+                                     ordinates_y);
+    }
+    else
+    {
+        success = qr::cartesian_bounded_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
+                                                       qr::Quadrature_Type::GAUSS_LEGENDRE,
+                                                       integration_ordinates_,
+                                                       integration_ordinates_,
+                                                       position_[0],
+                                                       position_[1],
+                                                       radius_,
+                                                       min_boundary_limits_[0],
+                                                       max_boundary_limits_[0],
+                                                       min_boundary_limits_[1],
+                                                       max_boundary_limits_[1],
+                                                       ordinates_x,
+                                                       ordinates_y,
+                                                       weights);
     }
 
-    // Get quadrature
-    return qr::cartesian_bounded_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                                qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                                integration_ordinates_,
-                                                integration_ordinates_,
-                                                position_[0],
-                                                position_[1],
-                                                radius_,
-                                                min_boundary_limits_[0],
-                                                max_boundary_limits_[0],
-                                                min_boundary_limits_[1],
-                                                max_boundary_limits_[1],
-                                                ordinates_x,
-                                                ordinates_y,
-                                                weights);
+    qr::convert_to_position_2d(ordinates_x,
+                               ordinates_y,
+                               ordinates);
+    
+    return success;
+}
+
+bool Weight_Function::
+get_basis_quadrature(int i,
+                     vector<vector<double> > &ordinates,
+                     vector<double> &weights) const
+{
+    switch (dimension_)
+    {
+    case 1:
+        return get_basis_quadrature_1d(i,
+                                       ordinates,
+                                       weights);
+    case 2:
+        return get_basis_quadrature_2d(i,
+                                       ordinates,
+                                       weights);
+    default:
+        return false;
+    }
 }
 
 bool Weight_Function::
 get_basis_quadrature_1d(int i,
-                        vector<double> &ordinates,
+                        vector<vector<double> > &ordinates,
                         vector<double> &weights) const
 {
     // Get basis and weight positional information
@@ -176,18 +206,21 @@ get_basis_quadrature_1d(int i,
     }
     
     // Get quadrature
-    return qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                            integration_ordinates_,
-                            x1,
-                            x2,
-                            ordinates,
-                            weights);
+    vector<double> ordinates_x;
+    bool success = qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
+                                    integration_ordinates_,
+                                    x1,
+                                    x2,
+                                    ordinates_x,
+                                    weights);
+    qr::convert_to_position_1d(ordinates_x,
+                               ordinates);
+    return success;
 }
     
 bool Weight_Function::
 get_basis_quadrature_2d(int i,
-                        vector<double> &ordinates_x,
-                        vector<double> &ordinates_y,
+                        vector<vector<double> > &ordinates,
                         vector<double> &weights) const
 {
     // Get basis information
@@ -196,10 +229,13 @@ get_basis_quadrature_2d(int i,
 
     // If either weight or basis does not intersect surface,
     // return standard double_cylindrical quadrature
+    bool success;
+    vector<double> ordinates_x;
+    vector<double> ordinates_y;
     if (number_of_boundary_surfaces_ == 0
         || basis->number_of_boundary_surfaces() == 0)
     {
-        return qr::double_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
+        success = qr::double_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
                                          qr::Quadrature_Type::GAUSS_LEGENDRE,
                                          integration_ordinates_,
                                          integration_ordinates_,
@@ -213,8 +249,9 @@ get_basis_quadrature_2d(int i,
                                          ordinates_y,
                                          weights);
     }
-
-    return qr::cartesian_bounded_double_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
+    else
+    {
+        success = qr::cartesian_bounded_double_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
                                                        qr::Quadrature_Type::GAUSS_LEGENDRE,
                                                        integration_ordinates_,
                                                        integration_ordinates_,
@@ -231,91 +268,252 @@ get_basis_quadrature_2d(int i,
                                                        ordinates_x,
                                                        ordinates_y,
                                                        weights);
+    }
+
+    qr::convert_to_position_2d(ordinates_x,
+                               ordinates_y,
+                               ordinates);
+    
+    return success;
 }
 
-void Weight_Function::
-calculate_integrals_1d()
+bool Weight_Function::
+get_full_surface_quadrature(int s,
+                            vector<vector<double> > &ordinates,
+                            vector<double> &weights) const
 {
-    // Initialize integrals
-    is_b_w_.assign(number_of_boundary_surfaces_ * number_of_basis_functions_, 0);
-    iv_b_w_.assign(number_of_basis_functions_, 0);
-    iv_b_dw_.assign(number_of_basis_functions_ * dimension_, 0);
-    iv_db_dw_.assign(number_of_basis_functions_ * dimension_ * dimension_, 0);
-    for (int i = 0; i < number_of_basis_functions_; ++i)
+    switch (dimension_)
     {
-        shared_ptr<Meshless_Function> basis = basis_functions_[i]->function();
-        
-        // Surface integrals
-        for (int s = 0; s < number_of_boundary_surfaces_; ++s)
-        {
-            vector<double> position = {boundary_surfaces_[i]->position()};
-            double b = basis->basis(position);
-            double w = meshless_function_->basis(position);
+    case 1:
+        vector<double> position = {boundary_surfaces_[s]->position()};
+        ordinates.assign(1, position);
+        weights.assign(1, 0.);
+        return true;
+    case 2:
+        return get_full_surface_quadrature_2d(s,
+                                              ordinates,
+                                              weights);
+    default:
+        return false;
+}
 
-            is_b_w_[s + number_of_boundary_surfaces_ * i] = b * w;
-        }
+bool Weight_Function::
+get_full_surface_quadrature_2d(int s,
+                               vector<vector<double> > &ordinates,
+                               vector<double> &weights) const
+{
+    // Get surface information
+    shared_ptr<Cartesian_Plane> surface = boundary_surfaces_[s];
+    int dim_sur = surface->surface_dimension();
+    int dim_other = (dim_sur == 0 ? 1 : 0);
+    double pos_sur = surface->position();
+    
+    // Calculate bounds on surface integral
+    double dist = abs(pos_sur - position_[dim_sur]);
+    double l = sqrt(radius_ * radius_ - dist * dist);
+    double smin = position_[dim_other] - l;
+    double smax = position_[dim_other] + l;
+    
+    // Check for boundaries
+    smin = max(smin, min_boundary_limits_[dim_other]);
+    smax = min(smax, max_boundary_limits_[dim_other]);
+
+    vector<double> ordinates_main;
+    bool success = qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
+                                   integration_ordinates_,
+                                   smin,
+                                   smax,
+                                   ordinates_main,
+                                   weights);
+    
+    Vector<double> ordinates_other(ordinates.size(), pos_sur);
+    
+    switch (dim_sur)
+    {
+    case 0:
+        qr::convert_to_position(ordinates_other,
+                                ordinates_main,
+                                ordinates);
+        return success;
+    case 1:
+        qr::convert_to_position(ordinates_main,
+                                ordinates_other,
+                                ordinates);
+        return success;
+    default:
+        return false;
+    }
+}
+
+bool Weight_Function::
+get_basis_surface_quadrature(int i,
+                             int s,
+                             vector<vector<double> > &ordinates,
+                             vector<double> &weights) const
+{
+    switch (dimension_)
+    {
+    case 1:
+        vector<double> position = {boundary_surfaces_[s]->position()};
+        ordinates.assign(1, position);
+        weights.assign(1, 0.);
+        return true;
+    case 2:
+        return get_basis_surface_quadrature_2d(i,
+                                               s,
+                                               ordinates,
+                                               weights);
+    default:
+        return false;
+}
+
+bool Weight_Function::
+get_basis_surface_quadrature_2d(int i,
+                                int s,
+                                vector<vector<double> > &ordinates,
+                                vector<double> &weights) const
+{
+    // Get surface information
+    shared_ptr<Cartesian_Plane> surface = boundary_surfaces_[s];
+    int dim_sur = surface->surface_dimension();
+    int dim_other = (dim_sur == 0 ? 1 : 0);
+    double pos_sur = surface->position();
+    
+    // Check basis function boundaries
+    vector<double> basis_position = basis_functions_[i]->position();
+    double basis_radius = basis_functions_[i]->radius();
+    int number_of_basis_boundary_surfaces = basis_functions_[i]->number_of_boundary_surfaces();
+    double distb = abs(pos_sur - basis_position_[dim_sur]);
+    
+    // If basis function does not intersect, return empty quadrature
+    if (number_of_basis_boundary_surfaces == 0 || distb > basis_radius)
+    {
+        ordinates.resize(0);
+        weights.resize(0);
         
-        // Volume integrals
-        vector<double> ordinates;
-        vector<double> weights;
-        
-        Assert(get_basis_quadrature_1d(i,
-                                       ordinates,
-                                       weights));
-        int number_of_ordinates = ordinates.size();
-        
-        for (int o = 0; o < number_of_ordinates; ++o)
-        {
-            vector<double> position = {ordinates[o]};
-            double b = basis->basis(position);
-            double w = meshless_function_->basis(position);
-            double db = basis->d_basis(0, // dim
-                                       position);
-            double dw = meshless_function_->d_basis(0, // dim
-                                                    position);
-            
-            iv_b_w_[i] += weights[o] * b * w;
-            iv_b_dw[i] += weights[o] * b * dw;
-            iv_db_dw[i] += weights[o] * db * dw;
-        }
+        return true;
+    }
+
+    double lb = sqrt(basis_radius * basis_radius - dist * dist);
+    double sbmin = basis_position_[dim_other] - lb;
+    double sbmax = basis_position_[dim_other] + lb;
+    
+    // Calculate bounds on surface integral
+    double dist = abs(pos_sur - position_[dim_sur]);
+    double l = sqrt(radius_ * radius_ - dist * dist);
+    double smin = max(position_[dim_other] - l, sbmin);
+    double smax = min(position_[dim_other] + l, sbmax);
+    
+    // Check for boundaries
+    smin = max(smin, min_boundary_limits_[dim_other]);
+    smax = min(smax, max_boundary_limits_[dim_other]);
+
+    if (smin > smax)
+    {
+        ordinates.resize(0);
+        weights.resize(0);
+
+        return true;
+    }
+    
+    vector<double> ordinates_main;
+    bool success = qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
+                                   integration_ordinates_,
+                                   smin,
+                                   smax,
+                                   ordinates_main,
+                                   weights);
+    
+    vector<double> ordinates_other(ordinates.size(), pos_sur);
+    
+    switch (dim_sur)
+    {
+    case 0:
+        qr::convert_to_position(ordinates_other,
+                                ordinates_main,
+                                ordinates);
+        return success;
+    case 1:
+        qr::convert_to_position(ordinates_main,
+                                ordinates_other,
+                                ordinates);
+        return success;
+    default:
+        return false;
     }
 }
 
 void Weight_Function::
-calculate_integrals_2d()
+calculate_integrals()
 {
     // Initialize integrals
     is_b_w_.assign(number_of_boundary_surfaces_ * number_of_basis_functions_, 0);
     iv_b_w_.assign(number_of_basis_functions_, 0);
     iv_b_dw_.assign(number_of_basis_functions_ * dimension_, 0);
+    iv_db_w_.assign(number_of_basis_functions_ * dimension_, 0);
     iv_db_dw_.assign(number_of_basis_functions_ * dimension_ * dimension_, 0);
+
+    shared_ptr<Meshless_Function> weight = meshless_function_;
+    
     for (int i = 0; i < number_of_basis_functions_; ++i)
     {
         shared_ptr<Meshless_Function> basis = basis_functions_[i]->function();
-        vector<double> basis_position = basis_functions_[i]->position();
-        double basis_radius = basis_functions_[i]->radius();
-        int number_of_basis_boundary_surfaces = basis_functions_[i]->number_of_boundary_surfaces();
 
-        if (number_of_basis_boundary_surfaces != 0)
+        // Surface integrals
+        for (int s = 0; s < number_of_boundary_surfaces_; ++s)
         {
-            // Surface integrals
-            for (int s = 0; s < number_of_boundary_surfaces_; ++s)
+            // Get quadrature
+            vector<vector<double> > ordinates;
+            vector<double> weights;
+            Assert(get_basis_surface_quadrature(i,
+                                                s,
+                                                ordinates,
+                                                weights));
+            int number_of_ordinates = ordinates.size();
+            
+            for (int o = 0; o < number_of_ordinates; ++o)
             {
-                shared_ptr<Cartesian_Plane> surface = boundary_surfaces_[s1];
-                int dim_sur = surface->surface_dimension();
-                double pos_sur = surface->position();
-                double n_sur = surface->normal();
+                vector<double> position = ordinates[o];
+                double b = basis->value(position);
+                double w = weight->value(position);
+
+                is_b_w_[s + number_of_boundary_surfaces_ * i] += weights[o] * b * w;
+            }
+        }
+
+        // Volume integrals
+        vector<vector<double> > ordinates;
+        vector<double> weights;
+        
+        Assert(get_basis_quadrature(i,
+                                    ordinates,
+                                    weights));
+        int number_of_ordinates = ordinates.size();
+
+        for (int o = 0; o < number_of_ordinates; ++o)
+        {
+            vector<double> position = ordiantes[o];
+            double b = basis->value(position);
+            double w = weight->value(position);
+            vector<double> db = basis->gradient_value(position);
+            vector<double> dw = weight->gradient_value(position);
+            
+            iv_b_w_[i] += weights[o] * b * w;
+
+            for (int d1 = 0; d1 < dimension_; ++d1)
+            {
+                int k1 = d1 + dimension_ * i;
+                iv_b_dw[k1] += weights[o] * b * dw[d1];
+                iv_db_w[k1] += weights[o] * b * dw[d1];
                 
-                // Check if basis function intersects this surface
-                if (abs(basis_position[dim_sur] - pos_sur) < basis_radius)
+                for (int d2 = 0; d2 < dimension_; ++d2)
                 {
-                    // Calculate range of surface integral
+                    int k2 = d1 + dimension_ * (d2 + dimension_ * i);
+                    iv_db_dw[k2] += weights[o] * db[d1] * dw[d2];
                 }
             }
         }
     }
-        
-        
 }
 
 void Weight_Function::
