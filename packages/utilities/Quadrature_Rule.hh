@@ -32,7 +32,7 @@ namespace Quadrature_Rule
                        std::vector<double> &weights);
     
     /*
-      1D Cartesian product quadrature
+      1D Cartesian quadrature
       Integral from x1 to x2
     */
     bool cartesian_1d(Quadrature_Type quadrature_type,
@@ -78,7 +78,7 @@ namespace Quadrature_Rule
                       std::vector<double> &ordinates_y,
                       std::vector<double> &ordinates_z,
                       std::vector<double> &weights);
-
+    
     /*
       2D cylindrical quadrature
       Double integral from r1 to r2 and t1 to t2 for

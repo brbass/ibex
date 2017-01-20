@@ -16,7 +16,7 @@ Wendland_RBF(int order):
 }
 
 double Wendland_RBF::
-basis(double r) const
+value(double r) const
 {
     r = abs(r);
 
@@ -40,7 +40,7 @@ basis(double r) const
 }
 
 double Wendland_RBF::
-d_basis(double r) const
+d_value(double r) const
 {
     r = abs(r);
 
@@ -65,7 +65,7 @@ d_basis(double r) const
 }
     
 double Wendland_RBF::
-dd_basis(double r) const
+dd_value(double r) const
 {
     r = abs(r);
     

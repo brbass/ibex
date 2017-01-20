@@ -6,6 +6,7 @@
 
 class Cartesian_Plane;
 class Meshless_Function;
+class XML_Node;
 
 class Basis_Function
 {
@@ -46,8 +47,8 @@ public:
     {
         return boundary_surfaces_[i];
     }
-    virtual void output(XML_Node output_node) const override;
-    virtual void check_class_invariants() const override;
+    virtual void output(XML_Node output_node) const;
+    virtual void check_class_invariants() const;
     
 private:
     

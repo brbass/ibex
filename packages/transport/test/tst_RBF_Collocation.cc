@@ -142,7 +142,7 @@ int test_manufactured(string input_file)
     {
         shared_ptr<RBF_Point> point = spatial->rbf_point(i);
         vector<double> const position = point->position();
-        vector<double> const sigma_t = point->material()->sigma_t();
+        vector<double> const sigma_t = point->material()->sigma_t()->data();
         
         for (int o = 0; o < number_of_ordinates; ++o)
         {

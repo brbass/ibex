@@ -6,6 +6,7 @@
 
 class Angular_Discretization;
 class Energy_Discretization;
+class Cross_Section;
 class XML_Node;
 
 /*
@@ -18,13 +19,13 @@ public:
     Material(int index,
              std::shared_ptr<Angular_Discretization> angular_discretization,
              std::shared_ptr<Energy_Discretization> energy_discretization,
-             std::vector<double> const &sigma_t,
-             std::vector<double> const &sigma_s,
-             std::vector<double> const &nu,
-             std::vector<double> const &sigma_f,
-             std::vector<double> const &chi,
-             std::vector<double> const &internal_source);
-
+             std::shared_ptr<Cross_Section> sigma_t,
+             std::shared_ptr<Cross_Section> sigma_s,
+             std::shared_ptr<Cross_Section> nu,
+             std::shared_ptr<Cross_Section> sigma_f,
+             std::shared_ptr<Cross_Section> chi,
+             std::shared_ptr<Cross_Section> internal_source);
+    
     // Material index
     virtual int index() const
     {
@@ -32,45 +33,48 @@ public:
     }
 
     // Total cross section
-    virtual std::vector<double> const &sigma_t() const
+    virtual std::shared_ptr<Cross_Section> sigma_t() const
     {
         return sigma_t_;
     }
     
     // Scattering cross section
-    virtual std::vector<double> const &sigma_s() const
+    virtual std::shared_ptr<Cross_Section> sigma_s() const
     {
         return sigma_s_;
     }
 
     // Average number of fission neutrons emitted
-    virtual std::vector<double> const &nu() const
+    virtual std::shared_ptr<Cross_Section> nu() const
     {
         return nu_;
     }
 
     // Fission cross section
-    virtual std::vector<double> const &sigma_f() const
+    virtual std::shared_ptr<Cross_Section> sigma_f() const
     {
         return sigma_f_;
     }
 
     // Fission distribution function
-    virtual std::vector<double> const &chi() const
+    virtual std::shared_ptr<Cross_Section> chi() const
     {
         return chi_;
     }
 
-    virtual std::vector<double> const &internal_source() const
+    // Internal source
+    virtual std::shared_ptr<Cross_Section> internal_source() const
     {
         return internal_source_;
     }
 
+    // Angular discretization
     virtual std::shared_ptr<Angular_Discretization> angular_discretization() const
     {
         return angular_discretization_;
     }
 
+    // Energy discretization
     virtual std::shared_ptr<Energy_Discretization> energy_discretization() const
     {
         return energy_discretization_;
@@ -89,12 +93,12 @@ protected:
     std::shared_ptr<Angular_Discretization> angular_discretization_;
     std::shared_ptr<Energy_Discretization> energy_discretization_;
     
-    std::vector<double> sigma_t_;
-    std::vector<double> sigma_s_;
-    std::vector<double> nu_;
-    std::vector<double> sigma_f_;
-    std::vector<double> chi_;
-    std::vector<double> internal_source_;
+    std::shared_ptr<Cross_Section> sigma_t_;
+    std::shared_ptr<Cross_Section> sigma_s_;
+    std::shared_ptr<Cross_Section> nu_;
+    std::shared_ptr<Cross_Section> sigma_f_;
+    std::shared_ptr<Cross_Section> chi_;
+    std::shared_ptr<Cross_Section> internal_source_;
 };
 
 #endif

@@ -820,7 +820,7 @@ namespace Quadrature_Rule
         ordinates.assign(number_of_ordinates, position_template);
         for (int i = 0; i < number_of_ordinates; ++i)
         {
-            ordiantes[i][0] = ordinates_x[i];
+            ordinates[i][0] = ordinates_x[i];
         }
     }
     
@@ -834,7 +834,7 @@ namespace Quadrature_Rule
         ordinates.assign(number_of_ordinates, position_template);
         for (int i = 0; i < number_of_ordinates; ++i)
         {
-            ordiantes[i][0] = ordinates_x[i];
+            ordinates[i][0] = ordinates_x[i];
             ordinates[i][1] = ordinates_y[i];
         }
     }
@@ -849,7 +849,7 @@ namespace Quadrature_Rule
         ordinates.assign(number_of_ordinates, position_template);
         for (int i = 0; i < number_of_ordinates; ++i)
         {
-            ordiantes[i][0] = ordinates_x[i];
+            ordinates[i][0] = ordinates_x[i];
             ordinates[i][1] = ordinates_y[i];
             ordinates[i][2] = ordinates_z[i];
         }

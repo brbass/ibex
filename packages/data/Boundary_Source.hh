@@ -27,7 +27,7 @@ public:
     {
         return boundary_source_;
     }
-
+    
     std::vector<double> const &alpha() const
     {
         return alpha_;

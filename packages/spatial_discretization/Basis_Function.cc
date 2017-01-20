@@ -2,6 +2,7 @@
 
 #include "Cartesian_Plane.hh"
 #include "Meshless_Function.hh"
+#include "XML_Node.hh"
 
 using namespace std;
 
@@ -18,5 +19,17 @@ Basis_Function(int index,
     meshless_function_(meshless_function),
     boundary_surfaces_(boundary_surfaces)
 {
+    check_class_invariants();
 }
 
+void Basis_Function::
+check_class_invariants() const
+{
+    
+}
+
+void Basis_Function::
+output(XML_Node output_node) const
+{
+    
+}

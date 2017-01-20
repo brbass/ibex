@@ -4,6 +4,7 @@
 #include <limits>
 
 #include "Boundary_Source.hh"
+#include "Cross_Section.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
 #include "Region.hh"
@@ -414,7 +415,7 @@ optical_distance(vector<double> const &initial_position,
             AssertMsg(false, "no region found at " + position_str);
         }
         
-        vector<double> const sigma_t = regions_[region]->material()->sigma_t();
+        vector<double> const sigma_t = regions_[region]->material()->sigma_t()->data();
 
         // Find intersection
         

@@ -30,7 +30,7 @@ radius() const
 }
 
 double Linear_MLS_Function::
-basis(vector<double> const &r) const
+value(vector<double> const &r) const
 {
     // Get A
     vector<double> a_mat(number_of_polynomials_ * number_of_polynomials_);
@@ -58,7 +58,7 @@ basis(vector<double> const &r) const
 }
 
 double Linear_MLS_Function::
-d_basis(int dim,
+d_value(int dim,
         vector<double> const &r) const
 {
     // Get A
@@ -119,21 +119,21 @@ d_basis(int dim,
 
 
 double Linear_MLS_Function::
-dd_basis(int dim,
+dd_value(int dim,
          vector<double> const &r) const
 {
-    AssertMsg(false, "dd_basis not available for Linear_MLS");
+    AssertMsg(false, "dd_value not available for Linear_MLS");
     return -1.;
 }
 
 vector<double> Linear_MLS_Function::
-gradient_basis(vector<double> const &r) const               
+gradient_value(vector<double> const &r) const               
 {
     vector<double> result(dimension_);
 
     for (int d = 0; d < dimension_; ++d)
     {
-        result[d] = d_basis(d,
+        result[d] = d_value(d,
                             r);
     }
 
@@ -141,7 +141,7 @@ gradient_basis(vector<double> const &r) const
 }
 
 double Linear_MLS_Function::
-laplacian(vector<double> const &r) const
+laplacian_value(vector<double> const &r) const
 {
     AssertMsg(false, "laplacian not available for Linear_MLS");
 }
@@ -198,7 +198,7 @@ get_a(vector<double> const &position,
         vector<double> poly;
         get_polynomial(func->position(),
                        poly);
-        double weight = func->basis(position);
+        double weight = func->value(position);
         
         for (int j = 0; j < number_of_polynomials_; ++j)
         {
@@ -227,8 +227,8 @@ get_d_a(int dim,
         vector<double> poly;
         get_polynomial(func->position(),
                        poly);
-        double weight = func->basis(position);
-        double d_weight = func->d_basis(dim,
+        double weight = func->value(position);
+        double d_weight = func->d_value(dim,
                                         position);
         
         for (int j = 0; j < number_of_polynomials_; ++j)
@@ -253,7 +253,7 @@ get_b(vector<double> const &position,
     vector<double> poly;
     get_polynomial(function_->position(),
                    poly);
-    double weight = function_->basis(position);
+    double weight = function_->value(position);
     
     for (int i = 0; i < number_of_polynomials_; ++i)
     {
@@ -273,8 +273,8 @@ get_d_b(int dim,
     vector<double> poly;
     get_polynomial(function_->position(),
                    poly);
-    double weight = function_->basis(position);
-    double d_weight = function_->d_basis(dim,
+    double weight = function_->value(position);
+    double d_weight = function_->d_value(dim,
                                          position);
     
     for (int i = 0; i < number_of_polynomials_; ++i)

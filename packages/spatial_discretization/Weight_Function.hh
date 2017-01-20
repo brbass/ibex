@@ -3,6 +3,8 @@
 
 #include "Point.hh"
 
+#include <functional>
+
 class Basis_Function;
 class Cartesian_Plane;
 class Meshless_Function;
@@ -108,11 +110,18 @@ public:
                                                  int s,
                                                  std::vector<std::vector<double> > &ordinates,
                                                  std::vector<double> &weights) const;
-private:
-
+    
     // Integration methods
     virtual void calculate_integrals();
+    virtual void calculate_material(std::function<double(int,
+                                                         int,
+                                                         std::vector<double> const &)> phi
+                                    = [](int m,
+                                         int g,
+                                         std::vector<double> const &position){return 1.;});
     
+private:
+
     // Point data
     int index_;
     int dimension_;
@@ -135,11 +144,11 @@ private:
     std::vector<double> max_boundary_limits_;
     
     // Integrals
-    vector<double> is_b_w_;
-    vector<double> iv_b_w_;
-    vector<double> iv_b_dw_;
-    vector<double> iv_db_w_;
-    vector<double> iv_db_dw_;
+    std::vector<double> is_b_w_;
+    std::vector<double> iv_b_w_;
+    std::vector<double> iv_b_dw_;
+    std::vector<double> iv_db_w_;
+    std::vector<double> iv_db_dw_;
 };
 
 #endif

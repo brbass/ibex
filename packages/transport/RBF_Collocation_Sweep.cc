@@ -512,7 +512,7 @@ set_internal_point(int i,
     
     shared_ptr<RBF_Point> rbf_point = rbf_discretization_->rbf_point(i);
     vector<int> const neighbors = rbf_point->neighbor_indices();
-    vector<double> const sigma_t = rbf_point->material()->sigma_t();
+    vector<double> const sigma_t = rbf_point->material()->sigma_t()->data();
     vector<double> const direction = angular_discretization_->direction(o);
     
     // Replace matrix values
