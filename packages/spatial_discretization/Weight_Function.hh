@@ -20,16 +20,61 @@ public:
         SUPG,
         NONE
     };
+
+    struct Material_Options
+    {
+    public:
+
+        // Main value to set: method of weighting
+        enum class Weighting
+        {
+            POINT,
+            WEIGHT,
+            FLUX
+        };
+        
+        // Determines whether to add the dimensional material moments
+        enum class Output
+        {
+            STANDARD,
+            SUPG
+        };
+        
+        // Total cross section method: changed to ISOTROPIC
+        // unless Weighting::FLUX is used
+        enum class Total
+        {
+            ISOTROPIC,
+            MOMENT
+        };
+
+        // Scattering cross section method: changed to SCATTERING_MOMENTS
+        // unless Weighting::FLUX is used
+        enum class Scattering
+        {
+            SCATTERING_MOMENTS,
+            MOMENTS
+        };
+
+        Weighting weighting = Weighting::WEIGHT;
+        Total total = Total::ISOTROPIC;
+        Scattering scattering = Scattering::SCATTERING_MOMENTS;
+        Output output = Output::STANDARD;
+        std::function<double(int /*moment*/,
+                             int /*group*/,
+                             std::vector<double> const & /*position*/)> flux;
+    };
     
     // Constructor
     Weight_Function(int index,
                     int dimension,
                     int integration_ordinates,
+                    Material_Options material_options,
                     std::shared_ptr<Meshless_Function> meshless_function,
                     std::vector<std::shared_ptr<Basis_Function> > basis_functions,
                     std::shared_ptr<Solid_Geometry> solid_geometry,
                     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces);
-
+    
     // Point functions
     virtual int index() const override
     {
@@ -44,6 +89,10 @@ public:
         return point_type_;
     }
     virtual std::shared_ptr<Material> material() const override
+    {
+        return material_[0];
+    }
+    virtual std::vector<std::shared_ptr<Material> > supg_material() const
     {
         return material_;
     }
@@ -83,50 +132,47 @@ public:
     // Quadrature methods
     virtual bool get_full_quadrature(std::vector<std::vector<double> > &ordinates,
                                      std::vector<double> &weights) const;
+    virtual bool get_basis_quadrature(int i,
+                                      std::vector<std::vector<double> > &ordinates,
+                                      std::vector<double> &weights) const;
+    virtual bool get_full_surface_quadrature(int s,
+                                             std::vector<std::vector<double> > &ordinates,
+                                             std::vector<double> &weights) const;
+    virtual bool get_basis_surface_quadrature(int i,
+                                              int s,
+                                              std::vector<std::vector<double> > &ordinates,
+                                              std::vector<double> &weights) const;
+    
+private:
+
+    // Specific quadrature methods
     virtual bool get_full_quadrature_1d(std::vector<std::vector<double> > &ordinates,
                                         std::vector<double> &weights) const;
     virtual bool get_full_quadrature_2d(std::vector<std::vector<double> > &ordinates,
                                         std::vector<double> &weights) const;
-    virtual bool get_basis_quadrature(int i,
-                                      std::vector<std::vector<double> > &ordinates,
-                                      std::vector<double> &weights) const;
     virtual bool get_basis_quadrature_1d(int i,
                                          std::vector<std::vector<double> > &ordinates,
                                          std::vector<double> &weights) const;
     virtual bool get_basis_quadrature_2d(int i,
                                          std::vector<std::vector<double> > &ordinates,
                                          std::vector<double> &weights) const;
-    virtual bool get_full_surface_quadrature(int s,
-                                             std::vector<std::vector<double> > &ordinates,
-                                             std::vector<double> &weights) const;
     virtual bool get_full_surface_quadrature_2d(int s,
                                                 std::vector<std::vector<double> > &ordinates,
                                                 std::vector<double> &weights) const;
-    virtual bool get_basis_surface_quadrature(int i,
-                                              int s,
-                                              std::vector<std::vector<double> > &ordinates,
-                                              std::vector<double> &weights) const;
     virtual bool get_basis_surface_quadrature_2d(int i,
                                                  int s,
                                                  std::vector<std::vector<double> > &ordinates,
                                                  std::vector<double> &weights) const;
     
+    
     // Integration methods
     virtual void calculate_integrals();
-    virtual void calculate_material(std::function<double(int,
-                                                         int,
-                                                         std::vector<double> const &)> phi
-                                    = [](int m,
-                                         int g,
-                                         std::vector<double> const &position){return 1.;});
+    virtual void calculate_material();
     
-private:
-
     // Point data
     int index_;
     int dimension_;
     Point_Type point_type_;
-    std::shared_ptr<Material> material_;
     std::vector<double> position_;
 
     // Weight_Function data
@@ -134,6 +180,7 @@ private:
     int number_of_basis_functions_;
     int number_of_boundary_surfaces_;
     double radius_;
+    Material_Options material_options_;
     std::shared_ptr<Meshless_Function> meshless_function_;
     std::vector<std::shared_ptr<Basis_Function> > basis_functions_;
     std::shared_ptr<Solid_Geometry> solid_geometry_;
@@ -149,6 +196,9 @@ private:
     std::vector<double> iv_b_dw_;
     std::vector<double> iv_db_w_;
     std::vector<double> iv_db_dw_;
+
+    // Material
+    std::vector<std::shared_ptr<Material> > material_;
 };
 
 #endif

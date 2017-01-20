@@ -31,7 +31,7 @@ public:
     {
         return index_;
     }
-
+    
     // Total cross section
     virtual std::shared_ptr<Cross_Section> sigma_t() const
     {
