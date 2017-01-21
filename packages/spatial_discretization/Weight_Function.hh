@@ -48,17 +48,8 @@ public:
             MOMENT
         };
 
-        // Scattering cross section method: changed to SCATTERING_MOMENTS
-        // unless Weighting::FLUX is used
-        enum class Scattering
-        {
-            SCATTERING_MOMENTS,
-            MOMENTS
-        };
-
         Weighting weighting = Weighting::WEIGHT;
         Total total = Total::ISOTROPIC;
-        Scattering scattering = Scattering::SCATTERING_MOMENTS;
         Output output = Output::STANDARD;
         std::function<double(int /*moment*/,
                              int /*group*/,
@@ -89,10 +80,6 @@ public:
         return point_type_;
     }
     virtual std::shared_ptr<Material> material() const override
-    {
-        return material_[0];
-    }
-    virtual std::vector<std::shared_ptr<Material> > supg_material() const
     {
         return material_;
     }
@@ -168,12 +155,22 @@ private:
     // Integration methods
     virtual void calculate_integrals();
     virtual void calculate_material();
+    virtual void calculate_boundary_source();
+    
+    // Specific integration methods
+    virtual void calculate_standard_point_material();
+    virtual void calculate_standard_weight_material();
+    virtual void calculate_supg_point_material();
+    virtual void calculate_supg_weight_material();
+    virtual void calculate_point_boundary_source();
+    virtual void calculate_weight_boundary_source();
     
     // Point data
     int index_;
     int dimension_;
     Point_Type point_type_;
     std::vector<double> position_;
+    std::shared_ptr<Material> material_;
 
     // Weight_Function data
     int integration_ordinates_;
@@ -196,9 +193,6 @@ private:
     std::vector<double> iv_b_dw_;
     std::vector<double> iv_db_w_;
     std::vector<double> iv_db_dw_;
-
-    // Material
-    std::vector<std::shared_ptr<Material> > material_;
 };
 
 #endif

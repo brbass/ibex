@@ -29,39 +29,39 @@ int test_spherical_region()
     shared_ptr<Energy_Discretization> energy
         = make_shared<Energy_Discretization>(1);
 
+    Cross_Section::Dependencies none_group;
+    none_group.energy = Cross_Section::Dependencies::Energy::GROUP;
+    Cross_Section::Dependencies scattering_group2;
+    scattering_group2.angular = Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS;
+    scattering_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
+    
     shared_ptr<Cross_Section> sigma_t
-        = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                     Cross_Section::Energy_Dependence::GROUP,
+        = make_shared<Cross_Section>(none_group,
                                      angular,
                                      energy,
                                      vector<double>({1}));
     shared_ptr<Cross_Section> sigma_s
-        = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::SCATTERING_MOMENTS,
-                                     Cross_Section::Energy_Dependence::GROUP_TO_GROUP,
+        = make_shared<Cross_Section>(scattering_group2,
                                      angular,
                                      energy,
                                      vector<double>({0}));
     shared_ptr<Cross_Section> nu
-        = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                     Cross_Section::Energy_Dependence::GROUP,
+        = make_shared<Cross_Section>(none_group,
                                      angular,
                                      energy,
                                      vector<double>({0}));
     shared_ptr<Cross_Section> sigma_f
-        = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                     Cross_Section::Energy_Dependence::GROUP,
+        = make_shared<Cross_Section>(none_group,
                                      angular,
                                      energy,
                                      vector<double>({0}));
     shared_ptr<Cross_Section> chi
-        = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                     Cross_Section::Energy_Dependence::GROUP,
+        = make_shared<Cross_Section>(none_group,
                                      angular,
                                      energy,
                                      vector<double>({0}));
     shared_ptr<Cross_Section> internal_source
-        = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                     Cross_Section::Energy_Dependence::GROUP,
+        = make_shared<Cross_Section>(none_group,
                                      angular,
                                      energy,
                                      vector<double>({0}));

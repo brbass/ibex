@@ -10,13 +10,11 @@ using std::string;
 using std::vector;
 
 Cross_Section::
-Cross_Section(Angular_Dependence angular_dependence,
-              Energy_Dependence energy_dependence,
+Cross_Section(Dependencies dependencies,
               shared_ptr<Angular_Discretization> angular_discretization,
               shared_ptr<Energy_Discretization> energy_discretization,
               vector<double> const &data):
-    angular_dependence_(angular_dependence),
-    energy_dependence_(energy_dependence),
+    dependencies_(dependencies),
     angular_discretization_(angular_discretization),
     energy_discretization_(energy_discretization),
     data_(data)
@@ -33,15 +31,15 @@ size() const
 int Cross_Section::
 angular_size() const
 {
-    switch (angular_dependence_)
+    switch (dependencies_.angular)
     {
-    case Angular_Dependence::NONE:
+    case Dependencies::Angular::NONE:
         return 1;
-    case Angular_Dependence::SCATTERING_MOMENTS:
+    case Dependencies::Angular::SCATTERING_MOMENTS:
         return angular_discretization_->number_of_scattering_moments();
-    case Angular_Dependence::MOMENTS:
+    case Dependencies::Angular::MOMENTS:
         return angular_discretization_->number_of_moments();
-    case Angular_Dependence::ORDINATES:
+    case Dependencies::Angular::ORDINATES:
         return angular_discretization_->number_of_ordinates();
     }
 }
@@ -51,29 +49,44 @@ energy_size() const
 {
     int num_groups = energy_discretization_->number_of_groups();
 
-    switch (energy_dependence_)
+    switch (dependencies_.energy)
     {
-    case Energy_Dependence::NONE:
+    case Dependencies::Energy::NONE:
         return 1;
-    case Energy_Dependence::GROUP:
+    case Dependencies::Energy::GROUP:
         return num_groups;
-    case Energy_Dependence::GROUP_TO_GROUP:
+    case Dependencies::Energy::GROUP_TO_GROUP:
         return num_groups * num_groups;
     }
 }
 
+int Cross_Section::
+dimensional_size() const
+{
+    int dimension = angular_discretization_->dimension();
+    
+    switch (dependencies_.dimensional)
+    {
+    case Dependencies::Dimensional::NONE:
+        return 1;
+    case Dependencies::Dimensional::SUPG:
+        return dimension + 1;
+    }
+}
+   
+
 string Cross_Section::
 angular_string() const
 {
-    switch (angular_dependence_)
+    switch (dependencies_.angular)
     {
-    case Angular_Dependence::NONE:
-        return "none";
-    case Angular_Dependence::SCATTERING_MOMENTS:
+    case Dependencies::Angular::NONE:
+        return "";
+    case Dependencies::Angular::SCATTERING_MOMENTS:
         return "scattering_moment";
-    case Angular_Dependence::MOMENTS:
+    case Dependencies::Angular::MOMENTS:
         return "moment";
-    case Angular_Dependence::ORDINATES:
+    case Dependencies::Angular::ORDINATES:
         return "ordinate";
     }
 }
@@ -81,14 +94,26 @@ angular_string() const
 string Cross_Section::
 energy_string() const
 {
-    switch (energy_dependence_)
+    switch (dependencies_.energy)
     {
-    case Energy_Dependence::NONE:
-        return "none";
-    case Energy_Dependence::GROUP:
-        return "group";
-    case Energy_Dependence::GROUP_TO_GROUP:
-        return "group_to-group_from";
+    case Dependencies::Energy::NONE:
+        return "";
+    case Dependencies::Energy::GROUP:
+        return "-group";
+    case Dependencies::Energy::GROUP_TO_GROUP:
+        return "-group_to-group_from";
+    }
+}
+
+string Cross_Section::
+dimensional_string() const
+{
+    switch (dependencies_.dimensional)
+    {
+    case Dependencies::Dimensional::NONE:
+        return "";
+    case Dependencies::Dimensional::SUPG:
+        return "-supg";
     }
 }
 
@@ -97,13 +122,13 @@ check_class_invariants() const
 {
     Assert(angular_discretization_);
     Assert(energy_discretization_);
-    Assert(data_.size() == angular_size() * energy_size());
+    Assert(data_.size() == angular_size() * energy_size() * dimensional_size());
 }
     
 void Cross_Section::
 output(XML_Node output_node) const
 {
-    string description = angular_string() + "-" + energy_string();
+    string description = angular_string() + energy_string() + dimensional_string();
     
     output_node.set_child_vector(data_, "data", description);
 }

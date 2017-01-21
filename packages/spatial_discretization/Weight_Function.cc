@@ -453,7 +453,7 @@ get_basis_surface_quadrature_2d(int i,
 void Weight_Function::
 calculate_integrals()
 {
-    // Initialize integrals
+    // Perform basis/weight integrals
     is_b_w_.assign(number_of_boundary_surfaces_ * number_of_basis_functions_, 0);
     iv_b_w_.assign(number_of_basis_functions_, 0);
     iv_b_dw_.assign(number_of_basis_functions_ * dimension_, 0);
@@ -531,44 +531,15 @@ calculate_material()
     {
     case Material_Options::Weighting::POINT:
         material_options_.total = Material_Options::Total::ISOTROPIC;
-        material_options_.scattering = Material_Options::Scattering::SCATTERING_MOMENTS;
-        
-        break;
+        break; // POINT
     case Material_Options::Weighting::WEIGHT:
         material_options_.total = Material_Options::Total::ISOTROPIC;
-        material_options_.scattering = Material_Options::Scattering::SCATTERING_MOMENTS;
-        break;
+        break; // WEIGHT
     case Material_Options::Weighting::FLUX:
-        material_options_.scattering = Material_Options::Scattering::MOMENTS;
         AssertMsg(false, "Material_Options.flux must be set in order to weight with flux");
-        break;
+        break; // FLUX
     }
     
-    // Initialize data
-    vector<vector<double> > ordinates;
-    vector<double> weights;
-    shared_ptr<Angular_Discretization> angular_discretization;
-    shared_ptr<Energy_Discretization> energy_discretization;
-    shared_ptr<Material> test_material;
-    if (material_options_.weighting != Material_Options::Weighting::POINT)
-    {
-        // Get ordinates
-        Assert(get_full_quadrature(ordinates,
-                                   weights));
-        
-        // Get material for angular and energy discretization
-        test_material = solid_geometry_->material(ordinates[0]);
-        angular_discretization = test_material->angular_discretization();
-        energy_discretization = test_material->energy_discretization();
-    }
-    
-    int number_of_ordinates = ordinates.size();
-
-    // Get material data
-    int number_of_groups = energy_discretization->number_of_groups();
-    int number_of_scattering_moments = angular_discretization->number_of_scattering_moments();
-    int number_of_moments = angular_discretization->number_of_moments();
-
     switch (material_options_.output)
     {
     case Material_Options::Output::STANDARD:
@@ -577,132 +548,18 @@ calculate_material()
         {
         case Material_Options::Weighting::POINT:
         {
-            material_.assign(1, solid_geometry_->material(position_));
-            break;
+            return calculate_standard_point_material();
         } // POINT
         case Material_Options::Weighting::WEIGHT:
         {
-            vector<double> sigma_t_v(number_of_groups, 0.);
-            vector<double> sigma_s_v(number_of_groups * number_of_groups * number_of_scattering_moments, 0.);
-            vector<double> nu_v(number_of_groups, 0.);
-            vector<double> sigma_f_v(number_of_groups, 0.);
-            vector<double> chi_v(number_of_groups, 0.);
-            vector<double> internal_source_v(number_of_groups, 0.);
-            double weight_integral = 0.;
-
-            // Calculate numerator and denominator separately
-            for (int i = 0; i < number_of_ordinates; ++i)
-            {
-                vector<double> position = ordinates[i];
-                shared_ptr<Material> material = solid_geometry_->material(position);
-                vector<double> const sigma_t_temp = material->sigma_t()->data();
-                vector<double> const sigma_s_temp = material->sigma_t()->data();
-                vector<double> const nu_temp = material->sigma_t()->data();
-                vector<double> const sigma_f_temp = material->sigma_t()->data();
-                vector<double> const chi_temp = material->sigma_t()->data();
-                vector<double> const internal_source_temp = material->internal_source()->data();
-                double w = meshless_function_->value(position);
-                weight_integral += w * weights[i];
-                
-                for (int g = 0; g < number_of_groups; ++g)
-                {
-                    sigma_t_v[g] += w * sigma_t_temp[g] * weights[i];
-                    sigma_s_v[g] += w * sigma_s_temp[g] * weights[i];
-                    nu_v[g] += w * nu_temp[g] * weights[i];
-                    sigma_f_v[g] += w * sigma_f_temp[g] * weights[i];
-                    chi_v[g] += w * chi_temp[g] * weights[i];
-                    internal_source_v[g] += w * internal_source_temp[g] * weights[i];
-                    
-                    for (int g2 = 0; g2 < number_of_groups; ++g2)
-                    {
-                        for (int m = 0; m < number_of_scattering_moments; ++m)
-                        {
-                            int k = g + number_of_groups * (g2 + number_of_groups * m);
-                            sigma_s_v[k] += w * sigma_s_temp[k] * weights[i];
-                        }
-                    }
-                }
-            }
-            
-            // Divide numerator by denominator
-            for (int g = 0; g < number_of_groups; ++g)
-            {
-                sigma_t_v[g] /= weight_integral;
-                sigma_s_v[g] /= weight_integral;
-                nu_v[g] /= weight_integral;
-                sigma_f_v[g] /= weight_integral;
-                chi_v[g] /= weight_integral;
-                internal_source_v[g] /= weight_integral;
-                
-                for (int g2 = 0; g2 < number_of_groups; ++g2)
-                {
-                    for (int m = 0; m < number_of_scattering_moments; ++m)
-                    {
-                        int k = g + number_of_groups * (g2 + number_of_groups * m);
-                        sigma_s_v[k] /= weight_integral;
-                    }
-                }
-            }
-
-            // Create cross sections
-            shared_ptr<Cross_Section> sigma_t
-                = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                             Cross_Section::Energy_Dependence::GROUP,
-                                             angular_discretization,
-                                             energy_discretization,
-                                             sigma_t_v);
-            shared_ptr<Cross_Section> sigma_s
-                = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::SCATTERING_MOMENTS,
-                                             Cross_Section::Energy_Dependence::GROUP_TO_GROUP,
-                                             angular_discretization,
-                                             energy_discretization,
-                                             sigma_s_v);
-            shared_ptr<Cross_Section> nu
-                = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                             Cross_Section::Energy_Dependence::GROUP,
-                                             angular_discretization,
-                                             energy_discretization,
-                                             nu_v);
-            shared_ptr<Cross_Section> sigma_f
-                = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                             Cross_Section::Energy_Dependence::GROUP,
-                                             angular_discretization,
-                                             energy_discretization,
-                                             sigma_f_v);
-            shared_ptr<Cross_Section> chi
-                = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                             Cross_Section::Energy_Dependence::GROUP,
-                                             angular_discretization,
-                                             energy_discretization,
-                                             chi_v);
-            shared_ptr<Cross_Section> internal_source
-                = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                             Cross_Section::Energy_Dependence::GROUP,
-                                             angular_discretization,
-                                             energy_discretization,
-                                             internal_source_v);
-            
-            // Create material
-            material_.resize(1);
-            material_[0] = make_shared<Material>(index_,
-                                                 angular_discretization,
-                                                 energy_discretization,
-                                                 sigma_t,
-                                                 sigma_s,
-                                                 nu,
-                                                 sigma_f,
-                                                 chi,
-                                                 internal_source);
-            
-            break;
+            return calculate_standard_weight_material();
         } // WEIGHT
         case Material_Options::Weighting::FLUX:
         {
-            AssertMsg(false, "Weight_Function flux weighting not yet implemented");                      
-            break;
+            AssertMsg(false, "Weight_Function flux weighting not yet implemented");
+            return;
         } // FLUX
         } // Weighting
-            
         break;
     } // STANDARD
     case Material_Options::Output::SUPG:
@@ -711,153 +568,463 @@ calculate_material()
         {
         case Material_Options::Weighting::POINT:
         {
-            material_.assign(dimension_ + 1, solid_geometry_->material(position_));
-            break;
+            return calculate_supg_point_material();
         } // POINT
         case Material_Options::Weighting::WEIGHT:
         {
-            vector<vector<double> > sigma_t_v(dimension_ + 1, vector<double>(number_of_groups, 0.));
-            vector<vector<double> > sigma_s_v(dimension_ + 1, vector<double>(number_of_groups * number_of_groups * number_of_scattering_moments, 0.));
-            vector<vector<double> > nu_v(dimension_ + 1, vector<double>(number_of_groups, 0.));
-            vector<vector<double> > sigma_f_v(dimension_ + 1, vector<double>(number_of_groups, 0.));
-            vector<vector<double> > chi_v(dimension_ + 1, vector<double>(number_of_groups, 0.));
-            vector<vector<double> > internal_source_v(dimension_ + 1, vector<double>(number_of_groups, 0.));
-            vector<double> weight_integral(dimension_ + 1, 0.);
-            
-            // Calculate numerator and denominator separately
-            for (int i = 0; i < number_of_ordinates; ++i)
-            {
-                vector<double> position = ordinates[i];
-                shared_ptr<Material> material = solid_geometry_->material(position);
-                vector<double> const sigma_t_temp = material->sigma_t()->data();
-                vector<double> const sigma_s_temp = material->sigma_t()->data();
-                vector<double> const nu_temp = material->sigma_t()->data();
-                vector<double> const sigma_f_temp = material->sigma_t()->data();
-                vector<double> const chi_temp = material->sigma_t()->data();
-                vector<double> const internal_source_temp = material->internal_source()->data();
-
-                // Get function weight values
-                double w1 = meshless_function_->value(position);
-                vector<double> w2 = meshless_function_->gradient_value(position);
-                vector<double> w(dimension_ + 1, 0);
-                w[0] = w1;
-                for (int j = 0; j < dimension_; ++j)
-                {
-                    w[j+1] = w2[j];
-                }
-                
-                for (int j = 0; j < dimension_ + 1; ++j)
-                {
-                    weight_integral[j] += w[j] * weights[i];
-                    
-                    for (int g = 0; g < number_of_groups; ++g)
-                    {
-                        sigma_t_v[j][g] += w[j] * sigma_t_temp[g] * weights[i];
-                        sigma_s_v[j][g] += w[j] * sigma_s_temp[g] * weights[i];
-                        nu_v[j][g] += w[j] * nu_temp[g] * weights[i];
-                        sigma_f_v[j][g] += w[j] * sigma_f_temp[g] * weights[i];
-                        chi_v[j][g] += w[j] * chi_temp[g] * weights[i];
-                        internal_source_v[j][g] += w[j] * internal_source_temp[g] * weights[i];
-                        
-                        for (int g2 = 0; g2 < number_of_groups; ++g2)
-                        {
-                            for (int m = 0; m < number_of_scattering_moments; ++m)
-                            {
-                                int k = g + number_of_groups * (g2 + number_of_groups * m);
-                                sigma_s_v[j][k] += w[j] * sigma_s_temp[k] * weights[i];
-                            }
-                        }
-                    }
-                }
-            }
-            
-            // Divide numerator by denominator
-            for (int j = 0; j < dimension_ + 1; ++j)
-            {    
-                for (int g = 0; g < number_of_groups; ++g)
-                {
-                    sigma_t_v[j][g] /= weight_integral[j];
-                    sigma_s_v[j][g] /= weight_integral[j];
-                    nu_v[j][g] /= weight_integral[j];
-                    sigma_f_v[j][g] /= weight_integral[j];
-                    chi_v[j][g] /= weight_integral[j];
-                    internal_source_v[j][g] /= weight_integral[j];
-                
-                    for (int g2 = 0; g2 < number_of_groups; ++g2)
-                    {
-                        for (int m = 0; m < number_of_scattering_moments; ++m)
-                        {
-                            int k = g + number_of_groups * (g2 + number_of_groups * m);
-                            sigma_s_v[j][k] /= weight_integral[j];
-                        }
-                    }
-                }
-            }
-            
-            // Create cross sections
-            material_.resize(dimension_ + 1);
-            for (int j = 0; j < dimension_ + 1; ++j)
-            {
-                shared_ptr<Cross_Section> sigma_t
-                    = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                                 Cross_Section::Energy_Dependence::GROUP,
-                                                 angular_discretization,
-                                                 energy_discretization,
-                                                 sigma_t_v[j]);
-                shared_ptr<Cross_Section> sigma_s
-                    = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::SCATTERING_MOMENTS,
-                                                 Cross_Section::Energy_Dependence::GROUP_TO_GROUP,
-                                                 angular_discretization,
-                                                 energy_discretization,
-                                                 sigma_s_v[j]);
-                shared_ptr<Cross_Section> nu
-                    = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                                 Cross_Section::Energy_Dependence::GROUP,
-                                                 angular_discretization,
-                                                 energy_discretization,
-                                                 nu_v[j]);
-                shared_ptr<Cross_Section> sigma_f
-                    = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                                 Cross_Section::Energy_Dependence::GROUP,
-                                                 angular_discretization,
-                                                 energy_discretization,
-                                                 sigma_f_v[j]);
-                shared_ptr<Cross_Section> chi
-                    = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                                 Cross_Section::Energy_Dependence::GROUP,
-                                                 angular_discretization,
-                                                 energy_discretization,
-                                                 chi_v[j]);
-                shared_ptr<Cross_Section> internal_source
-                    = make_shared<Cross_Section>(Cross_Section::Angular_Dependence::NONE,
-                                                 Cross_Section::Energy_Dependence::GROUP,
-                                                 angular_discretization,
-                                                 energy_discretization,
-                                                 internal_source_v[j]);
-            
-                // Create material
-                material_[j] = make_shared<Material>(index_,
-                                                     angular_discretization,
-                                                     energy_discretization,
-                                                     sigma_t,
-                                                     sigma_s,
-                                                     nu,
-                                                     sigma_f,
-                                                     chi,
-                                                     internal_source);
-            }
-            break;
+            return calculate_supg_weight_material();
         } // WEIGHT
         case Material_Options::Weighting::FLUX:
         {
-            AssertMsg(false, "Weight_Function flux weighting not yet implemented");                      
-            break;
+            AssertMsg(false, "Weight_Function flux weighting not yet implemented");
+            return;
         } // FLUX
         } // Weighting
-            
         break;
     } // SUPG
     } // Output
+}
+
+void Weight_Function::
+calculate_standard_point_material()
+{
+    // Get ordinates
+    vector<vector<double> > ordinates;
+    vector<double> weights;
+    Assert(get_full_quadrature(ordinates,
+                               weights));
+    int number_of_ordinates = ordinates.size();
+    
+    // Get material for angular and energy discretization
+    shared_ptr<Material> test_material = solid_geometry_->material(position_);
+    shared_ptr<Angular_Discretization> angular_discretization = test_material->angular_discretization();
+    shared_ptr<Energy_Discretization> energy_discretization = test_material->energy_discretization();
+    
+    // Get material data
+    int number_of_groups = energy_discretization->number_of_groups();
+    int number_of_scattering_moments = angular_discretization->number_of_scattering_moments();
+    int number_of_moments = angular_discretization->number_of_moments();
+    
+    // Calculate weight function integral
+    double weight_integral = 0.;
+    for (int i = 0; i < number_of_ordinates; ++i)
+    {
+        vector<double> position = ordinates[i];
+        double w = meshless_function_->value(position);
+        weight_integral += w * weights[i];
+    }
+
+    // Get the weighted internal source
+    vector<double> const internal_source_temp = test_material->internal_source()->data();
+    vector<double> internal_source_v(number_of_groups, 0.);
+    for (int g = 0; g < number_of_groups; ++g)
+    {
+        internal_source_v[g] = weight_integral * internal_source_temp[g];
+    }
+    
+    shared_ptr<Cross_Section> internal_source
+        = make_shared<Cross_Section>(test_material->internal_source()->dependencies(),
+                                     angular_discretization,
+                                     energy_discretization,
+                                     internal_source_v);
+    
+    material_
+        = make_shared<Material>(index_,
+                                angular_discretization,
+                                energy_discretization,
+                                test_material->sigma_t(),
+                                test_material->sigma_s(),
+                                test_material->nu(),
+                                test_material->sigma_f(),
+                                test_material->chi(),
+                                internal_source);
+}
+
+void Weight_Function::
+calculate_standard_weight_material()
+{
+    // Get ordinates
+    vector<vector<double> > ordinates;
+    vector<double> weights;
+    Assert(get_full_quadrature(ordinates,
+                               weights));
+    int number_of_ordinates = ordinates.size();
+    
+    // Get material for angular and energy discretization
+    shared_ptr<Material> test_material = solid_geometry_->material(position_);
+    shared_ptr<Angular_Discretization> angular_discretization = test_material->angular_discretization();
+    shared_ptr<Energy_Discretization> energy_discretization = test_material->energy_discretization();
+    
+    // Get material data
+    int number_of_groups = energy_discretization->number_of_groups();
+    int number_of_scattering_moments = angular_discretization->number_of_scattering_moments();
+    int number_of_moments = angular_discretization->number_of_moments();
+    
+    vector<double> sigma_t_v(number_of_groups, 0.);
+    vector<double> sigma_s_v(number_of_groups * number_of_groups * number_of_scattering_moments, 0.);
+    vector<double> nu_v(number_of_groups, 0.);
+    vector<double> sigma_f_v(number_of_groups, 0.);
+    vector<double> chi_v(number_of_groups, 0.);
+    vector<double> internal_source_v(number_of_groups, 0.);
+    double weight_integral = 0.;
+
+    // Calculate numerator and denominator separately
+    for (int i = 0; i < number_of_ordinates; ++i)
+    {
+        vector<double> position = ordinates[i];
+        shared_ptr<Material> material = solid_geometry_->material(position);
+        vector<double> const sigma_t_temp = material->sigma_t()->data();
+        vector<double> const sigma_s_temp = material->sigma_t()->data();
+        vector<double> const nu_temp = material->sigma_t()->data();
+        vector<double> const sigma_f_temp = material->sigma_t()->data();
+        vector<double> const chi_temp = material->sigma_t()->data();
+        vector<double> const internal_source_temp = material->internal_source()->data();
+        double w = meshless_function_->value(position);
+        weight_integral += w * weights[i];
+                
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            sigma_t_v[g] += w * sigma_t_temp[g] * weights[i];
+            sigma_s_v[g] += w * sigma_s_temp[g] * weights[i];
+            nu_v[g] += w * nu_temp[g] * weights[i];
+            sigma_f_v[g] += w * sigma_f_temp[g] * weights[i];
+            chi_v[g] += w * chi_temp[g] * weights[i];
+            internal_source_v[g] += w * internal_source_temp[g] * weights[i];
+                    
+            for (int g2 = 0; g2 < number_of_groups; ++g2)
+            {
+                for (int m = 0; m < number_of_scattering_moments; ++m)
+                {
+                    int k = g + number_of_groups * (g2 + number_of_groups * m);
+                    sigma_s_v[k] += w * sigma_s_temp[k] * weights[i];
+                }
+            }
+        }
+    }
+            
+    // Divide numerator by denominator for cross sections
+    for (int g = 0; g < number_of_groups; ++g)
+    {
+        sigma_t_v[g] /= weight_integral;
+        sigma_s_v[g] /= weight_integral;
+        nu_v[g] /= weight_integral;
+        sigma_f_v[g] /= weight_integral;
+        chi_v[g] /= weight_integral;
+                
+        for (int g2 = 0; g2 < number_of_groups; ++g2)
+        {
+            for (int m = 0; m < number_of_scattering_moments; ++m)
+            {
+                int k = g + number_of_groups * (g2 + number_of_groups * m);
+                sigma_s_v[k] /= weight_integral;
+            }
+        }
+    }
+
+    // Create cross sections
+    Cross_Section::Dependencies none_group;
+    none_group.energy = Cross_Section::Dependencies::Energy::GROUP;
+    Cross_Section::Dependencies scattering_group2;
+    scattering_group2.angular = Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS;
+    scattering_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
+    
+    shared_ptr<Cross_Section> sigma_t
+        = make_shared<Cross_Section>(none_group,
+                                     angular_discretization,
+                                     energy_discretization,
+                                     sigma_t_v);
+    shared_ptr<Cross_Section> sigma_s
+        = make_shared<Cross_Section>(scattering_group2,
+                                     angular_discretization,
+                                     energy_discretization,
+                                     sigma_s_v);
+    shared_ptr<Cross_Section> nu
+        = make_shared<Cross_Section>(none_group,
+                                     angular_discretization,
+                                     energy_discretization,
+                                     nu_v);
+    shared_ptr<Cross_Section> sigma_f
+        = make_shared<Cross_Section>(none_group,
+                                     angular_discretization,
+                                     energy_discretization,
+                                     sigma_f_v);
+    shared_ptr<Cross_Section> chi
+        = make_shared<Cross_Section>(none_group,
+                                     angular_discretization,
+                                     energy_discretization,
+                                     chi_v);
+    shared_ptr<Cross_Section> internal_source
+        = make_shared<Cross_Section>(none_group,
+                                     angular_discretization,
+                                     energy_discretization,
+                                     internal_source_v);
+    
+    // Create material
+    material_ = make_shared<Material>(index_,
+                                      angular_discretization,
+                                      energy_discretization,
+                                      sigma_t,
+                                      sigma_s,
+                                      nu,
+                                      sigma_f,
+                                      chi,
+                                      internal_source);
+    
+}
+
+void Weight_Function::
+calculate_supg_point_material()
+{
+    // Get ordinates
+    vector<vector<double> > ordinates;
+    vector<double> weights;
+    Assert(get_full_quadrature(ordinates,
+                               weights));
+    int number_of_ordinates = ordinates.size();
+    
+    // Get material for angular and energy discretization
+    shared_ptr<Material> test_material = solid_geometry_->material(position_);
+    shared_ptr<Angular_Discretization> angular_discretization = test_material->angular_discretization();
+    shared_ptr<Energy_Discretization> energy_discretization = test_material->energy_discretization();
+    
+    // Get material data
+    int number_of_groups = energy_discretization->number_of_groups();
+    int number_of_scattering_moments = angular_discretization->number_of_scattering_moments();
+    int number_of_moments = angular_discretization->number_of_moments();
+    int dimensionp1 = dimension_ + 1;
+    
+    // Calculate weight function integral
+    vector<double> weight_integral(dimension_ + 1, 0.);
+    for (int i = 0; i < number_of_ordinates; ++i)
+    {
+        vector<double> position = ordinates[i];
+        
+        // Get function weight values
+        double w1 = meshless_function_->value(position);
+        vector<double> w2 = meshless_function_->gradient_value(position);
+        vector<double> w(dimension_ + 1, 0);
+        w[0] = w1;
+        for (int j = 0; j < dimension_; ++j)
+        {
+            w[j+1] = w2[j];
+        }
+                
+        for (int j = 0; j < dimension_ + 1; ++j)
+        {
+            weight_integral[j] += w[j] * weights[i];
+        }
+    }
+            
+    // Get the weighted internal source
+    vector<double> const internal_source_temp = test_material->internal_source()->data();
+    vector<double> internal_source_v(dimensionp1 * number_of_groups, 0.);
+    for (int j = 0; j < dimension_ + 1; ++j)
+    {    
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            int k = j + dimensionp1 * g;
+            internal_source_v[k] = internal_source_temp[g] * weight_integral[j];
+        }
+    }
+
+    Cross_Section::Dependencies dep = test_material->internal_source()->dependencies();
+    dep.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
+    shared_ptr<Cross_Section> internal_source
+        = make_shared<Cross_Section>(dep,
+                                     angular_discretization,
+                                     energy_discretization,
+                                     internal_source_v);
+    
+    // Create material
+    material_ = make_shared<Material>(index_,
+                                      angular_discretization,
+                                      energy_discretization,
+                                      test_material->sigma_t(),
+                                      test_material->sigma_s(),
+                                      test_material->nu(),
+                                      test_material->sigma_f(),
+                                      test_material->chi(),
+                                      internal_source);
+}
+
+void Weight_Function::
+calculate_supg_weight_material()
+{
+    // Get ordinates
+    vector<vector<double> > ordinates;
+    vector<double> weights;
+    Assert(get_full_quadrature(ordinates,
+                               weights));
+    int number_of_ordinates = ordinates.size();
+    
+    // Get material for angular and energy discretization
+    shared_ptr<Material> test_material = solid_geometry_->material(position_);
+    shared_ptr<Angular_Discretization> angular_discretization = test_material->angular_discretization();
+    shared_ptr<Energy_Discretization> energy_discretization = test_material->energy_discretization();
+    
+    // Get material data
+    int number_of_groups = energy_discretization->number_of_groups();
+    int number_of_scattering_moments = angular_discretization->number_of_scattering_moments();
+    int number_of_moments = angular_discretization->number_of_moments();
+    int dimensionp1 = dimension_ + 1;
+    
+    vector<double> sigma_t_v(dimensionp1 * number_of_groups, 0);
+    vector<double> sigma_s_v(dimensionp1 * number_of_groups * number_of_groups * number_of_scattering_moments, 0);
+    vector<double> nu_v(dimensionp1 * number_of_groups, 0);
+    vector<double> sigma_f_v(dimensionp1 * number_of_groups, 0);
+    vector<double> chi_v(dimensionp1 * number_of_groups, 0);
+    vector<double> internal_source_v(dimensionp1 * number_of_groups, 0);
+    vector<double> weight_integral(dimensionp1, 0.);
+            
+    // Calculate numerator and denominator separately
+    for (int i = 0; i < number_of_ordinates; ++i)
+    {
+        vector<double> position = ordinates[i];
+        shared_ptr<Material> material = solid_geometry_->material(position);
+        vector<double> const sigma_t_temp = material->sigma_t()->data();
+        vector<double> const sigma_s_temp = material->sigma_t()->data();
+        vector<double> const nu_temp = material->sigma_t()->data();
+        vector<double> const sigma_f_temp = material->sigma_t()->data();
+        vector<double> const chi_temp = material->sigma_t()->data();
+        vector<double> const internal_source_temp = material->internal_source()->data();
+
+        // Get function weight values
+        double w1 = meshless_function_->value(position);
+        vector<double> w2 = meshless_function_->gradient_value(position);
+        vector<double> w(dimension_ + 1, 0);
+        w[0] = w1;
+        for (int j = 0; j < dimension_; ++j)
+        {
+            w[j+1] = w2[j];
+        }
+                
+        for (int j = 0; j < dimension_ + 1; ++j)
+        {
+            weight_integral[j] += w[j] * weights[i];
+            
+            for (int g = 0; g < number_of_groups; ++g)
+            {
+                int k1 = j + dimensionp1 * g;
+                sigma_t_v[k1] += w[j] * sigma_t_temp[g] * weights[i];
+                sigma_s_v[k1] += w[j] * sigma_s_temp[g] * weights[i];
+                nu_v[k1] += w[j] * nu_temp[g] * weights[i];
+                sigma_f_v[k1] += w[j] * sigma_f_temp[g] * weights[i];
+                chi_v[k1] += w[j] * chi_temp[g] * weights[i];
+                internal_source_v[k1] += w[j] * internal_source_temp[g] * weights[i];
+                        
+                for (int g2 = 0; g2 < number_of_groups; ++g2)
+                {
+                    for (int m = 0; m < number_of_scattering_moments; ++m)
+                    {
+                        int k2 = j + dimensionp1 * (g + number_of_groups * (g2 + number_of_groups * m));
+                        int k3 = g + number_of_groups * (g2 + number_of_groups * m);
+                        sigma_s_v[k2] += w[j] * sigma_s_temp[k3] * weights[i];
+                    }
+                }
+            }
+        }
+    }
+            
+    // Divide numerator by denominator for cross sections
+    for (int j = 0; j < dimension_ + 1; ++j)
+    {    
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            int k1 = j + dimensionp1 * g;
+            sigma_t_v[k1] /= weight_integral[j];
+            sigma_s_v[k1] /= weight_integral[j];
+            nu_v[k1] /= weight_integral[j];
+            sigma_f_v[k1] /= weight_integral[j];
+            chi_v[k1] /= weight_integral[j];
+            
+            for (int g2 = 0; g2 < number_of_groups; ++g2)
+            {
+                for (int m = 0; m < number_of_scattering_moments; ++m)
+                {
+                    int k2 = j + dimensionp1 * (g + number_of_groups * (g2 + number_of_groups * m));
+                    sigma_s_v[k2] /= weight_integral[j];
+                }
+            }
+        }
+    }
+            
+    // Create cross sections
+    Cross_Section::Dependencies none_group;
+    none_group.energy = Cross_Section::Dependencies::Energy::GROUP;
+    none_group.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
+    Cross_Section::Dependencies scattering_group2;
+    scattering_group2.angular = Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS;
+    scattering_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
+    scattering_group2.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
+
+    shared_ptr<Cross_Section> sigma_t
+        = make_shared<Cross_Section>(none_group,
+                                     angular_discretization,
+                                     energy_discretization,
+                                     sigma_t_v);
+    shared_ptr<Cross_Section> sigma_s
+        = make_shared<Cross_Section>(scattering_group2,
+                                     angular_discretization,
+                                     energy_discretization,
+                                     sigma_s_v);
+    shared_ptr<Cross_Section> nu
+        = make_shared<Cross_Section>(none_group,
+                                     angular_discretization,
+                                     energy_discretization,
+                                     nu_v);
+    shared_ptr<Cross_Section> sigma_f
+        = make_shared<Cross_Section>(none_group,
+                                     angular_discretization,
+                                     energy_discretization,
+                                     sigma_f_v);
+    shared_ptr<Cross_Section> chi
+        = make_shared<Cross_Section>(none_group,
+                                     angular_discretization,
+                                     energy_discretization,
+                                     chi_v);
+    shared_ptr<Cross_Section> internal_source
+        = make_shared<Cross_Section>(none_group,
+                                     angular_discretization,
+                                     energy_discretization,
+                                     internal_source_v);
+    
+    // Create material
+    material_ = make_shared<Material>(index_,
+                                      angular_discretization,
+                                      energy_discretization,
+                                      sigma_t,
+                                      sigma_s,
+                                      nu,
+                                      sigma_f,
+                                      chi,
+                                      internal_source);
+}
+
+void Weight_Function::
+calculate_boundary_source()
+{
+    switch(material_options_.weighting)
+    {
+    case Material_Options::Weighting::POINT:
+        return calculate_point_boundary_source();
+    case Material_Options::Weighting::WEIGHT:
+        return calculate_weight_boundary_source();
+    case Material_Options::Weighting::FLUX:
+        AssertMsg(false, "Weight_Function flux weighting not yet implemented");
+        return;
+    }
+}
+
+void Weight_Function::
+calculate_point_boundary_source()
+{
+    AssertMsg(false, "Not yet implemented");
+}
+
+void Weight_Function::
+calculate_weight_boundary_source()
+{
+    AssertMsg(false, "Not yet implemented");
 }
 
 void Weight_Function::
