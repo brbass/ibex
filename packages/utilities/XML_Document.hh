@@ -13,7 +13,21 @@ public:
     XML_Document();
 
     // Load XML document from file
-    XML_Document(std::string name); 
+    XML_Document(std::string name);
+
+    // Save document
+    void save(std::string name);
+    
+private:
+
+    // Handles the creation of an XML_Node
+    XML_Document(std::shared_ptr<pugi::xml_document> xml_doc,
+                 std::string name);
+
+    // Data
+    std::shared_ptr<pugi::xml_document> xml_doc_;
+    
+    
 };
 
 #endif

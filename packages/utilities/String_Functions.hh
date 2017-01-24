@@ -12,16 +12,16 @@
 namespace String_Functions
 {
     // Convert data to string
-    template<class T> std::string
+    template<class T> void
     to_string(std::string &data_string,
               T &data,
               int precision = 16)
     {
-        std::stringstream ss;
-        ss << std::setprecision(precision);
-        ss << data;
+        std::ostringstream oss;
+        oss << std::setprecision(precision);
+        oss << data;
         
-        return ss.str();
+        data_string = oss.str();
     }
     
     // Convert a string to a vector

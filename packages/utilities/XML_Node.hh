@@ -279,7 +279,7 @@ set_value(T data)
     String_Functions::to_string(data_string,
                                 data,
                                 XML_PRECISION);
-                                
+    
     xml_node_->append_child(pugi::node_pcdata).set_value(data_string.c_str());
 }
 
