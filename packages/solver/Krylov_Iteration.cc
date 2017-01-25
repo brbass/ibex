@@ -273,7 +273,8 @@ solve_k_eigenvalue(double &k_eigenvalue,
     problem->setInitVec(rcp(init));
     problem->setNEV(nev);
     problem->setHermitian(false);
-    Check(problem->setProblem());
+    bool problem_set = problem->setProblem();
+    Check(problem_set);
     
     shared_ptr<ParameterList> params
         = get_shared_ptr(parameterList());
