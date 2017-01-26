@@ -99,6 +99,10 @@ public:
     {
         return number_of_boundary_surfaces_;
     }
+    virtual int number_of_dimensional_moments() const
+    {
+        return number_of_dimensional_moments_;
+    }
     virtual std::shared_ptr<Meshless_Function> function() const
     {
         return meshless_function_;
@@ -113,7 +117,7 @@ public:
     }
     virtual std::shared_ptr<Cartesian_Plane> boundary_surface(int i) const
     {
-        return boundary_surfaces_[i];
+        return weighted_boundary_surfaces_[i];
     }
     
     // Quadrature methods
@@ -162,7 +166,6 @@ private:
     virtual void calculate_standard_weight_material();
     virtual void calculate_supg_point_material();
     virtual void calculate_supg_weight_material();
-    virtual void calculate_point_boundary_source();
     virtual void calculate_weight_boundary_source();
     
     // Point data
@@ -173,22 +176,27 @@ private:
     std::shared_ptr<Material> material_;
 
     // Weight_Function data
-    int integration_ordinates_;
+    int number_of_integration_ordinates_;
     int number_of_basis_functions_;
     int number_of_boundary_surfaces_;
+    int number_of_dimensional_moments_;
     double radius_;
     Material_Options material_options_;
     std::shared_ptr<Meshless_Function> meshless_function_;
     std::vector<std::shared_ptr<Basis_Function> > basis_functions_;
     std::shared_ptr<Solid_Geometry> solid_geometry_;
     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces_;
-
+    std::vector<std::shared_ptr<Cartesian_Plane> > weighted_boundary_surfaces_;
+    
     // Calculated data
     std::vector<double> min_boundary_limits_;
     std::vector<double> max_boundary_limits_;
     
     // Integrals
+    std::vector<double> is_w_;
     std::vector<double> is_b_w_;
+    std::vector<double> iv_w_;
+    std::vector<double> iv_dw_;
     std::vector<double> iv_b_w_;
     std::vector<double> iv_b_dw_;
     std::vector<double> iv_db_w_;

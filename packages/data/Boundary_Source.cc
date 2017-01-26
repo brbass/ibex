@@ -9,16 +9,35 @@ using namespace std;
 
 Boundary_Source::
 Boundary_Source(int index,
+                Dependencies dependencies,
                 shared_ptr<Angular_Discretization> angular_discretization,
                 shared_ptr<Energy_Discretization> energy_discretization,
                 vector<double> const &boundary_source,
                 vector<double> const &alpha):
     index_(index),
+    dependencies_(dependencies),
     angular_discretization_(angular_discretization),
     energy_discretization_(energy_discretization),
     boundary_source_(boundary_source),
     alpha_(alpha)
 {
+    int number_of_ordinates = angular_discretization_->number_of_ordinates();
+    int number_of_moments = angular_discretization_->number_of_moments();
+    int number_of_groups = energy_discretization_->number_of_groups();
+    
+    switch (dependencies_.angular)
+    {
+    case Dependencies::Angular::ISOTROPIC:
+        size_ = number_of_groups;
+        break;
+    case Dependencies::Angular::MOMENTS:
+        size_ = number_of_moments * number_of_groups;
+        break;
+    case Dependencies::Angular::ORDINATES:
+        size_ = number_of_ordinates * number_of_groups;
+        break;
+    }
+    
     check_class_invariants();
 }
 
@@ -26,12 +45,13 @@ void Boundary_Source::
 check_class_invariants() const
 {
     int number_of_ordinates = angular_discretization_->number_of_ordinates();
+    int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_groups = energy_discretization_->number_of_groups();
 
     Assert(angular_discretization_);
     Assert(energy_discretization_);
     Assert(alpha_.size() == number_of_groups);
-    Assert(boundary_source_.size() == number_of_ordinates * number_of_groups);
+    Assert(boundary_source_.size() == size_);
 }
 
 bool Boundary_Source::
