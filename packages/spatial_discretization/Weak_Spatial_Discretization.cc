@@ -1,6 +1,10 @@
 #include "Weak_Spatial_Discretization.hh"
 
 #include "Basis_Function.hh"
+#include "Check.hh"
+#include "XML_Node.hh"
+
+using namespace std;
 
 Weak_Spatial_Discretization::
 Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
@@ -31,7 +35,7 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
     {
         if (bases_[i]->number_of_boundary_surfaces() > 0)
         {
-            boundary_basis_[j] = bases[i];
+            boundary_bases_[j] = bases[i];
             j += 1;
         }
     }
@@ -45,12 +49,14 @@ void Weak_Spatial_Discretization::
 check_class_invariants() const
 {
     Assert(weights_.size() == number_of_points_);
-    Assert(boundary_weights_.size() == number_of_boundary_points_);
+    Assert(boundary_weights_.size() == number_of_boundary_weights_);
+    Assert(bases_.size() == number_of_points_);
+    Assert(boundary_bases_.size() == number_of_boundary_bases_);
     
     for (int i = 0; i < number_of_points_; ++i)
     {
         Assert(weights_[i]);
-        Asssert(bases_[i]);
+        Assert(bases_[i]);
     }
     for (int i = 0; i < number_of_boundary_weights_; ++i)
     {

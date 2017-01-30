@@ -12,8 +12,6 @@ Simple_Spatial_Discretization(vector<shared_ptr<Point> > points):
     points_(points)
 {
     number_of_boundary_points_ = 0;
-    boundary_points_.resize(0);
-
     for (int i = 0; i < number_of_points_; ++i)
     {
         switch (points_[i]->point_type())
@@ -22,7 +20,6 @@ Simple_Spatial_Discretization(vector<shared_ptr<Point> > points):
             break;
         case Point::Point_Type::BOUNDARY:
             number_of_boundary_points_ += 1;
-            boundary_points_.push_back(i);
             break;
         }
     }
@@ -37,7 +34,6 @@ output(XML_Node output_node) const
     node.set_child_value(dimension_, "dimension");
     node.set_child_value(number_of_points_, "number_of_points");
     node.set_child_value(number_of_boundary_points_, "number_of_boundary_points");
-    node.set_child_vector(boundary_points_, "boundary_points", "point");
     
     XML_Node points = output_node.append_child("points");
     
@@ -50,7 +46,6 @@ output(XML_Node output_node) const
 void Simple_Spatial_Discretization::
 check_class_invariants() const
 {
-    Assert(boundary_points_.size() == number_of_boundary_points_);
     Assert(points_.size() == number_of_points_);
     
     for (int i = 0; i < number_of_points_; ++i)

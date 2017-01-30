@@ -46,8 +46,11 @@ parse_from_xml(XML_Node input_node)
                 boundary_source[k] = isotropic_boundary_source[g];
             }
         }
-        
+
+        Boundary_Source::Dependencies dependencies;
+        dependencies.angular = Boundary_Source::Dependencies::Angular::ISOTROPIC;
         shared_ptr<Boundary_Source> source = make_shared<Boundary_Source>(a,
+                                                                          dependencies,
                                                                           angular_,
                                                                           energy_,
                                                                           boundary_source,
@@ -74,8 +77,9 @@ get_vacuum_boundary()
 
     vector<double> alpha(number_of_groups, 0);
     vector<double> boundary_source(number_of_groups * number_of_ordinates, 0);
-    
+    Boundary_Source::Dependencies dependencies;
     return make_shared<Boundary_Source>(index,
+                                        dependencies,
                                         angular_,
                                         energy_,
                                         boundary_source,
@@ -93,7 +97,9 @@ get_reflective_boundary()
     vector<double> alpha(number_of_groups, 1);
     vector<double> boundary_source(number_of_groups * number_of_ordinates, 0);
     
+    Boundary_Source::Dependencies dependencies;
     return make_shared<Boundary_Source>(index,
+                                        dependencies,
                                         angular_,
                                         energy_,
                                         boundary_source,

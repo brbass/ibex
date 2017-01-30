@@ -5,6 +5,7 @@
 
 #include "Angular_Discretization.hh"
 #include "Basis_Function.hh"
+#include "Boundary_Source.hh"
 #include "Cartesian_Plane.hh"
 #include "Cross_Section.hh"
 #include "Energy_Discretization.hh"
@@ -44,7 +45,7 @@ Weight_Function(int index,
                    Weight_Function::Point_Type::INTERNAL);
 
 
-    switch (material_options_)
+    switch (material_options_.output)
     {
     case Material_Options::Output::STANDARD:
         number_of_dimensional_moments_ = 1;
@@ -118,7 +119,7 @@ get_full_quadrature_1d(vector<vector<double> > &integration_ordinates,
                                      x1,
                                      x2,
                                      ordinates_x,
-                                     weights);
+                                     integration_weights);
     qr::convert_to_position_1d(ordinates_x,
                                integration_ordinates);
     return success;
@@ -543,7 +544,7 @@ get_basis_quadrature_2d(int i,
          Assert(get_full_surface_quadrature(s,
                                             integration_ordinates,
                                             integration_weights));
-         
+         int number_of_integration_ordinates = integration_weights.size();
          shared_ptr<Meshless_Function> weight = meshless_function_;
          for (int i = 0; i < number_of_integration_ordinates; ++i)
          {
@@ -559,6 +560,7 @@ get_basis_quadrature_2d(int i,
      vector<double> integration_weights;
      Assert(get_full_quadrature(integration_ordinates,
                                 integration_weights));
+     int number_of_integration_ordinates = integration_weights.size();
      for (int i = 0; i < number_of_integration_ordinates; ++i)
      {
          vector<double> position = integration_ordinates[i];
@@ -837,12 +839,14 @@ get_basis_quadrature_2d(int i,
      for (int g = 0; g < number_of_groups; ++g)
      {
          {
+             int j = 0;
              int k = j + dimensionp1 * g;
              internal_source_v[k] = internal_source_temp[g] * iv_w_[0];
          }
          for (int j = 0; j < dimension_; ++j)
-         {    
-             int k = j + dimensionp1 * g;
+         {
+             
+             int k = (j + 1) + dimensionp1 * g;
              internal_source_v[k] = internal_source_temp[g] * iv_dw_[j];
          }
      }
@@ -1056,14 +1060,14 @@ get_basis_quadrature_2d(int i,
          }
          
          shared_ptr<Boundary_Source> new_source
-             = make_shared<Boundary_Source>(s + number_of_boundary_surfaces_ * i,
+             = make_shared<Boundary_Source>(s + number_of_boundary_surfaces_ * index_,
                                             source->dependencies(),
                                             source->angular_discretization(),
                                             source->energy_discretization(),
                                             new_data,
                                             source->alpha());
          shared_ptr<Cartesian_Plane> new_surface
-             = make_shared<Cartesian_Plane>(s + number_of_boundary_surfaces_ * i,
+             = make_shared<Cartesian_Plane>(s + number_of_boundary_surfaces_ * index_,
                                             surface->dimension(),
                                             surface->surface_type(),
                                             surface->surface_dimension(),
@@ -1106,7 +1110,7 @@ check_class_invariants() const
     Assert(iv_b_w_.size() == number_of_basis_functions_);
     Assert(iv_b_dw_.size() == number_of_basis_functions_ * dimension_);
     Assert(iv_db_w_.size() == number_of_basis_functions_ * dimension_);
-    Assert(iv_db_dw.size() == number_of_basis_functions_ * dimension_ * dimension_);
+    Assert(iv_db_dw_.size() == number_of_basis_functions_ * dimension_ * dimension_);
 }
 
 void Weight_Function::
@@ -1115,7 +1119,7 @@ output(XML_Node output_node) const
     output_node.set_attribute(index_, "index");
     output_node.set_attribute(point_type_string(), "point_type");
     output_node.set_child_value(dimension_, "dimension");
-    output_node.set_child_value(position_, "position");
+    output_node.set_child_vector(position_, "position");
     material_->output(output_node.append_child("material"));
     output_node.set_child_value(number_of_integration_ordinates_, "number_of_integration_ordinates");
     output_node.set_child_value(number_of_basis_functions_, "number_of_basis_functions");
@@ -1128,7 +1132,7 @@ output(XML_Node output_node) const
     {
         basis_functions[i] = basis_functions_[i]->index();
     }
-    output_node.set_child_value(basis_functions, "basis_functions");
+    output_node.set_child_vector(basis_functions, "basis_functions");
 
     solid_geometry_->output(output_node.append_child("solid_geometry"));
 
@@ -1137,16 +1141,16 @@ output(XML_Node output_node) const
     {
         boundary_surfaces[i] = boundary_surfaces_[i]->index();
     }
-    output_node.set_child_value(boundary_surfaces, "boundary_surfaces");
+    output_node.set_child_vector(boundary_surfaces, "boundary_surfaces");
     
-    output_node.set_child_value(min_boundary_limits_, "min_boundary_limits");
-    output_node.set_child_value(max_boundary_limits_, "max_boundary_limits");
-    output_node.set_child_value(is_w_, "is_w", "surface");
-    output_node.set_child_value(is_b_w_, "is_b_w", "surface-basis");
-    output_node.set_child_value(iv_w_, "iv_w");
-    output_node.set_child_value(iv_dw_, "iv_dw", "dimension");
-    output_node.set_child_value(iv_b_w_, "iv_b_w", "basis");
-    output_node.set_child_value(iv_b_dw_, "iv_b_dw", "dimension-basis");
-    output_node.set_child_value(iv_db_w_, "iv_db_w", "dimension-basis");
-    output_node.set_child_value(iv_db_dw_, "iv_db_dw", "dimension-dimension-basis");
+    output_node.set_child_vector(min_boundary_limits_, "min_boundary_limits");
+    output_node.set_child_vector(max_boundary_limits_, "max_boundary_limits");
+    output_node.set_child_vector(is_w_, "is_w", "surface");
+    output_node.set_child_vector(is_b_w_, "is_b_w", "surface-basis");
+    output_node.set_child_vector(iv_w_, "iv_w");
+    output_node.set_child_vector(iv_dw_, "iv_dw", "dimension");
+    output_node.set_child_vector(iv_b_w_, "iv_b_w", "basis");
+    output_node.set_child_vector(iv_b_dw_, "iv_b_dw", "dimension-basis");
+    output_node.set_child_vector(iv_db_w_, "iv_db_w", "dimension-basis");
+    output_node.set_child_vector(iv_db_dw_, "iv_db_dw", "dimension-dimension-basis");
 }

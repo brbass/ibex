@@ -44,6 +44,7 @@ public:
     virtual bool normal_direction(std::vector<double> const &position,
                                   std::vector<double> &normal,
                                   bool check_normal = true) const override;
+    virtual void check_class_invariants() const;
     virtual void output(XML_Node output_node) const;
     
 private:

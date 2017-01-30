@@ -6,15 +6,12 @@
 
 class Basis_Function;
 
-class Weak_Spatial_Discretization
+class Weak_Spatial_Discretization : public Spatial_Discretization
 {
 public:
 
     // Constructor
-    Weak_Spatial_Discretization(int number_of_points,
-                                int number_of_boundary_points,
-                                int dimension,
-                                int number_of_nodes,
+    Weak_Spatial_Discretization(std::vector<std::shared_ptr<Basis_Function> > &bases,
                                 std::vector<std::shared_ptr<Weight_Function> > &weights);
 
     virtual int number_of_points() const override
@@ -23,7 +20,7 @@ public:
     }
     virtual int number_of_boundary_points() const override
     {
-        return number_of_boundary_points_;
+        return number_of_boundary_weights_;
     }
     virtual int dimension() const override
     {

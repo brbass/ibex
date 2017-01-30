@@ -41,7 +41,7 @@ output(XML_Node output_node) const
     output_node.set_child_value(dimension_, "dimension");
     output_node.set_child_value(number_of_boundary_surfaces_, "number_of_boundary_surfaces");
     output_node.set_child_value(radius_, "radius");
-    output_node.set_child_value(position_, "position");
+    output_node.set_child_vector(position_, "position");
     meshless_function_->output(output_node.append_child("function"));
 
     vector<int> boundary_surfaces(number_of_boundary_surfaces_);
@@ -49,5 +49,5 @@ output(XML_Node output_node) const
     {
         boundary_surfaces[i] = boundary_surfaces_[i]->index();
     }
-    output_node.set_child_value(boundary_surfaces, "boundary_surfaces");
+    output_node.set_child_vector(boundary_surfaces, "boundary_surfaces");
 }

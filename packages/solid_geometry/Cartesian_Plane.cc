@@ -112,3 +112,10 @@ output(XML_Node output_node) const
         break;
     }
 }
+
+void Cartesian_Plane::
+check_class_invariants() const
+{
+    Assert(surface_dimension_ < dimension_);
+    Assert(boundary_source_);
+}
