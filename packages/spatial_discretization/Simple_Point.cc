@@ -23,11 +23,11 @@ Simple_Point(int index,
 void Simple_Point::
 output(XML_Node output_node) const
 {
-    XML_Node point_node = output_node.append_child("point");
-    point_node.set_attribute(index_, "index");
-    point_node.set_child_value(dimension_, "dimension");
-    point_node.set_child_vector(position_, "position");
-    point_node.set_child_value(material_->index(), "material_index");
+    output_node.set_attribute(index_, "index");
+    output_node.set_attribute(point_type_string(), "point_type");
+    output_node.set_child_value(dimension_, "dimension");
+    output_node.set_child_vector(position_, "position");
+    output_node.set_child_value(material_->index(), "material_index");
 }
 
 void Simple_Point::

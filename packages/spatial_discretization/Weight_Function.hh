@@ -75,6 +75,10 @@ public:
     {
         return dimension_;
     }
+    virtual int number_of_nodes() const override
+    {
+        return 1;
+    }
     virtual Point_Type point_type() const override
     {
         return point_type_;

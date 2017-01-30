@@ -485,7 +485,7 @@ get_basis_quadrature_2d(int i,
                                                  integration_ordinates,
                                                  integration_weights));
              int number_of_integration_ordinates = integration_ordinates.size();
-
+             
              for (int o = 0; o < number_of_integration_ordinates; ++o)
              {
                  vector<double> position = integration_ordinates[o];
@@ -1079,8 +1079,16 @@ void Weight_Function::
 check_class_invariants() const
 {
     // Check that all boundary surfaces actually intersect
-    // (not done)
-
+    for (int s = 0; s < number_of_boundary_surfaces_; ++s)
+    {
+        shared_ptr<Cartesian_Plane> surface = boundary_surfaces_[s];
+        double position = surface->position();
+        int surface_dim = surface->surface_dimension();
+        
+        Assert(abs(position_[surface_dim] - position) <= radius_);
+    }
+    
+    // Check sizes
     Assert(dimension_ == solid_geometry_->dimension());
     Assert(position_.size() == dimension_);
     Assert(material_);
@@ -1104,5 +1112,41 @@ check_class_invariants() const
 void Weight_Function::
 output(XML_Node output_node) const
 {
+    output_node.set_attribute(index_, "index");
+    output_node.set_attribute(point_type_string(), "point_type");
+    output_node.set_child_value(dimension_, "dimension");
+    output_node.set_child_value(position_, "position");
+    material_->output(output_node.append_child("material"));
+    output_node.set_child_value(number_of_integration_ordinates_, "number_of_integration_ordinates");
+    output_node.set_child_value(number_of_basis_functions_, "number_of_basis_functions");
+    output_node.set_child_value(number_of_dimensional_moments_, "number_of_dimensional_moments");
+    output_node.set_child_value(radius_, "radius");
+    meshless_function_->output(output_node.append_child("function"));
     
+    vector<int> basis_functions(number_of_basis_functions_);
+    for (int i = 0; i < number_of_basis_functions_; ++i)
+    {
+        basis_functions[i] = basis_functions_[i]->index();
+    }
+    output_node.set_child_value(basis_functions, "basis_functions");
+
+    solid_geometry_->output(output_node.append_child("solid_geometry"));
+
+    vector<int> boundary_surfaces(number_of_boundary_surfaces_);
+    for (int i = 0; i < number_of_boundary_surfaces_; ++i)
+    {
+        boundary_surfaces[i] = boundary_surfaces_[i]->index();
+    }
+    output_node.set_child_value(boundary_surfaces, "boundary_surfaces");
+    
+    output_node.set_child_value(min_boundary_limits_, "min_boundary_limits");
+    output_node.set_child_value(max_boundary_limits_, "max_boundary_limits");
+    output_node.set_child_value(is_w_, "is_w", "surface");
+    output_node.set_child_value(is_b_w_, "is_b_w", "surface-basis");
+    output_node.set_child_value(iv_w_, "iv_w");
+    output_node.set_child_value(iv_dw_, "iv_dw", "dimension");
+    output_node.set_child_value(iv_b_w_, "iv_b_w", "basis");
+    output_node.set_child_value(iv_b_dw_, "iv_b_dw", "dimension-basis");
+    output_node.set_child_value(iv_db_w_, "iv_db_w", "dimension-basis");
+    output_node.set_child_value(iv_db_dw_, "iv_db_dw", "dimension-dimension-basis");
 }

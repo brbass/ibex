@@ -25,11 +25,29 @@ Basis_Function(int index,
 void Basis_Function::
 check_class_invariants() const
 {
-    
+    Assert(number_of_boundary_surfaces_ == boundary_surfaces_.size());
+    Assert(position_.size() == dimension_);
+    Assert(meshless_function_);
+    for (int i = 0; i < number_of_boundary_surfaces_; ++i)
+    {
+        Assert(boundary_surfaces_[i]);
+    }
 }
 
 void Basis_Function::
 output(XML_Node output_node) const
 {
-    
+    output_node.set_attribute(index_, "index");
+    output_node.set_child_value(dimension_, "dimension");
+    output_node.set_child_value(number_of_boundary_surfaces_, "number_of_boundary_surfaces");
+    output_node.set_child_value(radius_, "radius");
+    output_node.set_child_value(position_, "position");
+    meshless_function_->output(output_node.append_child("function"));
+
+    vector<int> boundary_surfaces(number_of_boundary_surfaces_);
+    for (int i = 0; i < number_of_boundary_surfaces_; ++i)
+    {
+        boundary_surfaces[i] = boundary_surfaces_[i]->index();
+    }
+    output_node.set_child_value(boundary_surfaces, "boundary_surfaces");
 }

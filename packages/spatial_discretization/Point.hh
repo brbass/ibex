@@ -25,6 +25,7 @@ public:
     // Data access
     virtual int index() const = 0;
     virtual int dimension() const = 0;
+    virtual int number_of_nodes() const = 0;
     virtual Point_Type point_type() const = 0;
     virtual std::shared_ptr<Material> material() const = 0;
     virtual std::vector<double> const &position() const = 0;

@@ -29,15 +29,12 @@ public:
     // Number of unknowns per point
     virtual int number_of_nodes() const = 0;
     
-    // Spatial points on the problem boundary
-    virtual std::vector<int> const &boundary_points() const = 0;
-    
     // Return point
     virtual std::shared_ptr<Point> point(int point_index) const = 0;
     
     // Output data to XML file
     virtual void output(XML_Node output_node) const = 0;
-
+    
     // Check class invariants
     virtual void check_class_invariants() const = 0;
 };
