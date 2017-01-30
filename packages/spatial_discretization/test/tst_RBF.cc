@@ -17,29 +17,29 @@ int test_rbf(shared_ptr<RBF> rbf,
              int number_of_cases,
              string description,
              vector<double> const &points,
-             vector<double> const &expected_basis,
-             vector<double> const &expected_d_basis,
-             vector<double> const &expected_dd_basis)
+             vector<double> const &expected_value,
+             vector<double> const &expected_d_value,
+             vector<double> const &expected_dd_value)
 {
     int checksum = 0;
     
     for (int i = 0; i < number_of_cases; ++i)
     {
-        if (!ce::approx(rbf->basis(points[i]), expected_basis[i], 1e-15))
+        if (!ce::approx(rbf->value(points[i]), expected_value[i], 1e-15))
         {
-            cout << description << " basis failed at " << points[i] << endl;
+            cout << description << " value failed at " << points[i] << endl;
             checksum += 1;
         }
 
-        if (!ce::approx(rbf->d_basis(points[i]), expected_d_basis[i], 1e-15))
+        if (!ce::approx(rbf->d_value(points[i]), expected_d_value[i], 1e-15))
         {
-            cout << description << " d_basis failed at " << points[i] << endl;
+            cout << description << " d_value failed at " << points[i] << endl;
             checksum += 1;
         }
 
-        if (!ce::approx(rbf->dd_basis(points[i]), expected_dd_basis[i], 1e-15))
+        if (!ce::approx(rbf->dd_value(points[i]), expected_dd_value[i], 1e-15))
         {
-            cout << description << " dd_basis failed at " << points[i] << endl;
+            cout << description << " dd_value failed at " << points[i] << endl;
             checksum += 1;
         }
     }

@@ -35,25 +35,14 @@ parse_from_xml(XML_Node input_node)
         
         vector<double> alpha = source_node.get_child_vector<double>("alpha", number_of_groups);
         vector<double> isotropic_boundary_source = source_node.get_child_vector<double>("isotropic_source", number_of_groups);
-        vector<double> boundary_source(number_of_groups * number_of_ordinates);
         
-        for (int g = 0; g < number_of_groups; ++g)
-        {
-            for (int o = 0; o < number_of_ordinates; ++o)
-            {
-                int k = g + number_of_groups * o;
-                
-                boundary_source[k] = isotropic_boundary_source[g];
-            }
-        }
-
         Boundary_Source::Dependencies dependencies;
         dependencies.angular = Boundary_Source::Dependencies::Angular::ISOTROPIC;
         shared_ptr<Boundary_Source> source = make_shared<Boundary_Source>(a,
                                                                           dependencies,
                                                                           angular_,
                                                                           energy_,
-                                                                          boundary_source,
+                                                                          isotropic_boundary_source,
                                                                           alpha);
         
         sources[a] = source;

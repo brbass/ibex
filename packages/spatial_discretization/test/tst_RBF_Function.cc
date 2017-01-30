@@ -18,7 +18,7 @@ namespace sf = String_Functions;
 int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
                       string test_case,
                       int dimension,
-                      double const expected_basis,
+                      double const expected_value,
                       vector<double> const &expected_grad,
                       vector<double> const &expected_double_grad,
                       vector<double> const &r)
@@ -27,19 +27,19 @@ int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
 
     double tol = 1e-15;
     
-    // Check basis
+    // Check value
     
-    double basis = rbf_function->basis(r);
+    double value = rbf_function->value(r);
     
-    if (!ce::approx(basis, expected_basis, tol))
+    if (!ce::approx(value, expected_value, tol))
     {
-        cout << "basis failed for ";
+        cout << "value failed for ";
         cout << test_case;
         cout << endl;
         cout << "\texpected: ";
-        cout << expected_basis;
+        cout << expected_value;
         cout << "\tcalculated: ";
-        cout << basis;
+        cout << value;
         cout << endl;
         checksum += 1;
     }
@@ -48,12 +48,12 @@ int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
     
     for (int d = 0; d < dimension; ++d)
     {
-        double d_basis = rbf_function->d_basis(d,
+        double d_value = rbf_function->d_value(d,
                                                r);
             
-        if (!ce::approx(d_basis, expected_grad[d], tol))
+        if (!ce::approx(d_value, expected_grad[d], tol))
         {
-            cout << "d_basis in dimension ";
+            cout << "d_value in dimension ";
             cout << d;
             cout << " failed for ";
             cout << test_case;
@@ -61,13 +61,13 @@ int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
             cout << "\texpected: ";
             cout << expected_grad[d];
             cout << "\tcalculated: ";
-            cout << d_basis;
+            cout << d_value;
             cout << endl;
             checksum += 1;
         }
     }
         
-    vector<double> grad = rbf_function->gradient_basis(r);
+    vector<double> grad = rbf_function->gradient_value(r);
         
     if (!ce::approx(grad, expected_grad, tol))
     {
@@ -75,7 +75,7 @@ int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
         sf::vector_to_string(eg, expected_grad);
         sf::vector_to_string(gr, grad);
             
-        cout << "grad basis failed for ";
+        cout << "grad value failed for ";
         cout << test_case;
         cout << endl;
         cout << "\texpected: ";
@@ -91,12 +91,12 @@ int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
     
     for (int d = 0; d < dimension; ++d)
     {
-        double dd_basis = rbf_function->dd_basis(d,
+        double dd_value = rbf_function->dd_value(d,
                                                  r);
             
-        if (!ce::approx(dd_basis, expected_double_grad[d + dimension * d], tol))
+        if (!ce::approx(dd_value, expected_double_grad[d + dimension * d], tol))
         {
-            cout << "dd_basis in dimension ";
+            cout << "dd_value in dimension ";
             cout << d;
             cout << " failed for ";
             cout << test_case;
@@ -104,7 +104,7 @@ int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
             cout << "\texpected: ";
             cout << expected_double_grad[d + dimension * d];
             cout << "\tcalculated: ";
-            cout << dd_basis;
+            cout << dd_value;
             cout << endl;
             checksum += 1;
         }
@@ -117,7 +117,7 @@ int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
         expected_laplacian += expected_double_grad[d + dimension * d];
     }
 
-    double laplacian = rbf_function->laplacian(r);
+    double laplacian = rbf_function->laplacian_value(r);
         
     if (!ce::approx(laplacian, expected_laplacian, tol))
     {
@@ -169,7 +169,7 @@ int main()
                                             rbf,
                                             distance);
             
-            double const expected_basis = sqrt(545.);
+            double const expected_value = sqrt(545.);
             vector<double> const expected_grad = {24. / sqrt(545.),
                                                   -8. * sqrt(5. / 109.)};
             vector<double> const expected_double_grad = {1604. / (545. * sqrt(545.)),
@@ -180,7 +180,7 @@ int main()
             checksum += test_rbf_function(rbf_function,
                                           test_case,
                                           dimension,
-                                          expected_basis,
+                                          expected_value,
                                           expected_grad,
                                           expected_double_grad,
                                           r);

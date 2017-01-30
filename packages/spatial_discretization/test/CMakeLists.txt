@@ -11,6 +11,6 @@ endmacro()
 include_test(tst_rbf tst_RBF.cc "")
 include_test(tst_distance tst_Distance.cc ${CMAKE_CURRENT_SOURCE_DIR}/../../solid_geometry/test/input)
 include_test(tst_rbf_function tst_RBF_Function.cc "")
-include_test(tst_rbf_interpolation tst_RBF_Interpolation.cc ${CMAKE_CURRENT_SOURCE_DIR}/input)
+# include_test(tst_rbf_interpolation tst_RBF_Interpolation.cc ${CMAKE_CURRENT_SOURCE_DIR}/input)
 
 add_subdirectory(input)
