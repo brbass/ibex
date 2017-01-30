@@ -16,6 +16,7 @@ int test_indexing()
                               size);
     
     size_t index = indexing.subscript_to_index(initial_subscript);
+    cout << index << endl;
     
     vector<size_t> subscript = indexing.index_to_subscript(index);
     

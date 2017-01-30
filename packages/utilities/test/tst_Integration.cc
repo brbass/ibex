@@ -50,7 +50,7 @@ int test_cartesian_1d(int order, int num_tests)
         }
     }
     
-    // Check cubic functions
+    // Check quartic functions
     {
         for (int i = 0; i < num_tests; ++i)
         {
