@@ -5043,25 +5043,13 @@ as before.
 
 \end_layout
 
-\begin_layout Standard
-\begin_inset Note Greyedout
-status open
-
 \begin_layout Part
 Tests
 \end_layout
 
-\begin_layout Plain Layout
-\begin_inset Note Comment
-status open
-
-\begin_layout Plain Layout
-Include pictures of test when possible.
-\end_layout
-
-\end_inset
-
-
+\begin_layout Standard
+Many of these tests are done analytically in the included Mathematica notebook.
+ 
 \end_layout
 
 \begin_layout Section
@@ -5072,7 +5060,7 @@ Utilities
 Indexing
 \end_layout
 
-\begin_layout Plain Layout
+\begin_layout Standard
 The indexing test 
 \begin_inset Quotes eld
 \end_inset
@@ -5084,6 +5072,23 @@ tst_indexing
  tests whether the subscript to index and index to subscript functions work
  appropriately to restore a given subscript after converting it to the index
  and back.
+ It tests a six-dimensional problem to first calculate the index and then
+ back to subscript.
+ With 
+\begin_inset Formula $N=\left[\begin{array}{cccccc}
+4 & 302 & 50 & 7 & 24 & 2\end{array}\right]$
+\end_inset
+
+ and an initial subscript of 
+\begin_inset Formula $s=\left[\begin{array}{cccccc}
+2 & 107 & 32 & 5 & 14 & 1\end{array}\right]$
+\end_inset
+
+, the index becomes 
+\begin_inset Formula $i=11955821$
+\end_inset
+
+, which is then converted back to the initial subscript and checked.
  
 \end_layout
 
@@ -5091,11 +5096,205 @@ tst_indexing
 Integration
 \end_layout
 
+\begin_layout Standard
+The integration test tests for exact integration of the polynomials over
+ simple domains with random ranges.
+ The integrals include:
+\end_layout
+
+\begin_layout Itemize
+Cartesian 1D:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Volume check with random 
+\begin_inset Formula $x_{1}\leq x\leq x_{2}$
+\end_inset
+
+:
+\begin_inset Formula 
+\[
+\int_{x_{1}}^{x_{2}}dx
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Quartic integration with random coefficients 
+\begin_inset Formula $a_{i}$
+\end_inset
+
+, over a random range 
+\begin_inset Formula $x_{1}\leq x\leq x_{2}$
+\end_inset
+
+:
+\begin_inset Formula 
+\[
+\int_{x_{1}}^{x_{2}}\left(a_{0}+a_{1}x+a_{2}x^{2}+a_{3}x^{3}+a_{4}x^{4}\right)dx
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Cartesian 2D:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Volume with random 
+\begin_inset Formula $x_{1}\leq x\leq x_{2}$
+\end_inset
+
+ and 
+\begin_inset Formula $y_{1}\leq y\leq y_{2}$
+\end_inset
+
+:
+\begin_inset Formula 
+\[
+\int_{y_{1}}^{y_{2}}\int_{x_{1}}^{x_{2}}dxdy
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Quadratic integration with random coefficients 
+\begin_inset Formula $a_{i}$
+\end_inset
+
+ and ranges:
+\begin_inset Formula 
+\[
+\int_{y_{1}}^{y_{2}}\int_{x_{1}}^{x_{2}}\left(a_{0}+a_{1}x+a_{2}y+a_{3}x^{2}+a_{4}y^{2}+a_{5}xy\right)dxdy
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Cylindrical 2D:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Volume with random 
+\begin_inset Formula $x_{0}$
+\end_inset
+
+, 
+\begin_inset Formula $y_{0}$
+\end_inset
+
+ and 
+\begin_inset Formula $r_{1}$
+\end_inset
+
+:
+\begin_inset Formula 
+\[
+\int_{0}^{2\pi}\int_{0}^{r_{1}}rdrd\theta
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Cartesian quadratic functions with random coefficients 
+\begin_inset Formula $a_{i}$
+\end_inset
+
+ and to radius 
+\begin_inset Formula $r_{1}$
+\end_inset
+
+:
+\begin_inset Formula 
+\[
+\int_{0}^{2\pi}\int_{0}^{r_{1}}\left(a_{0}+a_{1}x+a_{2}y+a_{3}x^{2}+a_{4}y^{2}+a_{5}xy\right)drd\theta
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Cartesian 3D:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+Volume with random 
+\begin_inset Formula $x_{1}\leq x\leq x_{2}$
+\end_inset
+
+, 
+\begin_inset Formula $y_{1}\leq y\leq y_{2}$
+\end_inset
+
+ and 
+\begin_inset Formula $z_{1}\leq z\leq z_{2}$
+\end_inset
+
+:
+\begin_inset Formula 
+\[
+\int_{z_{1}}^{z_{2}}\int_{y_{1}}^{y_{2}}\int_{x_{1}}^{x_{2}}dxdydz
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Quadratic functions with random coefficients 
+\begin_inset Formula $a_{i}$
+\end_inset
+
+ (accidentally left out the 
+\begin_inset Formula $z$
+\end_inset
+
+ polynomial):
+\begin_inset Formula 
+\[
+\int_{z_{1}}^{z_{2}}\int_{y_{1}}^{y_{2}}\int_{x_{1}}^{x_{2}}\left(a_{0}+a_{1}x+a_{2}y+a_{3}x^{2}+a_{4}y^{2}+a_{5}z^{2}+a_{6}xy+a_{7}yz+a_{8}xz\right)dxdydz
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+Spherical 3D:
+\end_layout
+
 \begin_layout Subsection
 Linear algebra
 \end_layout
 
-\begin_layout Plain Layout
+\begin_layout Standard
 This tests the analytic linear solves against a Trilinos solve.
  A random matrix 
 \begin_inset Formula $\bm{A}$
@@ -5128,7 +5327,7 @@ Math functions
 Factorial
 \end_layout
 
-\begin_layout Plain Layout
+\begin_layout Standard
 The factorial test compares the analytic value of 
 \begin_inset Formula $12!$
 \end_inset
@@ -5173,7 +5372,7 @@ Trilinos
 Vector functions
 \end_layout
 
-\begin_layout Plain Layout
+\begin_layout Standard
 Tests vector functions against analytic results.
  
 \end_layout
@@ -5204,11 +5403,6 @@ Operator
 
 \begin_layout Section
 Transport
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Standard
