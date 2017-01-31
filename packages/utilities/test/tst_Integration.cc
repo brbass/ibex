@@ -355,13 +355,13 @@ int main()
 {
     int checksum = 0;
     
-    int num_tests = 10000;
+    int num_tests = 1000;
     
-    // checksum += test_cartesian_1d(16, num_tests);
-    // checksum += test_cartesian_2d(16, num_tests);
+    checksum += test_cartesian_1d(16, num_tests);
+    checksum += test_cartesian_2d(16, num_tests);
     checksum += test_cartesian_3d(16, num_tests);
-    // checksum += test_cylindrical_2d(16, num_tests);
-    // checksum += test_spherical_3d(16, num_tests);
+    checksum += test_cylindrical_2d(16, num_tests);
+    checksum += test_spherical_3d(16, num_tests);
     
     return checksum;
 }

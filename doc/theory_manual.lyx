@@ -5099,7 +5099,8 @@ Integration
 \begin_layout Standard
 The integration test tests for exact integration of the polynomials over
  simple domains with random ranges.
- The integrals include:
+ All the integrations are done with functions in Cartesian coordinates but
+ use a quadrature specifically for that geometry.The integrals include:
 \end_layout
 
 \begin_layout Itemize
@@ -5290,6 +5291,44 @@ Quadratic functions with random coefficients
 Spherical 3D:
 \end_layout
 
+\begin_deeper
+\begin_layout Itemize
+Volume with random 
+\begin_inset Formula $x_{0}$
+\end_inset
+
+, 
+\begin_inset Formula $y_{0}$
+\end_inset
+
+, 
+\begin_inset Formula $z_{0}$
+\end_inset
+
+ and 
+\begin_inset Formula $r_{1}$
+\end_inset
+
+:
+\begin_inset Formula 
+\[
+\int_{0}^{\pi}\int_{0}^{2\pi}\int_{0}^{r_{1}}r^{2}\sin\gamma drd\theta d\gamma
+\]
+
+\end_inset
+
+Quadratic functions:
+\begin_inset Formula 
+\[
+\int_{0}^{\pi}\int_{0}^{2\pi}\int_{0}^{r_{1}}\left(a_{0}+a_{1}x+a_{2}y+a_{3}x^{2}+a_{4}y^{2}+a_{5}z^{2}+a_{6}xy+a_{7}yz+a_{8}xz\right)r^{2}\sin\gamma drd\theta d\gamma
+\]
+
+\end_inset
+
+
+\end_layout
+
+\end_deeper
 \begin_layout Subsection
 Linear algebra
 \end_layout
