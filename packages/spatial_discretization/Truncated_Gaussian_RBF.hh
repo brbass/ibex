@@ -31,8 +31,6 @@ public:
 private:
     
     double radius_;
-    double k1_;
-    double k2_;
 };
 
 #endif

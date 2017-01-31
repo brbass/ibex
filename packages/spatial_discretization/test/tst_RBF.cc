@@ -3,10 +3,12 @@
 #include <vector>
 
 #include "Check_Equality.hh"
+#include "Compact_Gaussian_RBF.hh"
 #include "Gaussian_RBF.hh"
 #include "Inverse_Multiquadric_RBF.hh"
 #include "Multiquadric_RBF.hh"
 #include "RBF.hh"
+#include "Truncated_Gaussian_RBF.hh"
 #include "Wendland_RBF.hh"
 
 namespace ce = Check_Equality;
@@ -103,6 +105,19 @@ int main()
                          {1., 61. / 1024., 0.},
                          {0., -187. / 256., 0.},
                          {-22., 869. / 128., 0.});
-        
+    checksum += test_rbf(make_shared<Compact_Gaussian_RBF>(2.),
+                         number_of_cases,
+                         "compact_gaussian",
+                         points,
+                         {1., -(exp(15./4.) - 1.) / (1. - exp(4.)), (1. + exp(1.) + exp(2.)) / (1. + exp(1.) + exp(2.) + exp(3.))},
+                         {0, exp(15./4.) / (1 - exp(4.)), -2 * exp(3.) / (exp(4.) - 1)}
+                         {-2. * exp(4.) / (exp(4.) - 1), exp(15./4.) / (1. - exp(4.)), 2. * exp(3.) / (exp(4.) - 1)});
+    checksum += test_rbf(make_shared<Truncated_Gaussian_RBF>(0.7),
+                         number_of_cases,
+                         "truncated_gaussian",
+                         points,
+                         {1, exp(-0.25), 0},
+                         {0, -exp(-0.25), 0},
+                         {-2, -exp(-0.25), 0});
     return checksum;
 }

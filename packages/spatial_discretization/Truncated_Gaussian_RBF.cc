@@ -6,9 +6,6 @@ Truncated_Gaussian_RBF::
 Truncated_Gaussian_RBF(double radius):
     radius_(radius)
 {
-    double k = exp(-radius_ * radius_);
-    k1_ = 1 / (1 - k);
-    k2_ = k / (1 - k);
 }
 
 double Truncated_Gaussian_RBF::

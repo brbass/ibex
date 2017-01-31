@@ -21,8 +21,7 @@ namespace // anonymous
 int test_against_trilinos(int size)
 {
     int checksum = 0;
-    
-    // Symmetric solve
+
     Trilinos_Dense_Solve trilinos_solver;
 
     int num_tests = 10;
@@ -30,18 +29,21 @@ int test_against_trilinos(int size)
 
     for (int i = 0; i < num_tests; ++i)
     {
+        // Get random matrix and LHS
         vector<double> const a = rng.vector(size * size);
         vector<double> const b = rng.vector(size);
-        vector<double> x_ls(size);
         
+        // Solve using Linear_Algebra
+        vector<double> x_ls(size);
         la::linear_solve(a, b, x_ls);
 
+        // Solve using Trilinos
         vector<double> x_tr(size);
         vector<double> a_tr = a;
         vector<double> b_tr = b;
-
         trilinos_solver.epetra_solve(a_tr, b_tr, x_tr, size);
 
+        // Compare results
         if (!(ce::approx(x_tr, x_ls, tolerance)))
         {
             cerr << "linear solve incorrect for size " << size << endl;
@@ -57,6 +59,7 @@ int main()
 {
     int checksum = 0;
 
+    // Check linear solve for matrices of size 1 to 6
     for (int i = 1; i < 6; ++i)
     {
         checksum += test_against_trilinos(i);
