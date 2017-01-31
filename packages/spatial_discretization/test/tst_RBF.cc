@@ -110,7 +110,7 @@ int main()
                          "compact_gaussian",
                          points,
                          {1., -(exp(15./4.) - 1.) / (1. - exp(4.)), (1. + exp(1.) + exp(2.)) / (1. + exp(1.) + exp(2.) + exp(3.))},
-                         {0, exp(15./4.) / (1 - exp(4.)), -2 * exp(3.) / (exp(4.) - 1)}
+                         {0, exp(15./4.) / (1 - exp(4.)), -2 * exp(3.) / (exp(4.) - 1)},
                          {-2. * exp(4.) / (exp(4.) - 1), exp(15./4.) / (1. - exp(4.)), 2. * exp(3.) / (exp(4.) - 1)});
     checksum += test_rbf(make_shared<Truncated_Gaussian_RBF>(0.7),
                          number_of_cases,

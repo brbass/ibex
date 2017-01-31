@@ -26,7 +26,10 @@ public:
     virtual double dd_value(double r) const override;
 
     // Description of RBF
-    virtual std::string description() const override;
+    virtual std::string description() const override
+    {
+        "compact_gaussian";
+    }
 
 private:
     

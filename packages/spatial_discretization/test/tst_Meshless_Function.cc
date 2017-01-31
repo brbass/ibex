@@ -5,6 +5,9 @@
 #include "Cartesian_Distance.hh"
 #include "Check_Equality.hh"
 #include "Distance.hh"
+#include "Meshless_Function.hh"
+#include "Linear_MLS_Function.hh"
+#include "Meshless_Function.hh"
 #include "Multiquadric_RBF.hh"
 #include "RBF.hh"
 #include "RBF_Function.hh"
@@ -15,13 +18,13 @@ using namespace std;
 namespace ce = Check_Equality;
 namespace sf = String_Functions;
 
-int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
-                      string test_case,
-                      int dimension,
-                      double const expected_value,
-                      vector<double> const &expected_grad,
-                      vector<double> const &expected_double_grad,
-                      vector<double> const &r)
+int test_meshless_function(shared_ptr<Meshless_Function> meshless_function,
+                           string test_case,
+                           int dimension,
+                           double const expected_value,
+                           vector<double> const &expected_grad,
+                           vector<double> const &expected_double_grad,
+                           vector<double> const &r)
 {
     int checksum = 0;
 
@@ -29,7 +32,7 @@ int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
     
     // Check value
     
-    double value = rbf_function->value(r);
+    double value = meshless_function->value(r);
     
     if (!ce::approx(value, expected_value, tol))
     {
@@ -48,8 +51,8 @@ int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
     
     for (int d = 0; d < dimension; ++d)
     {
-        double d_value = rbf_function->d_value(d,
-                                               r);
+        double d_value = meshless_function->d_value(d,
+                                                    r);
             
         if (!ce::approx(d_value, expected_grad[d], tol))
         {
@@ -67,7 +70,7 @@ int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
         }
     }
         
-    vector<double> grad = rbf_function->gradient_value(r);
+    vector<double> grad = meshless_function->gradient_value(r);
         
     if (!ce::approx(grad, expected_grad, tol))
     {
@@ -91,8 +94,8 @@ int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
     
     for (int d = 0; d < dimension; ++d)
     {
-        double dd_value = rbf_function->dd_value(d,
-                                                 r);
+        double dd_value = meshless_function->dd_value(d,
+                                                      r);
             
         if (!ce::approx(dd_value, expected_double_grad[d + dimension * d], tol))
         {
@@ -117,7 +120,7 @@ int test_rbf_function(shared_ptr<RBF_Function> rbf_function,
         expected_laplacian += expected_double_grad[d + dimension * d];
     }
 
-    double laplacian = rbf_function->laplacian_value(r);
+    double laplacian = meshless_function->laplacian_value(r);
         
     if (!ce::approx(laplacian, expected_laplacian, tol))
     {
@@ -139,52 +142,57 @@ int main()
 {
     int checksum = 0;
 
-    // Test 1
+    // Regular RBF
     
     {
         int const dimension = 2;
-        
         vector<double> const r = {4,
                                   -3};
         vector<double> const r0 = {-2,
                                    7};
-        vector<double> const direction = {1 / sqrt(3.),
-                                          sqrt(2.) / sqrt(3.)};
-        
         double const shape = 2.0;
-
+        
+        string test_case = "standard rbf";
+        
         shared_ptr<RBF> rbf
             = make_shared<Multiquadric_RBF>();
         shared_ptr<Distance> distance
             = make_shared<Cartesian_Distance>(dimension);
-
-        // Regular RBF
         
-        {
-            string test_case = "standard rbf";
-            
-            shared_ptr<RBF_Function> rbf_function
-                = make_shared<RBF_Function>(shape,
-                                            r0,
-                                            rbf,
-                                            distance);
-            
-            double const expected_value = sqrt(545.);
-            vector<double> const expected_grad = {24. / sqrt(545.),
-                                                  -8. * sqrt(5. / 109.)};
-            vector<double> const expected_double_grad = {1604. / (545. * sqrt(545.)),
-                                                         192. / (109. * sqrt(545.)),
-                                                         192. / (109. * sqrt(545.)),
-                                                         116. / (109. * sqrt(545.))};
-            
-            checksum += test_rbf_function(rbf_function,
-                                          test_case,
-                                          dimension,
-                                          expected_value,
-                                          expected_grad,
-                                          expected_double_grad,
-                                          r);
-        }
+        shared_ptr<Meshless_Function> meshless_function
+            = make_shared<RBF_Function>(shape,
+                                        r0,
+                                        rbf,
+                                        distance);
+        
+        double const expected_value = sqrt(545.);
+        vector<double> const expected_grad = {24. / sqrt(545.),
+                                              -8. * sqrt(5. / 109.)};
+        vector<double> const expected_double_grad = {1604. / (545. * sqrt(545.)),
+                                                     192. / (109. * sqrt(545.)),
+                                                     192. / (109. * sqrt(545.)),
+                                                     116. / (109. * sqrt(545.))};
+        
+        checksum += test_meshless_function(meshless_function,
+                                           test_case,
+                                           dimension,
+                                           expected_value,
+                                           expected_grad,
+                                           expected_double_grad,
+                                           r);
+    }
+    
+    // Linear MLS
+    
+    {
+        string test_case = "linear mls";
+        
+        
+        
+        vector<shared_ptr<Meshless_Function> > neighbor_functions(number_of_neighbors);
+        
+        shared_ptr<Meshless_Function> meshless_function
+            = make_shared<Linear_MLS_Function>(neighbor_functions);
     }
     
     return checksum;

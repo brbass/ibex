@@ -13,7 +13,7 @@ class Angular_Discretization_Parser
 {
 public:
     
-    // Creator
+    // Constructor
     Angular_Discretization_Parser();
     
     // Parse from XML node
