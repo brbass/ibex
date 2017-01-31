@@ -148,7 +148,7 @@ def get_pincell_discretization(radius,
                             num_neighbors_weight)
 
 def numpy_to_text(data):
-    a = np.array2string(data, separator=" ", precision=16, max_line_width=1e5)
+    a = np.array2string(data, separator=" ", precision=20, max_line_width=1e5)
     if a[0] == "[":
         return a[1:-1]
     else:
@@ -169,6 +169,7 @@ def xml_discretization(output_path,
         basis = et.SubElement(basis_top, "basis")
         basis.set("index", str(i))
         et.SubElement(basis, "max_distance").text = numpy_to_text(max_distance_basis[i])
+        et.SubElement(basis, "position").text = numpy_to_text(points[i, :])
         
     weight_top = et.SubElement(node, "weight_functions")
     for i in range(num_points):
@@ -177,10 +178,10 @@ def xml_discretization(output_path,
         num_neighbors = len(neighbors[i])
         et.SubElement(weight, "number_of_neighbors").text = str(num_neighbors)
         et.SubElement(weight, "max_distance").text = numpy_to_text(max_distance_weight[i])
+        et.SubElement(weight, "position").text = numpy_to_text(points[i, :])
         et.SubElement(weight, "neighbors").text = numpy_to_text(neighbors[i])
         et.SubElement(weight, "neighbor_distances").text = numpy_to_text(neighbor_distances[i])
     return node
-
 
 def output_pincell_discretization(radius,
                                   length,
@@ -316,6 +317,9 @@ def plot_pincell_discretization(radius,
             plt.close()
 
 if __name__ == '__main__':
+    if (len(sys.argv) != 7):
+        print("mesh_functions.py [radius length num_points_xy num_points_r num_neighbors_basis num_neighbors_weight]")
+        sys.exit()
     radius = float(sys.argv[1])
     length = float(sys.argv[2])
     num_points_xy = int(sys.argv[3])

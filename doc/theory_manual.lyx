@@ -5367,11 +5367,15 @@ Factorial
 \end_layout
 
 \begin_layout Standard
-The factorial test compares the analytic value of 
-\begin_inset Formula $12!$
+The factorial test compares the analytic value 
+\begin_inset Formula 
+\[
+12!=479001600
+\]
+
 \end_inset
 
- with a calculated value.
+with a calculated value.
  
 \end_layout
 
@@ -5379,8 +5383,40 @@ The factorial test compares the analytic value of
 Legendre polynomial
 \end_layout
 
+\begin_layout Standard
+This tests two separate Legendre polynomial cases to get an analytic result.
+ The first is a standard Legendre polynomial,
+\begin_inset Formula 
+\[
+P_{12}\left(\sqrt{3}\right)=\frac{2565501}{16},
+\]
+
+\end_inset
+
+while the second is the associated real Legendre polynomial,
+\begin_inset Formula 
+\[
+P_{7}^{4}\left(\frac{2}{3}\right)=\frac{240625}{243}.
+\]
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Subsubsection
 Spherical harmonics
+\end_layout
+
+\begin_layout Standard
+The first test checks the conversion between XYZ and spherical coordinates
+ by starting with a simple Cartesian and spherical coordinate and then transferr
+ing these back and forth to check with the original result.
+ Then the recursive and tabular results are checked against a known result.
+ Finally, the three methods of calculating the spherical harmonics functions
+ (recursive using Cartesian coordinates, recursive using spherical coordinates
+ and a table lookup) are checked against one another.
+ 
 \end_layout
 
 \begin_layout Subsection
