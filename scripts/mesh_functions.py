@@ -395,7 +395,4 @@ if __name__ == '__main__':
                                   num_points_r,
                                   num_neighbors_basis,
                                   num_neighbors_weight)
-        
     
-                       
-
