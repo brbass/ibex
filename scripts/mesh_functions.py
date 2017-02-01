@@ -93,7 +93,9 @@ def get_neighbor_information(num_points, # Total number of points
     return neighbors, neighbor_distances, kd_tree
 
 # Get neighbors
-def get_neighbors(neighbor_pairs, # List of possible pairs of neighbors
+def get_neighbors(num_points,
+                  points,
+                  neighbor_pairs, # List of possible pairs of neighbors
                   radius_base, # Max distance for the desired basis
                   radius_other): # Max distance for the other set to compare against
     neighbors = []
@@ -149,19 +151,25 @@ def get_connectivity(num_points,
 
     # Get basis, weight and basis/weight functions that intersect
     b_num_neighbors, b_neighbors, b_neighbor_distances \
-        = get_neighbors(neighbor_pairs,
+        = get_neighbors(num_points,
+                        points,
+                        neighbor_pairs,
                         radius_basis,
                         radius_basis)
     w_num_neighbors, w_neighbors, w_neighbor_distances \
-        = get_neighbors(neighbor_pairs,
+        = get_neighbors(num_points,
+                        points,
+                        neighbor_pairs,
                         radius_weight,
                         radius_weight)
     bw_num_neighbors, bw_neighbors, bw_neighbor_distances \
-        = get_neighbors(neighbor_pairs,
+        = get_neighbors(num_points,
+                        points,
+                        neighbor_pairs,
                         radius_weight,
                         radius_basis)
     
-    return num_points, points, radius_basis, radius_weight, b_neighbors, b_neighbor_distances, w_neighbors, w_neigbor_distances, bw_neighbors, bw_neighbor_distances
+    return num_points, points, radius_basis, radius_weight, b_neighbors, b_neighbor_distances, w_neighbors, w_neighbor_distances, bw_neighbors, bw_neighbor_distances
 
 # Get points and find connectivity for pincell
 def get_pincell_discretization(radius,
@@ -208,23 +216,27 @@ def xml_discretization(output_path,
     for i in range(num_points):
         basis = et.SubElement(basis_top, "basis")
         basis.set("index", str(i))
+        num_b_neighbors = len(b_neighbors[i])
         et.SubElement(basis, "radius").text = numpy_to_text(radius_basis[i])
         et.SubElement(basis, "position").text = numpy_to_text(points[i, :])
-        et.SubElement(weight, "basis_neighbors").text = numpy_to_text(b_neighbors[i])
-        et.SubElement(weight, "basis_neighbor_distances").text = numpy_to_text(b_neighbor_distances[i])
+        et.SubElement(basis, "number_of_basis_neighbors").text = str(num_b_neighbors)
+        et.SubElement(basis, "basis_neighbors").text = numpy_to_text(b_neighbors[i])
+        et.SubElement(basis, "basis_neighbor_distances").text = numpy_to_text(b_neighbor_distances[i])
         
     weight_top = et.SubElement(node, "weight_functions")
     for i in range(num_points):
         weight = et.SubElement(weight_top, "weight")
         weight.set("index", str(i))
-        num_neighbors = len(neighbors[i])
-        et.SubElement(weight, "number_of_neighbors").text = str(num_neighbors)
+        num_b_neighbors = len(b_neighbors[i])
+        num_bw_neighbors = len(bw_neighbors[i])
         et.SubElement(weight, "radius").text = numpy_to_text(radius_weight[i])
         et.SubElement(weight, "position").text = numpy_to_text(points[i, :])
-        et.SubElement(weight, "weight_neighbors").text = numpy_to_text(w_neighbors[i])
-        et.SubElement(weight, "weight_neighbor_distances").text = numpy_to_text(w_neighbor_distances[i])
+        et.SubElement(weight, "number_of_basis_neighbors").text = str(num_b_neighbors)
         et.SubElement(weight, "basis_neighbors").text = numpy_to_text(bw_neighbors[i])
         et.SubElement(weight, "basis_neighbor_distances").text = numpy_to_text(bw_neighbor_distances[i])
+        et.SubElement(weight, "number_of_weight_neighbors").text = str(num_bw_neighbors)
+        et.SubElement(weight, "weight_neighbors").text = numpy_to_text(w_neighbors[i])
+        et.SubElement(weight, "weight_neighbor_distances").text = numpy_to_text(w_neighbor_distances[i])
     return node
 
 def output_pincell_discretization(radius,
@@ -233,7 +245,7 @@ def output_pincell_discretization(radius,
                                   num_points_r,
                                   num_neighbors_basis,
                                   num_neighbors_weight):
- num_points, points, radius_basis, radius_weight, b_neighbors, b_neighbor_distances, w_neighbors, w_neigbor_distances, bw_neighbors, bw_neighbor_distances \
+    num_points, points, radius_basis, radius_weight, b_neighbors, b_neighbor_distances, w_neighbors, w_neighbor_distances, bw_neighbors, bw_neighbor_distances \
         = get_pincell_discretization(radius,
                                      length,
                                      num_points_xy,
@@ -249,8 +261,12 @@ def output_pincell_discretization(radius,
                               points,
                               radius_basis,
                               radius_weight,
-                              neighbors,
-                              neighbor_distances)
+                              b_neighbors,
+                              b_neighbor_distances,
+                              w_neighbors,
+                              w_neighbor_distances,
+                              bw_neighbors,
+                              bw_neighbor_distances)
     
     # Add solid geometry information
     solid = et.SubElement(node, "solid_geometry")
@@ -293,7 +309,7 @@ def output_pincell_discretization(radius,
 
     region = et.SubElement(regions, "region")
     region.set("index", "1")
-    et.SubElement(region, "material").text = str(0)
+    et.SubElement(region, "material").text = str(1)
     for i in range(5):
         sr = et.SubElement(region, "surface_relation")
         sr.set("index", str(i))
