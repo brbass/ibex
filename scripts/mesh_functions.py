@@ -318,8 +318,10 @@ def output_pincell_discretization(radius,
             et.SubElement(sr, "relation").text = "inside"
         else:
             et.SubElement(sr, "relation").text = "outside"
-    
-    et.ElementTree(node).write(output_path, pretty_print=True, xml_declaration=True)
+
+    et.ElementTree(node).write(output_path,
+                               pretty_print=True,
+                               xml_declaration=True)
 
     
 def plot_pincell_discretization(radius,

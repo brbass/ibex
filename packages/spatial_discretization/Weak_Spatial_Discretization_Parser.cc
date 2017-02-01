@@ -22,52 +22,62 @@ shared_ptr<Weak_Spatial_Discretization> Weak_Spatial_Discretization_Parser::
 parse_from_xml(XML_Node input_node) const
 {
     int number_of_points = input_node.get_child_value("number_of_points");
+    int dimension = solid_geometry->dimension();
     
+    XML_Node meshless_node = input_node.get_child("meshless");
+    RBF_Parser rbf_parser;
+    shared_ptr<RBF> rbf = rbf_parser->parse_from_xml(meshless_node);
+    shared_ptr<Distance> distance = make_shared<Cartesian_Distance>(dimension);
     
-
-
-
-
-
-    
-    // Parse basis functions
+    // Get meshless functions
     XML_Node bases_node = input_node.get_child("basis_functions");
-    vector<shared_ptr<Basis_Function> > basis_functions(number_of_points);
+    vector<shared_ptr<Meshless_Function> > meshless_basis(number_of_points);
     for (XML_Node basis_node = input_node.get_child("basis");
          basis_node;
          basis_node = basis_node.get_sibling("basis",
                                              false))
     {
         int index = basis_node.get_attribute<int>("index");
-        double max_distance = basis_node.get_child_value("max_distance");
+        double radius = basis_node.get_child_value("radius");
         vector<double> position = basis_node.get_child_vector("position");
-        shared_ptr<Meshless_Function> meshless_function
-            = get_meshless_function();
-        
-        basis_functions[index]
-            = make_shared<Basis_Function>(index,
-                                          dimension,
-                                          meshless_function,
-                                          boundary_surfaces);
+        double shape = rbf->radius() / radius;
+        meshless_basis[index] = make_shared<RBF_Function>(shape,
+                                                          position,
+                                                          rbf,
+                                                          distance);
     }
-
-    // Parse weight functions
+    
     XML_Node weights_node = input_node.get_child("weight_functions");
-    vector<shared_ptr<Weight_Function> > weight_functions(number_of_points);
+    vector<shared_ptr<Meshless_Function> > meshless_weight(number_of_points);
     for (XML_Node weight_node = input_node.get_child("weight");
          weight_node;
          weight_node = weight_node.get_sibling("weight",
-                                               false))
+                                             false))
     {
         int index = weight_node.get_attribute<int>("index");
-        double max_distance = weight_node.get_child_value("max_distance");
-        vector<double> position = basis_node.get_child_vector("position");
-        vector<int> neighbors = weight_node.get_child_vector("neighbors");
+        double radius = weight_node.get_child_value("radius");
+        vector<double> position = weight_node.get_child_vector("position");
+        double shape = rbf->radius() / radius;
+        meshless_weight[index] = make_shared<RBF_Function>(shape,
+                                                          position,
+                                                          rbf,
+                                                          distance);
+    }
+
+    string meshless_type = meshless_node.get_attribute<string>("type");
+    
+    if (meshless_type == "rbf")
+    {
         
     }
-    
-    
-    
+    else if (meshless_type == "linear_mls")
+    {
+        
+    }
+    else
+    {
+        
+    }
 }
 
 shared_ptr<Meshless_Function> Weak_Spatial_Discretization_Parser::
