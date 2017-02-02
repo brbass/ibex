@@ -62,10 +62,10 @@ distance(vector<double> const &position) const
 
 Cylinder_2D::Intersection Cylinder_2D::
 intersection(vector<double> const &particle_position,
-             vector<double> const &particle_direction,
-             double &distance,
-             vector<double> &position) const
+             vector<double> const &particle_direction) const
 {
+    Intersection intersection;
+    
     vector<double> const k0 = vf2::subtract(particle_position,
                                             origin_);
 
@@ -77,11 +77,13 @@ intersection(vector<double> const &particle_position,
 
     if (l3 < 0)
     {
-        return Intersection::NONE;
+        intersection.type = Intersection::Type::NONE;
+        return intersection;
     }
     else if (l2 <= intersection_tolerance_)
     {
-        return Intersection::PARALLEL;
+        intersection.type = Intersection::Type::PARALLEL;
+        return intersection;
     }
     
     double const l4 = sqrt(l3);
@@ -91,36 +93,40 @@ intersection(vector<double> const &particle_position,
     
     if (s2 > 0)
     {
-        distance = s2;
+        intersection.distance = s2;
     }
     else if (s1 > 0)
     {
-        distance = s1;
+        intersection.distance = s1;
     }
     else
     {
-        return Intersection::NEGATIVE;
+        intersection.type = Intersection::Type::NEGATIVE;
+        return intersection;
     }
     
-    position = vf2::add(particle_position,
-                        vf2::multiply(particle_direction,
-                                      distance));
+    intersection.position = vf2::add(particle_position,
+                                     vf2::multiply(particle_direction,
+                                                   distance));
     
     if (l3 <= intersection_tolerance_)
     {
-        return Intersection::TANGEANT;
+        intersection.type = Intersection::Type::TANGEANT;
+        return intersection;
     }
     else
     {
-        return Intersection::INTERSECTS;
+        intersection.type = Intersection::Type::INTERSECTS;
+        return intersection;
     }
 }
 
-bool Cylinder_2D::
+Cylinder_2D::Normal Cylinder_2D::
 normal_direction(vector<double> const &position,
-                 vector<double> &normal,
                  bool check_normal) const
 {
+    Normal normal;
+    
     // Check if point lies on circle
 
     vector<double> const k0 = vf2::subtract(position,
@@ -130,13 +136,14 @@ normal_direction(vector<double> const &position,
     {
         if (abs(vf2::magnitude_squared(k0) - radius_ * radius_) > normal_tolerance_ * radius_ * radius_)
         {
-            return false;
+            normal.exists = false;
+            return normal;
         }
     }
     
-    normal = vf2::normalize(k0);
+    normal.direction = vf2::normalize(k0);
     
-    return true;
+    return normal;
 }
 
 void Cylinder_2D::

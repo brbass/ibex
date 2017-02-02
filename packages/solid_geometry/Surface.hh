@@ -41,17 +41,36 @@ public:
         BOUNDARY,
         INTERNAL
     };
+
+    struct Normal
+    {
+        bool exists = true;
+        vector<double> direction;
+    };
     
     /* Types of intersection of vector and surface */
-    enum class Intersection
+    struct Intersection
     {
-        INTERSECTS, // has intersection
-        PARALLEL, // has no intersection, parallel to surface
-        NONE, // has no intersection, negative or positive
-        NEGATIVE, // only has negative intersection
-        TANGEANT // only intersects at one infinitesimal point
-    };
+        enum class Type
+        {
+            INTERSECTS, // has intersection
+            PARALLEL, // has no intersection, parallel to surface
+            NONE, // has no intersection, negative or positive
+            NEGATIVE, // only has negative intersection
+            TANGEANT // only intersects at one infinitesimal point
+        };
 
+        Type type = Type::NONE;
+        double distance = std::numeric_limits<double>::max();
+        vector<double> position;
+    };
+    
+    struct Reflection
+    {
+        bool exists = true;
+        vector<double> direction;
+    };
+    
     /* Constructor */
     Surface(int index,
             int dimension,
@@ -94,15 +113,12 @@ public:
        If type is TANGEANT or PARALLEL, the distance and position are
        returned. Otherwise, the distance and position remain unchanged.*/
     virtual Intersection intersection(std::vector<double> const &initial_position,
-                                      std::vector<double> const &initial_direction,
-                                      double &distance,
-                                      std::vector<double> &final_position) const = 0;
+                                      std::vector<double> const &initial_direction) const = 0;
 
     /* Normal direction of surface at a point on the surface */
-    virtual bool normal_direction(std::vector<double> const &position,
-                                  std::vector<double> &normal,
-                                  bool check_normal = true) const = 0;
-
+    virtual Normal normal_direction(std::vector<double> const &position,
+                                    bool check_normal = true) const = 0;
+    
     /* Reflected direction */
     virtual bool reflected_direction(std::vector<double> const &position,
                                      std::vector<double> const &initial_direction,

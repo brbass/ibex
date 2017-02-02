@@ -43,42 +43,47 @@ relation(vector<double> const &particle_position,
 
 Plane_1D::Intersection Plane_1D::
 intersection(vector<double> const &particle_position,
-             vector<double> const &particle_direction,
-             double &distance,
-             vector<double> &position) const
+             vector<double> const &particle_direction) const
 {
+    Intersection intersection;
     if (abs(particle_direction[0]) <= intersection_tolerance_)
     {
-        return Intersection::PARALLEL;
+        intersection.type = Intersection::PARALLEL;
+        return intersection;
     }
     
-    distance = (origin_[0] - particle_position[0]) / particle_direction[0];
-    position.assign(dimension_, origin_[0]);
+    intersection.distance = (origin_[0] - particle_position[0]) / particle_direction[0];
+    intersection.position.assign(dimension_, origin_[0]);
     
     if (distance < 0)
     {
-        return Intersection::NEGATIVE;
+        intersection.type = Intersection::NEGATIVE;
+        return intersection;
     }
     
-    return Intersection::INTERSECTS;
+    intersection.type = Intersection::INTERSECTS;
+    return intersection;
 }
 
-bool Plane_1D::
+Plane_1D::Normal Plane_1D::
 normal_direction(vector<double> const &position,
-                 vector<double> &normal,
                  bool check_normal) const
 {
+    Normal normal;
+
     if (check_normal)
     {
         if (abs(position[0] - origin_[0]) > normal_tolerance_)
         {
-            return false;
+            normal.exists = false;
+            return normal;
         }
     }
 
-    normal = normal_;
+    normal.exists = true;
+    normal.direction = normal_;
     
-    return true;
+    return normal;
 }
 
 void Plane_1D::

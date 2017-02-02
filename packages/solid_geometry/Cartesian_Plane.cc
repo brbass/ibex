@@ -37,7 +37,7 @@ relation(vector<double> const &position,
             return Relation::EQUAL;
         }
     }
-
+    
     if (k > 0)
     {
         return Relation::POSITIVE;
@@ -50,44 +50,48 @@ relation(vector<double> const &position,
 
 Cartesian_Plane::Intersection Cartesian_Plane::
 intersection(vector<double> const &initial_position,
-             vector<double> const &initial_direction,
-             double &distance,
-             vector<double> &final_position) const
+             vector<double> const &initial_direction) const
 {
+    Intersection intersection;
     if (abs(initial_direction[surface_dimension_]) <= intersection_tolerance_)
     {
-        return Intersection::PARALLEL;
+        intersection.type = Intersection::Type::PARALLEL;
+        return intersection;
     }
 
-    distance = (position_ - initial_position[surface_dimension_]) / initial_direction[surface_dimension_];
+    intersection.distance = (position_ - initial_position[surface_dimension_]) / initial_direction[surface_dimension_];
 
-    final_position.assign(dimension_, 0);
-    final_position[surface_dimension_] = position_;
-
+    intersection.position.assign(dimension_, 0);
+    intersection.position[surface_dimension_] = position_;
+    
     if (distance < 0)
     {
-        return Intersection::NEGATIVE;
+        intersection.type = Intersection::NEGATIVE;
+        return intersection;
     }
-
-    return Intersection::INTERSECTS;
+    
+    return intersection;
 }
 
-bool Cartesian_Plane::
+Cartesian_Plane::Normal Cartesian_Plane::
 normal_direction(vector<double> const &position,
-                 vector<double> &normal,
                  bool check_normal) const
 {
+    Normal normal;
+    normal.position = position;
+    
     if (check_normal)
     {
         if (abs(position[surface_dimension_] - position_) > normal_tolerance_)
         {
-            return false;
+            normal.exists = false;
+            return normal;
         }
     }
     
-    normal.assign(dimension_, 0);
-    normal[surface_dimension_] = 1.;
-
+    normal.direction.assign(dimension_, 0);
+    normal.direction[surface_dimension_] = 1.;
+    
     return true;
 }
 

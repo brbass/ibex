@@ -49,10 +49,10 @@ relation(vector<double> const &particle_position,
 
 Plane_2D::Intersection Plane_2D::
 intersection(vector<double> const &particle_position,
-             vector<double> const &particle_direction,
-             double &distance,
-             vector<double> &position) const
+             vector<double> const &particle_direction) const
 {
+    Intersection intersection;
+    
     vector<double> const k0 = vf2::subtract(origin_,
                                             particle_position);
     double const l0 = vf2::dot(k0,
@@ -62,32 +62,37 @@ intersection(vector<double> const &particle_position,
     
     if (abs(l1) <= intersection_tolerance_)
     {
-        return Intersection::PARALLEL;
+        intersection.type = Intersection::Type::PARALLEL;
+        return intersection;
     }
     
     double const s = l0 / l1;
     
     if (s > 0)
     {
-        distance = s;
+        intersection.distance = s;
     }
     else
     {
-        return Intersection::NEGATIVE;
+        intersection.type = Intersection::Type::NEGATIVE;
+        return intersection;
     }
     
-    position = vf2::add(particle_position,
-                        vf2::multiply(particle_direction,
-                                      distance));
-    
-    return Intersection::INTERSECTS;
+    intersection.position = vf2::add(particle_position,
+                                     vf2::multiply(particle_direction,
+                                                   distance));
+
+    intersection.type = Intersection::Type::INTERSECTS;
+    return intersection;
 }
 
-bool Plane_2D::
+Plane_2D::Normal Plane_2D::
 normal_direction(vector<double> const &position,
                  vector<double> &normal,
                  bool check_normal) const
 {
+    Normal normal;
+    
     if (check_normal)
     {
         vector<double> const k0 = vf2::subtract(position, origin_);
@@ -96,13 +101,15 @@ normal_direction(vector<double> const &position,
         // Check whether point lies on line
         if (vf2::dot(normal_, k0) > normal_tolerance_ * k1)
         {
-            return false;
+            normal.exists = false;
+            return normal;
         }
     }
+
+    normal.exists = true;
+    normal.direction = normal_;
     
-    normal = normal_;
-    
-    return true;
+    return normal;
 }
 
 void Plane_2D::

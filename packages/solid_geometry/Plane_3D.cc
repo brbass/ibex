@@ -48,10 +48,10 @@ relation(vector<double> const &particle_position,
 
 Plane_3D::Intersection Plane_3D::
 intersection(vector<double> const &particle_position,
-             vector<double> const &particle_direction,
-             double &distance,
-             vector<double> &position) const
+             vector<double> const &particle_direction) const
 {
+    Intersection intersection;
+    
     vector<double> const k0 = vf3::subtract(origin_,
                                             particle_position);
     double const l0 = vf3::dot(k0,
@@ -61,32 +61,36 @@ intersection(vector<double> const &particle_position,
     
     if (abs(l1) <= intersection_tolerance_)
     {
-        return Intersection::PARALLEL;
+        intersection.type = Intersection::Type::PARALLEL;
+        return intersection;
     }
 
     double const s = l0 / l1;
 
     if (s > 0)
     {
-        distance = s;
+        intersection.distance = s;
     }
     else
     {
-        return Intersection::NEGATIVE;
+        intersection.type = Intersection::NEGATIVE;
+        return intersection;
     }
     
-    position = vf3::add(particle_position,
-                        vf3::multiply(particle_direction,
-                                      distance));
+    intersection.position = vf3::add(particle_position,
+                                     vf3::multiply(particle_direction,
+                                                   distance));
+    intersection.type = Intersection::Type::INTERSECTS;
     
-    return Intersection::INTERSECTS;
+    return intersection;
 }
 
-bool Plane_3D::
+Plane_3D::Normal Plane_3D::
 normal_direction(vector<double> const &position,
-                 vector<double> &normal,
                  bool check_normal) const
 {
+    Normal normal;
+    
     // Check whether point lies on plane
 
     if (check_normal)
@@ -96,13 +100,14 @@ normal_direction(vector<double> const &position,
 
         if (vf3::dot(normal_, k0) > normal_tolerance_ * k1)
         {
-            return false;
+            normal.exists = false;
+            return normal;
         }
     }
+
+    normal.direction = normal_;
     
-    normal = normal_;
-    
-    return true;
+    return normal;
 }
 
 void Plane_3D::

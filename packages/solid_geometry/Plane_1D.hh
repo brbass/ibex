@@ -30,11 +30,8 @@ public:
     virtual Relation relation(std::vector<double> const &position,
                               bool check_equality = false) const override;
     virtual Intersection intersection(std::vector<double> const &initial_position,
-                                      std::vector<double> const &initial_direction,
-                                      double &distance,
-                                      std::vector<double> &final_position) const override;
-    virtual bool normal_direction(std::vector<double> const &position,
-                                  std::vector<double> &normal,
+                                      std::vector<double> const &initial_direction) const override;
+    virtual Normal normal_direction(std::vector<double> const &position,
                                   bool check_normal = true) const override;
     virtual void check_class_invariants() const override;
     

@@ -24,11 +24,8 @@ public:
     virtual Relation relation(std::vector<double> const &position,
                               bool check_equality = false) const = 0;
     virtual Intersection intersection(std::vector<double> const &initial_position,
-                                      std::vector<double> const &initial_direction,
-                                      double &distance,
-                                      std::vector<double> &final_position) const = 0;
-    virtual bool normal_direction(std::vector<double> const &position,
-                                  std::vector<double> &normal,
+                                      std::vector<double> const &initial_direction) const = 0;
+    virtual Normal normal_direction(std::vector<double> const &position,
                                   bool check_normal = true) const = 0;
     virtual void check_class_invariants() const = 0;
     virtual void output(XML_Node output_node) const;

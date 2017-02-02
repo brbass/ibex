@@ -24,45 +24,45 @@ Surface(int index,
     normal_tolerance_ = 1000 * numeric_limits<double>::epsilon();
 };
 
-bool Surface::
+Surface::Reflection Surface::
 reflected_direction(vector<double> const &position,
                     vector<double> const &old_direction,
                     vector<double> &new_direction,
                     bool check_normal)
 {
-    vector<double> normal;
-
-    if(normal_direction(position,
-                        normal,
-                        check_normal))
+    Normal normal = normal_direction(position,
+                                     check_normal);
+    Surface::Reflection reflection;
+    if(normal.exists)
     {
+        reflection.exists = true;
         switch(dimension_)
         {
         case 1:
-            new_direction.assign(1, -old_direction[0]);
+            reflection.direction.assign(1, -old_direction[0]);
             
             break;
         case 2:
-            new_direction = vf2::subtract(old_direction,
-                                          vf2::multiply(normal,
-                                                        2 * vf2::dot(old_direction,
-                                                                     normal)));
+            reflection.direction = vf2::subtract(old_direction,
+                                                 vf2::multiply(normal,
+                                                               2 * vf2::dot(old_direction,
+                                                                            normal)));
             
             break;
         case 3:
-            new_direction = vf3::subtract(old_direction,
-                                          vf3::multiply(normal,
-                                                        2 * vf3::dot(old_direction,
-                                                                     normal)));
+            reflection.direction = vf3::subtract(old_direction,
+                                                 vf3::multiply(normal,
+                                                               2 * vf3::dot(old_direction,
+                                                                            normal)));
             
             break;
         }
-        
-        return true;
+        return reflection;
     }
     else
     {
-        return false;
+        reflection.exists = false;
+        return reflection;
     }
 }
 

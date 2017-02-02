@@ -51,13 +51,12 @@ Constructive_Solid_Geometry(int dimension,
                 break;
             }
             vector<double> position(dimension, 0);
-            vector<double> normal;
-            boundary_surfaces_[i]->normal_direction(position,
-                                                    normal,
-                                                    false);
+            Surface::Normal normal
+                = boundary_surfaces_[i]->normal_direction(position,
+                                                          false);
             for (int d = 0; d < dimension_; ++d)
             {
-                if (abs(abs(normal[d]) - 1) < 1e-14)
+                if (abs(abs(normal.direction[d]) - 1) < 1e-14)
                 {
                     checksum += pow(2, d);
                 }
@@ -120,27 +119,27 @@ find_region_including_surface(vector<double> const &position) const
 
     vector<double> direction;
 
-    surfaces_[surface]->normal_direction(position,
-                                         direction,
-                                         false);
+    Surface::Normal normal
+        = surfaces_[surface]->normal_direction(position,
+                                               false);
     
     vector<double> check_position;
     new_position(-delta_distance_,
                  position,
-                 direction,
+                 normal.direction,
                  check_position);
     
     region = find_region(check_position);
-
+    
     if (region != NO_REGION)
     {
         return region;
     }
-
+    
     // Check positive to the surface normal
     new_position(delta_distance_,
                  position,
-                 direction,
+                 normal.direction,
                  check_position);
     
     region = find_region(check_position);
@@ -193,22 +192,18 @@ next_intersection(int initial_region,
     
     for (int i = 0; i < number_of_surfaces; ++i)
     {
-        double current_distance;
-        vector<double> current_position;
-        
         shared_ptr<Surface> local_surface = local_region->surface(i);
-        
-        if(local_surface->intersection(initial_position,
-                                       initial_direction,
-                                       current_distance,
-                                       current_position)
-           == Surface::Intersection::INTERSECTS)
+
+        Surface::Intersection intersection
+            = local_surface->intersection(initial_position,
+                                          initial_direction);
+        if(intersection.type == Surface::Intersection::INTERSECTS)
         {
-            if (current_distance < distance)
+            if (intersection.distance < distance)
             {
                 best_surface = local_surface->index();
-                distance = current_distance;
-                best_position = current_position;
+                distance = intersection.distance;
+                best_position = intersection.position;
             }
         }
     }
@@ -243,24 +238,23 @@ next_intersection(vector<double> const &initial_position,
     {
         double current_distance;
         vector<double> current_position;
-        
-        if(surfaces_[i]->intersection(initial_position,
-                                      initial_direction,
-                                      current_distance,
-                                      current_position)
-           == Surface::Intersection::INTERSECTS)
+
+        Surface::Intersection intersection
+            = surfaces_[i]->intersection(initial_position,
+                                         initial_direction);
+        if (intersection.type == Surface::Intersection::Type::INTERSECTS)
         {
-            if (current_distance < distance)
+            if (intersection.distance < distance)
             {
                 vector<double> minus_position;
                 vector<double> plus_position;
                 
                 new_position(-delta_distance(),
-                             current_position,
+                             intersection.position,
                              initial_direction,
                              minus_position);
                 new_position(delta_distance(),
-                             current_position,
+                             intersection.position,
                              initial_direction,
                              plus_position);
                 
@@ -271,8 +265,8 @@ next_intersection(vector<double> const &initial_position,
                 {
                     final_surface = i;
                     final_region = plus_region;
-                    distance = current_distance;
-                    best_position = current_position;
+                    distance = intersection.distance;
+                    best_position = intersection.position;
                 }
             }
         }

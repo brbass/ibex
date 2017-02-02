@@ -66,6 +66,8 @@ intersection(vector<double> const &particle_position,
              double &distance,
              vector<double> &position) const
 {
+    Intersection intersection;
+    
     vector<double> const k0 = vf3::subtract(particle_position,
                                             origin_);
 
@@ -76,7 +78,8 @@ intersection(vector<double> const &particle_position,
 
     if (l2 < 0)
     {
-        return Intersection::NONE; // no intersection for line
+        intersection.type = Intersection::Type::NONE; // no intersection for line
+        return intersection;
     }
     
     double const l3 = sqrt(l2);
@@ -86,36 +89,40 @@ intersection(vector<double> const &particle_position,
     
     if (s2 > 0)
     {
-        distance = s2;
+        intersection.distance = s2;
     }
     else if (s1 > 0)
     {
-        distance = s1;
+        intersection.distance = s1;
     }
     else
     {
-        return Intersection::NEGATIVE; // intersection behind current point
+        intersection.type = Intersection::Type::NEGATIVE; // intersection behind current point
     }
     
-    position = vf3::add(particle_position,
-                        vf3::multiply(particle_direction,
-                                      distance));
+    intersection.position = vf3::add(particle_position,
+                                     vf3::multiply(particle_direction,
+                                                   distance));
     
     if (l2 <= intersection_tolerance_)
     {
-        return Intersection::TANGEANT;
+        intersection.type = Intersection::Type::TANGEANT;
+        return intersection;
     }
     else
     {
-        return Intersection::INTERSECTS;
+        intersection.type = Intersection::Type::INTERSECTS;
+        return intersection;
     }
 }
 
-bool Sphere_3D::
+Sphere_3D::Normal Sphere_3D::
 normal_direction(vector<double> const &position,
                  vector<double> &normal,
                  bool check_normal) const
 {
+    Normal normal;
+    
     // Check if point lies on sphere
     
     vector<double> const k0 = vf3::subtract(position,
@@ -125,13 +132,15 @@ normal_direction(vector<double> const &position,
     {
         if (abs(vf3::magnitude_squared(k0) - radius_ * radius_) > normal_tolerance_ * radius_ * radius_)
         {
-            return false;
+            normal.exists = false;
+            return normal;
         }
     }
+
+    normal.exists = true;
+    normal.direction = vf3::normalize(k0);
     
-    normal = vf3::normalize(k0);
-    
-    return true;
+    return normal;
 }
 
 void Sphere_3D::
