@@ -73,13 +73,13 @@ intersection(vector<double> const &particle_position,
     }
     else
     {
-        intersection.type = Intersection::NEGATIVE;
+        intersection.type = Intersection::Type::NEGATIVE;
         return intersection;
     }
     
     intersection.position = vf3::add(particle_position,
                                      vf3::multiply(particle_direction,
-                                                   distance));
+                                                   intersection.distance));
     intersection.type = Intersection::Type::INTERSECTS;
     
     return intersection;

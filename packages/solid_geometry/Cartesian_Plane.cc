@@ -64,12 +64,13 @@ intersection(vector<double> const &initial_position,
     intersection.position.assign(dimension_, 0);
     intersection.position[surface_dimension_] = position_;
     
-    if (distance < 0)
+    if (intersection.distance < 0)
     {
-        intersection.type = Intersection::NEGATIVE;
+        intersection.type = Intersection::Type::NEGATIVE;
         return intersection;
     }
-    
+
+    intersection.type = Intersection::Type::INTERSECTS;
     return intersection;
 }
 
@@ -78,7 +79,6 @@ normal_direction(vector<double> const &position,
                  bool check_normal) const
 {
     Normal normal;
-    normal.position = position;
     
     if (check_normal)
     {
@@ -92,7 +92,7 @@ normal_direction(vector<double> const &position,
     normal.direction.assign(dimension_, 0);
     normal.direction[surface_dimension_] = 1.;
     
-    return true;
+    return normal;
 }
 
 void Cartesian_Plane::

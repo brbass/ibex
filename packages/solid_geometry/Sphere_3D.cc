@@ -62,9 +62,7 @@ distance(vector<double> const &position) const
 
 Sphere_3D::Intersection Sphere_3D::
 intersection(vector<double> const &particle_position,
-             vector<double> const &particle_direction,
-             double &distance,
-             vector<double> &position) const
+             vector<double> const &particle_direction) const
 {
     Intersection intersection;
     
@@ -102,7 +100,7 @@ intersection(vector<double> const &particle_position,
     
     intersection.position = vf3::add(particle_position,
                                      vf3::multiply(particle_direction,
-                                                   distance));
+                                                   intersection.distance));
     
     if (l2 <= intersection_tolerance_)
     {
@@ -118,7 +116,6 @@ intersection(vector<double> const &particle_position,
 
 Sphere_3D::Normal Sphere_3D::
 normal_direction(vector<double> const &position,
-                 vector<double> &normal,
                  bool check_normal) const
 {
     Normal normal;

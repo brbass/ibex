@@ -29,6 +29,7 @@ public:
     }
 
     // Surface methods
+    virtual double distance(std::vector<double> const &position) const override;
     virtual Relation relation(std::vector<double> const &position,
                               bool check_equality = false) const override;
     virtual Intersection intersection(std::vector<double> const &initial_position,

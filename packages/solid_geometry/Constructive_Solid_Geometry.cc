@@ -197,7 +197,7 @@ next_intersection(int initial_region,
         Surface::Intersection intersection
             = local_surface->intersection(initial_position,
                                           initial_direction);
-        if(intersection.type == Surface::Intersection::INTERSECTS)
+        if(intersection.type == Surface::Intersection::Type::INTERSECTS)
         {
             if (intersection.distance < distance)
             {

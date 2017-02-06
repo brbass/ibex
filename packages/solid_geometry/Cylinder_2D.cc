@@ -107,7 +107,7 @@ intersection(vector<double> const &particle_position,
     
     intersection.position = vf2::add(particle_position,
                                      vf2::multiply(particle_direction,
-                                                   distance));
+                                                   intersection.distance));
     
     if (l3 <= intersection_tolerance_)
     {

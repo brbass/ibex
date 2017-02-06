@@ -80,7 +80,7 @@ intersection(vector<double> const &particle_position,
     
     intersection.position = vf2::add(particle_position,
                                      vf2::multiply(particle_direction,
-                                                   distance));
+                                                   intersection.distance));
 
     intersection.type = Intersection::Type::INTERSECTS;
     return intersection;
@@ -88,7 +88,6 @@ intersection(vector<double> const &particle_position,
 
 Plane_2D::Normal Plane_2D::
 normal_direction(vector<double> const &position,
-                 vector<double> &normal,
                  bool check_normal) const
 {
     Normal normal;

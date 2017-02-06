@@ -48,20 +48,20 @@ intersection(vector<double> const &particle_position,
     Intersection intersection;
     if (abs(particle_direction[0]) <= intersection_tolerance_)
     {
-        intersection.type = Intersection::PARALLEL;
+        intersection.type = Intersection::Type::PARALLEL;
         return intersection;
     }
     
     intersection.distance = (origin_[0] - particle_position[0]) / particle_direction[0];
     intersection.position.assign(dimension_, origin_[0]);
     
-    if (distance < 0)
+    if (intersection.distance < 0)
     {
-        intersection.type = Intersection::NEGATIVE;
+        intersection.type = Intersection::Type::NEGATIVE;
         return intersection;
     }
     
-    intersection.type = Intersection::INTERSECTS;
+    intersection.type = Intersection::Type::INTERSECTS;
     return intersection;
 }
 

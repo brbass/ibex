@@ -63,9 +63,7 @@ relation(vector<double> const &particle_position,
 
 Cylinder_3D::Intersection Cylinder_3D::
 intersection(vector<double> const &particle_position,
-             vector<double> const &particle_direction,
-             double &distance,
-             vector<double> &position) const
+             vector<double> const &particle_direction) const
 {
     Intersection intersection;
     
@@ -118,7 +116,7 @@ intersection(vector<double> const &particle_position,
     
     intersection.position = vf3::add(particle_position,
                                      vf3::multiply(particle_direction,
-                                                   distance));
+                                                   intersection.distance));
 
     if (l3 <= intersection_tolerance_)
     {
@@ -127,14 +125,13 @@ intersection(vector<double> const &particle_position,
     }
     else
     {
-        intersection.type = Intersection::INTERSECTS;
+        intersection.type = Intersection::Type::INTERSECTS;
         return intersection;
     }
 }
 
 Cylinder_3D::Normal Cylinder_3D::
 normal_direction(vector<double> const &position,
-                 vector<double> &normal,
                  bool check_normal) const
 {
     Normal normal;

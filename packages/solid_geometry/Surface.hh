@@ -1,6 +1,7 @@
 #ifndef Surface_hh
 #define Surface_hh
 
+#include <limits>
 #include <memory>
 #include <vector>
 
@@ -45,7 +46,7 @@ public:
     struct Normal
     {
         bool exists = true;
-        vector<double> direction;
+        std::vector<double> direction;
     };
     
     /* Types of intersection of vector and surface */
@@ -62,13 +63,13 @@ public:
         
         Type type = Type::NONE;
         double distance = std::numeric_limits<double>::max();
-        vector<double> position;
+        std::vector<double> position;
     };
     
     struct Reflection
     {
         bool exists = true;
-        vector<double> direction;
+        std::vector<double> direction;
     };
     
     /* Constructor */
@@ -120,10 +121,9 @@ public:
                                     bool check_normal = true) const = 0;
     
     /* Reflected direction */
-    virtual bool reflected_direction(std::vector<double> const &position,
-                                     std::vector<double> const &initial_direction,
-                                     std::vector<double> &final_direction,
-                                     bool check_normal = true);
+    virtual Reflection reflected_direction(std::vector<double> const &position,
+                                           std::vector<double> const &initial_direction,
+                                           bool check_normal = true) const;
 
     /* Boundary source (for boundary surfaces) */
     virtual std::shared_ptr<Boundary_Source> boundary_source()

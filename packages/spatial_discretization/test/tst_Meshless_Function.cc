@@ -189,10 +189,10 @@ int main()
         
         
         
-        vector<shared_ptr<Meshless_Function> > neighbor_functions(number_of_neighbors);
+        // vector<shared_ptr<Meshless_Function> > neighbor_functions(number_of_neighbors);
         
-        shared_ptr<Meshless_Function> meshless_function
-            = make_shared<Linear_MLS_Function>(neighbor_functions);
+        // shared_ptr<Meshless_Function> meshless_function
+        //     = make_shared<Linear_MLS_Function>(neighbor_functions);
     }
     
     return checksum;

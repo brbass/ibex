@@ -27,8 +27,7 @@ Surface(int index,
 Surface::Reflection Surface::
 reflected_direction(vector<double> const &position,
                     vector<double> const &old_direction,
-                    vector<double> &new_direction,
-                    bool check_normal)
+                    bool check_normal) const
 {
     Normal normal = normal_direction(position,
                                      check_normal);
@@ -43,17 +42,19 @@ reflected_direction(vector<double> const &position,
             
             break;
         case 2:
-            reflection.direction = vf2::subtract(old_direction,
-                                                 vf2::multiply(normal,
-                                                               2 * vf2::dot(old_direction,
-                                                                            normal)));
+            reflection.direction
+                = vf2::subtract(old_direction,
+                                vf2::multiply(normal.direction,
+                                              2 * vf2::dot(old_direction,
+                                                           normal.direction)));
             
             break;
         case 3:
-            reflection.direction = vf3::subtract(old_direction,
-                                                 vf3::multiply(normal,
-                                                               2 * vf3::dot(old_direction,
-                                                                            normal)));
+            reflection.direction
+                = vf3::subtract(old_direction,
+                                vf3::multiply(normal.direction,
+                                              2 * vf3::dot(old_direction,
+                                                           normal.direction)));
             
             break;
         }

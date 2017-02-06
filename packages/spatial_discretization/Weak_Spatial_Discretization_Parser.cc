@@ -1,14 +1,23 @@
 #include "Weak_Spatial_Discretization_Parser.hh"
 
 #include "Basis_Function.hh"
-#include "Boundary_Source.hh"
+#include "Cartesian_Distance.hh"
+#include "Cartesian_Plane.hh"
 #include "Compact_Gaussian_RBF.hh"
-#include "Material.hh"
+#include "Linear_MLS_Function.hh"
 #include "Meshless_Function.hh"
+#include "RBF_Function.hh"
 #include "RBF_Parser.hh"
 #include "Solid_Geometry.hh"
 #include "Truncated_Gaussian_RBF.hh"
+#include "Weak_Spatial_Discretization.hh"
 #include "Weight_Function.hh"
+#include "XML_Node.hh"
+
+using std::make_shared;
+using std::shared_ptr;
+using std::string;
+using std::vector;
 
 Weak_Spatial_Discretization_Parser::
 Weak_Spatial_Discretization_Parser(shared_ptr<Solid_Geometry> solid_geometry,
@@ -21,9 +30,9 @@ Weak_Spatial_Discretization_Parser(shared_ptr<Solid_Geometry> solid_geometry,
 shared_ptr<Weak_Spatial_Discretization> Weak_Spatial_Discretization_Parser::
 get_weak_discretization(XML_Node input_node) const
 {
-    int dimension = solid_geometry->dimension();
+    int dimension = solid_geometry_->dimension();
     int number_of_points = input_node.get_child_value<int>("number_of_points");
-    XML_Node basis_node = input_node.child("basis_functions");
+    XML_Node basis_node = input_node.get_child("basis_functions");
     vector<shared_ptr<Basis_Function> > basis_functions
         = get_basis_functions(input_node,
                               number_of_points,
@@ -38,27 +47,28 @@ get_weak_discretization(XML_Node input_node) const
                                                     weight_functions);
 }
 
-vector<shared_ptr<RBF_Function> > Weak_Spatial_Discretization_Parser::
+vector<shared_ptr<Meshless_Function> > Weak_Spatial_Discretization_Parser::
 get_rbf_functions(XML_Node input_node,
                   int number_of_points,
                   int dimension,
-                  string prefix)
+                  string prefix) const
 {
     // Get RBF and distance information
     RBF_Parser rbf_parser;
-    shared_ptr<RBF> rbf = rbf_parser->parse_from_xml(input_node);
+    shared_ptr<RBF> rbf = rbf_parser.parse_from_xml(input_node);
     shared_ptr<Distance> distance = make_shared<Cartesian_Distance>(dimension);
     
     // Get meshless functions
-    vector<shared_ptr<RBF_Function> > functions(number_of_points);
+    vector<shared_ptr<Meshless_Function> > functions(number_of_points);
     for (XML_Node node = input_node.get_child(prefix);
          node;
          node = node.get_sibling(prefix,
                                  false))
     {
         int index = node.get_attribute<int>("index");
-        double radius = node.get_child_value("radius");
-        vector<double> position = node.get_child_vector("position");
+        double radius = node.get_child_value<double>("radius");
+        vector<double> position = node.get_child_vector<double>("position",
+                                                                dimension);
         double shape = rbf->radius() / radius;
         functions[index] = make_shared<RBF_Function>(shape,
                                                      position,
@@ -69,11 +79,11 @@ get_rbf_functions(XML_Node input_node,
     return functions;
 }
 
-vector<shared_ptr<Linear_MLS_Function> > Weak_Spatial_Discretization_Parser::
+vector<shared_ptr<Meshless_Function> > Weak_Spatial_Discretization_Parser::
 get_mls_functions(XML_Node input_node,
                   int number_of_points,
                   int dimension,
-                  string prefix)
+                  string prefix) const
 {
     // Get weighting functions for MLS
     vector<shared_ptr<Meshless_Function> > rbf_functions
@@ -84,7 +94,7 @@ get_mls_functions(XML_Node input_node,
 
     
     // Get MLS functions
-    vector<shared_ptr<Linear_MLS_Function> > functions(number_of_points);
+    vector<shared_ptr<Meshless_Function> > functions(number_of_points);
     for (XML_Node node = input_node.get_child(prefix);
          node;
          node = node.get_sibling(prefix,
@@ -93,13 +103,13 @@ get_mls_functions(XML_Node input_node,
         int index = node.get_attribute<int>("index");
         
         int number_of_neighbors
-            = weight_node.get_child_value("number_of_" + prefix + "_neighbors");
+            = node.get_child_value<int>("number_of_" + prefix + "_neighbors");
         vector<int> neighbor_indices
-            = weight_node.get_child_vector<int>(prefix + "_neighbors",
+            = node.get_child_vector<int>(prefix + "_neighbors",
                                                 number_of_neighbors);
         
-        vector<shared_ptr<Meshless_Function> > local_functions(number_of_basis_neighbors);
-        for (int i = 0; i < number_of_basis_neighbors; ++i)
+        vector<shared_ptr<Meshless_Function> > local_functions(number_of_neighbors);
+        for (int i = 0; i < number_of_neighbors; ++i)
         {
             local_functions[i] = rbf_functions[neighbor_indices[i]];
         }
@@ -114,7 +124,7 @@ vector<shared_ptr<Meshless_Function> > Weak_Spatial_Discretization_Parser::
 get_meshless_functions(XML_Node input_node,
                        int number_of_points,
                        int dimension,
-                       string prefix)
+                       string prefix) const
 {
     string meshless_type = input_node.get_child_value<string>("meshless_type");
     if (meshless_type == "rbf")
@@ -141,7 +151,7 @@ get_meshless_functions(XML_Node input_node,
 vector<shared_ptr<Basis_Function> >  Weak_Spatial_Discretization_Parser::
 get_basis_functions(XML_Node input_node,
                     int number_of_points,
-                    int dimension)
+                    int dimension) const
 {
     // Get meshless functions
     vector<shared_ptr<Meshless_Function> > meshless_functions
@@ -177,7 +187,7 @@ vector<shared_ptr<Weight_Function> > Weak_Spatial_Discretization_Parser::
 get_weight_functions(XML_Node input_node,
                      int number_of_points,
                      int dimension,
-                     vector<shared_ptr<Basis_Function> > const &basis_functions)
+                     vector<shared_ptr<Basis_Function> > const &basis_functions) const
 {
     // Get global weight function information
     int integration_ordinates = input_node.get_child_value<int>("integration_ordinates");
@@ -188,15 +198,15 @@ get_weight_functions(XML_Node input_node,
                                                                  "weight");
         if (weighting == "point")
         {
-            material_options.weighting = Weight_Function::Weighting::POINT;
+            material_options.weighting = Weight_Function::Material_Options::Weighting::POINT;
         }
         else if (weighting == "weight")
         {
-            material_options.weighting = Weight_Function::Weighting::WEIGHT;
+            material_options.weighting = Weight_Function::Material_Options::Weighting::WEIGHT;
         }
         else if (weighting == "weight")
         {
-            material_options.weighting = Weight_Function::Weighting::FLUX;
+            material_options.weighting = Weight_Function::Material_Options::Weighting::FLUX;
         }
         else
         {
@@ -207,11 +217,11 @@ get_weight_functions(XML_Node input_node,
                                                               "standard");
         if (output == "standard")
         {
-            material_options.output = Weight_Function::Weighting::STANDARD;
+            material_options.output = Weight_Function::Material_Options::Output::STANDARD;
         }
         else if (output == "standard")
         {
-            material_options.output = Weight_Function::Weighting::SUPG;
+            material_options.output = Weight_Function::Material_Options::Output::SUPG;
         }
         else
         {
@@ -237,10 +247,10 @@ get_weight_functions(XML_Node input_node,
         
         // Get local basis functions
         int number_of_basis_neighbors
-            = weight_node.get_child_value("number_of_basis_neighbors");
+            = node.get_child_value<int>("number_of_basis_neighbors");
         vector<int> basis_neighbor_indices
-            = weight_node.get_child_vector<int>("basis_neighbors",
-                                                number_of_basis_neighbors);
+            = node.get_child_vector<int>("basis_neighbors",
+                                         number_of_basis_neighbors);
         vector<shared_ptr<Basis_Function> > local_basis_functions(number_of_basis_neighbors);
         for (int i = 0; i < number_of_basis_neighbors; ++i)
         {
@@ -257,7 +267,7 @@ get_weight_functions(XML_Node input_node,
                                            dimension,
                                            integration_ordinates,
                                            material_options,
-                                           meshless_weight[index],
+                                           meshless_functions[index],
                                            local_basis_functions,
                                            solid_geometry_,
                                            boundary_surfaces);
@@ -267,7 +277,7 @@ get_weight_functions(XML_Node input_node,
 }
 
 vector<shared_ptr<Cartesian_Plane> > Weak_Spatial_Discretization_Parser::
-get_boundary_surfaces(shared_ptr<Meshless_Function> function)
+get_boundary_surfaces(shared_ptr<Meshless_Function> function) const
 {
     vector<shared_ptr<Cartesian_Plane> > surfaces;
 

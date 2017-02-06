@@ -167,37 +167,34 @@ int test_surface(shared_ptr<Surface> surface,
             = vf::normalize(vf::subtract(equal_position,
                                          initial_position));
         
-        double distance;
-        vector<double> final_position;
-        if (!(surface->intersection(initial_position,
-                                    initial_direction,
-                                    distance,
-                                    final_position) == Surface::Intersection::INTERSECTS))
+        Surface::Intersection const intersection
+            = surface->intersection(initial_position,
+                                    initial_direction);
+        if (intersection.type != Surface::Intersection::Type::INTERSECTS)
         {
             cout << description << " intersection failed" << endl;
             checksum += 1;
         }
-        if (!ce::approx(distance, sqrt(dimension), tolerance()))
+        if (!ce::approx(intersection.distance, sqrt(dimension), tolerance()))
         {
-            cout << description << " distance incorrect: " << distance << endl;
+            cout << description << " distance incorrect: " << intersection.distance << endl;
             checksum += 1;
         }
 
-        if (!ce::approx(final_position, equal_position, tolerance()))
+        if (!ce::approx(intersection.position, equal_position, tolerance()))
         {
             cout << description << " intersection position incorrect" << endl;
-            cout << final_position[0] << endl;
+            cout << intersection.position[0] << endl;
             checksum += 1;
         }
 
         // Reflection
         
-        vector<double> final_direction;
-        
-        if (!surface->reflected_direction(equal_position,
-                                          initial_direction,
-                                          final_direction,
-                                          true))
+        Surface::Reflection const reflection
+            = surface->reflected_direction(equal_position,
+                                           initial_direction,
+                                           true) ;
+        if (!reflection.exists)
         {
             cout << description << " reflected normal not found" << endl;
             checksum += 1;
@@ -206,7 +203,7 @@ int test_surface(shared_ptr<Surface> surface,
         vector<double> expected_final_direction = initial_direction;
         expected_final_direction[0] = -expected_final_direction[0];
 
-        if (!ce::approx(expected_final_direction, final_direction, tolerance()))
+        if (!ce::approx(expected_final_direction, reflection.direction, tolerance()))
         {
             cout << description << " reflected direction incorrect" << endl;
             checksum += 1;
@@ -216,17 +213,17 @@ int test_surface(shared_ptr<Surface> surface,
     // Test normal direction
     
     {
-        vector<double> normal;
+        Surface::Normal const normal
+            = surface->normal_direction(equal_position,
+                                        true);
 
-        if (!surface->normal_direction(equal_position,
-                                       normal,
-                                       true))
+        if (!normal.exists)
         {
             cout << description << " normal surface not found" << endl;
             checksum += 1;
         }
 
-        if (!ce::approx(normal, normal_direction, tolerance()))
+        if (!ce::approx(normal.direction, normal_direction, tolerance()))
         {
             cout << description << " normal direction incorrect" << endl;
             checksum += 1;
