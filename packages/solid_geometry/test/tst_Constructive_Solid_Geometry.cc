@@ -48,7 +48,7 @@ shared_ptr<Constructive_Solid_Geometry> get_solid_geometry(string xml_input_file
         = boundary_parser.parse_from_xml(input_file.get_child("boundary_sources"));
     
     Constructive_Solid_Geometry_Parser solid_parser(materials,
-                                                     boundary_sources);
+                                                    boundary_sources);
     return solid_parser.parse_from_xml(input_file.get_child("solid_geometry"));
 }
 

@@ -1083,9 +1083,8 @@ void Weight_Function::
 check_class_invariants() const
 {
     // Check that all boundary surfaces actually intersect
-    for (int s = 0; s < number_of_boundary_surfaces_; ++s)
+    for (shared_ptr<Cartesian_Plane> surface : boundary_surfaces_)
     {
-        shared_ptr<Cartesian_Plane> surface = boundary_surfaces_[s];
         double position = surface->position();
         int surface_dim = surface->surface_dimension();
         

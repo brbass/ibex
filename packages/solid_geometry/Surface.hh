@@ -59,7 +59,7 @@ public:
             NEGATIVE, // only has negative intersection
             TANGEANT // only intersects at one infinitesimal point
         };
-
+        
         Type type = Type::NONE;
         double distance = std::numeric_limits<double>::max();
         vector<double> position;
