@@ -36,7 +36,7 @@ public:
     
     // Append a child node
     XML_Node append_child(std::string name);
-    
+
     // Get an attribute of the node, insisting that it exists
     template<typename T> T get_attribute(std::string description);
 
@@ -80,12 +80,23 @@ public:
     template<typename T> void set_child_vector(std::vector<T> const &data,
                                                std::string description,
                                                std::string index_order = "");
+
+    // Append all values from one node to another
+    void append_all(XML_Node copy_node);
+    
+    // Prepend all values from one node to another
+    void prepend_all(XML_Node copy_node);
     
 protected:
     
     // Create an XML_Node (see XML_Document for public creation)
     XML_Node(std::shared_ptr<pugi::xml_node> node,
              std::string name);
+
+    std::shared_ptr<pugi::xml_node> xml_node()
+    {
+        return xml_node_;
+    }
     
 private:
     

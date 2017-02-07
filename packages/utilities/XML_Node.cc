@@ -67,3 +67,31 @@ append_child(string name)
     return XML_Node(make_shared<pugi::xml_node>(xml_node_->append_child(name.c_str())),
                     child_name);
 }
+
+void XML_Node::
+prepend_all(XML_Node copy_node)
+{
+    shared_ptr<pugi::xml_node> copy_pugi_node
+        = copy_node->xml_node();
+    
+    for (pugi::xml_node node = copy_pugi_node->first_child();
+         node;
+         node = node.next_sibling)
+    {
+        xml_node_->prepend_copy(node);
+    }
+}
+
+void XML_Node::
+append_all(XML_Node copy_node)
+{
+    shared_ptr<pugi::xml_node> copy_pugi_node
+        = copy_node->xml_node();
+    
+    for (pugi::xml_node node = copy_pugi_node->first_child();
+         node;
+         node = node.next_sibling)
+    {
+        xml_node_->append_copy(node);
+    }
+}
