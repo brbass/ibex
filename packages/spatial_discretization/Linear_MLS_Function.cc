@@ -21,17 +21,18 @@ Linear_MLS_Function(vector<shared_ptr<Meshless_Function> > neighbor_functions):
     neighbor_functions_(neighbor_functions)
 {
     number_of_polynomials_ = dimension_ + 1;
-}
-
-double Linear_MLS_Function::
-radius() const
-{
-    return function_->radius();
+    radius_ = function_->radius();
+    radius2_ = radius_ * radius_;
 }
 
 double Linear_MLS_Function::
 value(vector<double> const &r) const
 {
+    if (!inside_radius(r))
+    {
+        return 0.;
+    }
+    
     // Get A
     vector<double> a_mat(number_of_polynomials_ * number_of_polynomials_);
     get_a(r,
@@ -61,6 +62,12 @@ double Linear_MLS_Function::
 d_value(int dim,
         vector<double> const &r) const
 {
+    // Check if value is inside basis radius
+    if (!inside_radius(r))
+    {
+        return 0.;
+    }
+    
     // Get A
     vector<double> a_mat(number_of_polynomials_ * number_of_polynomials_);
     vector<double> d_a_mat(number_of_polynomials_ * number_of_polynomials_);
@@ -129,6 +136,13 @@ dd_value(int dim,
 vector<double> Linear_MLS_Function::
 gradient_value(vector<double> const &r) const               
 {
+    // Check if value is inside basis radius
+    if (!inside_radius(r))
+    {
+        return vector<double>(dimension_, 0.);
+    }
+
+    // Get dimensional derivatives separately
     vector<double> result(dimension_);
 
     for (int d = 0; d < dimension_; ++d)
@@ -282,4 +296,12 @@ get_d_b(int dim,
         b[i] = poly[i] * weight;
         d_b[i] = poly[i] * d_weight;
     }
+}
+
+bool Linear_MLS_Function::
+inside_radius(vector<double> const &r) const
+{
+    double dist2 = vf::magnitude_squared(vf::subtract(r, position_));
+    
+    return dist2 < radius2_;
 }

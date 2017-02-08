@@ -67,7 +67,7 @@ public:
     {
         std::vector<int> vec(number_of_elements);
 
-        for (unsigned i=0; i<number_of_elements; ++i)
+        for (unsigned i = 0; i < number_of_elements; ++i)
         {
             vec[i] = distribution(generator);
         }

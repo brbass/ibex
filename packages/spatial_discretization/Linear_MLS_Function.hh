@@ -25,7 +25,10 @@ public:
     {
         return dimension_;
     }
-    virtual double radius() const override;
+    virtual double radius() const override
+    {
+        return radius_;
+    }
     virtual std::vector<double> position() const override
     {
         return position_;
@@ -60,11 +63,14 @@ private:
                          std::vector<double> const &position,
                          std::vector<double> &b,
                          std::vector<double> &d_b) const;
+    virtual bool inside_radius(std::vector<double> const &r) const;
     
     // Data
     int dimension_;
     int number_of_polynomials_;
     int number_of_functions_;
+    double radius_;
+    double radius2_;
     std::vector<double> position_;
     std::shared_ptr<Meshless_Function> function_;
     std::vector<std::shared_ptr<Meshless_Function> > neighbor_functions_;
