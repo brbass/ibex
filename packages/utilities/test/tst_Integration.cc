@@ -355,7 +355,7 @@ int main()
 {
     int checksum = 0;
     
-    int num_tests = 1000;
+    int num_tests = 100;
     
     checksum += test_cartesian_1d(16, num_tests);
     checksum += test_cartesian_2d(16, num_tests);

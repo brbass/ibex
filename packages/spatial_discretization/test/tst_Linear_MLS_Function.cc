@@ -21,11 +21,13 @@ int test_1d()
     int dimension = 1;
     int number_of_points = 21;
     double dx = 0.2;
-    int number_of_neighbors = 4;
-    double radius = dx * number_of_neighbors;
+    int number_of_neighbors = 6;
     double xmin = 0.;
     double xmax = dx * (number_of_points - 1);
 
+    // Radius is halved so that a basis function 2r away will be the final neighbor
+    double radius = 0.5 * dx * number_of_neighbors;
+    
     // Create RBF and distance
     shared_ptr<RBF> rbf
         = make_shared<Compact_Gaussian_RBF>();
@@ -86,7 +88,8 @@ int test_1d()
     // Test that sum of values is one everywhere
     {
         bool failed = false;
-        double tolerance = 1.e-6;
+        double tolerance = 1.e-10;
+        double largest_error = 0.;
         for (int t = 0; t < num_tests; ++t)
         {
             vector<double> test_position(dimension, rng.scalar());
@@ -97,22 +100,29 @@ int test_1d()
                 double value = mls_functions[i]->value(test_position);
                 test_value += value;
             }
-            if (!ce::approx(test_value, 1., tolerance))
+            double error = test_value - 1.;
+            if (error > largest_error)
+            {
+                largest_error = error;
+            }
+            if (!ce::approx(error, 0., tolerance))
             {
                 checksum += 1;
                 if (!failed)
                 {
                     failed = true;
-                    cout << "MLS value error: " << test_value - 1. << endl;
+                    cout << "MLS value error for test " << t << ": " << error << endl;
                 }
             }
         }
+        cout << "largest error for MLS value: " << largest_error << endl;
     }
     
     // Test that sum of derivatives is zero everywhere
     {
         bool failed = false;
-        double tolerance = 2.e-5;
+        double tolerance = 1.e-8;
+        double largest_error = 0.;
         for (int t = 0; t < num_tests; ++t)
         {
             vector<double> test_position(dimension, rng.scalar());
@@ -124,16 +134,22 @@ int test_1d()
                                                          test_position);
                 test_value += value;
             }
+            double error = abs(test_value);
+            if (error > largest_error)
+            {
+                largest_error = error;
+            }
             if (!ce::approx(test_value, 0., tolerance))
             {
                 checksum += 1;
                 if (!failed)
                 {
                     failed = true;
-                    cout << "MLS d_value error: " << test_value << endl;
+                    cout << "MLS d_value error for test " << t << ": " << test_value << endl;
                 }
             }
         }
+        cout << "largest error for MLS d_value: " << largest_error << endl;
     } 
    
     return checksum;
