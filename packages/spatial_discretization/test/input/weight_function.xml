@@ -1,0 +1,207 @@
+<?xml version="1.0"?>
+
+<input>
+  <angular_discretization>
+    <dimension>2</dimension>
+    <number_of_moments>1</number_of_moments>
+    <rule>1</rule>
+  </angular_discretization>
+
+  <energy_discretization>
+    <number_of_groups>1</number_of_groups>
+  </energy_discretization>
+
+  <solid_geometry>
+    <dimension>2</dimension>
+    
+    <surfaces>
+      <number_of_surfaces>5</number_of_surfaces>
+      
+      <surface index='0' shape='cartesian_plane' type='boundary'>
+        <surface_dimension>0</surface_dimension>
+        <position>0</position>
+        <normal>-1</normal>
+        <boundary_source>0</boundary_source>
+      </surface>
+      
+      <surface index='1' shape='cartesian_plane' type='boundary'>
+        <surface_dimension>0</surface_dimension>
+        <position>1</position>
+        <normal>1</normal>
+        <boundary_source>1</boundary_source>
+      </surface>
+
+      <surface index='2' shape='cartesian_plane' type='boundary'>
+        <surface_dimension>1</surface_dimension>
+        <position>0</position>
+        <normal>-1</normal>
+        <boundary_source>0</boundary_source>
+      </surface>
+
+      <surface index='3' shape='cartesian_plane' type='boundary'>
+        <surface_dimension>1</surface_dimension>
+        <position>1</position>
+        <normal>1</normal>
+        <boundary_source>1</boundary_source>
+      </surface>
+
+      <surface index='4' shape='cartesian_plane' type='internal'>
+        <surface_dimension>0</surface_dimension>
+        <position>1</position>
+        <normal>1</normal>
+      </surface>
+    </surfaces>
+    
+    <regions>
+      <number_of_regions>2</number_of_regions>
+      
+      <region index='0' material='0'>
+        <surface_relation surface='0' relation='negative'/>
+        <surface_relation surface='4' relation='negative'/>
+        <surface_relation surface='2' relation='negative'/>
+        <surface_relation surface='3' relation='negative'/>
+      </region>
+
+      <region index='0' material='0'>
+        <surface_relation surface='4' relation='positive'/>
+        <surface_relation surface='1' relation='negative'/>
+        <surface_relation surface='2' relation='negative'/>
+        <surface_relation surface='3' relation='negative'/>
+      </region>
+    </regions>
+  </solid_geometry>
+  
+  <materials>
+    <number_of_materials>2</number_of_materials>
+    
+    <material index='0'>
+      <sigma_t>2.0</sigma_t>
+      <sigma_s>1.0</sigma_s>
+      <nu>2.0</nu>
+      <sigma_f>0.2</sigma_f>
+      <chi>1.0</chi>
+      
+      <internal_source>0.0</internal_source>
+    </material>
+
+    <material index='1'>
+      <sigma_t>1.0</sigma_t>
+      <sigma_s>0.0</sigma_s>
+      <nu>0.0</nu>
+      <sigma_f>0.0</sigma_f>
+      <chi>0.0</chi>
+      
+      <internal_source>1.0</internal_source>
+    </material>
+  </materials>
+  
+  <boundary_sources>
+    <number_of_boundary_sources>2</number_of_boundary_sources>
+    
+    <boundary_source index='0'>
+      <alpha>0</alpha>
+      <isotropic_source>0</isotropic_source>
+    </boundary_source>
+    
+    <boundary_source index='1'>
+      <alpha>0</alpha>
+      <isotropic_source>1.0</isotropic_source>
+    </boundary_source>
+  </boundary_sources>
+
+  <basis_functions>
+    <meshless_function type='rbf' function='compact_gaussian'/>
+
+    <number_of_basis_functions>15</number_of_basis_functions>
+    
+    <basis index='0'>
+      <radius>0.1</radius>
+      <position>0.6 0.6</position>
+    </basis>
+    <basis index='1'>
+      <radius>0.4</radius>
+      <position>0.45 0.55</position>
+    </basis>
+    <basis index='2'>
+      <radius>0.1</radius>
+      <position>0.35 0.3</position>
+    </basis>
+    <basis index='3'>
+      <radius>0.1</radius>
+      <position>0.2 0.7</position>
+    </basis>
+    <basis index='4'>
+      <radius>0.55</radius>
+      <position>0.7 0.2</position>
+    </basis>
+    <basis index='5'>
+      <radius>0.5</radius>
+      <position>0.25 0.3</position>
+    </basis>
+    <basis index='6'>
+      <radius>0.3</radius>
+      <position>0.2 0.5</position>
+    </basis>
+    <basis index='7'>
+      <radius>0.1</radius>
+      <position>0.3 0.2</position>
+    </basis>
+    <basis index='8'>
+      <radius>0.15</radius>
+      <position>0.4 0.0</position>
+    </basis>
+    <basis index='9'>
+      <radius>0.05</radius>
+      <position>0.1 0.15</position>
+    </basis>
+    <basis index='10'>
+      <radius>0.2</radius>
+      <position>0.9 0.9</position>
+    </basis>
+    <basis index='11'>
+      <radius>0.25</radius>
+      <position>1.0 0.4</position>
+    </basis>
+    <basis index='12'>
+      <radius>0.15</radius>
+      <position>0.7 0.2</position>
+    </basis>
+    <basis index='13'>
+      <radius>0.2</radius>
+      <position>0.8 0.0</position>
+    </basis>
+    <basis index='14'>
+      <radius>0.4</radius>
+      <position>0.2 0.6</position>
+    </basis>
+  </basis_functions>
+  
+  <weight_functions>
+    <meshless_function type='rbf' function='compact_gaussian'/>
+    <material_options weighting='weight' output='standard'/>
+    
+    <number_of_weight_functions>3</number_of_weight_functions>
+
+    <weight index='0'>
+      <radius>0.3</radius>
+      <position>0.5 0.5</position>
+      <number_of_basis_neighbors>5</number_of_basis_neighbors>
+      <basis_neighbors>0 1 2 3 4</basis_neighbors>
+    </weight>
+
+    <weight index='1'>
+      <radius>0.4</radius>
+      <position>0. 0.</position>
+      <number_of_basis_neighbors>5</number_of_basis_neighbors>
+      <basis_neighbors>5 6 7 8 9</basis_neighbors>
+    </weight>
+
+    <weight index='2'>
+      <radius>0.4</radius>
+      <position>0.9 0.5</position>
+      <number_of_basis_neighbors>5</number_of_basis_neighbors>
+      <basis_neighbors>10 11 12 13 14</basis_neighbors>
+    </weight>
+  </weight_functions>
+</input>
+

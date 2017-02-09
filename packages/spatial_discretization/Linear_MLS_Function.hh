@@ -17,7 +17,7 @@ class XML_Node;
 class Linear_MLS_Function : public Meshless_Function
 {
 public:
-    
+
     Linear_MLS_Function(std::vector<std::shared_ptr<Meshless_Function> > neighbor_functions);
 
     // Meshless_Function methods

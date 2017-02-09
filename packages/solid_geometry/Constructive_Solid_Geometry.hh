@@ -38,16 +38,40 @@ public:
     {
         return regions_.size();
     }
+    virtual int number_of_boundary_surfaces() const
+    {
+        return boundary_surfaces_.size();
+    }
     virtual double delta_distance() const
     {
         return delta_distance_;
     }
     
-    virtual std::shared_ptr<Surface> const &surface(int s) const
+    virtual std::shared_ptr<Surface> surface(int s) const
     {
         return surfaces_[s];
     }
-    virtual std::shared_ptr<Region> const &region(int r) const
+    virtual std::shared_ptr<Surface> boundary_surface(int s) const
+    {
+        return boundary_surfaces_[s];
+    }
+    virtual std::shared_ptr<Cartesian_Plane> cartesian_boundary_surface(int s) const
+    {
+        return cartesian_boundary_surfaces_[s];
+    }
+    virtual std::vector<std::shared_ptr<Surface> > surfaces() const
+    {
+        return surfaces_;
+    }
+    virtual std::vector<std::shared_ptr<Surface> > boundary_surfaces() const
+    {
+        return boundary_surfaces_;
+    }
+    virtual std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces() const
+    {
+        return cartesian_boundary_surfaces_;
+    }
+    virtual std::shared_ptr<Region> region(int r) const
     {
         return regions_[r];
     }
@@ -99,8 +123,9 @@ protected:
     int dimension_;
     double optical_tolerance_;
     double delta_distance_;
-    std::vector<std::shared_ptr<Surface> > boundary_surfaces_;
     std::vector<std::shared_ptr<Surface> > surfaces_;
+    std::vector<std::shared_ptr<Surface> > boundary_surfaces_;
+    std::vector<std::shared_ptr<Cartesian_Plane> > cartesian_boundary_surfaces_;
     std::vector<std::shared_ptr<Region> > regions_;
     std::vector<std::shared_ptr<Material> > materials_;
     std::vector<std::shared_ptr<Boundary_Source> > boundary_sources_;

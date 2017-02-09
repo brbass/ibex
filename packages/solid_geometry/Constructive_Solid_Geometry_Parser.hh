@@ -5,6 +5,7 @@
 #include <vector>
 
 class Boundary_Source;
+class Cartesian_Plane;
 class Constructive_Solid_Geometry;
 class Material;
 class Surface;

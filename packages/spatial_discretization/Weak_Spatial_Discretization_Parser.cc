@@ -20,11 +20,12 @@ using std::string;
 using std::vector;
 
 Weak_Spatial_Discretization_Parser::
-Weak_Spatial_Discretization_Parser(shared_ptr<Solid_Geometry> solid_geometry,
-                                   vector<shared_ptr<Cartesian_Plane> > boundary_surfaces):
-    solid_geometry_(solid_geometry),
-    boundary_surfaces_(boundary_surfaces)
+Weak_Spatial_Discretization_Parser(shared_ptr<Constructive_Solid_Geometry> solid_geometry):
+    solid_geometry_(solid_geometry)
 {
+    bool cartesian_boundaries = solid_geometry->cartesian_boundaries();
+    Assert(cartesian_boundaries);
+    boundary_surfaces_ = solid_geometry->cartesian_boundary_surfaces();
 }
 
 shared_ptr<Weak_Spatial_Discretization> Weak_Spatial_Discretization_Parser::
@@ -126,7 +127,7 @@ get_meshless_functions(XML_Node input_node,
                        int dimension,
                        string prefix) const
 {
-    string meshless_type = input_node.get_child_value<string>("meshless_type");
+    string meshless_type = input_node.get_attribute<string>("type");
     if (meshless_type == "rbf")
     {
         return get_rbf_functions(input_node,
@@ -155,7 +156,7 @@ get_basis_functions(XML_Node input_node,
 {
     // Get meshless functions
     vector<shared_ptr<Meshless_Function> > meshless_functions
-        = get_meshless_functions(input_node,
+        = get_meshless_functions(input_node.get_child("meshless_function"),
                                  number_of_points,
                                  dimension,
                                  "basis");
@@ -165,7 +166,7 @@ get_basis_functions(XML_Node input_node,
     for (XML_Node node = input_node.get_child("basis");
          node;
          node = node.get_sibling("basis",
-                                             false))
+                                 false))
     {
         int index = node.get_attribute<int>("index");
 
@@ -194,8 +195,8 @@ get_weight_functions(XML_Node input_node,
     Weight_Function::Material_Options material_options;
     {
         XML_Node material_node = input_node.get_child("material_options");
-        string weighting = material_node.get_child_value<string>("weighting",
-                                                                 "weight");
+        string weighting = material_node.get_attribute<string>("weighting",
+                                                               "weight");
         if (weighting == "point")
         {
             material_options.weighting = Weight_Function::Material_Options::Weighting::POINT;
@@ -213,13 +214,13 @@ get_weight_functions(XML_Node input_node,
             AssertMsg(false, "weighting option (" + weighting + ") not found");
         }
         
-        string output = material_node.get_child_value<string>("output",
-                                                              "standard");
+        string output = material_node.get_attribute<string>("output",
+                                                            "standard");
         if (output == "standard")
         {
             material_options.output = Weight_Function::Material_Options::Output::STANDARD;
         }
-        else if (output == "standard")
+        else if (output == "supg")
         {
             material_options.output = Weight_Function::Material_Options::Output::SUPG;
         }
@@ -231,7 +232,7 @@ get_weight_functions(XML_Node input_node,
     
     // Get meshless functions
     vector<shared_ptr<Meshless_Function> > meshless_functions
-        = get_meshless_functions(input_node,
+        = get_meshless_functions(input_node.get_child("meshless_function"),
                                  number_of_points,
                                  dimension,
                                  "weight");
@@ -296,3 +297,4 @@ get_boundary_surfaces(shared_ptr<Meshless_Function> function) const
 
     return surfaces;
 }
+

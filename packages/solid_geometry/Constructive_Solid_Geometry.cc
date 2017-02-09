@@ -39,42 +39,21 @@ Constructive_Solid_Geometry(int dimension,
             boundary_surfaces_.push_back(surfaces_[i]);
         }
     }
-    
-    if (boundary_surfaces_.size() == 2 * dimension_)
+
+    cartesian_boundary_surfaces_.resize(boundary_surfaces_.size());
+    cartesian_boundaries_ = true;
+    for (int i = 0; i < boundary_surfaces_.size(); ++i)
     {
-        int checksum = 0;
-        for (int i = 0; i < boundary_surfaces_.size(); ++i)
+        if (boundary_surfaces_[i]->surface_class() != Surface::Surface_Class::CARTESIAN_PLANE)
         {
-            if (boundary_surfaces_[i]->surface_class() != Surface::Surface_Class::PLANE)
-            {
-                cartesian_boundaries_ = false;
-                break;
-            }
-            vector<double> position(dimension, 0);
-            Surface::Normal normal
-                = boundary_surfaces_[i]->normal_direction(position,
-                                                          false);
-            for (int d = 0; d < dimension_; ++d)
-            {
-                if (abs(abs(normal.direction[d]) - 1) < 1e-14)
-                {
-                    checksum += pow(2, d);
-                }
-            }
-        }
-        int checksum_actual = 2 * (pow(2, dimension_) - 1);
-        if (checksum == checksum_actual)
-        {
-            cartesian_boundaries_ = true;
+            cartesian_boundaries_ = false;
+            break;
         }
         else
         {
-            cartesian_boundaries_ = false;
+            cartesian_boundary_surfaces_[i]
+                = dynamic_pointer_cast<Cartesian_Plane>(boundary_surfaces_[i]);
         }
-    }
-    else
-    {
-        cartesian_boundaries_ = false;
     }
     
     check_class_invariants();

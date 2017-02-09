@@ -26,7 +26,10 @@ public:
                                 int number_of_neighbors,
                                 std::vector<int> &indices,
                                 std::vector<double> &distances) const;
-    
+    virtual void radius_search(int index,
+                               double radius,
+                               std::vector<int> &indices,
+                               std::vector<double> &distances) const;
 private:
     
     int number_of_points_;

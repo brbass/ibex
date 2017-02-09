@@ -123,6 +123,40 @@ public:
     {
         return weighted_boundary_surfaces_[i];
     }
+
+    // Integral values
+    virtual std::vector<double> const &is_w()
+    {
+        return is_w_;
+    }
+    virtual std::vector<double> const &is_b_w()
+    {
+        return is_b_w_;
+    }
+    virtual std::vector<double> const &iv_w()
+    {
+        return iv_w_;
+    }
+    virtual std::vector<double> const &iv_dw()
+    {
+        return iv_dw_;
+    }
+    virtual std::vector<double> const &iv_b_w()
+    {
+        return iv_b_w_;
+    }
+    virtual std::vector<double> const &iv_b_dw()
+    {
+        return iv_b_dw_;
+    }
+    virtual std::vector<double> const &iv_db_w()
+    {
+        return iv_db_w_;
+    }
+    virtual std::vector<double> const &iv_db_dw()
+    {
+        return iv_db_dw_;
+    }
     
     // Quadrature methods
     virtual bool get_full_quadrature(std::vector<std::vector<double> > &ordinates,

@@ -3,6 +3,7 @@
 #include <iterator>
 
 #include "Boundary_Source.hh"
+#include "Cartesian_Plane.hh"
 #include "Constructive_Solid_Geometry.hh"
 #include "Cylinder_2D.hh"
 #include "Cylinder_3D.hh"
@@ -81,6 +82,18 @@ get_surfaces(XML_Node surfaces_node,
             AssertMsg(false, "surface type not found");
         }
 
+        if (shape == "cartesian_plane")
+        {
+            int surface_dimension = surface_node.get_child_value<int>("surface_dimension");
+            double position = surface_node.get_child_value<double>("position");
+            double normal = surface_node.get_child_value<double>("normal");
+
+            surface = make_shared<Cartesian_Plane>(index,
+                                                   surface_type,
+                                                   surface_dimension,
+                                                   position,
+                                                   normal);
+        }
         if (shape == "plane")
         {
             vector<double> origin = surface_node.get_child_vector<double>("origin", dimension);
@@ -249,3 +262,4 @@ get_regions(XML_Node regions_node,
     
     return regions;
 }
+

@@ -18,7 +18,7 @@ public:
                  std::vector<double> const &position,
                  std::shared_ptr<RBF> rbf,
                  std::shared_ptr<Distance> distance);
-
+    
     virtual int dimension() const override;
     virtual double radius() const override;
     virtual std::vector<double> position() const override
