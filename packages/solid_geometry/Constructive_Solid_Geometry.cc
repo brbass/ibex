@@ -8,6 +8,7 @@
 #include "Cross_Section.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
+#include "Plane.hh"
 #include "Region.hh"
 #include "String_Functions.hh"
 #include "Surface.hh"
@@ -45,15 +46,52 @@ Constructive_Solid_Geometry(int dimension,
     cartesian_boundaries_ = true;
     for (int i = 0; i < boundary_surfaces_.size(); ++i)
     {
-        if (boundary_surfaces_[i]->surface_class() != Surface::Surface_Class::CARTESIAN_PLANE)
-        {
-            cartesian_boundaries_ = false;
-            break;
-        }
-        else
+        if (boundary_surfaces_[i]->surface_class() == Surface::Surface_Class::CARTESIAN_PLANE)
         {
             cartesian_boundary_surfaces_[i]
                 = dynamic_pointer_cast<Cartesian_Plane>(boundary_surfaces_[i]);
+        }
+        else if (boundary_surfaces_[i]->surface_class() == Surface::Surface_Class::PLANE)
+        {
+            shared_ptr<Plane> surface
+                = dynamic_pointer_cast<Plane>(boundary_surfaces_[i]);
+            vector<double> dummy_position(dimension, 0);
+            Surface::Normal normal = surface->normal_direction(dummy_position,
+                                                               false);
+            int surface_dimension = -1;
+            double normal_direction = 0;
+            for (int d = 0; d < dimension_; ++d)
+            {
+                if (abs(abs(normal.direction[d]) - 1) < 1e-14)
+                {
+                    surface_dimension = d;
+                }
+            }
+
+            if (surface_dimension == -1)
+            {
+                cartesian_boundaries_ = false;
+                break;
+            }
+            else
+            {
+                int index = surface->index();
+                Surface::Surface_Type surface_type = surface->surface_type();
+                double normal_direction = normal.direction[surface_dimension];
+                double position = surface->origin()[surface_dimension];
+                cartesian_boundary_surfaces_[i]
+                    = make_shared<Cartesian_Plane>(index,
+                                                   dimension_,
+                                                   surface_type,
+                                                   surface_dimension,
+                                                   position,
+                                                   normal_direction);
+            }
+        }
+        else
+        {
+            cartesian_boundaries_ = false;
+            break;
         }
     }
     
