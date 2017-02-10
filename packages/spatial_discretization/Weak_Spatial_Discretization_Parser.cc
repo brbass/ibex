@@ -4,16 +4,17 @@
 #include "Cartesian_Distance.hh"
 #include "Cartesian_Plane.hh"
 #include "Compact_Gaussian_RBF.hh"
+#include "Constructive_Solid_Geometry.hh"
 #include "Linear_MLS_Function.hh"
 #include "Meshless_Function.hh"
 #include "RBF_Function.hh"
 #include "RBF_Parser.hh"
-#include "Solid_Geometry.hh"
 #include "Truncated_Gaussian_RBF.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weight_Function.hh"
 #include "XML_Node.hh"
 
+using std::abs;
 using std::make_shared;
 using std::shared_ptr;
 using std::string;
@@ -56,7 +57,7 @@ get_rbf_functions(XML_Node input_node,
 {
     // Get RBF and distance information
     RBF_Parser rbf_parser;
-    shared_ptr<RBF> rbf = rbf_parser.parse_from_xml(input_node);
+    shared_ptr<RBF> rbf = rbf_parser.parse_from_xml(input_node.get_child("meshless_function"));
     shared_ptr<Distance> distance = make_shared<Cartesian_Distance>(dimension);
     
     // Get meshless functions
@@ -127,7 +128,8 @@ get_meshless_functions(XML_Node input_node,
                        int dimension,
                        string prefix) const
 {
-    string meshless_type = input_node.get_attribute<string>("type");
+    XML_Node meshless_node = input_node.get_child("meshless_function");
+    string meshless_type = meshless_node.get_attribute<string>("type");
     if (meshless_type == "rbf")
     {
         return get_rbf_functions(input_node,
@@ -156,7 +158,7 @@ get_basis_functions(XML_Node input_node,
 {
     // Get meshless functions
     vector<shared_ptr<Meshless_Function> > meshless_functions
-        = get_meshless_functions(input_node.get_child("meshless_function"),
+        = get_meshless_functions(input_node,
                                  number_of_points,
                                  dimension,
                                  "basis");
@@ -232,7 +234,7 @@ get_weight_functions(XML_Node input_node,
     
     // Get meshless functions
     vector<shared_ptr<Meshless_Function> > meshless_functions
-        = get_meshless_functions(input_node.get_child("meshless_function"),
+        = get_meshless_functions(input_node,
                                  number_of_points,
                                  dimension,
                                  "weight");

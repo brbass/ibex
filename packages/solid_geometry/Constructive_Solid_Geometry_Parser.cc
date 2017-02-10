@@ -89,12 +89,13 @@ get_surfaces(XML_Node surfaces_node,
             double normal = surface_node.get_child_value<double>("normal");
 
             surface = make_shared<Cartesian_Plane>(index,
+                                                   dimension,
                                                    surface_type,
                                                    surface_dimension,
                                                    position,
                                                    normal);
         }
-        if (shape == "plane")
+        else if (shape == "plane")
         {
             vector<double> origin = surface_node.get_child_vector<double>("origin", dimension);
             vector<double> normal = surface_node.get_child_vector<double>("normal", dimension);
@@ -170,7 +171,7 @@ get_surfaces(XML_Node surfaces_node,
         }
         else
         {
-            AssertMsg(false, "surface shape not found");
+            AssertMsg(false, "surface shape (" + shape + ") not found");
         }
         
         if (surface_type == Surface::Surface_Type::BOUNDARY)

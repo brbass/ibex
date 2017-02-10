@@ -61,7 +61,7 @@ Weight_Function(int index,
     max_boundary_limits_.assign(dimension_, lim);
     for (int i = 0; i < number_of_boundary_surfaces_; ++i)
     {
-        shared_ptr<Cartesian_Plane> surface = boundary_surface(i);
+        shared_ptr<Cartesian_Plane> surface = boundary_surfaces_[i];
         int dim_sur = surface->surface_dimension();
         double pos_sur = surface->position();
         double n_sur = surface->normal();
@@ -520,8 +520,8 @@ get_basis_quadrature_2d(int i,
              {
                  int k1 = d1 + dimension_ * i;
                  iv_b_dw_[k1] += integration_weights[o] * b * dw[d1];
-                 iv_db_w_[k1] += integration_weights[o] * b * dw[d1];
-
+                 iv_db_w_[k1] += integration_weights[o] * db[d1] * w;
+                 
                  for (int d2 = 0; d2 < dimension_; ++d2)
                  {
                      int k2 = d1 + dimension_ * (d2 + dimension_ * i);

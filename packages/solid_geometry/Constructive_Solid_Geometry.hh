@@ -4,6 +4,7 @@
 #include "Solid_Geometry.hh"
 
 class Boundary_Source;
+class Cartesian_Plane;
 class Region;
 class Surface;
 
@@ -67,7 +68,7 @@ public:
     {
         return boundary_surfaces_;
     }
-    virtual std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces() const
+    virtual std::vector<std::shared_ptr<Cartesian_Plane> > cartesian_boundary_surfaces() const
     {
         return cartesian_boundary_surfaces_;
     }

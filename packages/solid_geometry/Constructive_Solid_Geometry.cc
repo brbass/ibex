@@ -4,6 +4,7 @@
 #include <limits>
 
 #include "Boundary_Source.hh"
+#include "Cartesian_Plane.hh"
 #include "Cross_Section.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"

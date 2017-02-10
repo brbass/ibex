@@ -1,3 +1,5 @@
+#include <iomanip>
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -6,6 +8,7 @@
 #include "Basis_Function.hh"
 #include "Boundary_Source.hh"
 #include "Boundary_Source_Parser.hh"
+#include "Check_Equality.hh"
 #include "Constructive_Solid_Geometry.hh"
 #include "Constructive_Solid_Geometry_Parser.hh"
 #include "Energy_Discretization.hh"
@@ -15,9 +18,42 @@
 #include "Solid_Geometry.hh"
 #include "Weak_Spatial_Discretization_Parser.hh"
 #include "Weight_Function.hh"
-#include "XML_Node.hh"
+#include "XML_Document.hh"
 
 using namespace std;
+namespace ce = Check_Equality;
+
+int check_results(vector<double> const &vec,
+                   vector<double> const &ana,
+                   string description,
+                   int index,
+                   double tolerance)
+{
+    int checksum = 0;
+    int w = 15;
+    int size = vec.size();
+    
+    cout << description << " results for weight (" << index << ")" << endl;
+    if (!ce::approx(vec, ana, tolerance))
+    {
+        cout << "FAILED" << endl;
+        checksum += 1;
+    }
+    cout << setw(w) << "calculated";
+    cout << setw(w) << "expected";
+    cout << setw(w) << "error";
+    cout << endl;
+    for (int i = 0; i < size; ++i)
+    {
+        cout << setw(w) << vec[i];
+        cout << setw(w) << ana[i];
+        cout << setw(w) << vec[i] - ana[i];
+        cout << endl;
+    }
+    cout << endl;
+    
+    return checksum;
+}
 
 vector<shared_ptr<Weight_Function> > get_weight_functions(XML_Node input_node)
 {
@@ -35,51 +71,120 @@ vector<shared_ptr<Weight_Function> > get_weight_functions(XML_Node input_node)
     Boundary_Source_Parser boundary_parser(angular,
                                            energy);
     vector<shared_ptr<Boundary_Source> > boundary_sources
-        = boundary_parser.parse_from_xml(input_file.get_child("boundary_sources"));
+        = boundary_parser.parse_from_xml(input_node.get_child("boundary_sources"));
 
     // Get materials
     Material_Parser material_parser(angular,
                                     energy);
     vector<shared_ptr<Material> > materials
-        = material_parser.parse_from_xml(input_file.get_child("materials"));
+        = material_parser.parse_from_xml(input_node.get_child("materials"));
 
     // Get solid geometry
     Constructive_Solid_Geometry_Parser solid_parser(materials,
                                                     boundary_sources);
     shared_ptr<Constructive_Solid_Geometry> solid_geometry
-        = solid_parser.parse_from_xml(input_node);
+        = solid_parser.parse_from_xml(input_node.get_child("solid_geometry"));
     int dimension = solid_geometry->dimension();
 
     // Parser for basis and weight functions
     Weak_Spatial_Discretization_Parser spatial_parser(solid_geometry);
-
+    
     // Get basis functions
     XML_Node bases_node = input_node.get_child("basis_functions");
-    int number_of_bases = bases_node.get_child("number_of_basis_functions");
+    int number_of_bases = bases_node.get_child_value<int>("number_of_basis_functions");
     vector<shared_ptr<Basis_Function> > basis_functions
-        = spatial_parser.get_basis_functions(input_node.get_child("basis_functions"),
+        = spatial_parser.get_basis_functions(bases_node,
                                              number_of_bases,
                                              dimension);
 
     // Get weight functions
     XML_Node weights_node = input_node.get_child("weight_functions");
-    int number_of_weights = weights_node.get_child("number_of_weight_functions");
-    vector<shared_ptr<Weight_Function> > weight_functions
-        = spatial_parser.get_weight_functions(input_node.get_child("weight_functions"),
-                                              number_of_weights,
-                                              dimension,
-                                              basis_functions);
+    int number_of_weights = weights_node.get_child_value<int>("number_of_weight_functions");
+    return spatial_parser.get_weight_functions(weights_node,
+                                               number_of_weights,
+                                               dimension,
+                                               basis_functions);
+
 }
 
 int test_integrals(string input_filename)
 {
     int checksum = 0;
-    
-    XML_Document input_file(input_filename);
-    
-    vector<shared_ptr<Weight_Function> > weight_functions
-        = get_weight_functions(input_file.get_child("input"));
 
+    // Get XML document
+    XML_Document input_file(input_filename);
+    XML_Node input_node = input_file.get_child("input");
+
+    // Get weight functions
+    vector<shared_ptr<Weight_Function> > weight_functions
+        = get_weight_functions(input_node);
+
+    // Loop through weight functions to compare results
+    XML_Node results_node = input_node.get_child("expected_integrals");
+    for (XML_Node node = results_node.get_child("weight");
+         node;
+         node = node.get_sibling("weight",
+                                 false))
+    {
+        int index = node.get_attribute<int>("index");
+
+        // Get weight function information
+        shared_ptr<Weight_Function> weight = weight_functions[index];
+        int number_of_basis_functions = weight->number_of_basis_functions();
+        int dimension = weight->dimension();
+        int number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
+
+        // Check volume results
+        vector<double> const iv_w = weight->iv_w();
+        vector<double> const ana_iv_w = node.get_child_vector<double>("iv_w", 1);
+        checksum += check_results(iv_w,
+                                  ana_iv_w,
+                                  "iv_w",
+                                  index,
+                                  1e-7);
+        
+        vector<double> const iv_dw = weight->iv_dw();
+        vector<double> const ana_iv_dw = node.get_child_vector<double>("iv_dw", dimension);
+        checksum += check_results(iv_dw,
+                                  ana_iv_dw,
+                                  "iv_dw",
+                                  index,
+                                  1e-7);
+
+        vector<double> const iv_b_w = weight->iv_b_w();
+        vector<double> const ana_iv_b_w = node.get_child_vector<double>("iv_b_w", number_of_basis_functions);
+        checksum += check_results(iv_b_w,
+                                  ana_iv_b_w,
+                                  "iv_b_w",
+                                  index,
+                                  1e-7);
+
+        vector<double> const iv_b_dw = weight->iv_b_dw();
+        vector<double> const ana_iv_b_dw = node.get_child_vector<double>("iv_b_dw", number_of_basis_functions * dimension);
+        checksum += check_results(iv_b_dw,
+                                  ana_iv_b_dw,
+                                  "iv_b_dw",
+                                  index,
+                                  1e-7);
+
+        vector<double> const iv_db_w = weight->iv_db_w();
+        vector<double> const ana_iv_db_w = node.get_child_vector<double>("iv_db_w", number_of_basis_functions * dimension);
+        checksum += check_results(iv_db_w,
+                                  ana_iv_db_w,
+                                  "iv_db_w",
+                                  index,
+                                  1e-7);
+
+        vector<double> const iv_db_dw = weight->iv_db_dw();
+        vector<double> const ana_iv_db_dw = node.get_child_vector<double>("iv_db_dw", number_of_basis_functions * dimension * dimension);
+        checksum += check_results(iv_db_dw,
+                                  ana_iv_db_dw,
+                                  "iv_db_dw",
+                                  index,
+                                  1e-7);
+        
+    }
+    
     return checksum;
 }
 
