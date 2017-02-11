@@ -331,7 +331,7 @@ get_basis_quadrature_2d(int i,
      // Check for boundaries
      smin = max(smin, min_boundary_limits_[dim_other]);
      smax = min(smax, max_boundary_limits_[dim_other]);
-
+     
      // Get ordinates for integration dimension
      vector<double> ordinates_main;
      bool success = qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
@@ -550,9 +550,10 @@ get_basis_quadrature_2d(int i,
          {
              vector<double> position = integration_ordinates[i];
              double w = weight->value(position);
-             
+
              is_w_[s] += w * integration_weights[i];
          }
+         
      }
 
      // Volume integrals
@@ -1044,7 +1045,6 @@ get_basis_quadrature_2d(int i,
  void Weight_Function::
  calculate_weight_boundary_source()
  {
-     is_w_.assign(number_of_boundary_surfaces_, 0.);
      weighted_boundary_surfaces_.resize(number_of_boundary_surfaces_);
      for (int s = 0; s < number_of_boundary_surfaces_; ++s)
      {

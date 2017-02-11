@@ -183,6 +183,25 @@ int test_integrals(string input_filename)
                                   index,
                                   1e-7);
         
+        // Check surface results
+        if (number_of_boundary_surfaces > 0)
+        {
+            vector<double> const is_w = weight->is_w();
+            vector<double> const ana_is_w = node.get_child_vector<double>("is_w", number_of_boundary_surfaces);
+            checksum += check_results(is_w,
+                                      ana_is_w,
+                                      "is_w",
+                                      index,
+                                      1e-12);
+            
+            vector<double> const is_b_w = weight->is_b_w();
+            vector<double> const ana_is_b_w = node.get_child_vector<double>("is_b_w", number_of_boundary_surfaces * number_of_basis_functions);
+            checksum += check_results(is_b_w,
+                                      ana_is_b_w,
+                                      "is_b_w",
+                                      index,
+                                      1e-12);
+        }
     }
     
     return checksum;
