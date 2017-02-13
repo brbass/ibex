@@ -87,7 +87,10 @@ vector<shared_ptr<Weight_Function> > get_weight_functions(XML_Node input_node)
     int dimension = solid_geometry->dimension();
 
     // Parser for basis and weight functions
-    Weak_Spatial_Discretization_Parser spatial_parser(solid_geometry);
+    vector<shared_ptr<Cartesian_Plane> > boundary_surfaces
+        = solid_geometry->cartesian_boundary_surfaces();
+    Weak_Spatial_Discretization_Parser spatial_parser(solid_geometry,
+                                                      boundary_surfaces);
     
     // Get basis functions
     XML_Node bases_node = input_node.get_child("basis_functions");

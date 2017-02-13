@@ -74,7 +74,7 @@ endif()
 
 # Finds all header files recursively in given directories
 macro(header_directories return_list)
-    file(GLOB_RECURSE header_files packages/*.hh lib/*.hpp)
+    file(GLOB_RECURSE header_files packages/*.hh)
     set(header_directories "")
     foreach(header_file ${header_files})
         get_filename_component(header_directory ${header_file} DIRECTORY)

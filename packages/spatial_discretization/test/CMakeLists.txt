@@ -13,6 +13,6 @@ include_test(tst_distance tst_Distance.cc ${CMAKE_CURRENT_SOURCE_DIR}/../../soli
 include_test(tst_meshless_function tst_Meshless_Function.cc "")
 include_test(tst_linear_mls_function tst_Linear_MLS_Function.cc "")
 include_test(tst_weight_function tst_Weight_Function.cc ${CMAKE_CURRENT_SOURCE_DIR}/input)
-# include_test(tst_rbf_interpolation tst_RBF_Interpolation.cc ${CMAKE_CURRENT_SOURCE_DIR}/input)
+include_test(tst_interpolation tst_Interpolation.cc ${CMAKE_CURRENT_SOURCE_DIR}/input)
 
 add_subdirectory(input)

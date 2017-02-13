@@ -3,6 +3,7 @@
 #include "Basis_Function.hh"
 #include "Check.hh"
 #include "KD_Tree.hh"
+#include "Meshless_Function.hh"
 #include "XML_Node.hh"
 
 using namespace std;

@@ -4,11 +4,11 @@
 #include "Cartesian_Distance.hh"
 #include "Cartesian_Plane.hh"
 #include "Compact_Gaussian_RBF.hh"
-#include "Constructive_Solid_Geometry.hh"
 #include "Linear_MLS_Function.hh"
 #include "Meshless_Function.hh"
 #include "RBF_Function.hh"
 #include "RBF_Parser.hh"
+#include "Solid_Geometry.hh"
 #include "Truncated_Gaussian_RBF.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weight_Function.hh"
@@ -21,12 +21,11 @@ using std::string;
 using std::vector;
 
 Weak_Spatial_Discretization_Parser::
-Weak_Spatial_Discretization_Parser(shared_ptr<Constructive_Solid_Geometry> solid_geometry):
-    solid_geometry_(solid_geometry)
+Weak_Spatial_Discretization_Parser(shared_ptr<Solid_Geometry> solid_geometry,
+                                   vector<shared_ptr<Cartesian_Plane> > const &boundary_surfaces):
+    solid_geometry_(solid_geometry),
+    boundary_surfaces_(boundary_surfaces)
 {
-    bool cartesian_boundaries = solid_geometry->cartesian_boundaries();
-    Assert(cartesian_boundaries);
-    boundary_surfaces_ = solid_geometry->cartesian_boundary_surfaces();
 }
 
 shared_ptr<Weak_Spatial_Discretization> Weak_Spatial_Discretization_Parser::

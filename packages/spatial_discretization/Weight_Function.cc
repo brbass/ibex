@@ -470,8 +470,8 @@ void Weight_Function::
 calculate_values()
 {
     // Calculate value of basis functions at weight center
-    v_b_.assign(number_of_basis_functions_);
-    v_db_.assign(number_of_basis_functions_);
+    v_b_.resize(number_of_basis_functions_);
+    v_db_.resize(number_of_basis_functions_);
     for (int i = 0; i < number_of_basis_functions_; ++i)
     {
         shared_ptr<Meshless_Function> basis = basis_functions_[i]->function();

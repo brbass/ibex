@@ -2,10 +2,10 @@
 #define Weak_Spatial_Discretization_hh
 
 #include "Spatial_Discretization.hh"
+#include "Weight_Function.hh"
 
 class Basis_Function;
 class KD_Tree;
-class Weight_Function;
 
 class Weak_Spatial_Discretization : public Spatial_Discretization
 {
@@ -45,20 +45,20 @@ public:
     }
     virtual void output(XML_Node output_node) const override;
     virtual void check_class_invariants() const override;
-    virtual int nearest_point(vector<double> const &position) const;
+    virtual int nearest_point(std::vector<double> const &position) const;
     virtual double collocation_value(int i,
-                                     vector<double> const &coefficients) const;
+                                     std::vector<double> const &coefficients) const;
     virtual double weighted_collocation_value(int i,
-                                              vector<double> const &coefficients) const;
-    virtual void collocation_values(vector<double> const &coefficients,
-                                    vector<double> &values) const;
-    virtual void weighted_collocation_value(vector<double> const &coefficients,
-                                            vector<double> &values) const;
+                                              std::vector<double> const &coefficients) const;
+    virtual void collocation_values(std::vector<double> const &coefficients,
+                                    std::vector<double> &values) const;
+    virtual void weighted_collocation_values(std::vector<double> const &coefficients,
+                                             std::vector<double> &values) const;
     virtual double expansion_value(int i,
-                                   vector<double> const &position,
-                                   vector<double> const &coefficients) const;
-    virtual double expansion_value(vector<double> const &position,
-                                   vector<double> const &coefficients) const;
+                                   std::vector<double> const &position,
+                                   std::vector<double> const &coefficients) const;
+    virtual double expansion_value(std::vector<double> const &position,
+                                   std::vector<double> const &coefficients) const;
 private:
 
     int number_of_points_;

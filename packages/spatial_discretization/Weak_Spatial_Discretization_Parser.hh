@@ -11,7 +11,7 @@ class Linear_MLS_Function;
 class Meshless_Function;
 class RBF;
 class RBF_Function;
-class Constructive_Solid_Geometry;
+class Solid_Geometry;
 class Weak_Spatial_Discretization;
 class Weight_Function;
 class XML_Node;
@@ -21,7 +21,8 @@ class Weak_Spatial_Discretization_Parser
 public:
 
     // Constructor
-    Weak_Spatial_Discretization_Parser(std::shared_ptr<Constructive_Solid_Geometry> solid_geometry);
+    Weak_Spatial_Discretization_Parser(std::shared_ptr<Solid_Geometry> solid_geometry,
+                                       std::vector<std::shared_ptr<Cartesian_Plane> > const &boundary_surfaces);
 
     // Parse from XML node
     std::shared_ptr<Weak_Spatial_Discretization> get_weak_discretization(XML_Node input_node) const;
@@ -48,7 +49,7 @@ public:
     
 private:
 
-    std::shared_ptr<Constructive_Solid_Geometry> solid_geometry_;
+    std::shared_ptr<Solid_Geometry> solid_geometry_;
     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces_;
 };
 
