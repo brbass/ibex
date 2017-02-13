@@ -2,6 +2,7 @@
 
 #include "Basis_Function.hh"
 #include "Check.hh"
+#include "KD_Tree.hh"
 #include "XML_Node.hh"
 
 using namespace std;
@@ -41,8 +42,129 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
     }
     number_of_boundary_bases_ = j;
     boundary_bases_.resize(number_of_boundary_bases_);
+
+    // Get KD tree
+    vector<double> points(number_of_points_ * dimension_);
+    for (int i = 0; i < number_of_points_; ++i)
+    {
+        vector<double> const point = weights[i]->position();
+        for (int d = 0; d < dimension_; ++d)
+        {
+            int k = d + dimension_ * i;
+            
+            points[k] = point[d];
+        }
+    }
+    kd_tree_ = make_shared<KD_Tree>(dimension_,
+                                    number_of_points_,
+                                    points);
     
     check_class_invariants();
+}
+
+int Weak_Spatial_Discretization::
+nearest_point(vector<double> const &position) const
+{
+    vector<int> index;
+    vector<double> distance;
+
+    kd_tree_->find_neighbors(1,
+                             position,
+                             index,
+                             distance);
+
+    return index[0];
+}
+
+double Weak_Spatial_Discretization::
+collocation_value(int i,
+                  vector<double> const &coefficients) const
+{
+    shared_ptr<Weight_Function> weight = weights_[i];
+    int number_of_basis_functions = weight->number_of_basis_functions();
+    vector<int> const basis_indices = weight->basis_function_indices();
+    vector<double> const v_b = weight->v_b();
+    
+    double sum = 0;
+    for (int j = 0; j < number_of_basis_functions; ++j)
+    {
+        int index = basis_indices[j];
+        sum += v_b[j] * coefficients[index];
+    }
+    return sum;
+}
+
+double Weak_Spatial_Discretization::
+weighted_collocation_value(int i,
+                           vector<double> const &coefficients) const
+{
+    shared_ptr<Weight_Function> weight = weights_[i];
+    int number_of_basis_functions = weight->number_of_basis_functions();
+    vector<int> const basis_indices = weight->basis_function_indices();
+    vector<double> const iv_b_w = weight->iv_b_w();
+    double iv_w = weight->iv_w()[0];
+        
+    double sum = 0;
+    for (int j = 0; j < number_of_basis_functions; ++j)
+    {
+        int index = basis_indices[j];
+        sum += iv_b_w[j] * coefficients[index];
+    }
+    return sum / iv_w;
+}
+
+void Weak_Spatial_Discretization::
+collocation_values(vector<double> const &coefficients,
+                   vector<double> &values) const
+{
+    values.resize(number_of_points_);
+    for (int i = 0; i < number_of_points_; ++i)
+    {
+        values[i] = collocation_value(i,
+                                      coefficients);
+    }
+}
+
+void Weak_Spatial_Discretization::
+weighted_collocation_values(vector<double> const &coefficients,
+                            vector<double> &values) const
+{
+    values.resize(number_of_points_);
+    for (int i = 0; i < number_of_points_; ++i)
+    {
+        values[i] = weighted_collocation_value(i,
+                                               coefficients);
+    }
+}
+
+double Weak_Spatial_Discretization::
+expansion_value(int i,
+                vector<double> const &position,
+                vector<double> const &coefficients) const
+{
+    shared_ptr<Weight_Function> weight = weights_[i];
+    int number_of_basis_functions = weight->number_of_basis_functions();
+    vector<int> const basis_indices = weight->basis_function_indices();
+    
+    double sum = 0;
+    for (int j = 0; j < number_of_basis_functions; ++j)
+    {
+        int index = basis_indices[j];
+        double val = weight->basis_function(i)->function()->value(position);
+        sum += val * coefficients[index];
+    }
+    return sum;
+}
+
+double Weak_Spatial_Discretization::
+expansion_value(vector<double> const &position,
+                vector<double> const &coefficients) const
+{
+    int index = nearest_point(position);
+    
+    return expansion_value(index,
+                           position,
+                           coefficients);
 }
 
 void Weak_Spatial_Discretization::

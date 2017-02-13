@@ -6,30 +6,41 @@
 
 #include "nanoflann.hh"
 
+/*
+  KD Tree for finding nearest neighbors
+  General adaptor for nanoflann
+*/
 class KD_Tree
 {
     class KD_Adaptor;
+    
+    // Distance adaptor
     typedef nanoflann::L2_Adaptor<double,
                                   KD_Adaptor> L2A;
+    // KD tree type
     typedef nanoflann::KDTreeSingleIndexAdaptor<L2A,
                                                 KD_Adaptor,
                                                 -1,
                                                 int> KDT;
     
 public:
-    
+
+    // Constructor
     KD_Tree(int dimension,
             int number_of_points,
             std::vector<double> const &points);
-    
-    virtual void find_neighbors(int index,
-                                int number_of_neighbors,
+
+    // Find nearest neighbor indices and distances given a position
+    virtual void find_neighbors(int number_of_neighbors,
+                                std::vector<double> const &position,
                                 std::vector<int> &indices,
                                 std::vector<double> &distances) const;
-    virtual int radius_search(int index,
-                              double radius,
+    // Find all points within a radius of the position; return number of matches
+    virtual int radius_search(double radius,
+                              std::vector<double> const &position,
                               std::vector<int> &indices,
                               std::vector<double> &distances) const;
+    
 private:
     
     int number_of_points_;

@@ -75,7 +75,14 @@ Weight_Function(int index,
             max_boundary_limits_[dim_sur] = min(max_boundary_limits_[dim_sur], pos_sur);
         }
     }
+
+    basis_function_indices_.resize(number_of_basis_functions_);
+    for (int i = 0; i < number_of_basis_functions_; ++i)
+    {
+        basis_function_indices_[i] = basis_functions_[i]->index();
+    }
     
+    calculate_values();
     calculate_integrals();
     calculate_material();
     calculate_boundary_source();
@@ -458,6 +465,27 @@ get_basis_quadrature_2d(int i,
          return false;
      }
  }
+
+void Weight_Function::
+calculate_values()
+{
+    // Calculate value of basis functions at weight center
+    v_b_.assign(number_of_basis_functions_);
+    v_db_.assign(number_of_basis_functions_);
+    for (int i = 0; i < number_of_basis_functions_; ++i)
+    {
+        shared_ptr<Meshless_Function> basis = basis_functions_[i]->function();
+        double b = basis->value(position_);
+        vector<double> db = basis->gradient_value(position_);
+
+        v_b_[i] = b;
+
+        for (int d = 0; d < dimension_; ++d)
+        {
+            v_db_[d + dimension_ * i] = db[d];
+        }
+    }
+}
 
  void Weight_Function::
  calculate_integrals()
@@ -1102,6 +1130,8 @@ check_class_invariants() const
     Assert(weighted_boundary_surfaces_.size() == number_of_boundary_surfaces_);
     Assert(min_boundary_limits_.size() == dimension_);
     Assert(max_boundary_limits_.size() == dimension_);
+    Assert(v_b_.size() == number_of_basis_functions_);
+    Assert(v_db_.size() == number_of_basis_functions_ * dimension_);
     Assert(is_w_.size() == number_of_boundary_surfaces_);
     Assert(is_b_w_.size() == number_of_boundary_surfaces_ * number_of_basis_functions_);
     Assert(iv_w_.size() == 1);

@@ -107,6 +107,10 @@ public:
     {
         return number_of_dimensional_moments_;
     }
+    virtual std::vector<int> const &basis_function_indices() const
+    {
+        return basis_function_indices_;
+    }
     virtual std::shared_ptr<Meshless_Function> function() const
     {
         return meshless_function_;
@@ -124,6 +128,16 @@ public:
         return weighted_boundary_surfaces_[i];
     }
 
+    // Collocation values
+    virtual std::vector<double> const &v_b()
+    {
+        return v_b_;
+    }
+    virtual std::vector<double> const &v_db()
+    {
+        return v_db_;
+    }
+    
     // Integral values
     virtual std::vector<double> const &is_w()
     {
@@ -193,8 +207,8 @@ private:
                                                  std::vector<std::vector<double> > &ordinates,
                                                  std::vector<double> &weights) const;
     
-    
     // Integration methods
+    virtual void calculate_values();
     virtual void calculate_integrals();
     virtual void calculate_material();
     virtual void calculate_boundary_source();
@@ -220,6 +234,7 @@ private:
     int number_of_dimensional_moments_;
     double radius_;
     Material_Options material_options_;
+    std::vector<int> basis_function_indices_;
     std::shared_ptr<Meshless_Function> meshless_function_;
     std::vector<std::shared_ptr<Basis_Function> > basis_functions_;
     std::shared_ptr<Solid_Geometry> solid_geometry_;
@@ -229,16 +244,22 @@ private:
     // Calculated data
     std::vector<double> min_boundary_limits_;
     std::vector<double> max_boundary_limits_;
+
+    // Values
+    std::vector<double> v_b_; // basis function at weight center
+    std::vector<double> v_db_; // derivative of basis function at weight center 
     
-    // Integrals
-    std::vector<double> is_w_;
-    std::vector<double> is_b_w_;
-    std::vector<double> iv_w_;
-    std::vector<double> iv_dw_;
-    std::vector<double> iv_b_w_;
-    std::vector<double> iv_b_dw_;
-    std::vector<double> iv_db_w_;
-    std::vector<double> iv_db_dw_;
+    // Surface integrals
+    std::vector<double> is_w_; // weight function
+    std::vector<double> is_b_w_; // weight/basis functions
+
+    // Volume integrals
+    std::vector<double> iv_w_; // weight function
+    std::vector<double> iv_dw_; // derivative of weight function
+    std::vector<double> iv_b_w_; // basis function and weight function
+    std::vector<double> iv_b_dw_; // basis function and derivative of weight function
+    std::vector<double> iv_db_w_; // weight function and derivative of basis function
+    std::vector<double> iv_db_dw_; // derivative of basis and weight functions
 };
 
 #endif
