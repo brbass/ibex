@@ -1,0 +1,1431 @@
+<?xml version='1.0' encoding='ASCII'?>
+<input>
+  <angular_discretization>
+    <dimension>2</dimension>
+    <number_of_moments>1</number_of_moments>
+    <rule>1</rule>
+  </angular_discretization>
+  
+  <energy_discretization>
+    <number_of_groups>1</number_of_groups>
+  </energy_discretization>
+  
+  <boundary_sources>
+    <number_of_boundary_sources>1</number_of_boundary_sources>
+    
+    <boundary_source index='0'>
+      <alpha>0</alpha>
+      <isotropic_source>0</isotropic_source>
+    </boundary_source>
+  </boundary_sources>
+
+  <spatial_discretization>
+    <number_of_points>100</number_of_points>
+    <basis_functions>
+      <meshless_function type='rbf' function='compact_gaussian'/>
+      <basis index="0">
+        <radius>0.6666666666666666</radius>
+        <position>-1. -1.</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors> 0  1 10 11  2 20 12 21 22 30  3 31 13 23 32  4 40 41 14 33 24 42 50  5</basis_neighbors>
+      </basis>
+      <basis index="1">
+        <radius>0.49690399499995325</radius>
+        <position>-0.77777777777777779011 -1.                    </position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors> 1  0  2 11 10 12 21  3 20 22 13 23 31  4 14 32 30 24 33 41  5 40 42 15</basis_neighbors>
+      </basis>
+      <basis index="2">
+        <radius>0.49690399499995325</radius>
+        <position>-0.55555555555555558023 -1.                    </position>
+        <number_of_basis_neighbors>28</number_of_basis_neighbors>
+        <basis_neighbors> 2  1  3 12 13 11  4  0 22 23 14 10 21 20 24 32  5 31 33 15 30 34 25  6 42 16 41 43</basis_neighbors>
+      </basis>
+      <basis index="3">
+        <radius>0.49690399499995325</radius>
+        <position>-0.33333333333333337034 -1.                    </position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors> 3 13  4  2 12 14 23  1  5 24 11 22 15 21 25  6 33  0 32 34 16 10 31 20 26 35  7 43 17 42 44 30</basis_neighbors>
+      </basis>
+      <basis index="4">
+        <radius>0.49690399499995325</radius>
+        <position>-0.11111111111111116045 -1.                    </position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors> 4 14  3  5 13 15  6  2 24 23 16 12 25 22 26  7  1 34 17 35 11 33 27 32 36 21  8 44  0 43 18 45 10  9</basis_neighbors>
+      </basis>
+      <basis index="5">
+        <radius>0.4969039949999532</radius>
+        <position> 0.11111111111111116045 -1.                    </position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors> 5  6 15  4 16 14  7 25  3 17 26 24 13 27 23  8 35  2 36 18 12 34 37 28 33 22 45  9  1 46 44 11 19  0</basis_neighbors>
+      </basis>
+      <basis index="6">
+        <radius>0.4969039949999532</radius>
+        <position> 0.33333333333333325932 -1.                    </position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors> 6  7  5 16 17 15  8  4 26 25 27 14 18 24 28 36  3  9 37 35 19 13 23 38 34 29  2 46 45 12 47 39</basis_neighbors>
+      </basis>
+      <basis index="7">
+        <radius>0.4969039949999532</radius>
+        <position> 0.55555555555555535818 -1.                    </position>
+        <number_of_basis_neighbors>28</number_of_basis_neighbors>
+        <basis_neighbors> 7  6 17  8 16 18  5 27  9 15 26 28 19 25 29  4 37 14 36 38 24 35 39  3 47 13 46 48</basis_neighbors>
+      </basis>
+      <basis index="8">
+        <radius>0.4969039949999533</radius>
+        <position> 0.77777777777777767909 -1.                    </position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors> 8 18  9  7 17 19 28  6 16 29 27 26  5 38 15 39 37 25 36  4 48 14 47 49</basis_neighbors>
+      </basis>
+      <basis index="9">
+        <radius>0.6666666666666667</radius>
+        <position> 1. -1.</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors> 9 19  8 18 29  7 28 17 27 39  6 16 38 26 37 49  5 15 48 36 25 47  4 59</basis_neighbors>
+      </basis>
+      <basis index="10">
+        <radius>0.49690399499995325</radius>
+        <position>-1.                     -0.77777777777777779011</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>10  0 11 20  1 21 12 30  2 22 31 32 40 13 41  3 23 42 33 14 50  4 24 51</basis_neighbors>
+      </basis>
+      <basis index="11">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>26</number_of_basis_neighbors>
+        <basis_neighbors>11  1 10 12 21  0  2 20 22 13 31 23  3 30 32 33 41 14 24 40 42  4 34 43 50  5</basis_neighbors>
+      </basis>
+      <basis index="12">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>30</number_of_basis_neighbors>
+        <basis_neighbors>12  2 11 13 22 23  1 21  3 10 14 32  4 24  0 31 20 33 34 30 42 15 41 43  5 25 40 44 35  6</basis_neighbors>
+      </basis>
+      <basis index="13">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>13 14 12 23  3  2 22 24  4 11 33 15  1 34 21 32 25  5 31 35 10 43 16  6 26  0 42 20 44 41 30 36 45 17  7</basis_neighbors>
+      </basis>
+      <basis index="14">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>14 13 24  4 15 23  3 25  5 16 12 34  6 26 33 22  2 35 32 36 17 44 11 27  7 45 21 43  1 37 31 46 42 10 20  8  0</basis_neighbors>
+      </basis>
+      <basis index="15">
+        <radius>0.4444444444444444</radius>
+        <position> 0.11111111111111116045 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>15 16 25  5 14 26  6  4 24 17 35 13  7 27 36 34  3 23 37 33 18 45 12 46 28  8 22  2 44 47 38 43 32 19 29  9  1</basis_neighbors>
+      </basis>
+      <basis index="16">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>16 17 15 26  6 25 27  7  5 18 14 36 35 37 28 24  8  4 34 38 46 13 19 47 45 23  9  3 29 48 33 44 39  2</basis_neighbors>
+      </basis>
+      <basis index="17">
+        <radius>0.4444444444444444</radius>
+        <position> 0.55555555555555535818 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>31</number_of_basis_neighbors>
+        <basis_neighbors>17 16  7 27 18  6 26 28  8 15 37 19  5 25 36 38 29  9 35 39 14 47 24  4 46 48 45 34 49 13  3</basis_neighbors>
+      </basis>
+      <basis index="18">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>26</number_of_basis_neighbors>
+        <basis_neighbors>18  8 28 19 17 29 27  7  9 16 38 26  6 37 39 36 15 48 25  5 47 49 35 46  4 59</basis_neighbors>
+      </basis>
+      <basis index="19">
+        <radius>0.49690399499995347</radius>
+        <position> 1.                     -0.77777777777777779011</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>19  9 29 18  8 28 39 17 38  7 27 37 49 16 26 48  6 36 47 15 59 25 58  5</basis_neighbors>
+      </basis>
+      <basis index="20">
+        <radius>0.49690399499995325</radius>
+        <position>-1.                     -0.55555555555555558023</position>
+        <number_of_basis_neighbors>28</number_of_basis_neighbors>
+        <basis_neighbors>20 10 21 30 11 31  0 40 22 32 41  1 12  2 42 23 50 13 51 33  3 43 52 24 60 14 34 61</basis_neighbors>
+      </basis>
+      <basis index="21">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>30</number_of_basis_neighbors>
+        <basis_neighbors>21 11 20 22 31 10 12 30 32  1 23 41  0 33 13 42 40  2 43  3 24 51 14 34 50 52  4 44 53 60</basis_neighbors>
+      </basis>
+      <basis index="22">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>22 23 32 21 12 13 31 11 33 24  2 42 20 10 30 41  3 43 34 14  1 44  0  4 40 52 25 51 53 15 35 50 54  5 45</basis_neighbors>
+      </basis>
+      <basis index="23">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>41</number_of_basis_neighbors>
+        <basis_neighbors>23 24 33 22 13 12 34 32 14 21 43  3 25 44 11  4  2 31 42 15 35 41  1 45  5 26 20 53 52 54 10 30 16 36 46  0 40  6 51 55 27</basis_neighbors>
+      </basis>
+      <basis index="24">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>44</number_of_basis_neighbors>
+        <basis_neighbors>24 34 14 23 25 33 13 15 35 22  4 44 26 32 36 16  3 43 12  5 45 46  2  6 42 27 21 54 17 37 11 31 53 55 47  7  1 41 56 52 20 30 10  0</basis_neighbors>
+      </basis>
+      <basis index="25">
+        <radius>0.4444444444444444</radius>
+        <position> 0.11111111111111116045 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>44</number_of_basis_neighbors>
+        <basis_neighbors>25 26 35 15 24 36 16 14 34 27 45  5 23 17 37  6 46  4 44 13 33 47  7 43  3 28 22 55 18 38 56 12 32 54  8 48 57 42  2 53 29 19 39  9</basis_neighbors>
+      </basis>
+      <basis index="26">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>40</number_of_basis_neighbors>
+        <basis_neighbors>26 27 25 36 16 37 17 35 15 28 24 46  6  7 45 47  5 38 14 34 18 44  4  8 48 23 29 56 19 57 13 39 33 55  3 43 49 54  9 58</basis_neighbors>
+      </basis>
+      <basis index="27">
+        <radius>0.4444444444444444</radius>
+        <position> 0.55555555555555535818 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>36</number_of_basis_neighbors>
+        <basis_neighbors>27 26 37 17 28 16 36 38 18 25  7 47 29 15 35  6 46  8 48 19 39 45  5  9 49 24 57 34 14 56 58  4 44 55 59 23</basis_neighbors>
+      </basis>
+      <basis index="28">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>30</number_of_basis_neighbors>
+        <basis_neighbors>28 18 38 29 27 39 37 17 19 48 26  8 16 36 47  9 49  7 46  6 25 58 35 15 59 57  5 45 56 69</basis_neighbors>
+      </basis>
+      <basis index="29">
+        <radius>0.4969039949999533</radius>
+        <position> 1.                     -0.55555555555555558023</position>
+        <number_of_basis_neighbors>28</number_of_basis_neighbors>
+        <basis_neighbors>29 19 39 28 38 18 49  9 27  8 48 37 17 47  7 59 26 36 16 58  6 46 57 25 69 35 15 68</basis_neighbors>
+      </basis>
+      <basis index="30">
+        <radius>0.49690399499995325</radius>
+        <position>-1.                     -0.33333333333333337034</position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors>30 40 20 31 41 21 10 32 50 42 11 22 51 12 52 33 60  0  1 23 61 43  2 62 13 53 70 34 71 24 44  3</basis_neighbors>
+      </basis>
+      <basis index="31">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>31 41 32 30 21 40 22 42 20 11 33 51 12 10 43 23 52 50 13 53 34 61  1 62 44 60  2 24  0 14  3 63 54 71 70</basis_neighbors>
+      </basis>
+      <basis index="32">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>41</number_of_basis_neighbors>
+        <basis_neighbors>32 33 22 31 42 43 21 23 41 34 12 30 52 24 44 13 40 20 11 53 51 14 10 50 54  2 62 35 25 61  3 45  1 63 64  0 60  4 15 55 72</basis_neighbors>
+      </basis>
+      <basis index="33">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>48</number_of_basis_neighbors>
+        <basis_neighbors>33 43 34 23 32 44 42 22 24 13 31 53 35 41 12 14 21 45 52 54 25 11 55 15 51 36 63 30  3 62  2 26 64  4 40 20 46 61 10 16  1 65 50 56  5 73 37  0</basis_neighbors>
+      </basis>
+      <basis index="34">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>49</number_of_basis_neighbors>
+        <basis_neighbors>34 44 33 24 35 43 23 25 45 14 36 32 54 22 26 42 13 46 15 53 55 12 16 52 56 37 31  4 64 47 27  5 63 21  3 41 65 17  2 62 66 11  6 57 51 74 30 40 20</basis_neighbors>
+      </basis>
+      <basis index="35">
+        <radius>0.4444444444444444</radius>
+        <position> 0.11111111111111116045 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>48</number_of_basis_neighbors>
+        <basis_neighbors>35 36 25 45 34 46 26 24 44 37 15 33 55 47 27 16 14 56 43 23 54 57 17 13 53 38  5 65 32 66 48 28  6  4 42 22 64 67 18  7 58 63  3 12 52 39 29 49</basis_neighbors>
+      </basis>
+      <basis index="36">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>47</number_of_basis_neighbors>
+        <basis_neighbors>36 37 35 26 46 45 25 47 27 38 34 16 56 17 15 24 48 28 44 55 57 14 18 58 54 33  6 66 39 65 67  7  5 49 43 29 23  4  8 64 13 68 53 19 59 76  9</basis_neighbors>
+      </basis>
+      <basis index="37">
+        <radius>0.4444444444444444</radius>
+        <position> 0.55555555555555535818 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>41</number_of_basis_neighbors>
+        <basis_neighbors>37 36 27 47 38 46 26 28 48 35 17 57 39 25 45 16 56 18 58 29 49 15 55 59 19 34  7 67  6 44 24 66  8 68 14  5 65 54  9 69 33</basis_neighbors>
+      </basis>
+      <basis index="38">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>38 48 28 39 37 29 49 47 27 36 18 58 26 46 19 17 57 59 16 56 35  8 68 45 25  9 69  7 67 15  6 55 66 78 79</basis_neighbors>
+      </basis>
+      <basis index="39">
+        <radius>0.4969039949999534</radius>
+        <position> 1.                     -0.33333333333333337034</position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors>39 49 29 38 28 48 19 59 37 18 58 27 47 17 57  9 69 36 46 68 26  8 16  7 67 56 79 35 78 45 25  6</basis_neighbors>
+      </basis>
+      <basis index="40">
+        <radius>0.49690399499995325</radius>
+        <position>-1.                     -0.11111111111111116045</position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>40 30 41 50 31 51 42 20 60 32 61 21 52 22 62 70 10 43 71 33 11 53 72 23 12 63 80  0 44 54 81  1 34 90</basis_neighbors>
+      </basis>
+      <basis index="41">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>41 42 31 40 51 30 32 52 50 61 43 21 60 62 33 20 22 53 23 63 71 44 11 72 70 34 12 10 54 73 24 13 64  1 80  2  0</basis_neighbors>
+      </basis>
+      <basis index="42">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>44</number_of_basis_neighbors>
+        <basis_neighbors>42 32 41 43 52 33 31 53 51 62 22 44 40 23 63 30 21 61 34 54 50 60 64 24 20 72 12 45 73 71 13 11 35 55 70 74 14 10 25 65  2  1  3  0</basis_neighbors>
+      </basis>
+      <basis index="43">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>49</number_of_basis_neighbors>
+        <basis_neighbors>43 33 44 42 53 34 32 54 52 41 63 23 45 64 62 24 22 31 51 35 55 21 61 65 25 73 13 46 40 72 74 36 56 14 12 30 50 71 75 60 66 20 11 26 15 47  3  4  2</basis_neighbors>
+      </basis>
+      <basis index="44">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>51</number_of_basis_neighbors>
+        <basis_neighbors>44 43 34 45 54 33 35 53 55 46 64 24 42 23 32 36 63 25 65 56 52 26 22 62 66 47 74 14 41 37 75 73 57 51 15 31 13 27 76 67 72 61 21 16 12  4 40  5 50  3 30</basis_neighbors>
+      </basis>
+      <basis index="45">
+        <radius>0.4444444444444444</radius>
+        <position> 0.11111111111111116045 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>51</number_of_basis_neighbors>
+        <basis_neighbors>45 46 35 55 44 36 56 34 54 47 65 25 43 37 57 66 26 64 24 33 53 27 67 23 63 75 48 15 42 76 16 38 58 74 14 32 52 77 28 17 68 73 62 13 22 49  5  6 59  4 39</basis_neighbors>
+      </basis>
+      <basis index="46">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>48</number_of_basis_neighbors>
+        <basis_neighbors>46 47 45 36 56 35 37 55 57 48 66 44 26 27 25 65 67 34 38 58 54 28 68 64 24 76 16 43 49 77 75 15 17 39 53 33 59 78 74 18 63 23 14 69 29  6  7  5</basis_neighbors>
+      </basis>
+      <basis index="47">
+        <radius>0.4444444444444444</radius>
+        <position> 0.55555555555555535818 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>45</number_of_basis_neighbors>
+        <basis_neighbors>47 46 37 48 57 36 56 38 58 45 67 27 49 35 55 66 26 28 68 39 59 65 25 29 69 77 44 17 76 54 78 34 16 18 75 24 15 64 79 19 43  7  8  6  9</basis_neighbors>
+      </basis>
+      <basis index="48">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>48 38 58 49 47 39 37 59 57 28 68 46 36 56 67 29 27 69 66 26 78 45 18 77 79 55 35 17 19 65 76 25 16  8  7  9 89</basis_neighbors>
+      </basis>
+      <basis index="49">
+        <radius>0.4969039949999533</radius>
+        <position> 1.                     -0.11111111111111116045</position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>49 39 59 48 38 58 69 29 47 28 68 37 57 27 67 79 19 46 78 18 36 56 77 26 66 17 89  9 45 55  8 35 88 99</basis_neighbors>
+      </basis>
+      <basis index="50">
+        <radius>0.4969039949999532</radius>
+        <position>-1.                      0.11111111111111116045</position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>50 60 51 40 61 41 70 52 30 71 62 42 31 72 32 80 53 20 81 63 43 21 82 73 33 22 90 54 10 44 91 11 64  0</basis_neighbors>
+      </basis>
+      <basis index="51">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011  0.11111111111111116045</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>51 61 52 50 41 60 62 40 42 71 53 31 70 72 63 43 32 30 73 33 81 54 21 64 82 80 22 20 44 83 74 34 23 91 90 92 10</basis_neighbors>
+      </basis>
+      <basis index="52">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023  0.11111111111111116045</position>
+        <number_of_basis_neighbors>44</number_of_basis_neighbors>
+        <basis_neighbors>52 62 51 53 42 63 61 43 41 72 50 54 32 71 73 64 60 44 40 31 33 70 74 34 30 82 55 22 81 83 23 21 65 45 80 84 75 24 20 35 92 91 93 90</basis_neighbors>
+      </basis>
+      <basis index="53">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034  0.11111111111111116045</position>
+        <number_of_basis_neighbors>48</number_of_basis_neighbors>
+        <basis_neighbors>53 63 52 54 43 64 62 42 44 73 51 33 55 74 72 61 65 41 34 32 45 71 75 35 31 83 50 56 23 82 66 60 84 22 40 24 46 76 70 81 85 30 36 21 25 93 94 92</basis_neighbors>
+      </basis>
+      <basis index="54">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045  0.11111111111111116045</position>
+        <number_of_basis_neighbors>51</number_of_basis_neighbors>
+        <basis_neighbors>54 64 53 55 44 63 65 43 45 74 56 52 34 73 75 62 66 46 42 33 35 76 72 36 32 57 84 51 24 67 61 47 83 85 41 23 25 77 82 71 86 37 26 31 22 94 50 93 60 40 95</basis_neighbors>
+      </basis>
+      <basis index="55">
+        <radius>0.4444444444444442</radius>
+        <position> 0.11111111111111116045  0.11111111111111116045</position>
+        <number_of_basis_neighbors>51</number_of_basis_neighbors>
+        <basis_neighbors>55 65 56 45 54 66 46 64 44 57 75 53 35 76 67 47 74 36 63 43 34 77 73 37 33 85 58 52 25 86 68 48 84 26 62 24 42 87 78 38 27 83 72 23 32 95 59 96 94 69 49</basis_neighbors>
+      </basis>
+      <basis index="56">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932  0.11111111111111116045</position>
+        <number_of_basis_neighbors>48</number_of_basis_neighbors>
+        <basis_neighbors>56 57 66 55 46 65 67 47 45 76 58 54 36 77 75 68 64 44 35 48 37 78 74 38 34 86 53 59 26 85 87 63 27 25 43 69 49 73 84 88 79 24 28 33 39 96 95 97</basis_neighbors>
+      </basis>
+      <basis index="57">
+        <radius>0.4444444444444442</radius>
+        <position> 0.55555555555555535818  0.11111111111111116045</position>
+        <number_of_basis_neighbors>44</number_of_basis_neighbors>
+        <basis_neighbors>57 56 67 58 47 66 68 46 48 55 77 37 59 65 76 45 78 36 69 38 49 75 35 79 39 87 54 27 86 64 88 44 26 28 74 85 89 34 25 29 97 98 96 99</basis_neighbors>
+      </basis>
+      <basis index="58">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909  0.11111111111111116045</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>58 68 59 57 48 69 67 47 49 78 56 38 77 79 66 46 37 39 76 36 55 88 28 65 89 45 87 29 27 75 86 35 26 98 19 97 99</basis_neighbors>
+      </basis>
+      <basis index="59">
+        <radius>0.4969039949999534</radius>
+        <position> 1.                      0.11111111111111116045</position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>59 69 58 49 68 48 79 39 57 78 67 38 47 77 37 89 29 56 88 66 28 46 76 87 27 36 99 55 19 18 45 98 65 97  9</basis_neighbors>
+      </basis>
+      <basis index="60">
+        <radius>0.4969039949999532</radius>
+        <position>-1.                      0.33333333333333325932</position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors>60 70 50 61 51 71 40 80 62 52 72 41 81 42 82 63 30 90 53 73 91 31 32 43 83 92 64 20 21 74 54 93</basis_neighbors>
+      </basis>
+      <basis index="61">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011  0.33333333333333325932</position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>61 71 51 62 60 72 52 50 70 81 41 63 73 53 42 40 82 80 43 83 31 64 91 74 54 90 92 32 30 84 33 44 93 20</basis_neighbors>
+      </basis>
+      <basis index="62">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023  0.33333333333333325932</position>
+        <number_of_basis_neighbors>40</number_of_basis_neighbors>
+        <basis_neighbors>62 72 52 63 61 71 73 53 51 42 64 82 60 70 50 74 54 43 41 83 81 80 84 44 40 32 92 65 55 91 33 31 75 93 30 34 45 90 94 85</basis_neighbors>
+      </basis>
+      <basis index="63">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034  0.33333333333333325932</position>
+        <number_of_basis_neighbors>47</number_of_basis_neighbors>
+        <basis_neighbors>63 53 73 64 62 54 72 74 52 43 83 61 65 51 71 84 42 82 44 75 55 41 81 45 85 60 33 66 93 76 56 70 50 34 94 32 92 86 31 80 40 46 35 91 95 67 90</basis_neighbors>
+      </basis>
+      <basis index="64">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045  0.33333333333333325932</position>
+        <number_of_basis_neighbors>48</number_of_basis_neighbors>
+        <basis_neighbors>64 74 54 63 65 53 73 55 75 66 84 62 44 76 52 72 56 83 43 45 85 42 82 46 86 67 61 34 94 57 77 71 51 93 35 33 95 87 47 36 81 41 32 92 96 60 70 50</basis_neighbors>
+      </basis>
+      <basis index="65">
+        <radius>0.4444444444444444</radius>
+        <position> 0.11111111111111116045  0.33333333333333325932</position>
+        <number_of_basis_neighbors>48</number_of_basis_neighbors>
+        <basis_neighbors>65 55 66 75 64 76 56 54 74 67 85 45 63 57 77 46 86 44 73 53 84 87 47 43 83 68 35 62 95 78 58 36 72 52 96 34 94 88 48 37 97 82 33 42 93 69 79 59</basis_neighbors>
+      </basis>
+      <basis index="66">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932  0.33333333333333325932</position>
+        <number_of_basis_neighbors>46</number_of_basis_neighbors>
+        <basis_neighbors>66 56 67 76 65 57 75 77 55 86 64 68 46 58 85 78 47 45 87 74 54 48 44 84 88 36 63 69 96 53 73 37 35 59 97 95 79 34 38 83 43 49 94 89 98 99</basis_neighbors>
+      </basis>
+      <basis index="67">
+        <radius>0.4444444444444444</radius>
+        <position> 0.55555555555555535818  0.33333333333333325932</position>
+        <number_of_basis_neighbors>41</number_of_basis_neighbors>
+        <basis_neighbors>67 57 66 77 68 76 56 78 58 65 47 87 69 75 55 46 86 48 88 59 79 45 85 89 49 64 37 97 74 54 36 38 96 98 44 35 84 95 39 99 63</basis_neighbors>
+      </basis>
+      <basis index="68">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909  0.33333333333333325932</position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>68 78 58 67 69 57 77 79 59 88 48 66 76 56 49 47 89 87 86 46 65 38 98 75 55 39 37 97 99 85 45 36 96 29</basis_neighbors>
+      </basis>
+      <basis index="69">
+        <radius>0.4969039949999533</radius>
+        <position> 1.                      0.33333333333333325932</position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors>69 59 79 68 78 58 89 49 67 88 48 77 57 87 47 39 99 66 76 38 56 98 46 86 37 97 65 29 75 55 28 96</basis_neighbors>
+      </basis>
+      <basis index="70">
+        <radius>0.4969039949999532</radius>
+        <position>-1.                      0.55555555555555535818</position>
+        <number_of_basis_neighbors>28</number_of_basis_neighbors>
+        <basis_neighbors>70 60 71 80 61 81 50 72 90 51 62 82 91 52 92 40 73 41 63 83 42 53 93 30 74 31 84 64</basis_neighbors>
+      </basis>
+      <basis index="71">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011  0.55555555555555535818</position>
+        <number_of_basis_neighbors>31</number_of_basis_neighbors>
+        <basis_neighbors>71 61 72 70 81 62 60 82 80 51 73 91 50 52 63 83 92 90 53 93 41 74 40 42 64 84 54 43 94 31 30</basis_neighbors>
+      </basis>
+      <basis index="72">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023  0.55555555555555535818</position>
+        <number_of_basis_neighbors>36</number_of_basis_neighbors>
+        <basis_neighbors>72 62 73 71 82 63 61 83 81 52 74 70 92 53 51 64 60 80 84 91 93 54 50 90 94 42 75 41 43 65 85 44 40 55 95 32</basis_neighbors>
+      </basis>
+      <basis index="73">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034  0.55555555555555535818</position>
+        <number_of_basis_neighbors>41</number_of_basis_neighbors>
+        <basis_neighbors>73 63 74 72 83 64 62 82 84 53 71 75 93 54 52 61 65 81 85 92 94 51 55 91 95 43 70 76 66 44 42 60 80 86 41 50 56 45 90 96 33</basis_neighbors>
+      </basis>
+      <basis index="74">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045  0.55555555555555535818</position>
+        <number_of_basis_neighbors>45</number_of_basis_neighbors>
+        <basis_neighbors>74 64 73 84 75 63 65 83 85 54 76 72 94 53 55 62 66 82 86 93 95 56 52 96 92 44 77 71 67 43 45 61 87 81 57 42 51 46 97 91 34 70 80 60 90</basis_neighbors>
+      </basis>
+      <basis index="75">
+        <radius>0.4444444444444442</radius>
+        <position> 0.11111111111111116045  0.55555555555555535818</position>
+        <number_of_basis_neighbors>44</number_of_basis_neighbors>
+        <basis_neighbors>75 76 65 85 74 66 86 64 84 77 55 73 95 67 56 87 54 63 96 83 94 57 53 97 93 45 78 72 46 68 44 88 62 82 47 58 43 98 52 92 79 89 69 99</basis_neighbors>
+      </basis>
+      <basis index="76">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932  0.55555555555555535818</position>
+        <number_of_basis_neighbors>41</number_of_basis_neighbors>
+        <basis_neighbors>76 75 66 77 86 67 65 85 87 56 78 74 96 55 57 68 64 88 84 95 97 54 58 98 94 46 73 79 47 45 63 69 83 89 44 48 53 59 93 99 36</basis_neighbors>
+      </basis>
+      <basis index="77">
+        <radius>0.4444444444444442</radius>
+        <position> 0.55555555555555535818  0.55555555555555535818</position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>77 67 76 87 78 66 68 86 88 75 57 97 79 65 56 85 58 69 96 89 98 55 59 95 99 47 74 46 64 48 84 45 54 94 49</basis_neighbors>
+      </basis>
+      <basis index="78">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909  0.55555555555555535818</position>
+        <number_of_basis_neighbors>31</number_of_basis_neighbors>
+        <basis_neighbors>78 68 88 79 77 69 67 89 87 58 76 98 59 57 66 86 97 99 56 96 75 48 65 85 49 47 55 46 95 38 39</basis_neighbors>
+      </basis>
+      <basis index="79">
+        <radius>0.4969039949999534</radius>
+        <position> 1.                      0.55555555555555535818</position>
+        <number_of_basis_neighbors>29</number_of_basis_neighbors>
+        <basis_neighbors>79 69 89 78 68 88 59 99 77 58 67 87 98 57 97 49 76 48 66 86 56 47 96 39 75 38 85 65 95</basis_neighbors>
+      </basis>
+      <basis index="80">
+        <radius>0.4969039949999533</radius>
+        <position>-1.                      0.77777777777777767909</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>80 81 90 70 91 71 82 60 61 72 92 62 50 83 51 73 93 52 63 84 40 41 74 94</basis_neighbors>
+      </basis>
+      <basis index="81">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011  0.77777777777777767909</position>
+        <number_of_basis_neighbors>26</number_of_basis_neighbors>
+        <basis_neighbors>81 80 82 71 91 90 70 72 92 61 83 60 62 73 93 63 51 84 50 52 94 74 53 64 40 95</basis_neighbors>
+      </basis>
+      <basis index="82">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023  0.77777777777777767909</position>
+        <number_of_basis_neighbors>30</number_of_basis_neighbors>
+        <basis_neighbors>82 83 81 92 72 93 71 73 91 84 62 80 61 63 74 90 94 70 64 60 52 85 51 53 95 75 50 54 65 96</basis_neighbors>
+      </basis>
+      <basis index="83">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034  0.77777777777777767909</position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>83 84 82 93 73 74 92 94 72 63 81 85 62 64 91 71 75 95 61 65 53 80 86 52 54 90 70 96 76 51 55 60 66 87 97</basis_neighbors>
+      </basis>
+      <basis index="84">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045  0.77777777777777767909</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>84 83 94 74 85 93 73 75 95 64 86 82 63 76 65 72 92 96 62 66 54 87 81 97 77 55 53 91 71 67 52 56 61 80 90 70 98</basis_neighbors>
+      </basis>
+      <basis index="85">
+        <radius>0.4444444444444444</radius>
+        <position> 0.11111111111111116045  0.77777777777777767909</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>85 86 95 75 84 96 76 74 94 87 65 83 77 97 66 64 73 93 67 63 88 55 82 56 98 78 54 72 92 57 68 53 62 89 91 79 99</basis_neighbors>
+      </basis>
+      <basis index="86">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932  0.77777777777777767909</position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>86 85 87 96 76 97 95 75 77 88 66 84 65 67 94 98 74 78 64 68 56 83 89 57 55 93 73 99 79 58 54 63 69 92</basis_neighbors>
+      </basis>
+      <basis index="87">
+        <radius>0.4444444444444444</radius>
+        <position> 0.55555555555555535818  0.77777777777777767909</position>
+        <number_of_basis_neighbors>31</number_of_basis_neighbors>
+        <basis_neighbors>87 86 97 88 77 96 76 78 98 85 67 89 95 75 66 68 79 99 65 69 57 84 56 94 74 58 55 64 59 83 93</basis_neighbors>
+      </basis>
+      <basis index="88">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909  0.77777777777777767909</position>
+        <number_of_basis_neighbors>26</number_of_basis_neighbors>
+        <basis_neighbors>88 89 87 78 98 99 97 79 77 86 68 76 96 69 67 66 58 85 57 95 75 59 65 56 49 94</basis_neighbors>
+      </basis>
+      <basis index="89">
+        <radius>0.4969039949999535</radius>
+        <position> 1.                      0.77777777777777767909</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>89 99 88 79 78 98 69 87 68 97 77 67 59 86 58 96 76 57 66 85 49 95 75 48</basis_neighbors>
+      </basis>
+      <basis index="90">
+        <radius>0.6666666666666667</radius>
+        <position>-1.  1.</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>90 91 80 81 92 70 82 71 72 93 60 61 83 62 73 94 50 84 51 63 52 74 40 95</basis_neighbors>
+      </basis>
+      <basis index="91">
+        <radius>0.49690399499995347</radius>
+        <position>-0.77777777777777779011  1.                    </position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>91 92 90 81 82 80 93 71 83 70 72 73 94 61 60 62 84 63 74 51 95 52 85 50</basis_neighbors>
+      </basis>
+      <basis index="92">
+        <radius>0.4969039949999533</radius>
+        <position>-0.55555555555555558023  1.                    </position>
+        <number_of_basis_neighbors>28</number_of_basis_neighbors>
+        <basis_neighbors>92 91 93 82 83 81 90 94 72 80 84 73 71 70 74 62 95 61 63 85 60 64 75 96 52 86 53 51</basis_neighbors>
+      </basis>
+      <basis index="93">
+        <radius>0.4969039949999534</radius>
+        <position>-0.33333333333333337034  1.                    </position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors>93 92 94 83 84 82 91 95 73 81 85 72 74 71 75 90 96 63 86 80 62 64 61 70 65 76 97 53 87 54 52 60</basis_neighbors>
+      </basis>
+      <basis index="94">
+        <radius>0.4969039949999533</radius>
+        <position>-0.11111111111111116045  1.                    </position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>94 93 84 95 83 85 92 96 74 86 82 73 75 76 72 97 91 64 87 81 63 65 77 62 66 71 98 54 90 55 53 80 88 99</basis_neighbors>
+      </basis>
+      <basis index="95">
+        <radius>0.4969039949999534</radius>
+        <position> 0.11111111111111116045  1.                    </position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>95 96 85 94 86 84 97 93 75 87 76 83 74 77 73 98 92 65 88 66 64 82 67 78 72 63 55 99 91 54 89 81 56 79 90</basis_neighbors>
+      </basis>
+      <basis index="96">
+        <radius>0.4969039949999533</radius>
+        <position> 0.33333333333333325932  1.                    </position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors>96 97 95 86 85 87 94 98 76 88 84 77 75 74 78 93 99 66 65 67 83 89 68 64 79 73 56 92 57 55 82 69</basis_neighbors>
+      </basis>
+      <basis index="97">
+        <radius>0.4969039949999534</radius>
+        <position> 0.55555555555555535818  1.                    </position>
+        <number_of_basis_neighbors>29</number_of_basis_neighbors>
+        <basis_neighbors>97 96 98 87 86 88 95 99 77 85 76 89 78 75 79 94 67 84 66 68 74 65 69 93 57 83 58 56 59</basis_neighbors>
+      </basis>
+      <basis index="98">
+        <radius>0.4969039949999535</radius>
+        <position> 0.77777777777777767909  1.                    </position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>98 99 88 97 87 89 96 78 86 77 79 76 95 68 85 67 69 75 66 94 58 84 57 59</basis_neighbors>
+      </basis>
+      <basis index="99">
+        <radius>0.6666666666666667</radius>
+        <position> 1.  1.</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>99 89 98 88 97 79 87 78 77 96 69 86 68 76 67 59 95 85 58 66 57 75 49 94</basis_neighbors>
+      </basis>
+    </basis_functions>
+    <weight_functions>
+      <meshless_function type='rbf' function='compact_gaussian'/>
+      <material_options weighting='weight' output='standard'/>
+      <weight index="0">
+        <radius>0.6666666666666666</radius>
+        <position>-1. -1.</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors> 0  1 10 11  2 20 12 21 22 30  3 31 13 23 32  4 40 41 14 33 24 42 50  5</basis_neighbors>
+        <number_of_weight_neighbors>24</number_of_weight_neighbors>
+        <weight_neighbors> 0  1 10 11  2 20 12 21 22 30  3 31 13 23 32  4 40 41 14 33 24 42 50  5</weight_neighbors>
+      </weight>
+      <weight index="1">
+        <radius>0.49690399499995325</radius>
+        <position>-0.77777777777777779011 -1.                    </position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors> 1  0  2 11 10 12 21  3 20 22 13 23 31  4 14 32 30 24 33 41  5 40 42 15</basis_neighbors>
+        <number_of_weight_neighbors>24</number_of_weight_neighbors>
+        <weight_neighbors> 1  0  2 11 10 12 21  3 20 22 13 23 31  4 14 32 30 24 33 41  5 40 42 15</weight_neighbors>
+      </weight>
+      <weight index="2">
+        <radius>0.49690399499995325</radius>
+        <position>-0.55555555555555558023 -1.                    </position>
+        <number_of_basis_neighbors>28</number_of_basis_neighbors>
+        <basis_neighbors> 2  1  3 12 13 11  4  0 22 23 14 10 21 20 24 32  5 31 33 15 30 34 25  6 42 16 41 43</basis_neighbors>
+        <number_of_weight_neighbors>28</number_of_weight_neighbors>
+        <weight_neighbors> 2  1  3 12 13 11  4  0 22 23 14 10 21 20 24 32  5 31 33 15 30 34 25  6 42 16 41 43</weight_neighbors>
+      </weight>
+      <weight index="3">
+        <radius>0.49690399499995325</radius>
+        <position>-0.33333333333333337034 -1.                    </position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors> 3 13  4  2 12 14 23  1  5 24 11 22 15 21 25  6 33  0 32 34 16 10 31 20 26 35  7 43 17 42 44 30</basis_neighbors>
+        <number_of_weight_neighbors>32</number_of_weight_neighbors>
+        <weight_neighbors> 3 13  4  2 12 14 23  1  5 24 11 22 15 21 25  6 33  0 32 34 16 10 31 20 26 35  7 43 17 42 44 30</weight_neighbors>
+      </weight>
+      <weight index="4">
+        <radius>0.49690399499995325</radius>
+        <position>-0.11111111111111116045 -1.                    </position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors> 4 14  3  5 13 15  6  2 24 23 16 12 25 22 26  7  1 34 17 35 11 33 27 32 36 21  8 44  0 43 18 45 10  9</basis_neighbors>
+        <number_of_weight_neighbors>34</number_of_weight_neighbors>
+        <weight_neighbors> 4 14  3  5 13 15  6  2 24 23 16 12 25 22 26  7  1 34 17 35 11 33 27 32 36 21  8 44  0 43 18 45 10  9</weight_neighbors>
+      </weight>
+      <weight index="5">
+        <radius>0.4969039949999532</radius>
+        <position> 0.11111111111111116045 -1.                    </position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors> 5  6 15  4 16 14  7 25  3 17 26 24 13 27 23  8 35  2 36 18 12 34 37 28 33 22 45  9  1 46 44 11 19  0</basis_neighbors>
+        <number_of_weight_neighbors>34</number_of_weight_neighbors>
+        <weight_neighbors> 5  6 15  4 16 14  7 25  3 17 26 24 13 27 23  8 35  2 36 18 12 34 37 28 33 22 45  9  1 46 44 11 19  0</weight_neighbors>
+      </weight>
+      <weight index="6">
+        <radius>0.4969039949999532</radius>
+        <position> 0.33333333333333325932 -1.                    </position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors> 6  7  5 16 17 15  8  4 26 25 27 14 18 24 28 36  3  9 37 35 19 13 23 38 34 29  2 46 45 12 47 39</basis_neighbors>
+        <number_of_weight_neighbors>32</number_of_weight_neighbors>
+        <weight_neighbors> 6  7  5 16 17 15  8  4 26 25 27 14 18 24 28 36  3  9 37 35 19 13 23 38 34 29  2 46 45 12 47 39</weight_neighbors>
+      </weight>
+      <weight index="7">
+        <radius>0.4969039949999532</radius>
+        <position> 0.55555555555555535818 -1.                    </position>
+        <number_of_basis_neighbors>28</number_of_basis_neighbors>
+        <basis_neighbors> 7  6 17  8 16 18  5 27  9 15 26 28 19 25 29  4 37 14 36 38 24 35 39  3 47 13 46 48</basis_neighbors>
+        <number_of_weight_neighbors>28</number_of_weight_neighbors>
+        <weight_neighbors> 7  6 17  8 16 18  5 27  9 15 26 28 19 25 29  4 37 14 36 38 24 35 39  3 47 13 46 48</weight_neighbors>
+      </weight>
+      <weight index="8">
+        <radius>0.4969039949999533</radius>
+        <position> 0.77777777777777767909 -1.                    </position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors> 8 18  9  7 17 19 28  6 16 29 27 26  5 38 15 39 37 25 36  4 48 14 47 49</basis_neighbors>
+        <number_of_weight_neighbors>24</number_of_weight_neighbors>
+        <weight_neighbors> 8 18  9  7 17 19 28  6 16 29 27 26  5 38 15 39 37 25 36  4 48 14 47 49</weight_neighbors>
+      </weight>
+      <weight index="9">
+        <radius>0.6666666666666667</radius>
+        <position> 1. -1.</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors> 9 19  8 18 29  7 28 17 27 39  6 16 38 26 37 49  5 15 48 36 25 47  4 59</basis_neighbors>
+        <number_of_weight_neighbors>24</number_of_weight_neighbors>
+        <weight_neighbors> 9 19  8 18 29  7 28 17 27 39  6 16 38 26 37 49  5 15 48 36 25 47  4 59</weight_neighbors>
+      </weight>
+      <weight index="10">
+        <radius>0.49690399499995325</radius>
+        <position>-1.                     -0.77777777777777779011</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>10  0 11 20  1 21 12 30  2 22 31 32 40 13 41  3 23 42 33 14 50  4 24 51</basis_neighbors>
+        <number_of_weight_neighbors>24</number_of_weight_neighbors>
+        <weight_neighbors>10  0 11 20  1 21 12 30  2 22 31 32 40 13 41  3 23 42 33 14 50  4 24 51</weight_neighbors>
+      </weight>
+      <weight index="11">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>26</number_of_basis_neighbors>
+        <basis_neighbors>11  1 10 12 21  0  2 20 22 13 31 23  3 30 32 33 41 14 24 40 42  4 34 43 50  5</basis_neighbors>
+        <number_of_weight_neighbors>26</number_of_weight_neighbors>
+        <weight_neighbors>11  1 10 12 21  0  2 20 22 13 31 23  3 30 32 33 41 14 24 40 42  4 34 43 50  5</weight_neighbors>
+      </weight>
+      <weight index="12">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>30</number_of_basis_neighbors>
+        <basis_neighbors>12  2 11 13 22 23  1 21  3 10 14 32  4 24  0 31 20 33 34 30 42 15 41 43  5 25 40 44 35  6</basis_neighbors>
+        <number_of_weight_neighbors>30</number_of_weight_neighbors>
+        <weight_neighbors>12  2 11 13 22 23  1 21  3 10 14 32  4 24  0 31 20 33 34 30 42 15 41 43  5 25 40 44 35  6</weight_neighbors>
+      </weight>
+      <weight index="13">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>13 14 12 23  3  2 22 24  4 11 33 15  1 34 21 32 25  5 31 35 10 43 16  6 26  0 42 20 44 41 30 36 45 17  7</basis_neighbors>
+        <number_of_weight_neighbors>35</number_of_weight_neighbors>
+        <weight_neighbors>13 14 12 23  3  2 22 24  4 11 33 15  1 34 21 32 25  5 31 35 10 43 16  6 26  0 42 20 44 41 30 36 45 17  7</weight_neighbors>
+      </weight>
+      <weight index="14">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>14 13 24  4 15 23  3 25  5 16 12 34  6 26 33 22  2 35 32 36 17 44 11 27  7 45 21 43  1 37 31 46 42 10 20  8  0</basis_neighbors>
+        <number_of_weight_neighbors>37</number_of_weight_neighbors>
+        <weight_neighbors>14 13 24  4 15 23  3 25  5 16 12 34  6 26 33 22  2 35 32 36 17 44 11 27  7 45 21 43  1 37 31 46 42 10 20  8  0</weight_neighbors>
+      </weight>
+      <weight index="15">
+        <radius>0.4444444444444444</radius>
+        <position> 0.11111111111111116045 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>15 16 25  5 14 26  6  4 24 17 35 13  7 27 36 34  3 23 37 33 18 45 12 46 28  8 22  2 44 47 38 43 32 19 29  9  1</basis_neighbors>
+        <number_of_weight_neighbors>37</number_of_weight_neighbors>
+        <weight_neighbors>15 16 25  5 14 26  6  4 24 17 35 13  7 27 36 34  3 23 37 33 18 45 12 46 28  8 22  2 44 47 38 43 32 19 29  9  1</weight_neighbors>
+      </weight>
+      <weight index="16">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>16 17 15 26  6 25 27  7  5 18 14 36 35 37 28 24  8  4 34 38 46 13 19 47 45 23  9  3 29 48 33 44 39  2</basis_neighbors>
+        <number_of_weight_neighbors>34</number_of_weight_neighbors>
+        <weight_neighbors>16 17 15 26  6 25 27  7  5 18 14 36 35 37 28 24  8  4 34 38 46 13 19 47 45 23  9  3 29 48 33 44 39  2</weight_neighbors>
+      </weight>
+      <weight index="17">
+        <radius>0.4444444444444444</radius>
+        <position> 0.55555555555555535818 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>31</number_of_basis_neighbors>
+        <basis_neighbors>17 16  7 27 18  6 26 28  8 15 37 19  5 25 36 38 29  9 35 39 14 47 24  4 46 48 45 34 49 13  3</basis_neighbors>
+        <number_of_weight_neighbors>31</number_of_weight_neighbors>
+        <weight_neighbors>17 16  7 27 18  6 26 28  8 15 37 19  5 25 36 38 29  9 35 39 14 47 24  4 46 48 45 34 49 13  3</weight_neighbors>
+      </weight>
+      <weight index="18">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909 -0.77777777777777779011</position>
+        <number_of_basis_neighbors>26</number_of_basis_neighbors>
+        <basis_neighbors>18  8 28 19 17 29 27  7  9 16 38 26  6 37 39 36 15 48 25  5 47 49 35 46  4 59</basis_neighbors>
+        <number_of_weight_neighbors>26</number_of_weight_neighbors>
+        <weight_neighbors>18  8 28 19 17 29 27  7  9 16 38 26  6 37 39 36 15 48 25  5 47 49 35 46  4 59</weight_neighbors>
+      </weight>
+      <weight index="19">
+        <radius>0.49690399499995347</radius>
+        <position> 1.                     -0.77777777777777779011</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>19  9 29 18  8 28 39 17 38  7 27 37 49 16 26 48  6 36 47 15 59 25 58  5</basis_neighbors>
+        <number_of_weight_neighbors>24</number_of_weight_neighbors>
+        <weight_neighbors>19  9 29 18  8 28 39 17 38  7 27 37 49 16 26 48  6 36 47 15 59 25 58  5</weight_neighbors>
+      </weight>
+      <weight index="20">
+        <radius>0.49690399499995325</radius>
+        <position>-1.                     -0.55555555555555558023</position>
+        <number_of_basis_neighbors>28</number_of_basis_neighbors>
+        <basis_neighbors>20 10 21 30 11 31  0 40 22 32 41  1 12  2 42 23 50 13 51 33  3 43 52 24 60 14 34 61</basis_neighbors>
+        <number_of_weight_neighbors>28</number_of_weight_neighbors>
+        <weight_neighbors>20 10 21 30 11 31  0 40 22 32 41  1 12  2 42 23 50 13 51 33  3 43 52 24 60 14 34 61</weight_neighbors>
+      </weight>
+      <weight index="21">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>30</number_of_basis_neighbors>
+        <basis_neighbors>21 11 20 22 31 10 12 30 32  1 23 41  0 33 13 42 40  2 43  3 24 51 14 34 50 52  4 44 53 60</basis_neighbors>
+        <number_of_weight_neighbors>30</number_of_weight_neighbors>
+        <weight_neighbors>21 11 20 22 31 10 12 30 32  1 23 41  0 33 13 42 40  2 43  3 24 51 14 34 50 52  4 44 53 60</weight_neighbors>
+      </weight>
+      <weight index="22">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>22 23 32 21 12 13 31 11 33 24  2 42 20 10 30 41  3 43 34 14  1 44  0  4 40 52 25 51 53 15 35 50 54  5 45</basis_neighbors>
+        <number_of_weight_neighbors>35</number_of_weight_neighbors>
+        <weight_neighbors>22 23 32 21 12 13 31 11 33 24  2 42 20 10 30 41  3 43 34 14  1 44  0  4 40 52 25 51 53 15 35 50 54  5 45</weight_neighbors>
+      </weight>
+      <weight index="23">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>41</number_of_basis_neighbors>
+        <basis_neighbors>23 24 33 22 13 12 34 32 14 21 43  3 25 44 11  4  2 31 42 15 35 41  1 45  5 26 20 53 52 54 10 30 16 36 46  0 40  6 51 55 27</basis_neighbors>
+        <number_of_weight_neighbors>41</number_of_weight_neighbors>
+        <weight_neighbors>23 24 33 22 13 12 34 32 14 21 43  3 25 44 11  4  2 31 42 15 35 41  1 45  5 26 20 53 52 54 10 30 16 36 46  0 40  6 51 55 27</weight_neighbors>
+      </weight>
+      <weight index="24">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>44</number_of_basis_neighbors>
+        <basis_neighbors>24 34 14 23 25 33 13 15 35 22  4 44 26 32 36 16  3 43 12  5 45 46  2  6 42 27 21 54 17 37 11 31 53 55 47  7  1 41 56 52 20 30 10  0</basis_neighbors>
+        <number_of_weight_neighbors>44</number_of_weight_neighbors>
+        <weight_neighbors>24 34 14 23 25 33 13 15 35 22  4 44 26 32 36 16  3 43 12  5 45 46  2  6 42 27 21 54 17 37 11 31 53 55 47  7  1 41 56 52 20 30 10  0</weight_neighbors>
+      </weight>
+      <weight index="25">
+        <radius>0.4444444444444444</radius>
+        <position> 0.11111111111111116045 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>44</number_of_basis_neighbors>
+        <basis_neighbors>25 26 35 15 24 36 16 14 34 27 45  5 23 17 37  6 46  4 44 13 33 47  7 43  3 28 22 55 18 38 56 12 32 54  8 48 57 42  2 53 29 19 39  9</basis_neighbors>
+        <number_of_weight_neighbors>44</number_of_weight_neighbors>
+        <weight_neighbors>25 26 35 15 24 36 16 14 34 27 45  5 23 17 37  6 46  4 44 13 33 47  7 43  3 28 22 55 18 38 56 12 32 54  8 48 57 42  2 53 29 19 39  9</weight_neighbors>
+      </weight>
+      <weight index="26">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>40</number_of_basis_neighbors>
+        <basis_neighbors>26 27 25 36 16 37 17 35 15 28 24 46  6  7 45 47  5 38 14 34 18 44  4  8 48 23 29 56 19 57 13 39 33 55  3 43 49 54  9 58</basis_neighbors>
+        <number_of_weight_neighbors>40</number_of_weight_neighbors>
+        <weight_neighbors>26 27 25 36 16 37 17 35 15 28 24 46  6  7 45 47  5 38 14 34 18 44  4  8 48 23 29 56 19 57 13 39 33 55  3 43 49 54  9 58</weight_neighbors>
+      </weight>
+      <weight index="27">
+        <radius>0.4444444444444444</radius>
+        <position> 0.55555555555555535818 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>36</number_of_basis_neighbors>
+        <basis_neighbors>27 26 37 17 28 16 36 38 18 25  7 47 29 15 35  6 46  8 48 19 39 45  5  9 49 24 57 34 14 56 58  4 44 55 59 23</basis_neighbors>
+        <number_of_weight_neighbors>36</number_of_weight_neighbors>
+        <weight_neighbors>27 26 37 17 28 16 36 38 18 25  7 47 29 15 35  6 46  8 48 19 39 45  5  9 49 24 57 34 14 56 58  4 44 55 59 23</weight_neighbors>
+      </weight>
+      <weight index="28">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909 -0.55555555555555558023</position>
+        <number_of_basis_neighbors>30</number_of_basis_neighbors>
+        <basis_neighbors>28 18 38 29 27 39 37 17 19 48 26  8 16 36 47  9 49  7 46  6 25 58 35 15 59 57  5 45 56 69</basis_neighbors>
+        <number_of_weight_neighbors>30</number_of_weight_neighbors>
+        <weight_neighbors>28 18 38 29 27 39 37 17 19 48 26  8 16 36 47  9 49  7 46  6 25 58 35 15 59 57  5 45 56 69</weight_neighbors>
+      </weight>
+      <weight index="29">
+        <radius>0.4969039949999533</radius>
+        <position> 1.                     -0.55555555555555558023</position>
+        <number_of_basis_neighbors>28</number_of_basis_neighbors>
+        <basis_neighbors>29 19 39 28 38 18 49  9 27  8 48 37 17 47  7 59 26 36 16 58  6 46 57 25 69 35 15 68</basis_neighbors>
+        <number_of_weight_neighbors>28</number_of_weight_neighbors>
+        <weight_neighbors>29 19 39 28 38 18 49  9 27  8 48 37 17 47  7 59 26 36 16 58  6 46 57 25 69 35 15 68</weight_neighbors>
+      </weight>
+      <weight index="30">
+        <radius>0.49690399499995325</radius>
+        <position>-1.                     -0.33333333333333337034</position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors>30 40 20 31 41 21 10 32 50 42 11 22 51 12 52 33 60  0  1 23 61 43  2 62 13 53 70 34 71 24 44  3</basis_neighbors>
+        <number_of_weight_neighbors>32</number_of_weight_neighbors>
+        <weight_neighbors>30 40 20 31 41 21 10 32 50 42 11 22 51 12 52 33 60  0  1 23 61 43  2 62 13 53 70 34 71 24 44  3</weight_neighbors>
+      </weight>
+      <weight index="31">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>31 41 32 30 21 40 22 42 20 11 33 51 12 10 43 23 52 50 13 53 34 61  1 62 44 60  2 24  0 14  3 63 54 71 70</basis_neighbors>
+        <number_of_weight_neighbors>35</number_of_weight_neighbors>
+        <weight_neighbors>31 41 32 30 21 40 22 42 20 11 33 51 12 10 43 23 52 50 13 53 34 61  1 62 44 60  2 24  0 14  3 63 54 71 70</weight_neighbors>
+      </weight>
+      <weight index="32">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>41</number_of_basis_neighbors>
+        <basis_neighbors>32 33 22 31 42 43 21 23 41 34 12 30 52 24 44 13 40 20 11 53 51 14 10 50 54  2 62 35 25 61  3 45  1 63 64  0 60  4 15 55 72</basis_neighbors>
+        <number_of_weight_neighbors>41</number_of_weight_neighbors>
+        <weight_neighbors>32 33 22 31 42 43 21 23 41 34 12 30 52 24 44 13 40 20 11 53 51 14 10 50 54  2 62 35 25 61  3 45  1 63 64  0 60  4 15 55 72</weight_neighbors>
+      </weight>
+      <weight index="33">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>48</number_of_basis_neighbors>
+        <basis_neighbors>33 43 34 23 32 44 42 22 24 13 31 53 35 41 12 14 21 45 52 54 25 11 55 15 51 36 63 30  3 62  2 26 64  4 40 20 46 61 10 16  1 65 50 56  5 73 37  0</basis_neighbors>
+        <number_of_weight_neighbors>48</number_of_weight_neighbors>
+        <weight_neighbors>33 43 34 23 32 44 42 22 24 13 31 53 35 41 12 14 21 45 52 54 25 11 55 15 51 36 63 30  3 62  2 26 64  4 40 20 46 61 10 16  1 65 50 56  5 73 37  0</weight_neighbors>
+      </weight>
+      <weight index="34">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>49</number_of_basis_neighbors>
+        <basis_neighbors>34 44 33 24 35 43 23 25 45 14 36 32 54 22 26 42 13 46 15 53 55 12 16 52 56 37 31  4 64 47 27  5 63 21  3 41 65 17  2 62 66 11  6 57 51 74 30 40 20</basis_neighbors>
+        <number_of_weight_neighbors>49</number_of_weight_neighbors>
+        <weight_neighbors>34 44 33 24 35 43 23 25 45 14 36 32 54 22 26 42 13 46 15 53 55 12 16 52 56 37 31  4 64 47 27  5 63 21  3 41 65 17  2 62 66 11  6 57 51 74 30 40 20</weight_neighbors>
+      </weight>
+      <weight index="35">
+        <radius>0.4444444444444444</radius>
+        <position> 0.11111111111111116045 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>48</number_of_basis_neighbors>
+        <basis_neighbors>35 36 25 45 34 46 26 24 44 37 15 33 55 47 27 16 14 56 43 23 54 57 17 13 53 38  5 65 32 66 48 28  6  4 42 22 64 67 18  7 58 63  3 12 52 39 29 49</basis_neighbors>
+        <number_of_weight_neighbors>48</number_of_weight_neighbors>
+        <weight_neighbors>35 36 25 45 34 46 26 24 44 37 15 33 55 47 27 16 14 56 43 23 54 57 17 13 53 38  5 65 32 66 48 28  6  4 42 22 64 67 18  7 58 63  3 12 52 39 29 49</weight_neighbors>
+      </weight>
+      <weight index="36">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>47</number_of_basis_neighbors>
+        <basis_neighbors>36 37 35 26 46 45 25 47 27 38 34 16 56 17 15 24 48 28 44 55 57 14 18 58 54 33  6 66 39 65 67  7  5 49 43 29 23  4  8 64 13 68 53 19 59 76  9</basis_neighbors>
+        <number_of_weight_neighbors>47</number_of_weight_neighbors>
+        <weight_neighbors>36 37 35 26 46 45 25 47 27 38 34 16 56 17 15 24 48 28 44 55 57 14 18 58 54 33  6 66 39 65 67  7  5 49 43 29 23  4  8 64 13 68 53 19 59 76  9</weight_neighbors>
+      </weight>
+      <weight index="37">
+        <radius>0.4444444444444444</radius>
+        <position> 0.55555555555555535818 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>41</number_of_basis_neighbors>
+        <basis_neighbors>37 36 27 47 38 46 26 28 48 35 17 57 39 25 45 16 56 18 58 29 49 15 55 59 19 34  7 67  6 44 24 66  8 68 14  5 65 54  9 69 33</basis_neighbors>
+        <number_of_weight_neighbors>41</number_of_weight_neighbors>
+        <weight_neighbors>37 36 27 47 38 46 26 28 48 35 17 57 39 25 45 16 56 18 58 29 49 15 55 59 19 34  7 67  6 44 24 66  8 68 14  5 65 54  9 69 33</weight_neighbors>
+      </weight>
+      <weight index="38">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909 -0.33333333333333337034</position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>38 48 28 39 37 29 49 47 27 36 18 58 26 46 19 17 57 59 16 56 35  8 68 45 25  9 69  7 67 15  6 55 66 78 79</basis_neighbors>
+        <number_of_weight_neighbors>35</number_of_weight_neighbors>
+        <weight_neighbors>38 48 28 39 37 29 49 47 27 36 18 58 26 46 19 17 57 59 16 56 35  8 68 45 25  9 69  7 67 15  6 55 66 78 79</weight_neighbors>
+      </weight>
+      <weight index="39">
+        <radius>0.4969039949999534</radius>
+        <position> 1.                     -0.33333333333333337034</position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors>39 49 29 38 28 48 19 59 37 18 58 27 47 17 57  9 69 36 46 68 26  8 16  7 67 56 79 35 78 45 25  6</basis_neighbors>
+        <number_of_weight_neighbors>32</number_of_weight_neighbors>
+        <weight_neighbors>39 49 29 38 28 48 19 59 37 18 58 27 47 17 57  9 69 36 46 68 26  8 16  7 67 56 79 35 78 45 25  6</weight_neighbors>
+      </weight>
+      <weight index="40">
+        <radius>0.49690399499995325</radius>
+        <position>-1.                     -0.11111111111111116045</position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>40 30 41 50 31 51 42 20 60 32 61 21 52 22 62 70 10 43 71 33 11 53 72 23 12 63 80  0 44 54 81  1 34 90</basis_neighbors>
+        <number_of_weight_neighbors>34</number_of_weight_neighbors>
+        <weight_neighbors>40 30 41 50 31 51 42 20 60 32 61 21 52 22 62 70 10 43 71 33 11 53 72 23 12 63 80  0 44 54 81  1 34 90</weight_neighbors>
+      </weight>
+      <weight index="41">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>41 42 31 40 51 30 32 52 50 61 43 21 60 62 33 20 22 53 23 63 71 44 11 72 70 34 12 10 54 73 24 13 64  1 80  2  0</basis_neighbors>
+        <number_of_weight_neighbors>37</number_of_weight_neighbors>
+        <weight_neighbors>41 42 31 40 51 30 32 52 50 61 43 21 60 62 33 20 22 53 23 63 71 44 11 72 70 34 12 10 54 73 24 13 64  1 80  2  0</weight_neighbors>
+      </weight>
+      <weight index="42">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>44</number_of_basis_neighbors>
+        <basis_neighbors>42 32 41 43 52 33 31 53 51 62 22 44 40 23 63 30 21 61 34 54 50 60 64 24 20 72 12 45 73 71 13 11 35 55 70 74 14 10 25 65  2  1  3  0</basis_neighbors>
+        <number_of_weight_neighbors>44</number_of_weight_neighbors>
+        <weight_neighbors>42 32 41 43 52 33 31 53 51 62 22 44 40 23 63 30 21 61 34 54 50 60 64 24 20 72 12 45 73 71 13 11 35 55 70 74 14 10 25 65  2  1  3  0</weight_neighbors>
+      </weight>
+      <weight index="43">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>49</number_of_basis_neighbors>
+        <basis_neighbors>43 33 44 42 53 34 32 54 52 41 63 23 45 64 62 24 22 31 51 35 55 21 61 65 25 73 13 46 40 72 74 36 56 14 12 30 50 71 75 60 66 20 11 26 15 47  3  4  2</basis_neighbors>
+        <number_of_weight_neighbors>49</number_of_weight_neighbors>
+        <weight_neighbors>43 33 44 42 53 34 32 54 52 41 63 23 45 64 62 24 22 31 51 35 55 21 61 65 25 73 13 46 40 72 74 36 56 14 12 30 50 71 75 60 66 20 11 26 15 47  3  4  2</weight_neighbors>
+      </weight>
+      <weight index="44">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>51</number_of_basis_neighbors>
+        <basis_neighbors>44 43 34 45 54 33 35 53 55 46 64 24 42 23 32 36 63 25 65 56 52 26 22 62 66 47 74 14 41 37 75 73 57 51 15 31 13 27 76 67 72 61 21 16 12  4 40  5 50  3 30</basis_neighbors>
+        <number_of_weight_neighbors>51</number_of_weight_neighbors>
+        <weight_neighbors>44 43 34 45 54 33 35 53 55 46 64 24 42 23 32 36 63 25 65 56 52 26 22 62 66 47 74 14 41 37 75 73 57 51 15 31 13 27 76 67 72 61 21 16 12  4 40  5 50  3 30</weight_neighbors>
+      </weight>
+      <weight index="45">
+        <radius>0.4444444444444444</radius>
+        <position> 0.11111111111111116045 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>51</number_of_basis_neighbors>
+        <basis_neighbors>45 46 35 55 44 36 56 34 54 47 65 25 43 37 57 66 26 64 24 33 53 27 67 23 63 75 48 15 42 76 16 38 58 74 14 32 52 77 28 17 68 73 62 13 22 49  5  6 59  4 39</basis_neighbors>
+        <number_of_weight_neighbors>51</number_of_weight_neighbors>
+        <weight_neighbors>45 46 35 55 44 36 56 34 54 47 65 25 43 37 57 66 26 64 24 33 53 27 67 23 63 75 48 15 42 76 16 38 58 74 14 32 52 77 28 17 68 73 62 13 22 49  5  6 59  4 39</weight_neighbors>
+      </weight>
+      <weight index="46">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>48</number_of_basis_neighbors>
+        <basis_neighbors>46 47 45 36 56 35 37 55 57 48 66 44 26 27 25 65 67 34 38 58 54 28 68 64 24 76 16 43 49 77 75 15 17 39 53 33 59 78 74 18 63 23 14 69 29  6  7  5</basis_neighbors>
+        <number_of_weight_neighbors>48</number_of_weight_neighbors>
+        <weight_neighbors>46 47 45 36 56 35 37 55 57 48 66 44 26 27 25 65 67 34 38 58 54 28 68 64 24 76 16 43 49 77 75 15 17 39 53 33 59 78 74 18 63 23 14 69 29  6  7  5</weight_neighbors>
+      </weight>
+      <weight index="47">
+        <radius>0.4444444444444444</radius>
+        <position> 0.55555555555555535818 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>45</number_of_basis_neighbors>
+        <basis_neighbors>47 46 37 48 57 36 56 38 58 45 67 27 49 35 55 66 26 28 68 39 59 65 25 29 69 77 44 17 76 54 78 34 16 18 75 24 15 64 79 19 43  7  8  6  9</basis_neighbors>
+        <number_of_weight_neighbors>45</number_of_weight_neighbors>
+        <weight_neighbors>47 46 37 48 57 36 56 38 58 45 67 27 49 35 55 66 26 28 68 39 59 65 25 29 69 77 44 17 76 54 78 34 16 18 75 24 15 64 79 19 43  7  8  6  9</weight_neighbors>
+      </weight>
+      <weight index="48">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909 -0.11111111111111116045</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>48 38 58 49 47 39 37 59 57 28 68 46 36 56 67 29 27 69 66 26 78 45 18 77 79 55 35 17 19 65 76 25 16  8  7  9 89</basis_neighbors>
+        <number_of_weight_neighbors>37</number_of_weight_neighbors>
+        <weight_neighbors>48 38 58 49 47 39 37 59 57 28 68 46 36 56 67 29 27 69 66 26 78 45 18 77 79 55 35 17 19 65 76 25 16  8  7  9 89</weight_neighbors>
+      </weight>
+      <weight index="49">
+        <radius>0.4969039949999533</radius>
+        <position> 1.                     -0.11111111111111116045</position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>49 39 59 48 38 58 69 29 47 28 68 37 57 27 67 79 19 46 78 18 36 56 77 26 66 17 89  9 45 55  8 35 88 99</basis_neighbors>
+        <number_of_weight_neighbors>34</number_of_weight_neighbors>
+        <weight_neighbors>49 39 59 48 38 58 69 29 47 28 68 37 57 27 67 79 19 46 78 18 36 56 77 26 66 17 89  9 45 55  8 35 88 99</weight_neighbors>
+      </weight>
+      <weight index="50">
+        <radius>0.4969039949999532</radius>
+        <position>-1.                      0.11111111111111116045</position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>50 60 51 40 61 41 70 52 30 71 62 42 31 72 32 80 53 20 81 63 43 21 82 73 33 22 90 54 10 44 91 11 64  0</basis_neighbors>
+        <number_of_weight_neighbors>34</number_of_weight_neighbors>
+        <weight_neighbors>50 60 51 40 61 41 70 52 30 71 62 42 31 72 32 80 53 20 81 63 43 21 82 73 33 22 90 54 10 44 91 11 64  0</weight_neighbors>
+      </weight>
+      <weight index="51">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011  0.11111111111111116045</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>51 61 52 50 41 60 62 40 42 71 53 31 70 72 63 43 32 30 73 33 81 54 21 64 82 80 22 20 44 83 74 34 23 91 90 92 10</basis_neighbors>
+        <number_of_weight_neighbors>37</number_of_weight_neighbors>
+        <weight_neighbors>51 61 52 50 41 60 62 40 42 71 53 31 70 72 63 43 32 30 73 33 81 54 21 64 82 80 22 20 44 83 74 34 23 91 90 92 10</weight_neighbors>
+      </weight>
+      <weight index="52">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023  0.11111111111111116045</position>
+        <number_of_basis_neighbors>44</number_of_basis_neighbors>
+        <basis_neighbors>52 62 51 53 42 63 61 43 41 72 50 54 32 71 73 64 60 44 40 31 33 70 74 34 30 82 55 22 81 83 23 21 65 45 80 84 75 24 20 35 92 91 93 90</basis_neighbors>
+        <number_of_weight_neighbors>44</number_of_weight_neighbors>
+        <weight_neighbors>52 62 51 53 42 63 61 43 41 72 50 54 32 71 73 64 60 44 40 31 33 70 74 34 30 82 55 22 81 83 23 21 65 45 80 84 75 24 20 35 92 91 93 90</weight_neighbors>
+      </weight>
+      <weight index="53">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034  0.11111111111111116045</position>
+        <number_of_basis_neighbors>48</number_of_basis_neighbors>
+        <basis_neighbors>53 63 52 54 43 64 62 42 44 73 51 33 55 74 72 61 65 41 34 32 45 71 75 35 31 83 50 56 23 82 66 60 84 22 40 24 46 76 70 81 85 30 36 21 25 93 94 92</basis_neighbors>
+        <number_of_weight_neighbors>48</number_of_weight_neighbors>
+        <weight_neighbors>53 63 52 54 43 64 62 42 44 73 51 33 55 74 72 61 65 41 34 32 45 71 75 35 31 83 50 56 23 82 66 60 84 22 40 24 46 76 70 81 85 30 36 21 25 93 94 92</weight_neighbors>
+      </weight>
+      <weight index="54">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045  0.11111111111111116045</position>
+        <number_of_basis_neighbors>51</number_of_basis_neighbors>
+        <basis_neighbors>54 64 53 55 44 63 65 43 45 74 56 52 34 73 75 62 66 46 42 33 35 76 72 36 32 57 84 51 24 67 61 47 83 85 41 23 25 77 82 71 86 37 26 31 22 94 50 93 60 40 95</basis_neighbors>
+        <number_of_weight_neighbors>51</number_of_weight_neighbors>
+        <weight_neighbors>54 64 53 55 44 63 65 43 45 74 56 52 34 73 75 62 66 46 42 33 35 76 72 36 32 57 84 51 24 67 61 47 83 85 41 23 25 77 82 71 86 37 26 31 22 94 50 93 60 40 95</weight_neighbors>
+      </weight>
+      <weight index="55">
+        <radius>0.4444444444444442</radius>
+        <position> 0.11111111111111116045  0.11111111111111116045</position>
+        <number_of_basis_neighbors>51</number_of_basis_neighbors>
+        <basis_neighbors>55 65 56 45 54 66 46 64 44 57 75 53 35 76 67 47 74 36 63 43 34 77 73 37 33 85 58 52 25 86 68 48 84 26 62 24 42 87 78 38 27 83 72 23 32 95 59 96 94 69 49</basis_neighbors>
+        <number_of_weight_neighbors>51</number_of_weight_neighbors>
+        <weight_neighbors>55 65 56 45 54 66 46 64 44 57 75 53 35 76 67 47 74 36 63 43 34 77 73 37 33 85 58 52 25 86 68 48 84 26 62 24 42 87 78 38 27 83 72 23 32 95 59 96 94 69 49</weight_neighbors>
+      </weight>
+      <weight index="56">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932  0.11111111111111116045</position>
+        <number_of_basis_neighbors>48</number_of_basis_neighbors>
+        <basis_neighbors>56 57 66 55 46 65 67 47 45 76 58 54 36 77 75 68 64 44 35 48 37 78 74 38 34 86 53 59 26 85 87 63 27 25 43 69 49 73 84 88 79 24 28 33 39 96 95 97</basis_neighbors>
+        <number_of_weight_neighbors>48</number_of_weight_neighbors>
+        <weight_neighbors>56 57 66 55 46 65 67 47 45 76 58 54 36 77 75 68 64 44 35 48 37 78 74 38 34 86 53 59 26 85 87 63 27 25 43 69 49 73 84 88 79 24 28 33 39 96 95 97</weight_neighbors>
+      </weight>
+      <weight index="57">
+        <radius>0.4444444444444442</radius>
+        <position> 0.55555555555555535818  0.11111111111111116045</position>
+        <number_of_basis_neighbors>44</number_of_basis_neighbors>
+        <basis_neighbors>57 56 67 58 47 66 68 46 48 55 77 37 59 65 76 45 78 36 69 38 49 75 35 79 39 87 54 27 86 64 88 44 26 28 74 85 89 34 25 29 97 98 96 99</basis_neighbors>
+        <number_of_weight_neighbors>44</number_of_weight_neighbors>
+        <weight_neighbors>57 56 67 58 47 66 68 46 48 55 77 37 59 65 76 45 78 36 69 38 49 75 35 79 39 87 54 27 86 64 88 44 26 28 74 85 89 34 25 29 97 98 96 99</weight_neighbors>
+      </weight>
+      <weight index="58">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909  0.11111111111111116045</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>58 68 59 57 48 69 67 47 49 78 56 38 77 79 66 46 37 39 76 36 55 88 28 65 89 45 87 29 27 75 86 35 26 98 19 97 99</basis_neighbors>
+        <number_of_weight_neighbors>37</number_of_weight_neighbors>
+        <weight_neighbors>58 68 59 57 48 69 67 47 49 78 56 38 77 79 66 46 37 39 76 36 55 88 28 65 89 45 87 29 27 75 86 35 26 98 19 97 99</weight_neighbors>
+      </weight>
+      <weight index="59">
+        <radius>0.4969039949999534</radius>
+        <position> 1.                      0.11111111111111116045</position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>59 69 58 49 68 48 79 39 57 78 67 38 47 77 37 89 29 56 88 66 28 46 76 87 27 36 99 55 19 18 45 98 65 97  9</basis_neighbors>
+        <number_of_weight_neighbors>35</number_of_weight_neighbors>
+        <weight_neighbors>59 69 58 49 68 48 79 39 57 78 67 38 47 77 37 89 29 56 88 66 28 46 76 87 27 36 99 55 19 18 45 98 65 97  9</weight_neighbors>
+      </weight>
+      <weight index="60">
+        <radius>0.4969039949999532</radius>
+        <position>-1.                      0.33333333333333325932</position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors>60 70 50 61 51 71 40 80 62 52 72 41 81 42 82 63 30 90 53 73 91 31 32 43 83 92 64 20 21 74 54 93</basis_neighbors>
+        <number_of_weight_neighbors>32</number_of_weight_neighbors>
+        <weight_neighbors>60 70 50 61 51 71 40 80 62 52 72 41 81 42 82 63 30 90 53 73 91 31 32 43 83 92 64 20 21 74 54 93</weight_neighbors>
+      </weight>
+      <weight index="61">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011  0.33333333333333325932</position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>61 71 51 62 60 72 52 50 70 81 41 63 73 53 42 40 82 80 43 83 31 64 91 74 54 90 92 32 30 84 33 44 93 20</basis_neighbors>
+        <number_of_weight_neighbors>34</number_of_weight_neighbors>
+        <weight_neighbors>61 71 51 62 60 72 52 50 70 81 41 63 73 53 42 40 82 80 43 83 31 64 91 74 54 90 92 32 30 84 33 44 93 20</weight_neighbors>
+      </weight>
+      <weight index="62">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023  0.33333333333333325932</position>
+        <number_of_basis_neighbors>40</number_of_basis_neighbors>
+        <basis_neighbors>62 72 52 63 61 71 73 53 51 42 64 82 60 70 50 74 54 43 41 83 81 80 84 44 40 32 92 65 55 91 33 31 75 93 30 34 45 90 94 85</basis_neighbors>
+        <number_of_weight_neighbors>40</number_of_weight_neighbors>
+        <weight_neighbors>62 72 52 63 61 71 73 53 51 42 64 82 60 70 50 74 54 43 41 83 81 80 84 44 40 32 92 65 55 91 33 31 75 93 30 34 45 90 94 85</weight_neighbors>
+      </weight>
+      <weight index="63">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034  0.33333333333333325932</position>
+        <number_of_basis_neighbors>47</number_of_basis_neighbors>
+        <basis_neighbors>63 53 73 64 62 54 72 74 52 43 83 61 65 51 71 84 42 82 44 75 55 41 81 45 85 60 33 66 93 76 56 70 50 34 94 32 92 86 31 80 40 46 35 91 95 67 90</basis_neighbors>
+        <number_of_weight_neighbors>47</number_of_weight_neighbors>
+        <weight_neighbors>63 53 73 64 62 54 72 74 52 43 83 61 65 51 71 84 42 82 44 75 55 41 81 45 85 60 33 66 93 76 56 70 50 34 94 32 92 86 31 80 40 46 35 91 95 67 90</weight_neighbors>
+      </weight>
+      <weight index="64">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045  0.33333333333333325932</position>
+        <number_of_basis_neighbors>48</number_of_basis_neighbors>
+        <basis_neighbors>64 74 54 63 65 53 73 55 75 66 84 62 44 76 52 72 56 83 43 45 85 42 82 46 86 67 61 34 94 57 77 71 51 93 35 33 95 87 47 36 81 41 32 92 96 60 70 50</basis_neighbors>
+        <number_of_weight_neighbors>48</number_of_weight_neighbors>
+        <weight_neighbors>64 74 54 63 65 53 73 55 75 66 84 62 44 76 52 72 56 83 43 45 85 42 82 46 86 67 61 34 94 57 77 71 51 93 35 33 95 87 47 36 81 41 32 92 96 60 70 50</weight_neighbors>
+      </weight>
+      <weight index="65">
+        <radius>0.4444444444444444</radius>
+        <position> 0.11111111111111116045  0.33333333333333325932</position>
+        <number_of_basis_neighbors>48</number_of_basis_neighbors>
+        <basis_neighbors>65 55 66 75 64 76 56 54 74 67 85 45 63 57 77 46 86 44 73 53 84 87 47 43 83 68 35 62 95 78 58 36 72 52 96 34 94 88 48 37 97 82 33 42 93 69 79 59</basis_neighbors>
+        <number_of_weight_neighbors>48</number_of_weight_neighbors>
+        <weight_neighbors>65 55 66 75 64 76 56 54 74 67 85 45 63 57 77 46 86 44 73 53 84 87 47 43 83 68 35 62 95 78 58 36 72 52 96 34 94 88 48 37 97 82 33 42 93 69 79 59</weight_neighbors>
+      </weight>
+      <weight index="66">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932  0.33333333333333325932</position>
+        <number_of_basis_neighbors>46</number_of_basis_neighbors>
+        <basis_neighbors>66 56 67 76 65 57 75 77 55 86 64 68 46 58 85 78 47 45 87 74 54 48 44 84 88 36 63 69 96 53 73 37 35 59 97 95 79 34 38 83 43 49 94 89 98 99</basis_neighbors>
+        <number_of_weight_neighbors>46</number_of_weight_neighbors>
+        <weight_neighbors>66 56 67 76 65 57 75 77 55 86 64 68 46 58 85 78 47 45 87 74 54 48 44 84 88 36 63 69 96 53 73 37 35 59 97 95 79 34 38 83 43 49 94 89 98 99</weight_neighbors>
+      </weight>
+      <weight index="67">
+        <radius>0.4444444444444444</radius>
+        <position> 0.55555555555555535818  0.33333333333333325932</position>
+        <number_of_basis_neighbors>41</number_of_basis_neighbors>
+        <basis_neighbors>67 57 66 77 68 76 56 78 58 65 47 87 69 75 55 46 86 48 88 59 79 45 85 89 49 64 37 97 74 54 36 38 96 98 44 35 84 95 39 99 63</basis_neighbors>
+        <number_of_weight_neighbors>41</number_of_weight_neighbors>
+        <weight_neighbors>67 57 66 77 68 76 56 78 58 65 47 87 69 75 55 46 86 48 88 59 79 45 85 89 49 64 37 97 74 54 36 38 96 98 44 35 84 95 39 99 63</weight_neighbors>
+      </weight>
+      <weight index="68">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909  0.33333333333333325932</position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>68 78 58 67 69 57 77 79 59 88 48 66 76 56 49 47 89 87 86 46 65 38 98 75 55 39 37 97 99 85 45 36 96 29</basis_neighbors>
+        <number_of_weight_neighbors>34</number_of_weight_neighbors>
+        <weight_neighbors>68 78 58 67 69 57 77 79 59 88 48 66 76 56 49 47 89 87 86 46 65 38 98 75 55 39 37 97 99 85 45 36 96 29</weight_neighbors>
+      </weight>
+      <weight index="69">
+        <radius>0.4969039949999533</radius>
+        <position> 1.                      0.33333333333333325932</position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors>69 59 79 68 78 58 89 49 67 88 48 77 57 87 47 39 99 66 76 38 56 98 46 86 37 97 65 29 75 55 28 96</basis_neighbors>
+        <number_of_weight_neighbors>32</number_of_weight_neighbors>
+        <weight_neighbors>69 59 79 68 78 58 89 49 67 88 48 77 57 87 47 39 99 66 76 38 56 98 46 86 37 97 65 29 75 55 28 96</weight_neighbors>
+      </weight>
+      <weight index="70">
+        <radius>0.4969039949999532</radius>
+        <position>-1.                      0.55555555555555535818</position>
+        <number_of_basis_neighbors>28</number_of_basis_neighbors>
+        <basis_neighbors>70 60 71 80 61 81 50 72 90 51 62 82 91 52 92 40 73 41 63 83 42 53 93 30 74 31 84 64</basis_neighbors>
+        <number_of_weight_neighbors>28</number_of_weight_neighbors>
+        <weight_neighbors>70 60 71 80 61 81 50 72 90 51 62 82 91 52 92 40 73 41 63 83 42 53 93 30 74 31 84 64</weight_neighbors>
+      </weight>
+      <weight index="71">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011  0.55555555555555535818</position>
+        <number_of_basis_neighbors>31</number_of_basis_neighbors>
+        <basis_neighbors>71 61 72 70 81 62 60 82 80 51 73 91 50 52 63 83 92 90 53 93 41 74 40 42 64 84 54 43 94 31 30</basis_neighbors>
+        <number_of_weight_neighbors>31</number_of_weight_neighbors>
+        <weight_neighbors>71 61 72 70 81 62 60 82 80 51 73 91 50 52 63 83 92 90 53 93 41 74 40 42 64 84 54 43 94 31 30</weight_neighbors>
+      </weight>
+      <weight index="72">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023  0.55555555555555535818</position>
+        <number_of_basis_neighbors>36</number_of_basis_neighbors>
+        <basis_neighbors>72 62 73 71 82 63 61 83 81 52 74 70 92 53 51 64 60 80 84 91 93 54 50 90 94 42 75 41 43 65 85 44 40 55 95 32</basis_neighbors>
+        <number_of_weight_neighbors>36</number_of_weight_neighbors>
+        <weight_neighbors>72 62 73 71 82 63 61 83 81 52 74 70 92 53 51 64 60 80 84 91 93 54 50 90 94 42 75 41 43 65 85 44 40 55 95 32</weight_neighbors>
+      </weight>
+      <weight index="73">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034  0.55555555555555535818</position>
+        <number_of_basis_neighbors>41</number_of_basis_neighbors>
+        <basis_neighbors>73 63 74 72 83 64 62 82 84 53 71 75 93 54 52 61 65 81 85 92 94 51 55 91 95 43 70 76 66 44 42 60 80 86 41 50 56 45 90 96 33</basis_neighbors>
+        <number_of_weight_neighbors>41</number_of_weight_neighbors>
+        <weight_neighbors>73 63 74 72 83 64 62 82 84 53 71 75 93 54 52 61 65 81 85 92 94 51 55 91 95 43 70 76 66 44 42 60 80 86 41 50 56 45 90 96 33</weight_neighbors>
+      </weight>
+      <weight index="74">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045  0.55555555555555535818</position>
+        <number_of_basis_neighbors>45</number_of_basis_neighbors>
+        <basis_neighbors>74 64 73 84 75 63 65 83 85 54 76 72 94 53 55 62 66 82 86 93 95 56 52 96 92 44 77 71 67 43 45 61 87 81 57 42 51 46 97 91 34 70 80 60 90</basis_neighbors>
+        <number_of_weight_neighbors>45</number_of_weight_neighbors>
+        <weight_neighbors>74 64 73 84 75 63 65 83 85 54 76 72 94 53 55 62 66 82 86 93 95 56 52 96 92 44 77 71 67 43 45 61 87 81 57 42 51 46 97 91 34 70 80 60 90</weight_neighbors>
+      </weight>
+      <weight index="75">
+        <radius>0.4444444444444442</radius>
+        <position> 0.11111111111111116045  0.55555555555555535818</position>
+        <number_of_basis_neighbors>44</number_of_basis_neighbors>
+        <basis_neighbors>75 76 65 85 74 66 86 64 84 77 55 73 95 67 56 87 54 63 96 83 94 57 53 97 93 45 78 72 46 68 44 88 62 82 47 58 43 98 52 92 79 89 69 99</basis_neighbors>
+        <number_of_weight_neighbors>44</number_of_weight_neighbors>
+        <weight_neighbors>75 76 65 85 74 66 86 64 84 77 55 73 95 67 56 87 54 63 96 83 94 57 53 97 93 45 78 72 46 68 44 88 62 82 47 58 43 98 52 92 79 89 69 99</weight_neighbors>
+      </weight>
+      <weight index="76">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932  0.55555555555555535818</position>
+        <number_of_basis_neighbors>41</number_of_basis_neighbors>
+        <basis_neighbors>76 75 66 77 86 67 65 85 87 56 78 74 96 55 57 68 64 88 84 95 97 54 58 98 94 46 73 79 47 45 63 69 83 89 44 48 53 59 93 99 36</basis_neighbors>
+        <number_of_weight_neighbors>41</number_of_weight_neighbors>
+        <weight_neighbors>76 75 66 77 86 67 65 85 87 56 78 74 96 55 57 68 64 88 84 95 97 54 58 98 94 46 73 79 47 45 63 69 83 89 44 48 53 59 93 99 36</weight_neighbors>
+      </weight>
+      <weight index="77">
+        <radius>0.4444444444444442</radius>
+        <position> 0.55555555555555535818  0.55555555555555535818</position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>77 67 76 87 78 66 68 86 88 75 57 97 79 65 56 85 58 69 96 89 98 55 59 95 99 47 74 46 64 48 84 45 54 94 49</basis_neighbors>
+        <number_of_weight_neighbors>35</number_of_weight_neighbors>
+        <weight_neighbors>77 67 76 87 78 66 68 86 88 75 57 97 79 65 56 85 58 69 96 89 98 55 59 95 99 47 74 46 64 48 84 45 54 94 49</weight_neighbors>
+      </weight>
+      <weight index="78">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909  0.55555555555555535818</position>
+        <number_of_basis_neighbors>31</number_of_basis_neighbors>
+        <basis_neighbors>78 68 88 79 77 69 67 89 87 58 76 98 59 57 66 86 97 99 56 96 75 48 65 85 49 47 55 46 95 38 39</basis_neighbors>
+        <number_of_weight_neighbors>31</number_of_weight_neighbors>
+        <weight_neighbors>78 68 88 79 77 69 67 89 87 58 76 98 59 57 66 86 97 99 56 96 75 48 65 85 49 47 55 46 95 38 39</weight_neighbors>
+      </weight>
+      <weight index="79">
+        <radius>0.4969039949999534</radius>
+        <position> 1.                      0.55555555555555535818</position>
+        <number_of_basis_neighbors>29</number_of_basis_neighbors>
+        <basis_neighbors>79 69 89 78 68 88 59 99 77 58 67 87 98 57 97 49 76 48 66 86 56 47 96 39 75 38 85 65 95</basis_neighbors>
+        <number_of_weight_neighbors>29</number_of_weight_neighbors>
+        <weight_neighbors>79 69 89 78 68 88 59 99 77 58 67 87 98 57 97 49 76 48 66 86 56 47 96 39 75 38 85 65 95</weight_neighbors>
+      </weight>
+      <weight index="80">
+        <radius>0.4969039949999533</radius>
+        <position>-1.                      0.77777777777777767909</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>80 81 90 70 91 71 82 60 61 72 92 62 50 83 51 73 93 52 63 84 40 41 74 94</basis_neighbors>
+        <number_of_weight_neighbors>24</number_of_weight_neighbors>
+        <weight_neighbors>80 81 90 70 91 71 82 60 61 72 92 62 50 83 51 73 93 52 63 84 40 41 74 94</weight_neighbors>
+      </weight>
+      <weight index="81">
+        <radius>0.4444444444444444</radius>
+        <position>-0.77777777777777779011  0.77777777777777767909</position>
+        <number_of_basis_neighbors>26</number_of_basis_neighbors>
+        <basis_neighbors>81 80 82 71 91 90 70 72 92 61 83 60 62 73 93 63 51 84 50 52 94 74 53 64 40 95</basis_neighbors>
+        <number_of_weight_neighbors>26</number_of_weight_neighbors>
+        <weight_neighbors>81 80 82 71 91 90 70 72 92 61 83 60 62 73 93 63 51 84 50 52 94 74 53 64 40 95</weight_neighbors>
+      </weight>
+      <weight index="82">
+        <radius>0.4444444444444444</radius>
+        <position>-0.55555555555555558023  0.77777777777777767909</position>
+        <number_of_basis_neighbors>30</number_of_basis_neighbors>
+        <basis_neighbors>82 83 81 92 72 93 71 73 91 84 62 80 61 63 74 90 94 70 64 60 52 85 51 53 95 75 50 54 65 96</basis_neighbors>
+        <number_of_weight_neighbors>30</number_of_weight_neighbors>
+        <weight_neighbors>82 83 81 92 72 93 71 73 91 84 62 80 61 63 74 90 94 70 64 60 52 85 51 53 95 75 50 54 65 96</weight_neighbors>
+      </weight>
+      <weight index="83">
+        <radius>0.4444444444444444</radius>
+        <position>-0.33333333333333337034  0.77777777777777767909</position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>83 84 82 93 73 74 92 94 72 63 81 85 62 64 91 71 75 95 61 65 53 80 86 52 54 90 70 96 76 51 55 60 66 87 97</basis_neighbors>
+        <number_of_weight_neighbors>35</number_of_weight_neighbors>
+        <weight_neighbors>83 84 82 93 73 74 92 94 72 63 81 85 62 64 91 71 75 95 61 65 53 80 86 52 54 90 70 96 76 51 55 60 66 87 97</weight_neighbors>
+      </weight>
+      <weight index="84">
+        <radius>0.4444444444444444</radius>
+        <position>-0.11111111111111116045  0.77777777777777767909</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>84 83 94 74 85 93 73 75 95 64 86 82 63 76 65 72 92 96 62 66 54 87 81 97 77 55 53 91 71 67 52 56 61 80 90 70 98</basis_neighbors>
+        <number_of_weight_neighbors>37</number_of_weight_neighbors>
+        <weight_neighbors>84 83 94 74 85 93 73 75 95 64 86 82 63 76 65 72 92 96 62 66 54 87 81 97 77 55 53 91 71 67 52 56 61 80 90 70 98</weight_neighbors>
+      </weight>
+      <weight index="85">
+        <radius>0.4444444444444444</radius>
+        <position> 0.11111111111111116045  0.77777777777777767909</position>
+        <number_of_basis_neighbors>37</number_of_basis_neighbors>
+        <basis_neighbors>85 86 95 75 84 96 76 74 94 87 65 83 77 97 66 64 73 93 67 63 88 55 82 56 98 78 54 72 92 57 68 53 62 89 91 79 99</basis_neighbors>
+        <number_of_weight_neighbors>37</number_of_weight_neighbors>
+        <weight_neighbors>85 86 95 75 84 96 76 74 94 87 65 83 77 97 66 64 73 93 67 63 88 55 82 56 98 78 54 72 92 57 68 53 62 89 91 79 99</weight_neighbors>
+      </weight>
+      <weight index="86">
+        <radius>0.4444444444444444</radius>
+        <position> 0.33333333333333325932  0.77777777777777767909</position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>86 85 87 96 76 97 95 75 77 88 66 84 65 67 94 98 74 78 64 68 56 83 89 57 55 93 73 99 79 58 54 63 69 92</basis_neighbors>
+        <number_of_weight_neighbors>34</number_of_weight_neighbors>
+        <weight_neighbors>86 85 87 96 76 97 95 75 77 88 66 84 65 67 94 98 74 78 64 68 56 83 89 57 55 93 73 99 79 58 54 63 69 92</weight_neighbors>
+      </weight>
+      <weight index="87">
+        <radius>0.4444444444444444</radius>
+        <position> 0.55555555555555535818  0.77777777777777767909</position>
+        <number_of_basis_neighbors>31</number_of_basis_neighbors>
+        <basis_neighbors>87 86 97 88 77 96 76 78 98 85 67 89 95 75 66 68 79 99 65 69 57 84 56 94 74 58 55 64 59 83 93</basis_neighbors>
+        <number_of_weight_neighbors>31</number_of_weight_neighbors>
+        <weight_neighbors>87 86 97 88 77 96 76 78 98 85 67 89 95 75 66 68 79 99 65 69 57 84 56 94 74 58 55 64 59 83 93</weight_neighbors>
+      </weight>
+      <weight index="88">
+        <radius>0.4444444444444444</radius>
+        <position> 0.77777777777777767909  0.77777777777777767909</position>
+        <number_of_basis_neighbors>26</number_of_basis_neighbors>
+        <basis_neighbors>88 89 87 78 98 99 97 79 77 86 68 76 96 69 67 66 58 85 57 95 75 59 65 56 49 94</basis_neighbors>
+        <number_of_weight_neighbors>26</number_of_weight_neighbors>
+        <weight_neighbors>88 89 87 78 98 99 97 79 77 86 68 76 96 69 67 66 58 85 57 95 75 59 65 56 49 94</weight_neighbors>
+      </weight>
+      <weight index="89">
+        <radius>0.4969039949999535</radius>
+        <position> 1.                      0.77777777777777767909</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>89 99 88 79 78 98 69 87 68 97 77 67 59 86 58 96 76 57 66 85 49 95 75 48</basis_neighbors>
+        <number_of_weight_neighbors>24</number_of_weight_neighbors>
+        <weight_neighbors>89 99 88 79 78 98 69 87 68 97 77 67 59 86 58 96 76 57 66 85 49 95 75 48</weight_neighbors>
+      </weight>
+      <weight index="90">
+        <radius>0.6666666666666667</radius>
+        <position>-1.  1.</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>90 91 80 81 92 70 82 71 72 93 60 61 83 62 73 94 50 84 51 63 52 74 40 95</basis_neighbors>
+        <number_of_weight_neighbors>24</number_of_weight_neighbors>
+        <weight_neighbors>90 91 80 81 92 70 82 71 72 93 60 61 83 62 73 94 50 84 51 63 52 74 40 95</weight_neighbors>
+      </weight>
+      <weight index="91">
+        <radius>0.49690399499995347</radius>
+        <position>-0.77777777777777779011  1.                    </position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>91 92 90 81 82 80 93 71 83 70 72 73 94 61 60 62 84 63 74 51 95 52 85 50</basis_neighbors>
+        <number_of_weight_neighbors>24</number_of_weight_neighbors>
+        <weight_neighbors>91 92 90 81 82 80 93 71 83 70 72 73 94 61 60 62 84 63 74 51 95 52 85 50</weight_neighbors>
+      </weight>
+      <weight index="92">
+        <radius>0.4969039949999533</radius>
+        <position>-0.55555555555555558023  1.                    </position>
+        <number_of_basis_neighbors>28</number_of_basis_neighbors>
+        <basis_neighbors>92 91 93 82 83 81 90 94 72 80 84 73 71 70 74 62 95 61 63 85 60 64 75 96 52 86 53 51</basis_neighbors>
+        <number_of_weight_neighbors>28</number_of_weight_neighbors>
+        <weight_neighbors>92 91 93 82 83 81 90 94 72 80 84 73 71 70 74 62 95 61 63 85 60 64 75 96 52 86 53 51</weight_neighbors>
+      </weight>
+      <weight index="93">
+        <radius>0.4969039949999534</radius>
+        <position>-0.33333333333333337034  1.                    </position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors>93 92 94 83 84 82 91 95 73 81 85 72 74 71 75 90 96 63 86 80 62 64 61 70 65 76 97 53 87 54 52 60</basis_neighbors>
+        <number_of_weight_neighbors>32</number_of_weight_neighbors>
+        <weight_neighbors>93 92 94 83 84 82 91 95 73 81 85 72 74 71 75 90 96 63 86 80 62 64 61 70 65 76 97 53 87 54 52 60</weight_neighbors>
+      </weight>
+      <weight index="94">
+        <radius>0.4969039949999533</radius>
+        <position>-0.11111111111111116045  1.                    </position>
+        <number_of_basis_neighbors>34</number_of_basis_neighbors>
+        <basis_neighbors>94 93 84 95 83 85 92 96 74 86 82 73 75 76 72 97 91 64 87 81 63 65 77 62 66 71 98 54 90 55 53 80 88 99</basis_neighbors>
+        <number_of_weight_neighbors>34</number_of_weight_neighbors>
+        <weight_neighbors>94 93 84 95 83 85 92 96 74 86 82 73 75 76 72 97 91 64 87 81 63 65 77 62 66 71 98 54 90 55 53 80 88 99</weight_neighbors>
+      </weight>
+      <weight index="95">
+        <radius>0.4969039949999534</radius>
+        <position> 0.11111111111111116045  1.                    </position>
+        <number_of_basis_neighbors>35</number_of_basis_neighbors>
+        <basis_neighbors>95 96 85 94 86 84 97 93 75 87 76 83 74 77 73 98 92 65 88 66 64 82 67 78 72 63 55 99 91 54 89 81 56 79 90</basis_neighbors>
+        <number_of_weight_neighbors>35</number_of_weight_neighbors>
+        <weight_neighbors>95 96 85 94 86 84 97 93 75 87 76 83 74 77 73 98 92 65 88 66 64 82 67 78 72 63 55 99 91 54 89 81 56 79 90</weight_neighbors>
+      </weight>
+      <weight index="96">
+        <radius>0.4969039949999533</radius>
+        <position> 0.33333333333333325932  1.                    </position>
+        <number_of_basis_neighbors>32</number_of_basis_neighbors>
+        <basis_neighbors>96 97 95 86 85 87 94 98 76 88 84 77 75 74 78 93 99 66 65 67 83 89 68 64 79 73 56 92 57 55 82 69</basis_neighbors>
+        <number_of_weight_neighbors>32</number_of_weight_neighbors>
+        <weight_neighbors>96 97 95 86 85 87 94 98 76 88 84 77 75 74 78 93 99 66 65 67 83 89 68 64 79 73 56 92 57 55 82 69</weight_neighbors>
+      </weight>
+      <weight index="97">
+        <radius>0.4969039949999534</radius>
+        <position> 0.55555555555555535818  1.                    </position>
+        <number_of_basis_neighbors>29</number_of_basis_neighbors>
+        <basis_neighbors>97 96 98 87 86 88 95 99 77 85 76 89 78 75 79 94 67 84 66 68 74 65 69 93 57 83 58 56 59</basis_neighbors>
+        <number_of_weight_neighbors>29</number_of_weight_neighbors>
+        <weight_neighbors>97 96 98 87 86 88 95 99 77 85 76 89 78 75 79 94 67 84 66 68 74 65 69 93 57 83 58 56 59</weight_neighbors>
+      </weight>
+      <weight index="98">
+        <radius>0.4969039949999535</radius>
+        <position> 0.77777777777777767909  1.                    </position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>98 99 88 97 87 89 96 78 86 77 79 76 95 68 85 67 69 75 66 94 58 84 57 59</basis_neighbors>
+        <number_of_weight_neighbors>24</number_of_weight_neighbors>
+        <weight_neighbors>98 99 88 97 87 89 96 78 86 77 79 76 95 68 85 67 69 75 66 94 58 84 57 59</weight_neighbors>
+      </weight>
+      <weight index="99">
+        <radius>0.6666666666666667</radius>
+        <position> 1.  1.</position>
+        <number_of_basis_neighbors>24</number_of_basis_neighbors>
+        <basis_neighbors>99 89 98 88 97 79 87 78 77 96 69 86 68 76 67 59 95 85 58 66 57 75 49 94</basis_neighbors>
+        <number_of_weight_neighbors>24</number_of_weight_neighbors>
+        <weight_neighbors>99 89 98 88 97 79 87 78 77 96 69 86 68 76 67 59 95 85 58 66 57 75 49 94</weight_neighbors>
+      </weight>
+    </weight_functions>
+  </spatial_discretization>

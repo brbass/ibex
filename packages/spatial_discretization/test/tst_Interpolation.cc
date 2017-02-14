@@ -38,12 +38,6 @@ shared_ptr<Weak_Spatial_Discretization> get_spatial(int dimension,
     vector<shared_ptr<Boundary_Source> > boundary_sources
         = boundary_parser.parse_from_xml(input_node.get_child("boundary_sources"));
 
-    // Get materials
-    Material_Parser material_parser(angular,
-                                    energy);
-    vector<shared_ptr<Material> > materials
-        = material_parser.parse_from_xml(input_node.get_child("materials"));
-
     // Get solid geometry
     vector<shared_ptr<Cartesian_Plane> > boundary_surfaces(2 * dimension);
     for (int d = 0; d < dimension; ++d)
@@ -60,6 +54,7 @@ shared_ptr<Weak_Spatial_Discretization> get_spatial(int dimension,
                                                d,
                                                position,
                                                normal);
+            boundary_surfaces[index]->set_boundary_source(boundary_sources[0]);
         }
                                                
     }
@@ -72,7 +67,7 @@ shared_ptr<Weak_Spatial_Discretization> get_spatial(int dimension,
     // Parser for basis and weight functions
     Weak_Spatial_Discretization_Parser spatial_parser(solid_geometry,
                                                       boundary_surfaces);
-    return spatial_parser.get_weak_discretization(input_node);
+    return spatial_parser.get_weak_discretization(input_node.get_child("spatial_discretization"));
 }
 
 int test_interpolation(int dimension,

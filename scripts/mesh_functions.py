@@ -219,7 +219,7 @@ def xml_discretization(output_path,
         et.SubElement(basis, "position").text = numpy_to_text(points[i, :])
         et.SubElement(basis, "number_of_basis_neighbors").text = str(num_b_neighbors)
         et.SubElement(basis, "basis_neighbors").text = numpy_to_text(b_neighbors[i])
-        et.SubElement(basis, "basis_neighbor_distances").text = numpy_to_text(b_neighbor_distances[i])
+        # et.SubElement(basis, "basis_neighbor_distances").text = numpy_to_text(b_neighbor_distances[i])
         
     weight_top = et.SubElement(node, "weight_functions")
     for i in range(num_points):
@@ -231,9 +231,9 @@ def xml_discretization(output_path,
         et.SubElement(weight, "position").text = numpy_to_text(points[i, :])
         et.SubElement(weight, "number_of_basis_neighbors").text = str(num_b_neighbors)
         et.SubElement(weight, "basis_neighbors").text = numpy_to_text(bw_neighbors[i])
-        et.SubElement(weight, "basis_neighbor_distances").text = numpy_to_text(bw_neighbor_distances[i])
+        # et.SubElement(weight, "basis_neighbor_distances").text = numpy_to_text(bw_neighbor_distances[i])
         et.SubElement(weight, "number_of_weight_neighbors").text = str(num_bw_neighbors)
         et.SubElement(weight, "weight_neighbors").text = numpy_to_text(w_neighbors[i])
-        et.SubElement(weight, "weight_neighbor_distances").text = numpy_to_text(w_neighbor_distances[i])
+        # et.SubElement(weight, "weight_neighbor_distances").text = numpy_to_text(w_neighbor_distances[i])
     return node
 
