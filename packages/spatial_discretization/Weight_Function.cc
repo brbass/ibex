@@ -289,6 +289,11 @@ get_basis_quadrature_2d(int i,
                                                                ordinates_x,
                                                                ordinates_y,
                                                                integration_weights);
+         if (!success)
+         {
+             cout << "weight: " << index_ << endl;
+             cout << "basis: " << basis->index() << endl;
+         }
      }
 
      qr::convert_to_position_2d(ordinates_x,
@@ -471,7 +476,7 @@ calculate_values()
 {
     // Calculate value of basis functions at weight center
     v_b_.resize(number_of_basis_functions_);
-    v_db_.resize(number_of_basis_functions_);
+    v_db_.resize(number_of_basis_functions_ * dimension_);
     for (int i = 0; i < number_of_basis_functions_; ++i)
     {
         shared_ptr<Meshless_Function> basis = basis_functions_[i]->function();

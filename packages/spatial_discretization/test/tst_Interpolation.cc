@@ -98,7 +98,7 @@ int main(int argc, char **argv)
     string input_folder = argv[1];
     input_folder += "/";
     vector<string> input_filenames
-        = {input_folder + "mls_interpolation.xml"};
+        = {input_folder + "/mls_interpolation.xml"};
     
     for (string input_filename : input_filenames)
     {

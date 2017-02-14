@@ -14,7 +14,8 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
     number_of_points_(weights.size()),
     dimension_(weights[0]->dimension()),
     number_of_nodes_(weights[0]->number_of_nodes()),
-    weights_(weights)
+    weights_(weights),
+    bases_(bases)
 {
     // Get boundary weights
     int j = 0;

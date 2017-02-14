@@ -33,13 +33,12 @@ get_weak_discretization(XML_Node input_node) const
 {
     int dimension = solid_geometry_->dimension();
     int number_of_points = input_node.get_child_value<int>("number_of_points");
-    XML_Node basis_node = input_node.get_child("basis_functions");
     vector<shared_ptr<Basis_Function> > basis_functions
-        = get_basis_functions(input_node,
+        = get_basis_functions(input_node.get_child("basis_functions"),
                               number_of_points,
                               dimension);
     vector<shared_ptr<Weight_Function> > weight_functions
-        = get_weight_functions(input_node,
+        = get_weight_functions(input_node.get_child("weight_functions"),
                                number_of_points,
                                dimension,
                                basis_functions);

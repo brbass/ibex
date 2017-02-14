@@ -766,9 +766,9 @@ namespace Quadrature_Rule
         double y1min = y1 - r1;
         double y1max = y1 + r1;
         double x2min = x2 - r2;
-        double x2max = x2 + r1;
+        double x2max = x2 + r2;
         double y2min = y2 - r2;
-        double y2max = y2 + r1;
+        double y2max = y2 + r2;
 
         double xmin = max(x1min, x2min);
         double xmax = min(x1max, x2max);
