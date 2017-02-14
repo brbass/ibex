@@ -83,18 +83,22 @@ public:
     {
         return point_type_;
     }
-    virtual std::shared_ptr<Material> material() const override
-    {
-        return material_;
-    }
     virtual std::vector<double> const &position() const override
     {
         return position_;
+    }
+    virtual std::shared_ptr<Material> material() const override
+    {
+        return material_;
     }
     virtual void output(XML_Node output_node) const override;
     virtual void check_class_invariants() const override;
 
     // Weight_Function functions
+    virtual int number_of_integration_ordinates() const
+    {
+        return number_of_integration_ordinates_;
+    }
     virtual int number_of_basis_functions() const
     {
         return number_of_basis_functions_;
@@ -106,6 +110,14 @@ public:
     virtual int number_of_dimensional_moments() const
     {
         return number_of_dimensional_moments_;
+    }
+    virtual double radius() const
+    {
+        return radius_;
+    }
+    virtual Material_Options material_options() const
+    {
+        return material_options_;
     }
     virtual std::vector<int> const &basis_function_indices() const
     {
@@ -127,7 +139,7 @@ public:
     {
         return weighted_boundary_surfaces_[i];
     }
-
+    
     // Collocation values
     virtual std::vector<double> const &v_b()
     {

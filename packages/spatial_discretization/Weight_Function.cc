@@ -81,7 +81,7 @@ Weight_Function(int index,
     {
         basis_function_indices_[i] = basis_functions_[i]->index();
     }
-    
+
     calculate_values();
     calculate_integrals();
     calculate_material();

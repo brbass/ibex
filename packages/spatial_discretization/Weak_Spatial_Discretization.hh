@@ -31,6 +31,10 @@ public:
     {
         return number_of_nodes_;
     }
+    virtual vector<int> const &number_of_basis_functions() const
+    {
+        return number_of_basis_functions_;
+    }
     virtual std::shared_ptr<Point> point(int point_index) const override
     {
         return weights_[point_index];
@@ -66,6 +70,7 @@ private:
     int number_of_boundary_bases_;
     int dimension_;
     int number_of_nodes_;
+    vector<int> number_of_basis_functions_;
     std::vector<std::shared_ptr<Weight_Function> > weights_;
     std::vector<std::shared_ptr<Weight_Function> > boundary_weights_;
     std::vector<std::shared_ptr<Basis_Function> > bases_;

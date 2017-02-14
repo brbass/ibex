@@ -1,5 +1,15 @@
 #include <functional>
 
+#include <mpi.h>
+
+#include <Amesos.h>
+#include <Epetra_Comm.h>
+#include <Epetra_CrsMatrix.h>
+#include <Epetra_LinearProblem.h>
+#include <Epetra_Map.h>
+#include <Epetra_MpiComm.h>
+#include <Epetra_MultiVector.h>
+
 #include "Angular_Discretization.hh"
 #include "Angular_Discretization_Parser.hh"
 #include "Boundary_Source_Parser.hh"
@@ -70,6 +80,87 @@ shared_ptr<Weak_Spatial_Discretization> get_spatial(int dimension,
     return spatial_parser.get_weak_discretization(input_node.get_child("spatial_discretization"));
 }
 
+shared_ptr<Epetra_Comm> get_comm()
+{
+    return make_shared<Epetra_MpiComm>(MPI_COMM_WORLD);
+}
+
+shared_ptr<Epetra_Map> get_map(shared_ptr<Weak_Spatial_Discretization> spatial,
+                               shared_ptr<Epetra_Comm> comm)
+{
+    int number_of_points = spatial->number_of_points();
+    
+    return make_shared<Epetra_Map>(number_of_points, index_base_, *comm);
+}
+
+shared_ptr<Epetra_CrsMatrix> get_matrix(shared_ptr<Weak_Spatial_Discretization> spatial,
+                                        shared_ptr<Epetra_Map> map)
+{
+    int number_of_points = spatial->number_of_points();
+    vector<int> const number_of_basis_functions = spatial->number_of_basis_functions();
+    shared_ptr<Epetra_CrsMatrix> mat
+        = make_shared<Epetra_CrsMatrix>(Copy, *map, &number_of_basis_functions[0], true);
+    
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        shared_ptr<Weight_Function> weight = spatial->weight(i);
+        vector<int> const basis_function_indices = weight->basis_function_indices();
+        vector<double> vals(number_of_basis_functions[i]);
+        switch(weight->material_options().weighting)
+        {
+        case Weight_Function::Material_Options::Weighting::POINT:
+        {
+            vector<double> const v_b = weight->v_b();
+            mat->InsertGlobalValues(i, number_of_basis_functions[i], &v_b[0], &basis_function_indices[0]);
+        }
+        case Weight_Function::Material_Options::Weighting::WEIGHT:
+        {
+            vector<double> const iv_b_w = weight->iv_b_w();
+            mat->InsertGlobalValues(i, number_of_basis_functions[i], &iv_b_w[0], &basis_function_indices[0]);
+        }
+        default:
+            AssertMsg(false, "weighting type not implemented");
+        }
+        
+    }
+    mat->FillComplete();
+    
+    return mat;
+}
+
+shared_ptr<Epetra_Vector> get_rhs(shared_ptr<Map> map,
+                                  shared_ptr<Weak_Spatial_Discretization> spatial)
+{
+    int number_of_points = spatial->number_of_points();
+
+    shared_ptr<Epetra_Vector> vec
+        = make_shared<Epetra_Vector>(*map);
+    
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        int num_entries = 1;
+        vector<int> global_index = {i};
+        vector<double> const data = spatial->weight(i)->material()->internal_source()->data();
+        vec->ReplaceGlobalValues(num_entries,
+                                 &data[0],
+                                 &global_index[0]);
+    }
+}
+
+shared_ptr<Epetra_LinearProblem> get_problem(shared_ptr<Epetra_CrsMatrix> mat,
+                                             shared_ptr<Epetra_Vector> lhs,
+                                             shared_ptr<Epetra_Vector> rhs)
+{
+    return make_shared<Epetra_LinearProblem>(matrix_.get(),
+                                             lhs_.get(),
+                                             rhs_.get());
+}
+
+shared_ptr<Amesos_BaseSolver> get_solver(shared_ptr<Epetra_LinearProblem> problem)
+{
+    return make_shared<Amesos_BaseSolver>(factory_.Create("Klu", *problem));
+}
+
 int test_interpolation(int dimension,
                        function<double(vector<double>)> const &source,
                        function<double(vector<double>)> const &d_source,
@@ -81,6 +172,10 @@ int test_interpolation(int dimension,
         = get_spatial(dimension,
                       source,
                       input_node);
+
+    
+    
+    
     
     return checksum;
 }
