@@ -18,7 +18,7 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
     bases_(bases)
 {
     // Get number of basis functions
-    number_of_basis_functions_.assign(number_of_points_);
+    number_of_basis_functions_.resize(number_of_points_);
     for (int i = 0; i < number_of_points_; ++i)
     {
         number_of_basis_functions_[i] = weights[i]->number_of_basis_functions();
@@ -159,7 +159,7 @@ expansion_value(int i,
     for (int j = 0; j < number_of_basis_functions; ++j)
     {
         int index = basis_indices[j];
-        double val = weight->basis_function(i)->function()->value(position);
+        double val = weight->basis_function(j)->function()->value(position);
         sum += val * coefficients[index];
     }
     return sum;

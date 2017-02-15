@@ -1,4 +1,6 @@
 #include <functional>
+#include <iomanip>
+#include <iostream>
 
 #include <mpi.h>
 
@@ -8,7 +10,7 @@
 #include <Epetra_LinearProblem.h>
 #include <Epetra_Map.h>
 #include <Epetra_MpiComm.h>
-#include <Epetra_MultiVector.h>
+#include <Epetra_Vector.h>
 
 #include "Angular_Discretization.hh"
 #include "Angular_Discretization_Parser.hh"
@@ -90,7 +92,7 @@ shared_ptr<Epetra_Map> get_map(shared_ptr<Weak_Spatial_Discretization> spatial,
 {
     int number_of_points = spatial->number_of_points();
     
-    return make_shared<Epetra_Map>(number_of_points, index_base_, *comm);
+    return make_shared<Epetra_Map>(number_of_points, 0 /*index base*/, *comm);
 }
 
 shared_ptr<Epetra_CrsMatrix> get_matrix(shared_ptr<Weak_Spatial_Discretization> spatial,
@@ -112,11 +114,13 @@ shared_ptr<Epetra_CrsMatrix> get_matrix(shared_ptr<Weak_Spatial_Discretization> 
         {
             vector<double> const v_b = weight->v_b();
             mat->InsertGlobalValues(i, number_of_basis_functions[i], &v_b[0], &basis_function_indices[0]);
+            break;
         }
         case Weight_Function::Material_Options::Weighting::WEIGHT:
         {
             vector<double> const iv_b_w = weight->iv_b_w();
             mat->InsertGlobalValues(i, number_of_basis_functions[i], &iv_b_w[0], &basis_function_indices[0]);
+            break;
         }
         default:
             AssertMsg(false, "weighting type not implemented");
@@ -128,11 +132,12 @@ shared_ptr<Epetra_CrsMatrix> get_matrix(shared_ptr<Weak_Spatial_Discretization> 
     return mat;
 }
 
-shared_ptr<Epetra_Vector> get_rhs(shared_ptr<Map> map,
-                                  shared_ptr<Weak_Spatial_Discretization> spatial)
+shared_ptr<Epetra_Vector> get_rhs(shared_ptr<Weak_Spatial_Discretization> spatial,
+                                  shared_ptr<Epetra_Map> map)
+
 {
     int number_of_points = spatial->number_of_points();
-
+    
     shared_ptr<Epetra_Vector> vec
         = make_shared<Epetra_Vector>(*map);
     
@@ -140,30 +145,67 @@ shared_ptr<Epetra_Vector> get_rhs(shared_ptr<Map> map,
     {
         int num_entries = 1;
         vector<int> global_index = {i};
-        vector<double> const data = spatial->weight(i)->material()->internal_source()->data();
-        vec->ReplaceGlobalValues(num_entries,
-                                 &data[0],
-                                 &global_index[0]);
+        shared_ptr<Weight_Function> weight = spatial->weight(i);
+        vector<double> const data = weight->material()->internal_source()->data();
+        switch (weight->material_options().weighting)
+        {
+        case Weight_Function::Material_Options::Weighting::POINT:
+        {
+            (*vec)[i] = data[0] / weight->iv_w()[0];
+            break;
+        }
+        case Weight_Function::Material_Options::Weighting::WEIGHT:
+        {
+            (*vec)[i] = data[0];
+            break;
+        }
+        default:
+            AssertMsg(false, "weighting option not found");
+        }
     }
+    
+    return vec;
 }
 
 shared_ptr<Epetra_LinearProblem> get_problem(shared_ptr<Epetra_CrsMatrix> mat,
                                              shared_ptr<Epetra_Vector> lhs,
                                              shared_ptr<Epetra_Vector> rhs)
 {
-    return make_shared<Epetra_LinearProblem>(matrix_.get(),
-                                             lhs_.get(),
-                                             rhs_.get());
+    return make_shared<Epetra_LinearProblem>(mat.get(),
+                                             lhs.get(),
+                                             rhs.get());
 }
 
-shared_ptr<Amesos_BaseSolver> get_solver(shared_ptr<Epetra_LinearProblem> problem)
+shared_ptr<Amesos_BaseSolver*> get_solver(shared_ptr<Epetra_LinearProblem> problem)
 {
-    return make_shared<Amesos_BaseSolver>(factory_.Create("Klu", *problem));
+    Amesos factory;
+    return make_shared<Amesos_BaseSolver*>(factory.Create("Klu", *problem));
+}
+
+vector<double> convert_to_vector(shared_ptr<Epetra_Vector> lhs)
+{
+    int number_of_points = lhs->MyLength();
+    vector<double> solution(number_of_points);
+    
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        solution[i] = (*lhs)[i];
+    }
+
+    return solution;
+}
+
+double get_value(shared_ptr<Weak_Spatial_Discretization> spatial,
+                 vector<double> const &position,
+                 vector<double> const &coefficients)
+{
+    return spatial->expansion_value(position,
+                                    coefficients);
 }
 
 int test_interpolation(int dimension,
                        function<double(vector<double>)> const &source,
-                       function<double(vector<double>)> const &d_source,
+                       function<double(int, vector<double>)> const &d_source,
                        XML_Node input_node)
 {
     int checksum = 0;
@@ -172,11 +214,42 @@ int test_interpolation(int dimension,
         = get_spatial(dimension,
                       source,
                       input_node);
+    shared_ptr<Epetra_Comm> comm = get_comm();
+    shared_ptr<Epetra_Map> map = get_map(spatial,
+                                         comm);
+    shared_ptr<Epetra_CrsMatrix> mat = get_matrix(spatial,
+                                                  map);
+    shared_ptr<Epetra_Vector> rhs = get_rhs(spatial,
+                                            map);
+    shared_ptr<Epetra_Vector> lhs
+        = make_shared<Epetra_Vector>(*map);
+    shared_ptr<Epetra_LinearProblem> problem = get_problem(mat,
+                                                           lhs,
+                                                           rhs);
+    shared_ptr<Amesos_BaseSolver*> solver = get_solver(problem);
+    (*solver)->SymbolicFactorization();
+    (*solver)->NumericFactorization();
+    (*solver)->Solve();
+    
+    vector<double> coefficients = convert_to_vector(lhs);
+    vector<double> values;
+    spatial->collocation_values(coefficients,
+                                values);
 
-    
-    
-    
-    
+    int w = 16;
+    cout << setw(w) << "lhs";
+    cout << setw(w) << "rhs";
+    cout << setw(w) << "value";
+    cout << endl;
+    for (int i = 0; i < 100; ++i)
+    {
+        cout << setw(w) << (*lhs)[i];
+        cout << setw(w) << (*rhs)[i];
+        cout << setw(w) << values[i];
+        cout << endl;
+    }
+    cout << endl;
+
     return checksum;
 }
 
@@ -184,6 +257,8 @@ int main(int argc, char **argv)
 {
     int checksum = 0;
 
+    MPI_Init(&argc, &argv);
+    
     if (argc != 2)
     {
         cerr << "usage: tst_Interpolation [input_folder]" << endl;
@@ -205,12 +280,13 @@ int main(int argc, char **argv)
         // Test constant
         {
             function<double(vector<double>)> source
-                = [](vector<double> const &position)
+                = [](vector<double> const &/*position*/)
                 {
                     return 1.;
                 };
-            function<double(vector<double>)> d_source
-                = [](vector<double> const &position)
+            function<double(int, vector<double>)> d_source
+                = [](int /*dimension*/,
+                     vector<double> const &/*position*/)
                 {
                     return 0.;
                 };
@@ -221,6 +297,8 @@ int main(int argc, char **argv)
                                            input_node);
         }
     }
+
+    MPI_Finalize();
     
     return checksum;
 }
