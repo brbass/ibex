@@ -22,7 +22,7 @@
   <spatial_discretization>
     <number_of_points>100</number_of_points>
     <basis_functions>
-      <meshless_function type='rbf' function='compact_gaussian'/>
+      <meshless_function type='linear_mls' function='compact_gaussian'/>
       <basis index="0">
         <radius>0.6666666666666666</radius>
         <position>-1. -1.</position>

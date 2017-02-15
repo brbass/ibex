@@ -231,7 +231,8 @@ int test_interpolation(int dimension,
     (*solver)->NumericFactorization();
     (*solver)->Solve();
     
-    vector<double> coefficients = convert_to_vector(lhs);
+    // vector<double> coefficients = convert_to_vector(lhs);
+    vector<double> coefficients(100, 1);
     vector<double> values;
     spatial->collocation_values(coefficients,
                                 values);
