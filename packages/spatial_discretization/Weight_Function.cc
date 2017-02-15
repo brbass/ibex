@@ -289,13 +289,14 @@ get_basis_quadrature_2d(int i,
                                                                ordinates_x,
                                                                ordinates_y,
                                                                integration_weights);
-         if (!success)
-         {
-             cout << "weight: " << index_ << endl;
-             cout << "basis: " << basis->index() << endl;
-         }
      }
-
+     
+     if (!success)
+     {
+         cout << "weight: " << index_ << endl;
+         cout << "basis: " << basis->index() << endl;
+     }
+     
      qr::convert_to_position_2d(ordinates_x,
                                 ordinates_y,
                                 integration_ordinates);

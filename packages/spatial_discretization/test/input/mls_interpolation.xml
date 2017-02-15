@@ -627,7 +627,7 @@
     <weight_functions>
       <meshless_function type='rbf' function='compact_gaussian'/>
       <material_options weighting='point' output='standard'/>
-      <integration_ordinates>16</integration_ordinates>
+      <integration_ordinates>1</integration_ordinates>
       <weight index="0">
         <radius>0.6666666666666666</radius>
         <position>-1. -1.</position>

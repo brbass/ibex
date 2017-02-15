@@ -1,3 +1,4 @@
+#include <cmath>
 #include <functional>
 #include <iomanip>
 #include <iostream>
@@ -16,11 +17,13 @@
 #include "Angular_Discretization_Parser.hh"
 #include "Boundary_Source_Parser.hh"
 #include "Cartesian_Plane.hh"
+#include "Check_Equality.hh"
 #include "Energy_Discretization.hh"
 #include "Energy_Discretization_Parser.hh"
 #include "Interpolation_Solid_Geometry.hh"
 #include "Material.hh"
 #include "Material_Parser.hh"
+#include "Random_Number_Generator.hh"
 #include "Solid_Geometry.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weak_Spatial_Discretization_Parser.hh"
@@ -29,6 +32,9 @@
 #include "XML_Node.hh"
 
 using namespace std;
+namespace ce = Check_Equality;
+
+Random_Number_Generator<double> rng(-1., 1., 4109);
 
 shared_ptr<Weak_Spatial_Discretization> get_spatial(int dimension,
                                                     function<double(vector<double>)> const &source,
@@ -233,10 +239,10 @@ int test_interpolation(int dimension,
     (*solver)->Solve();
 
     int number_of_points = spatial->number_of_points();
+    vector<double> coefficients = convert_to_vector(lhs);
     
     // Check that collocation value is equal to the original result
     {
-        vector<double> coefficients = convert_to_vector(lhs);
         vector<double> values;
         spatial->collocation_values(coefficients,
                                     values);
@@ -249,27 +255,43 @@ int test_interpolation(int dimension,
         if (!ce::approx(values, expected_values, 1e-12))
         {
             checksum += 1;
-            cout << "interpolation collocation test failed for (" + description + ")";
+            cout << "collocation failed for (" + description + ")";
+        }
+    }
+    // Check some random points
+    {
+        int number_of_tests = 100;
+        for (int i = 0; i < number_of_tests; ++i)
+        {
+            vector<double> position = rng.vector(dimension);
+            
+            double value = spatial->expansion_value(position,
+                                                    coefficients);
+            double expected_value = source(position);
+
+            if (!ce::approx(value, expected_value, 1e-8))
+            {
+                checksum += 1;
+                cout << "interp failed for (" + description + ") in test ";
+                cout << i;
+                cout << "; calculated: ";
+                cout << value;
+                cout << "; expected: ";
+                cout << expected_value;
+                cout << "; error: ";
+                cout << value - expected_value;
+                cout << endl;
+            }
         }
     }
     
     return checksum;
 }
 
-int main(int argc, char **argv)
+int run_tests(string input_folder)
 {
     int checksum = 0;
-
-    MPI_Init(&argc, &argv);
     
-    if (argc != 2)
-    {
-        cerr << "usage: tst_Interpolation [input_folder]" << endl;
-        return 1;
-    }
-    
-    string input_folder = argv[1];
-    input_folder += "/";
     vector<string> input_filenames
         = {input_folder + "/mls_interpolation.xml"};
     
@@ -329,6 +351,67 @@ int main(int argc, char **argv)
         }
     }
 
+    return checksum;
+}
+
+// Temporary function
+int check_basis(string input_folder)
+{
+    int dimension = 2;
+    string input_filename = input_folder + "/temp_test_5.xml";
+    
+    XML_Document input_file(input_filename);
+    XML_Node input_node = input_file.get_child("input");
+    function<double(vector<double>)> source
+        = [](vector<double> const &/*position*/)
+        {
+            return 1.;
+        };
+    shared_ptr<Weak_Spatial_Discretization> spatial
+        = get_spatial(dimension,
+                      source,
+                      input_node);
+    
+    int number_of_points = spatial->number_of_points();
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        shared_ptr<Weight_Function> weight = spatial->weight(i);
+        
+        double const iv_w = weight->iv_w()[0];
+        vector<double> const iv_b_w = weight->iv_b_w();
+        
+        double sum = 0.;
+        for (double val : iv_b_w)
+        {
+            sum += val;
+        }
+        
+        int w = 16;
+        cout << setw(w) << iv_w;
+        cout << setw(w) << sum;
+        cout << setw(w) << iv_w - sum;
+        cout << endl;
+    }
+}
+
+int main(int argc, char **argv)
+{
+    int checksum = 0;
+
+    MPI_Init(&argc, &argv);
+    
+    if (argc != 2)
+    {
+        cerr << "usage: tst_Interpolation [input_folder]" << endl;
+        return 1;
+    }
+    
+    string input_folder = argv[1];
+    input_folder += "/";
+
+    // check_basis(input_folder);
+    run_tests(input_folder);
+    
     MPI_Finalize();
     
     return checksum;
