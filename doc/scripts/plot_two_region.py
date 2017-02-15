@@ -68,7 +68,7 @@ def plot_two_region(number_of_points,
     plt.close()
 
 if __name__ == '__main__':
-    if True:
+    if False:
         number_of_points = 6
         positions = np.array([[0.5, 0.5], # weight function
                               [0.6, 0.6], # basis contained in weight
@@ -89,7 +89,7 @@ if __name__ == '__main__':
                         radii,
                         point_types,
                         "../figs/weight_test_1.pdf")
-    if True:
+    if False:
         number_of_points = 6
         positions = np.array([[0., 0.], 
                               [0.25, 0.3], 
@@ -111,7 +111,7 @@ if __name__ == '__main__':
                         point_types,
                         "../figs/weight_test_2.pdf")
 
-    if True:
+    if False:
         number_of_points = 6
         positions = np.array([[0.9, 0.5], 
                               [0.9, 0.9], 
@@ -132,4 +132,15 @@ if __name__ == '__main__':
                         radii,
                         point_types,
                         "../figs/weight_test_3.pdf")
-        
+    if True:
+        number_of_points = 2
+        positions = np.array([[-1./3., -1./3.],
+                              [1./9., -1]])
+        radii = np.array([4./9.,
+                          0.4969039949999532])
+        point_types = [0, 1]
+        plot_two_region(number_of_points,
+                        positions,
+                        radii,
+                        point_types,
+                        "./test.pdf")

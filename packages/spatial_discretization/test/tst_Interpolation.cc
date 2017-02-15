@@ -108,7 +108,7 @@ shared_ptr<Epetra_CrsMatrix> get_matrix(shared_ptr<Weak_Spatial_Discretization> 
         shared_ptr<Weight_Function> weight = spatial->weight(i);
         vector<int> const basis_function_indices = weight->basis_function_indices();
         vector<double> vals(number_of_basis_functions[i]);
-        switch(weight->material_options().weighting)
+        switch (weight->material_options().weighting)
         {
         case Weight_Function::Material_Options::Weighting::POINT:
         {
@@ -206,7 +206,8 @@ double get_value(shared_ptr<Weak_Spatial_Discretization> spatial,
 int test_interpolation(int dimension,
                        function<double(vector<double>)> const &source,
                        function<double(int, vector<double>)> const &d_source,
-                       XML_Node input_node)
+                       XML_Node input_node,
+                       string description)
 {
     int checksum = 0;
     
@@ -230,27 +231,28 @@ int test_interpolation(int dimension,
     (*solver)->SymbolicFactorization();
     (*solver)->NumericFactorization();
     (*solver)->Solve();
+
+    int number_of_points = spatial->number_of_points();
     
-    // vector<double> coefficients = convert_to_vector(lhs);
-    vector<double> coefficients(100, 1);
-    vector<double> values;
-    spatial->collocation_values(coefficients,
-                                values);
-
-    int w = 16;
-    cout << setw(w) << "lhs";
-    cout << setw(w) << "rhs";
-    cout << setw(w) << "value";
-    cout << endl;
-    for (int i = 0; i < 100; ++i)
+    // Check that collocation value is equal to the original result
     {
-        cout << setw(w) << (*lhs)[i];
-        cout << setw(w) << (*rhs)[i];
-        cout << setw(w) << values[i];
-        cout << endl;
-    }
-    cout << endl;
+        vector<double> coefficients = convert_to_vector(lhs);
+        vector<double> values;
+        spatial->collocation_values(coefficients,
+                                    values);
+        vector<double> expected_values(number_of_points);
+        for (int i = 0; i < number_of_points; ++i)
+        {
+            expected_values[i] = source(spatial->weight(i)->position());
+        }
 
+        if (!ce::approx(values, expected_values, 1e-12))
+        {
+            checksum += 1;
+            cout << "interpolation collocation test failed for (" + description + ")";
+        }
+    }
+    
     return checksum;
 }
 
@@ -295,7 +297,35 @@ int main(int argc, char **argv)
             checksum += test_interpolation(dimension,
                                            source,
                                            d_source,
-                                           input_node);
+                                           input_node,
+                                           "constant");
+        }
+        
+        // Test linear function
+        {
+            function<double(vector<double>)> source
+                = [](vector<double> const &position)
+                {
+                    return 2. * position[0] + 3. * position[1];
+                };
+            function<double(int, vector<double>)> d_source
+                = [](int dimension,
+                     vector<double> const &position)
+                {
+                    switch (dimension)
+                    {
+                    case 0:
+                        return 2.;
+                    case 1:
+                        return 3.;
+                    }
+                };
+            
+            checksum += test_interpolation(dimension,
+                                           source,
+                                           d_source,
+                                           input_node,
+                                           "linear");
         }
     }
 
