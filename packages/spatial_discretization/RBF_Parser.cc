@@ -39,14 +39,14 @@ parse_from_xml(XML_Node input_node)
     }
     else if (rbf_type == "compact_gaussian")
     {
-        double radius = input_node.get_child_value<double>("radius",
-                                                           5.0);
+        double radius = input_node.get_attribute<double>("radius",
+                                                         5.0);
         return make_shared<Compact_Gaussian_RBF>(radius);
     }
     else if (rbf_type == "truncated_gaussian")
     {
-        double radius = input_node.get_child_value<double>("radius",
-                                                           5.0);
+        double radius = input_node.get_attribute<double>("radius",
+                                                         5.0);
         return make_shared<Truncated_Gaussian_RBF>(radius);
     }
     else if (rbf_type == "wendland30")

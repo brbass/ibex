@@ -23,6 +23,7 @@ public:
     virtual double laplacian_value(std::vector<double> const &r) const = 0;
     virtual void output(XML_Node output_node) const = 0;
     virtual void check_class_invariants() const = 0;
+    virtual bool inside_radius(std::vector<double> const &r) const;
 };
 
 #endif

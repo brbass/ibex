@@ -36,6 +36,7 @@ namespace ce = Check_Equality;
 
 Random_Number_Generator<double> rng(-1., 1., 4109);
 
+// Get spatial discretization given an XML node
 shared_ptr<Weak_Spatial_Discretization> get_spatial(int dimension,
                                                     function<double(vector<double>)> const &source,
                                                     XML_Node input_node)
@@ -56,7 +57,7 @@ shared_ptr<Weak_Spatial_Discretization> get_spatial(int dimension,
     vector<shared_ptr<Boundary_Source> > boundary_sources
         = boundary_parser.parse_from_xml(input_node.get_child("boundary_sources"));
 
-    // Get solid geometry
+    // Get solid geometry with analytic internal source
     vector<shared_ptr<Cartesian_Plane> > boundary_surfaces(2 * dimension);
     for (int d = 0; d < dimension; ++d)
     {
@@ -82,17 +83,25 @@ shared_ptr<Weak_Spatial_Discretization> get_spatial(int dimension,
                                                energy,
                                                source);
     
-    // Parser for basis and weight functions
+    // Add external file information into spatial discretization
+    XML_Node spatial_node = input_node.get_child("spatial_discretization");
+    spatial_node.
+    string external_filename = spatial_node.get_child_value<string>("file");
+    
+    
+    
     Weak_Spatial_Discretization_Parser spatial_parser(solid_geometry,
                                                       boundary_surfaces);
     return spatial_parser.get_weak_discretization(input_node.get_child("spatial_discretization"));
 }
 
+// Get comm
 shared_ptr<Epetra_Comm> get_comm()
 {
     return make_shared<Epetra_MpiComm>(MPI_COMM_WORLD);
 }
 
+// Get map
 shared_ptr<Epetra_Map> get_map(shared_ptr<Weak_Spatial_Discretization> spatial,
                                shared_ptr<Epetra_Comm> comm)
 {
@@ -101,6 +110,7 @@ shared_ptr<Epetra_Map> get_map(shared_ptr<Weak_Spatial_Discretization> spatial,
     return make_shared<Epetra_Map>(number_of_points, 0 /*index base*/, *comm);
 }
 
+// Get interpolation matrix for weak or strong form
 shared_ptr<Epetra_CrsMatrix> get_matrix(shared_ptr<Weak_Spatial_Discretization> spatial,
                                         shared_ptr<Epetra_Map> map)
 {
@@ -138,6 +148,7 @@ shared_ptr<Epetra_CrsMatrix> get_matrix(shared_ptr<Weak_Spatial_Discretization> 
     return mat;
 }
 
+// Get RHS for interpolation
 shared_ptr<Epetra_Vector> get_rhs(shared_ptr<Weak_Spatial_Discretization> spatial,
                                   shared_ptr<Epetra_Map> map)
 
@@ -173,6 +184,7 @@ shared_ptr<Epetra_Vector> get_rhs(shared_ptr<Weak_Spatial_Discretization> spatia
     return vec;
 }
 
+// Get problem
 shared_ptr<Epetra_LinearProblem> get_problem(shared_ptr<Epetra_CrsMatrix> mat,
                                              shared_ptr<Epetra_Vector> lhs,
                                              shared_ptr<Epetra_Vector> rhs)
@@ -182,12 +194,14 @@ shared_ptr<Epetra_LinearProblem> get_problem(shared_ptr<Epetra_CrsMatrix> mat,
                                              rhs.get());
 }
 
+// Get solver
 shared_ptr<Amesos_BaseSolver*> get_solver(shared_ptr<Epetra_LinearProblem> problem)
 {
     Amesos factory;
     return make_shared<Amesos_BaseSolver*>(factory.Create("Klu", *problem));
 }
 
+// Convert from Epetra_Vector to vector
 vector<double> convert_to_vector(shared_ptr<Epetra_Vector> lhs)
 {
     int number_of_points = lhs->MyLength();
@@ -201,6 +215,7 @@ vector<double> convert_to_vector(shared_ptr<Epetra_Vector> lhs)
     return solution;
 }
 
+// Get expansion value given coefficients
 double get_value(shared_ptr<Weak_Spatial_Discretization> spatial,
                  vector<double> const &position,
                  vector<double> const &coefficients)
@@ -209,11 +224,13 @@ double get_value(shared_ptr<Weak_Spatial_Discretization> spatial,
                                     coefficients);
 }
 
+// Test interpolation over internal source
 int test_interpolation(int dimension,
                        function<double(vector<double>)> const &source,
                        function<double(int, vector<double>)> const &d_source,
                        XML_Node input_node,
-                       string description)
+                       string description,
+                       double tolerance)
 {
     int checksum = 0;
     
@@ -252,15 +269,20 @@ int test_interpolation(int dimension,
             expected_values[i] = source(spatial->weight(i)->position());
         }
 
-        if (!ce::approx(values, expected_values, 1e-12))
+        if (!ce::approx(values, expected_values, tolerance))
         {
             checksum += 1;
-            cout << "collocation failed for (" + description + ")";
+            cout << "collocation failed for (" + description + ")" << endl;
+        }
+        else
+        {
+            cout << "collocation passed for (" + description + ")" << endl;
         }
     }
     // Check some random points
     {
         int number_of_tests = 100;
+        bool failed = false;
         for (int i = 0; i < number_of_tests; ++i)
         {
             vector<double> position = rng.vector(dimension);
@@ -268,8 +290,8 @@ int test_interpolation(int dimension,
             double value = spatial->expansion_value(position,
                                                     coefficients);
             double expected_value = source(position);
-
-            if (!ce::approx(value, expected_value, 1e-8))
+            
+            if (!ce::approx(value, expected_value, tolerance))
             {
                 checksum += 1;
                 cout << "interp failed for (" + description + ") in test ";
@@ -281,19 +303,30 @@ int test_interpolation(int dimension,
                 cout << "; error: ";
                 cout << value - expected_value;
                 cout << endl;
+                
+                failed = true;
             }
+        }
+
+        if (!failed)
+        {
+            cout << "interp passed for (" + description + ")" << endl;
         }
     }
     
     return checksum;
 }
 
-int run_tests(string input_folder)
+// Run interpolation tests
+int run_interpolation(string input_folder)
 {
     int checksum = 0;
     
     vector<string> input_filenames
-        = {input_folder + "/mls_interpolation.xml"};
+        // = {input_folder + "mls_strong_interpolation.xml",
+        //    input_folder + "mls_weak_interpolation.xml",
+        //    input_folder + "gauss_strong_interpolation.xml",
+        ={input_folder + "gauss_weak_interpolation.xml"};
     
     for (string input_filename : input_filenames)
     {
@@ -301,6 +334,7 @@ int run_tests(string input_folder)
         XML_Document input_file(input_filename);
         XML_Node input_node = input_file.get_child("input");
         int dimension = input_node.get_child("angular_discretization").get_child_value<int>("dimension");
+        double tolerance = input_node.get_child_value<double>("tolerance");
         
         // Test constant
         {
@@ -320,7 +354,8 @@ int run_tests(string input_folder)
                                            source,
                                            d_source,
                                            input_node,
-                                           "constant");
+                                           "constant " + input_filename,
+                                           tolerance);
         }
         
         // Test linear function
@@ -347,21 +382,27 @@ int run_tests(string input_folder)
                                            source,
                                            d_source,
                                            input_node,
-                                           "linear");
+                                           "linear " + input_filename,
+                                           tolerance);
         }
     }
 
     return checksum;
 }
 
-// Temporary function
+// Check that basis / weight integrals are equal for MLS
 int check_basis(string input_folder)
 {
+    int checksum = 0;
+
+    // Get initial information
     int dimension = 2;
-    string input_filename = input_folder + "/temp_test_5.xml";
-    
+    string input_filename = input_folder + "/mls_weak_interpolation.xml";
     XML_Document input_file(input_filename);
     XML_Node input_node = input_file.get_child("input");
+    double tolerance = input_node.get_child_value<double>("tolerance");
+
+    // Get constant source
     function<double(vector<double>)> source
         = [](vector<double> const &/*position*/)
         {
@@ -371,7 +412,8 @@ int check_basis(string input_folder)
         = get_spatial(dimension,
                       source,
                       input_node);
-    
+
+    // Check that \int \sum_i b_i(x) w_j(x) = \int w_j(x) for MLS
     int number_of_points = spatial->number_of_points();
     for (int i = 0; i < number_of_points; ++i)
     {
@@ -387,10 +429,16 @@ int check_basis(string input_folder)
         }
         
         int w = 16;
-        cout << setw(w) << iv_w;
-        cout << setw(w) << sum;
-        cout << setw(w) << iv_w - sum;
-        cout << endl;
+
+        if (!ce::approx(iv_w, sum, tolerance))
+        {
+            checksum += 1;
+            cout << "check_basis failed: ";
+            cout << setw(w) << iv_w;
+            cout << setw(w) << sum;
+            cout << setw(w) << iv_w - sum;
+            cout << endl;
+        }
     }
 }
 
@@ -410,7 +458,7 @@ int main(int argc, char **argv)
     input_folder += "/";
 
     // check_basis(input_folder);
-    run_tests(input_folder);
+    run_interpolation(input_folder);
     
     MPI_Finalize();
     

@@ -81,11 +81,13 @@ public:
                                                std::string description,
                                                std::string index_order = "");
 
-    // Append all values from one node to another
+    // Append/prepend all values from one node to another
     void append_all(XML_Node copy_node);
-    
-    // Prepend all values from one node to another
     void prepend_all(XML_Node copy_node);
+
+    // Add a single node to the tree
+    void append_node(XML_Node copy_node);
+    void prepend_node(XML_Node copy_node);
     
 protected:
     
@@ -322,7 +324,7 @@ set_child_value(T data,
 template<typename T> void XML_Node::
 set_child_vector(std::vector<T> const &data,
                  std::string description,
-                 std::string index_order)
+p                 std::string index_order)
 {
     append_child(description).set_vector(data,
                                          index_order);

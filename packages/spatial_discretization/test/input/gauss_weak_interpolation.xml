@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='ASCII'?>
+<input>
+  <tolerance>1e-10</tolerance>
+  
+  <angular_discretization>
+    <dimension>2</dimension>
+    <number_of_moments>1</number_of_moments>
+    <rule>1</rule>
+  </angular_discretization>
+  
+  <energy_discretization>
+    <number_of_groups>1</number_of_groups>
+  </energy_discretization>
+  
+  <boundary_sources>
+    <number_of_boundary_sources>1</number_of_boundary_sources>
+    
+    <boundary_source index='0'>
+      <alpha>0</alpha>
+      <isotropic_source>0</isotropic_source>
+    </boundary_source>
+  </boundary_sources>
+
+  <spatial_discretization>
+    <file></file>
+    <basis_functions>
+      <meshless_function type='rbf' function='compact_gaussian'/>
+    </basis_functions>
+    <weight_functions>
+      <meshless_function type='rbf' function='compact_gaussian'/>
+      <material_options weighting='weight' output='standard'/>
+      <integration_ordinates>16</integration_ordinates>
+    </weight_functions>
+  </spatial_discretization>
+</input>
+

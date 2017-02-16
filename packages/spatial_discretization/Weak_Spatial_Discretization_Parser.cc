@@ -31,6 +31,7 @@ Weak_Spatial_Discretization_Parser(shared_ptr<Solid_Geometry> solid_geometry,
 shared_ptr<Weak_Spatial_Discretization> Weak_Spatial_Discretization_Parser::
 get_weak_discretization(XML_Node input_node) const
 {
+    // Get data
     int dimension = solid_geometry_->dimension();
     int number_of_points = input_node.get_child_value<int>("number_of_points");
     vector<shared_ptr<Basis_Function> > basis_functions

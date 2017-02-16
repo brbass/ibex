@@ -22,17 +22,16 @@ Linear_MLS_Function(vector<shared_ptr<Meshless_Function> > neighbor_functions):
 {
     number_of_polynomials_ = dimension_ + 1;
     radius_ = function_->radius();
-    radius2_ = radius_ * radius_;
 }
 
 double Linear_MLS_Function::
 value(vector<double> const &r) const
 {
-    if (!inside_radius(r))
+    if (!function_->inside_radius(r))
     {
         return 0.;
     }
-    
+
     // Get A
     vector<double> a_mat(number_of_polynomials_ * number_of_polynomials_);
     get_a(r,
@@ -63,7 +62,7 @@ d_value(int dim,
         vector<double> const &r) const
 {
     // Check if value is inside basis radius
-    if (!inside_radius(r))
+    if (!function_->inside_radius(r))
     {
         return 0.;
     }
@@ -137,7 +136,7 @@ vector<double> Linear_MLS_Function::
 gradient_value(vector<double> const &r) const               
 {
     // Check if value is inside basis radius
-    if (!inside_radius(r))
+    if (!function_->inside_radius(r))
     {
         return vector<double>(dimension_, 0.);
     }
@@ -170,7 +169,7 @@ void Linear_MLS_Function::
 check_class_invariants() const
 {
     Assert(dimension_ >= 1);
-    Assert(number_of_functions_ >= 3);
+    Assert(number_of_functions_ >= 3); // number of functions must be greater than number of polynomials (2 for linear)
     Assert(function_);
     for (shared_ptr<Meshless_Function> func : neighbor_functions_)
     {
@@ -206,21 +205,23 @@ get_a(vector<double> const &position,
       vector<double> &a) const
 {
     a.assign(number_of_polynomials_ * number_of_polynomials_, 0);
-    for (int i = 0; i < number_of_functions_; ++i)
+    for (shared_ptr<Meshless_Function> func : neighbor_functions_)
     {
-        shared_ptr<Meshless_Function> func = neighbor_functions_[i];
-        vector<double> poly;
-        get_polynomial(func->position(),
-                       poly);
-        double weight = func->value(position);
-        
-        for (int j = 0; j < number_of_polynomials_; ++j)
+        if (func->inside_radius(position))
         {
-            for (int k = 0; k < number_of_polynomials_; ++k)
+            vector<double> poly;
+            get_polynomial(func->position(),
+                           poly);
+            double weight = func->value(position);
+        
+            for (int j = 0; j < number_of_polynomials_; ++j)
             {
-                int l = j + number_of_polynomials_ * k;
-                double polyprod = poly[j] * poly[k];
-                a[l] += weight * polyprod;
+                for (int k = 0; k < number_of_polynomials_; ++k)
+                {
+                    int l = j + number_of_polynomials_ * k;
+                    double polyprod = poly[j] * poly[k];
+                    a[l] += weight * polyprod;
+                }
             }
         }
     }
@@ -235,24 +236,26 @@ get_d_a(int dim,
     a.assign(number_of_polynomials_ * number_of_polynomials_, 0);
     d_a.assign(number_of_polynomials_ * number_of_polynomials_, 0);
     
-    for (int i = 0; i < number_of_functions_; ++i)
+    for (shared_ptr<Meshless_Function> func : neighbor_functions_)
     {
-        shared_ptr<Meshless_Function> func = neighbor_functions_[i];
-        vector<double> poly;
-        get_polynomial(func->position(),
-                       poly);
-        double weight = func->value(position);
-        double d_weight = func->d_value(dim,
-                                        position);
-        
-        for (int j = 0; j < number_of_polynomials_; ++j)
+        if (func->inside_radius(position))
         {
-            for (int k = 0; k < number_of_polynomials_; ++k)
+            vector<double> poly;
+            get_polynomial(func->position(),
+                           poly);
+            double weight = func->value(position);
+            double d_weight = func->d_value(dim,
+                                            position);
+        
+            for (int j = 0; j < number_of_polynomials_; ++j)
             {
-                int l = j + number_of_polynomials_ * k;
-                double polyprod = poly[j] * poly[k];
-                a[l] += weight * polyprod;
-                d_a[l] += d_weight * polyprod;
+                for (int k = 0; k < number_of_polynomials_; ++k)
+                {
+                    int l = j + number_of_polynomials_ * k;
+                    double polyprod = poly[j] * poly[k];
+                    a[l] += weight * polyprod;
+                    d_a[l] += d_weight * polyprod;
+                }
             }
         }
     }
@@ -298,10 +301,3 @@ get_d_b(int dim,
     }
 }
 
-bool Linear_MLS_Function::
-inside_radius(vector<double> const &r) const
-{
-    double dist2 = vf::magnitude_squared(vf::subtract(r, position_));
-    
-    return dist2 < radius2_;
-}

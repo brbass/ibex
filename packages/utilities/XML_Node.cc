@@ -95,3 +95,15 @@ append_all(XML_Node copy_node)
         xml_node_->append_copy(node);
     }
 }
+
+void XML_Node::
+prepend_node(XML_Node copy_node)
+{
+    xml_node_->prepend_copy(*copy_node.xml_node())
+}
+
+void XML_Node::
+append_node(XML_Node copy_node)
+{
+    xml_node_->append_copy(*copy_node.xml_node())
+}
