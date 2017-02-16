@@ -84,15 +84,26 @@ shared_ptr<Weak_Spatial_Discretization> get_spatial(int dimension,
                                                source);
     
     // Add external file information into spatial discretization
-    XML_Node spatial_node = input_node.get_child("spatial_discretization");
-    spatial_node.
-    string external_filename = spatial_node.get_child_value<string>("file");
-    
-    
     
     Weak_Spatial_Discretization_Parser spatial_parser(solid_geometry,
                                                       boundary_surfaces);
     return spatial_parser.get_weak_discretization(input_node.get_child("spatial_discretization"));
+}
+
+// Get document
+XML_Document get_xml_document(string input_filename)
+{
+    string input_folder = input_filename.substr(0, input_filename.find_last_of("/\\") + 1);
+    XML_Document input_file(input_filename);
+    XML_Node spatial_node = input_file.get_child("input").get_child("spatial_discretization");
+    string external_filename = input_folder + spatial_node.get_attribute<string>("file");
+    XML_Document external_document(external_filename);
+    XML_Node external_node = external_document.get_child("spatial_discretization");
+    spatial_node.prepend_node(external_node.get_child("number_of_points"));
+    spatial_node.get_child("basis_functions").prepend_all(external_node.get_child("basis_functions"));
+    spatial_node.get_child("weight_functions").prepend_all(external_node.get_child("weight_functions"));
+    
+    return input_file;
 }
 
 // Get comm
@@ -323,15 +334,15 @@ int run_interpolation(string input_folder)
     int checksum = 0;
     
     vector<string> input_filenames
-        // = {input_folder + "mls_strong_interpolation.xml",
-        //    input_folder + "mls_weak_interpolation.xml",
-        //    input_folder + "gauss_strong_interpolation.xml",
-        ={input_folder + "gauss_weak_interpolation.xml"};
+        = {input_folder + "mls_strong_interpolation.xml",
+           input_folder + "mls_weak_interpolation.xml",
+           input_folder + "gauss_strong_interpolation.xml",
+           input_folder + "gauss_weak_interpolation.xml"};
     
     for (string input_filename : input_filenames)
     {
         // Get XML document
-        XML_Document input_file(input_filename);
+        XML_Document input_file = get_xml_document(input_filename);
         XML_Node input_node = input_file.get_child("input");
         int dimension = input_node.get_child("angular_discretization").get_child_value<int>("dimension");
         double tolerance = input_node.get_child_value<double>("tolerance");
@@ -385,6 +396,7 @@ int run_interpolation(string input_folder)
                                            "linear " + input_filename,
                                            tolerance);
         }
+        input_file.save("TEST.xml");
     }
 
     return checksum;
@@ -398,7 +410,7 @@ int check_basis(string input_folder)
     // Get initial information
     int dimension = 2;
     string input_filename = input_folder + "/mls_weak_interpolation.xml";
-    XML_Document input_file(input_filename);
+    XML_Document input_file = get_xml_document(input_filename);
     XML_Node input_node = input_file.get_child("input");
     double tolerance = input_node.get_child_value<double>("tolerance");
 
@@ -457,7 +469,7 @@ int main(int argc, char **argv)
     string input_folder = argv[1];
     input_folder += "/";
 
-    // check_basis(input_folder);
+    check_basis(input_folder);
     run_interpolation(input_folder);
     
     MPI_Finalize();

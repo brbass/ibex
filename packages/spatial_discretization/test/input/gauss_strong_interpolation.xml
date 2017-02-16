@@ -21,8 +21,7 @@
     </boundary_source>
   </boundary_sources>
 
-  <spatial_discretization>
-    <file></file>
+  <spatial_discretization file='square_2.0_10_60_60.xml'>
     <basis_functions>
       <meshless_function type='rbf' function='compact_gaussian'/>
     </basis_functions>

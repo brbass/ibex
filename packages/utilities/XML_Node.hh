@@ -324,7 +324,7 @@ set_child_value(T data,
 template<typename T> void XML_Node::
 set_child_vector(std::vector<T> const &data,
                  std::string description,
-p                 std::string index_order)
+                 std::string index_order)
 {
     append_child(description).set_vector(data,
                                          index_order);

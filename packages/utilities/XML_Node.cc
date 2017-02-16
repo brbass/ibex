@@ -74,9 +74,9 @@ prepend_all(XML_Node copy_node)
     shared_ptr<pugi::xml_node> copy_pugi_node
         = copy_node.xml_node();
     
-    for (pugi::xml_node node = copy_pugi_node->first_child();
+    for (pugi::xml_node node = copy_pugi_node->last_child();
          node;
-         node = node.next_sibling())
+         node = node.previous_sibling())
     {
         xml_node_->prepend_copy(node);
     }
@@ -99,11 +99,11 @@ append_all(XML_Node copy_node)
 void XML_Node::
 prepend_node(XML_Node copy_node)
 {
-    xml_node_->prepend_copy(*copy_node.xml_node())
+    xml_node_->prepend_copy(*copy_node.xml_node());
 }
 
 void XML_Node::
 append_node(XML_Node copy_node)
 {
-    xml_node_->append_copy(*copy_node.xml_node())
+    xml_node_->append_copy(*copy_node.xml_node());
 }

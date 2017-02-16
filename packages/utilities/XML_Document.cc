@@ -55,10 +55,17 @@ XML_Document(shared_ptr<pugi::xml_document> xml_doc,
              name),
     xml_doc_(xml_doc)
 {
+    
 }
 
 void XML_Document::
 save(string name)
 {
     xml_doc_->save_file(name.c_str());
+}
+
+string XML_Document::
+path() const
+{
+    return xml_doc_->path();
 }
