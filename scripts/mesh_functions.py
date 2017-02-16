@@ -123,7 +123,8 @@ def get_neighbors(num_points,
         for j in local_neighbors:
             dist = np.sqrt(np.sum(np.power(points[i] - points[j], 2)))
             rad = radius_other[j] + radius_base[i]
-            if dist < rad:
+            rad_delta = rad * (1. - 1e-10)
+            if dist < rad_delta:
                 base_neighbors.append(j)
                 base_distances.append(dist)
         base_neighbors = np.asarray(base_neighbors)
@@ -160,8 +161,10 @@ def get_connectivity(num_points,
     # Get the maximum radius for each of the basis and weight functions
     overall_max_basis = np.amax(radius_basis)
     overall_max_weight = np.amax(radius_weight)
+    overall_min_basis = np.amax(radius_basis)
+    overall_min_weight = np.amin(radius_weight)
     search_radius = overall_max_basis + overall_max_weight
-
+    
     # Get pairs of points that are less than the maximum distance apart
     neighbor_pairs = kd_tree.query_ball_tree(kd_tree, search_radius)
 
