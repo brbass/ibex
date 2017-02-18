@@ -4,34 +4,26 @@
 #include <memory>
 #include <vector>
 
-class Trilinos_Dense_Solve;
-
 /*
-  Generalized class for "dumb" dense matrix solution
+  Solve the problem Ax=b, discarding any intermediate results
 */
+template<class Scalar>
 class Dense_Solve
 {
-
 public:
 
     // Creator
-    Dense_Solve(unsigned size);
-
-    // Solve problem Ax=b
-    void solve(std::vector<double> &a_data, 
-               std::vector<double> &b_data,
-               std::vector<double> &x_data);
-
-    // Size of square matrix
-    unsigned size()
+    Dense_Solve()
     {
-        return size_;
     }
 
-private:
+    // Solve problem Ax=b
+    virtual void solve(std::vector<Scalar> &a_data, 
+                       std::vector<Scalar> &b_data,
+                       std::vector<Scalar> &x_data) const = 0;
     
-    unsigned size_;
-    std::shared_ptr<Trilinos_Dense_Solve> trilinos_solver_;
+    // Size of square matrix
+    virtual int size() const = 0;
 };
 
 #endif

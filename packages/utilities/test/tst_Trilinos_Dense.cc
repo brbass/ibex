@@ -15,7 +15,7 @@ int test_trilinos_dense(int number_of_points)
     Random_Number_Generator<double> rng(-1,
                                         1,
                                         402 * number_of_points);
-    Trilinos_Dense_Solve solver;
+    Trilinos_Dense_Solve solver(number_of_points);
 
     vector<double> const a_data = rng.vector(number_of_points * number_of_points);
     vector<double> const b_data = rng.vector(number_of_points);
@@ -29,18 +29,16 @@ int test_trilinos_dense(int number_of_points)
         
         solver.epetra_solve(a,
                             b,
-                            x_epetra,
-                            number_of_points);
+                            x_epetra);
     }
 
     {
         vector<double> a(a_data);
         vector<double> b(b_data);
         
-        solver.amesos_dense_solve(a,
-                                  b,
-                                  x_amesos,
-                                  number_of_points);
+        solver.amesos_solve(a,
+                            b,
+                            x_amesos);
     }
 
     if (!ce::approx(x_epetra, x_amesos, 1e-9))

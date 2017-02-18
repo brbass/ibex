@@ -22,7 +22,7 @@ int test_against_trilinos(int size)
 {
     int checksum = 0;
 
-    Trilinos_Dense_Solve trilinos_solver;
+    Trilinos_Dense_Solve trilinos_solver(size);
 
     int num_tests = 10;
     double tolerance = 1e-12;
@@ -41,7 +41,7 @@ int test_against_trilinos(int size)
         vector<double> x_tr(size);
         vector<double> a_tr = a;
         vector<double> b_tr = b;
-        trilinos_solver.epetra_solve(a_tr, b_tr, x_tr, size);
+        trilinos_solver.epetra_solve(a_tr, b_tr, x_tr);
 
         // Compare results
         if (!(ce::approx(x_tr, x_ls, tolerance)))

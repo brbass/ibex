@@ -9,7 +9,6 @@
 
 #include <Amesos.h>
 #include <AztecOO.h>
-// #include <AztecOO_Version.h>
 #ifdef EPETRA_MPI
 #  include <mpi.h>
 #  include <Epetra_MpiComm.h>
@@ -26,26 +25,49 @@
 using namespace std;
 
 Trilinos_Dense_Solve::
-Trilinos_Dense_Solve()
+Trilinos_Dense_Solve(int size,
+                     Solver solver):
+    size_(size),
+    solver_(solver)
 {
+}
+
+void Trilinos_Dense_Solve::
+solve(vector<double> &a_data,
+      vector<double> &b_data,
+      vector<double> &x_data) const
+{
+    switch (solver_)
+    {
+    case Solver::EPETRA:
+        return epetra_solve(a_data,
+                            b_data,
+                            x_data);
+    case Solver::AMESOS:
+        return amesos_solve(a_data,
+                            b_data,
+                            x_data);
+    case Solver::AZTEC:
+        return aztec_solve(a_data,
+                           b_data,
+                           x_data);
+    }
 }
 
 // Iterative matrix solution: faster than GSL for n>300
 void Trilinos_Dense_Solve::
 epetra_solve(vector<double> &a_data,
              vector<double> &b_data,
-             vector<double> &x_data,
-             unsigned number_of_elements)
+             vector<double> &x_data) const
 {
-    Check(a_data.size() == number_of_elements*number_of_elements);
-    Check(b_data.size() == number_of_elements);
-    Check(x_data.size() == number_of_elements);
+    Check(a_data.size() == size_ * size_);
+    Check(b_data.size() == size_);
+    Check(x_data.size() == size_);
 
-    Epetra_SerialDenseMatrix a(View, &a_data[0], number_of_elements, number_of_elements, number_of_elements);
-    Epetra_SerialDenseVector x(number_of_elements);
-    Epetra_SerialDenseVector b(View, &b_data[0], number_of_elements);
+    Epetra_SerialDenseMatrix a(View, &a_data[0], size_, size_, size_);
+    Epetra_SerialDenseVector b(View, &b_data[0], size_);
+    Epetra_SerialDenseVector x(size_);
 
-    
     // cout << a << endl;
     // cout << b << endl;
     // cout << x << endl;
@@ -70,27 +92,26 @@ epetra_solve(vector<double> &a_data,
         AssertMsg(false, "epetra failed to solve");
     }
 
-    x_data.assign(solver.X(), solver.X() + number_of_elements);
+    x_data.assign(solver.X(), solver.X() + size_);
 }
 
 // Direct matrix solution: faster than epetra for n<170
 void Trilinos_Dense_Solve::
-amesos_dense_solve(vector<double> &a_data,
-                   vector<double> &b_data,
-                   vector<double> &x_data,
-                   unsigned number_of_elements)
+amesos_solve(vector<double> &a_data,
+             vector<double> &b_data,
+             vector<double> &x_data) const
 {
-    Check(a_data.size() == number_of_elements*number_of_elements);
-    Check(b_data.size() == number_of_elements);
-    Check(x_data.size() == number_of_elements);
+    Check(a_data.size() == size_ * size_);
+    Check(b_data.size() == size_);
+    Check(x_data.size() == size_);
 
     int const index_base = 0;
-    int const num_elements = number_of_elements;
+    int const num_elements = size_;
     string solver_type = "Klu";
     
-    vector<int> const num_entries_per_row(number_of_elements, number_of_elements);
-    vector<int> column_indices(number_of_elements);
-    for (unsigned i=0; i<number_of_elements; ++i)
+    vector<int> const num_entries_per_row(size_, size_);
+    vector<int> column_indices(size_);
+    for (unsigned i=0; i<size_; ++i)
     {
         column_indices[i] = i;
     }
@@ -103,11 +124,11 @@ amesos_dense_solve(vector<double> &a_data,
     Epetra_Map map(num_elements, index_base, comm);
     Epetra_Vector lhs(View, map, &x_data[0]);
     Epetra_Vector rhs(View, map, &b_data[0]);
-    Epetra_CrsMatrix matrix(View, map, number_of_elements);
-
-    for (unsigned i=0; i<number_of_elements; ++i)
+    Epetra_CrsMatrix matrix(View, map, size_);
+    
+    for (unsigned i=0; i<size_; ++i)
     {
-        matrix.InsertGlobalValues(i, num_entries_per_row[i], &a_data[number_of_elements*i], &column_indices[0]);
+        matrix.InsertGlobalValues(i, num_entries_per_row[i], &a_data[size_*i], &column_indices[0]);
     }
     matrix.FillComplete();
     
@@ -127,23 +148,22 @@ amesos_dense_solve(vector<double> &a_data,
 
 // Does not work consistently for dense matrices
 void Trilinos_Dense_Solve::
-aztec_dense_solve(vector<double> &a_data,
-                  vector<double> &b_data,
-                  vector<double> &x_data,
-                  unsigned number_of_elements)
+aztec_solve(vector<double> &a_data,
+            vector<double> &b_data,
+            vector<double> &x_data) const
 {
-    Check(a_data.size() == number_of_elements*number_of_elements);
-    Check(b_data.size() == number_of_elements);
-    Check(x_data.size() == number_of_elements);
+    Check(a_data.size() == size_ * size_);
+    Check(b_data.size() == size_);
+    Check(x_data.size() == size_);
 
     int const index_base = 0;
-    int const num_elements = number_of_elements;
+    int const num_elements = size_;
     int const max_iterations = 10000;
     double const tolerance = 1.0E-6;
     
-    vector<int> const num_entries_per_row(number_of_elements, number_of_elements);
-    vector<int> column_indices(number_of_elements);
-    for (unsigned i=0; i<number_of_elements; ++i)
+    vector<int> const num_entries_per_row(size_, size_);
+    vector<int> column_indices(size_);
+    for (unsigned i=0; i<size_; ++i)
     {
         column_indices[i] = i;
     }
@@ -156,11 +176,11 @@ aztec_dense_solve(vector<double> &a_data,
     Epetra_Map map(num_elements, index_base, comm);
     Epetra_Vector lhs(View, map, &x_data[0]);
     Epetra_Vector rhs(View, map, &b_data[0]);
-    Epetra_CrsMatrix matrix(View, map, number_of_elements);
+    Epetra_CrsMatrix matrix(View, map, size_);
 
-    for (unsigned i=0; i<number_of_elements; ++i)
+    for (unsigned i=0; i<size_; ++i)
     {
-        matrix.InsertGlobalValues(i, num_entries_per_row[i], &a_data[number_of_elements*i], &column_indices[0]);
+        matrix.InsertGlobalValues(i, num_entries_per_row[i], &a_data[size_*i], &column_indices[0]);
     }
     matrix.FillComplete();
     
