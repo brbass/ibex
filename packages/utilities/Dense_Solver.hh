@@ -1,5 +1,5 @@
-#ifndef Dense_Solve_hh
-#define Dense_Solve_hh
+#ifndef Dense_Solver_hh
+#define Dense_Solver_hh
 
 #include <memory>
 #include <vector>
@@ -8,12 +8,12 @@
   Solve the problem Ax=b, discarding any intermediate results
 */
 template<class Scalar>
-class Dense_Solve
+class Dense_Solver
 {
 public:
 
     // Creator
-    Dense_Solve()
+    Dense_Solver()
     {
     }
 

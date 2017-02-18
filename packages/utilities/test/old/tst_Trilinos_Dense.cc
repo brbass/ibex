@@ -2,7 +2,7 @@
 
 #include "Check_Equality.hh"
 #include "Random_Number_Generator.hh"
-#include "Trilinos_Dense_Solve.hh"
+#include "Trilinos_Dense_Solver.hh"
 
 namespace ce = Check_Equality;
 

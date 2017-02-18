@@ -1,19 +1,21 @@
-#ifndef Eigen_Dense_Solve_hh
-#define Eigen_Dense_Solve_hh
+#ifndef Eigen_Dense_Solver_hh
+#define Eigen_Dense_Solver_hh
 
 #include <vector>
 
 #include <Eigen/Dense>
 
+#include "Dense_Solver.hh"
+
 template<class Scalar>
-class Eigen_Dense_Solve
+class Eigen_Dense_Solver : public Dense_Solver<Scalar>
 {
 public:
     
     typedef Eigen::Map<Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> > EMatrixR;
     typedef Eigen::Map<Eigen::Matrix<Scalar, Eigen::Dynamic, 1> > EVector;
     
-    Eigen_Dense_Solve(int size):
+    Eigen_Dense_Solver(int size):
         size_(size)
     {
     }
@@ -23,9 +25,9 @@ public:
         return size_;
     }
     
-    void solve(std::vector<Scalar> &a_data,
-               std::vector<Scalar> &b_data,
-               std::vector<Scalar> &x_data)
+    virtual void solve(std::vector<Scalar> &a_data,
+                       std::vector<Scalar> &b_data,
+                       std::vector<Scalar> &x_data) const override
     {
         Check(a_data.size() == size_ * size_);
         Check(b_data.size() == size_);
@@ -37,6 +39,10 @@ public:
         
         x = A.fullPivLu().solve(b);
     }
+
+private:
+
+    int size_;
 };
 
 #endif
