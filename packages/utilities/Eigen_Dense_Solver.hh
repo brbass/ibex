@@ -33,11 +33,11 @@ public:
         Check(b_data.size() == size_);
         Check(x_data.size() == size_);
         
-        EMatrixR A(&a_data[0], size_, size_);
+        EMatrixR a(&a_data[0], size_, size_);
         EVector b(&b_data[0], size_);
         EVector x(&x_data[0], size_);
         
-        x = A.fullPivLu().solve(b);
+        x = a.fullPivLu().solve(b);
     }
 
 private:

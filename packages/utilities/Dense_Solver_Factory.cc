@@ -3,7 +3,7 @@
 #include "Direct_Dense_Solver.hh"
 #include "Eigen_Dense_Solver.hh"
 #include "Eigen_Fixed_Dense_Solver.hh"
-#include "Trilinos_Dense_Solver.hh"
+#include "Epetra_Dense_Solver.hh"
 
 // Explicitly create fixed dense solvers for later use
 typedef Eigen_Fixed_Dense_Solver<1, Dense_Solver_Factory::Scalar> EFDS1;
@@ -49,7 +49,7 @@ get_solver(int size,
     case Type::EIGEN_FIXED:
         return get_fixed_eigen_solver(size);
     case Type::EPETRA:
-        return make_shared<Trilinos_Dense_Solver>(size);
+        return make_shared<Epetra_Dense_Solver>(size);
     }
 }
 

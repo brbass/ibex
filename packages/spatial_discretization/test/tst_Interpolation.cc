@@ -100,8 +100,8 @@ XML_Document get_xml_document(string input_filename)
     XML_Document external_document(external_filename);
     XML_Node external_node = external_document.get_child("spatial_discretization");
     spatial_node.prepend_node(external_node.get_child("number_of_points"));
-    spatial_node.get_child("basis_functions").prepend_all(external_node.get_child("basis_functions"));
-    spatial_node.get_child("weight_functions").prepend_all(external_node.get_child("weight_functions"));
+    spatial_node.get_child("basis_functions").append_all(external_node.get_child("basis_functions"));
+    spatial_node.get_child("weight_functions").append_all(external_node.get_child("weight_functions"));
     
     return input_file;
 }
@@ -396,7 +396,6 @@ int run_interpolation(string input_folder)
                                            "linear " + input_filename,
                                            tolerance);
         }
-        input_file.save("TEST.xml");
     }
 
     return checksum;

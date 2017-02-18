@@ -32,11 +32,11 @@ public:
         Check(b_data.size() == size_);
         Check(x_data.size() == size_);
         
-        EMatrixR A(&a_data[0]);
+        EMatrixR a(&a_data[0]);
         EVector b(&b_data[0]);
         EVector x(&x_data[0]);
         
-        x = A.fullPivLu().solve(b);
+        x = a.fullPivLu().solve(b);
     }
 };
 
