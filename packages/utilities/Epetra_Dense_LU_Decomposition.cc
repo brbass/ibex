@@ -6,15 +6,17 @@
 
 #include "Check.hh"
 
-Epetra_LU_Decomposition::
-Epetra_LU_Decomposition(int size):
+using namespace std;
+
+Epetra_Dense_LU_Decomposition::
+Epetra_Dense_LU_Decomposition(int size):
     initialized_(false),
     size_(size)
 {
 }
 
 
-void Epetra_LU_Decomposition::
+void Epetra_Dense_LU_Decomposition::
 initialize(vector<double> &a_data)
 {
     Check(a_data.size() == size_ * size_);
@@ -25,13 +27,13 @@ initialize(vector<double> &a_data)
                                                size_,
                                                size_);
     solver_ = make_shared<Epetra_SerialDenseSolver>();
-    solver_->SetMatrix(a_);
+    solver_->SetMatrix(*a_);
     solver_->SolveWithTranspose(true);
     solver_->Factor();
     initialized_ = true;
 }
 
-void Epetra_LU_Decomposition::
+void Epetra_Dense_LU_Decomposition::
 solve(vector<double> &b_data,
       vector<double> &x_data) const
 {
@@ -49,21 +51,37 @@ solve(vector<double> &b_data,
         AssertMsg(false, "epetra failed to solve");
     }
     
-    x_data.assign(solver.X(), solver.X() + size_);
+    x_data.assign(solver_->X(), solver_->X() + size_);
 }
 
-void Epetra_LU_Decomposition::
+void Epetra_Dense_LU_Decomposition::
 multi_solve(int number_of_vectors,
-            std::vector<double> &b,
-            std::vector<double> &x)
+            std::vector<double> &b_data,
+            std::vector<double> &x_data) const
 {
     Assert(initialized_);
     Check(b_data.size() == size_ * number_of_vectors);
     Check(x_data.size() == size_ * number_of_vectors);
-    AssertMsg(false, "not implemented");
+
+    Epetra_SerialDenseMatrix b(View,
+                               &b_data[0],
+                               size_,
+                               size_,
+                               number_of_vectors);
+    Epetra_SerialDenseMatrix x(size_,
+                               number_of_vectors);
+    solver_->SetVectors(x, b);
+    solver_->Solve();
+    
+    if (!solver_->Solved())
+    {
+        AssertMsg(false, "epetra failed to solve");
+    }
+    
+    x_data.assign(solver_->X(), solver_->X() + size_ * number_of_vectors);
 }
 
-void Epetra_LU_Decomposition::
+void Epetra_Dense_LU_Decomposition::
 inverse(std::vector<double> &ainv) const
 {
     Assert(initialized_);
@@ -71,7 +89,7 @@ inverse(std::vector<double> &ainv) const
     AssertMsg(false, "not implemented");
 }
 
-double Epetra_LU_Decomposition::
+double Epetra_Dense_LU_Decomposition::
 determinant() const
 {
     Assert(initialized_);

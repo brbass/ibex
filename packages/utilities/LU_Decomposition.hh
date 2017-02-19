@@ -19,7 +19,7 @@ public:
     virtual bool initialized() const = 0;
     
     // Set matrix and perform decomposition
-    virtual void initialize(std::vector<Scalar> &a) const = 0;
+    virtual void initialize(std::vector<Scalar> &a) = 0;
     
     // Rank of matrix
     virtual int size() const = 0;

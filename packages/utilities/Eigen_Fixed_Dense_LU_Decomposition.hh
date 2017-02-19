@@ -1,5 +1,5 @@
-#ifndef Eigen_Fixed_LU_Decomposition_hh
-#define Eigen_Fixed_LU_Decomposition_hh
+#ifndef Eigen_Fixed_Dense_LU_Decomposition_hh
+#define Eigen_Fixed_Dense_LU_Decomposition_hh
 
 #include <vector>
 
@@ -8,16 +8,25 @@
 #include "LU_Decomposition.hh"
 
 template<int const size_, class Scalar>
-class Eigen_Fixed_LU_Decomposition : public LU_Decomposition<Scalar>
+class Eigen_Fixed_Dense_LU_Decomposition : public LU_Decomposition<Scalar>
 {
 public:
-    
+
+    // Matrices and vectors
+    typedef Eigen::Matrix<Scalar, size_, Eigen::Dynamic> EMatrixD;
     typedef Eigen::Matrix<Scalar, size_, size_, Eigen::RowMajor> EMatrixR;
-    typedef Eigen::Map<Eigen::Matrix<Scalar, size_, 1> > EMVector;
+    typedef Eigen::Matrix<Scalar, size_, 1> EVector;
+    
+    // Mapped types
+    typedef Eigen::Map<EMatrixD> EMMatrixD;
     typedef Eigen::Map<EMatrixR> EMMatrixR;
+    typedef Eigen::Map<EVector> EMVector;
+    
+    // LU decomposition
     typedef Eigen::FullPivLU<EMatrixR> ELU;
 
-    Eigen_Fixed_LU_Decomposition():
+    // Constructor
+    Eigen_Fixed_Dense_LU_Decomposition():
         initialized_(false)
     {
     }
@@ -29,13 +38,13 @@ public:
     }
     
     // Set matrix and perform decomposition
-    virtual void initialize(std::vector<Scalar> &a) const override
+    virtual void initialize(std::vector<Scalar> &a_data) override
     {
         Check(a_data.size() == size_ * size_);
         
         a_ = EMMatrixR(&a_data[0]);
         lu_ = a_.fullPivLu();
-        intialized_ = true;
+        initialized_ = true;
     }
     
     // Rank of matrix
@@ -66,7 +75,11 @@ public:
         Assert(initialized_);
         Assert(b_data.size() == size_ * number_of_vectors);
         Assert(x_data.size() == size_ * number_of_vectors);
-        AssertMsg(false, "not implemented");
+
+        EMMatrixD b(&b_data[0], size_, number_of_vectors);
+        EMMatrixD x(&x_data[0], size_, number_of_vectors);
+
+        x = lu_.solve(b);
     }
 
     // Get inverse
@@ -76,7 +89,7 @@ public:
         Check(ainv_data.size() == size_ * size_);
         
         EMMatrixR ainv(&ainv_data[0]);
-
+        
         ainv = lu_.inverse();
     }
 

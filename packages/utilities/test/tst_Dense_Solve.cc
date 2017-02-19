@@ -88,7 +88,7 @@ void get_solvers(int size,
                              factory.get_solver(size,
                                                 Dense_Solver_Factory::Type::DIRECT));
     }
-    if (size <= 20)
+    if (size <= 10)
     {
         solvers.emplace_back("eigen_fixed",
                              factory.get_solver(size,

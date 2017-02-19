@@ -16,6 +16,7 @@ typedef Eigen_Fixed_Dense_Solver<7, Dense_Solver_Factory::Scalar> EFDS7;
 typedef Eigen_Fixed_Dense_Solver<8, Dense_Solver_Factory::Scalar> EFDS8;
 typedef Eigen_Fixed_Dense_Solver<9, Dense_Solver_Factory::Scalar> EFDS9;
 typedef Eigen_Fixed_Dense_Solver<10, Dense_Solver_Factory::Scalar> EFDS10;
+/*
 typedef Eigen_Fixed_Dense_Solver<11, Dense_Solver_Factory::Scalar> EFDS11;
 typedef Eigen_Fixed_Dense_Solver<12, Dense_Solver_Factory::Scalar> EFDS12;
 typedef Eigen_Fixed_Dense_Solver<13, Dense_Solver_Factory::Scalar> EFDS13;
@@ -26,6 +27,7 @@ typedef Eigen_Fixed_Dense_Solver<17, Dense_Solver_Factory::Scalar> EFDS17;
 typedef Eigen_Fixed_Dense_Solver<18, Dense_Solver_Factory::Scalar> EFDS18;
 typedef Eigen_Fixed_Dense_Solver<19, Dense_Solver_Factory::Scalar> EFDS19;
 typedef Eigen_Fixed_Dense_Solver<20, Dense_Solver_Factory::Scalar> EFDS20;
+*/
 
 using namespace std;
 
@@ -61,10 +63,15 @@ get_default(int size) const
         return get_solver(size,
                           Type::DIRECT);
     }
-    else if (size <= 20)
+    else if (size <= 10)
     {
         return get_solver(size,
                           Type::EIGEN_FIXED);
+    }
+    else if (size < 20)
+    {
+        return get_solver(size,
+                          Type::EIGEN);
     }
     else
     {
@@ -98,6 +105,7 @@ get_fixed_eigen_solver(int size) const
         return make_shared<EFDS9>();
     case 10:
         return make_shared<EFDS10>();
+    /*
     case 11:
         return make_shared<EFDS11>();
     case 12:
@@ -117,6 +125,9 @@ get_fixed_eigen_solver(int size) const
     case 19:
         return make_shared<EFDS19>();
     case 20:
-        return make_shared<EFDS20>();            
+        return make_shared<EFDS20>();
+    */
+    default:
+        AssertMsg(false, "fixed eigen solver of size (" << size << ") not available");
     }
 }

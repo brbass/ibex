@@ -12,11 +12,20 @@ class Eigen_Dense_LU_Decomposition : public LU_Decomposition<Scalar>
 {
 public:
 
+    // Matrices and vectors
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic> EMatrix;
     typedef Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> EMatrixR;
-    typedef Eigen::Map<EMatrixR> EMMatrixR;
-    typedef Eigen::Map<Eigen::Matrix<Scalar, Eigen::Dynamic, 1> > EMVector;
-    typedef Eigen::FullPivLU<EMatrixR> ELU;
+    typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 1> EVector;
     
+    // Mapped types
+    typedef Eigen::Map<EVector> > EMVector;
+    typedef Eigen::Map<EMatrix> EMMatrix;
+    typedef Eigen::Map<EMatrixR> EMMatrixR;
+
+    // LU decomposition
+    typedef Eigen::FullPivLU<EMatrixR> ELU;
+
+    // Constructor
     Eigen_Dense_LU_Decomposition(int size):
         initialized_(false),
         size_(size)
@@ -30,7 +39,7 @@ public:
     }
     
     // Set matrix and perform decomposition
-    virtual void initialize(std::vector<Scalar> &a) const override
+    virtual void initialize(std::vector<Scalar> &a) override
     {
         Check(a_data.size() == size_ * size_);
         
@@ -65,7 +74,13 @@ public:
                              std::vector<double> &x) const override
     {
         Assert(initialized_);
-        AssertMsg(false, "not implemented");
+        Check(b_data.size() == size_ * number_of_vectors);
+        Check(x_data.size() == size_ * number_of_vectors);
+
+        EMMatrix b(&b_data[0], size_, number_of_vectors);
+        EMMatrix x(&x_data[0], size_, number_of_vectors);
+
+        x = lu_.solve(b);
     }
 
     // Get inverse
@@ -88,7 +103,7 @@ public:
     }
     
 private:
-
+    
     bool initialized_;
     int size_;
     EMatrixR a_;

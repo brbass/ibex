@@ -1,16 +1,18 @@
-#ifndef Epetra_LU_Decomposition_hh
-#define Epetra_LU_Decomposition_hh
+#ifndef Epetra_Dense_LU_Decomposition_hh
+#define Epetra_Dense_LU_Decomposition_hh
+
+#include <memory>
 
 #include "LU_Decomposition.hh"
 
 class Epetra_SerialDenseMatrix;
 class Epetra_SerialDenseSolver;
 
-class Epetra_LU_Decomposition : public LU_Decomposition<double>
+class Epetra_Dense_LU_Decomposition : public LU_Decomposition<double>
 {
 public:
 
-    Epetra_LU_Decomposition(int size);
+    Epetra_Dense_LU_Decomposition(int size);
     
     // Check whether data has been initialized
     virtual bool initialized() const
@@ -19,7 +21,7 @@ public:
     }
     
     // Set matrix and perform decomposition
-    virtual void initialize(std::vector<double> &a) const;
+    virtual void initialize(std::vector<double> &a);
     
     // Rank of matrix
     virtual int size() const override
@@ -46,8 +48,8 @@ private:
 
     bool initialized_;
     int size_;
-    shared_ptr<Epetra_SerialDenseMatrix> a_;
-    shared_ptr<Epetra_SerialDenseSolver> solver_;
+    std::shared_ptr<Epetra_SerialDenseMatrix> a_;
+    std::shared_ptr<Epetra_SerialDenseSolver> solver_;
     
 };
 

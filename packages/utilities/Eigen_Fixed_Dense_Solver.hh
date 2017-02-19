@@ -12,18 +12,32 @@ class Eigen_Fixed_Dense_Solver : public Dense_Solver<Scalar>
 {
 public:
     
-    typedef Eigen::Map<Eigen::Matrix<Scalar, size_, size_, Eigen::RowMajor> > EMatrixR;
-    typedef Eigen::Map<Eigen::Matrix<Scalar, size_, 1> > EVector;
+    // Matrices and vectors
+    typedef Eigen::Matrix<Scalar, size_, Eigen::Dynamic> EMatrixD;
+    typedef Eigen::Matrix<Scalar, size_, size_, Eigen::RowMajor> EMatrixR;
+    typedef Eigen::Matrix<Scalar, size_, 1> EVector;
     
-    Eigen_Fixed_Dense_Solver()
+    // Mapped types
+    typedef Eigen::Map<EMatrixD> EMMatrixD;
+    typedef Eigen::Map<EMatrixR> EMMatrixR;
+    typedef Eigen::Map<EVector> EMVector;
+    
+    // LU decomposition
+    typedef Eigen::FullPivLU<EMatrixR> ELU;
+    
+    // Constructor
+    Eigen_Fixed_Dense_Solver():
+        initialized_(false)
     {
     }
 
+    // Rank of matrix
     virtual int size() const override
     {
         return size_;
     }
     
+    // Solve problem Ax=b using temporary data (no initialization needed)
     virtual void solve(std::vector<Scalar> &a_data,
                        std::vector<Scalar> &b_data,
                        std::vector<Scalar> &x_data) const override
@@ -32,12 +46,88 @@ public:
         Check(b_data.size() == size_);
         Check(x_data.size() == size_);
         
-        EMatrixR a(&a_data[0]);
-        EVector b(&b_data[0]);
-        EVector x(&x_data[0]);
+        EMMatrixR a(&a_data[0]);
+        EMVector b(&b_data[0]);
+        EMVector x(&x_data[0]);
         
         x = a.fullPivLu().solve(b);
     }
+
+    // Check whether data has been initialized
+    virtual bool initialized() const override
+    {
+        return initialized_;
+    }
+    
+    // Set matrix and perform decomposition
+    virtual void initialize(std::vector<Scalar> &a_data) override
+    {
+        Check(a_data.size() == size_ * size_);
+        
+        a_ = EMMatrixR(&a_data[0]);
+        lu_ = a_.fullPivLu();
+        initialized_ = true;
+    }
+    
+    // Rank of matrix
+    virtual int size() const override
+    {
+        return size_;
+    }
+    
+    // Apply to one vector
+    virtual void solve(std::vector<Scalar> &b_data,
+                       std::vector<Scalar> &x_data) const override
+    {
+        Assert(initialized_);
+        Check(b_data.size() == size_);
+        Check(x_data.size() == size_);
+        
+        EMVector b(&b_data[0]);
+        EMVector x(&x_data[0]);
+        
+        x = lu_.solve(b);
+    }
+
+    // Apply to multiple vectors (possibly a matrix)
+    virtual void multi_solve(int number_of_vectors,
+                             std::vector<Scalar> &b_data,
+                             std::vector<Scalar> &x_data) const override
+    {
+        Assert(initialized_);
+        Assert(b_data.size() == size_ * number_of_vectors);
+        Assert(x_data.size() == size_ * number_of_vectors);
+
+        EMMatrixD b(&b_data[0], size_, number_of_vectors);
+        EMMatrixD x(&x_data[0], size_, number_of_vectors);
+
+        x = lu_.solve(b);
+    }
+
+    // Get inverse
+    virtual void inverse(std::vector<Scalar> &ainv_data) const override
+    {
+        Assert(initialized_);
+        Check(ainv_data.size() == size_ * size_);
+        
+        EMMatrixR ainv(&ainv_data[0]);
+        
+        ainv = lu_.inverse();
+    }
+
+    // Get determinant
+    virtual Scalar determinant() const override
+    {
+        Assert(initialized_);
+        
+        return lu_.determinant();
+    }
+
+private:
+
+    bool initialized_;
+    EMatrixR a_;
+    ELU lu_;
 };
 
 #endif
