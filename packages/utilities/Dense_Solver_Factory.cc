@@ -128,6 +128,6 @@ get_fixed_eigen_solver(int size) const
         return make_shared<EFDS20>();
     */
     default:
-        AssertMsg(false, "fixed eigen solver of size (" << size << ") not available");
+        AssertMsg(false, "fixed eigen solver of size (" + to_string(size) + ") not available");
     }
 }

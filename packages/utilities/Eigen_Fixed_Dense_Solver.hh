@@ -37,22 +37,6 @@ public:
         return size_;
     }
     
-    // Solve problem Ax=b using temporary data (no initialization needed)
-    virtual void solve(std::vector<Scalar> &a_data,
-                       std::vector<Scalar> &b_data,
-                       std::vector<Scalar> &x_data) const override
-    {
-        Check(a_data.size() == size_ * size_);
-        Check(b_data.size() == size_);
-        Check(x_data.size() == size_);
-        
-        EMMatrixR a(&a_data[0]);
-        EMVector b(&b_data[0]);
-        EMVector x(&x_data[0]);
-        
-        x = a.fullPivLu().solve(b);
-    }
-
     // Check whether data has been initialized
     virtual bool initialized() const override
     {
@@ -69,15 +53,25 @@ public:
         initialized_ = true;
     }
     
-    // Rank of matrix
-    virtual int size() const override
+    // Solve problem Ax=b using temporary data (no initialization needed)
+    virtual void solve(std::vector<Scalar> &a_data,
+                       std::vector<Scalar> &b_data,
+                       std::vector<Scalar> &x_data) override
     {
-        return size_;
+        Check(a_data.size() == size_ * size_);
+        Check(b_data.size() == size_);
+        Check(x_data.size() == size_);
+        
+        EMMatrixR a(&a_data[0]);
+        EMVector b(&b_data[0]);
+        EMVector x(&x_data[0]);
+        
+        x = a.fullPivLu().solve(b);
     }
     
     // Apply to one vector
     virtual void solve(std::vector<Scalar> &b_data,
-                       std::vector<Scalar> &x_data) const override
+                       std::vector<Scalar> &x_data) override
     {
         Assert(initialized_);
         Check(b_data.size() == size_);
@@ -92,7 +86,7 @@ public:
     // Apply to multiple vectors (possibly a matrix)
     virtual void multi_solve(int number_of_vectors,
                              std::vector<Scalar> &b_data,
-                             std::vector<Scalar> &x_data) const override
+                             std::vector<Scalar> &x_data) override
     {
         Assert(initialized_);
         Assert(b_data.size() == size_ * number_of_vectors);
@@ -105,7 +99,7 @@ public:
     }
 
     // Get inverse
-    virtual void inverse(std::vector<Scalar> &ainv_data) const override
+    virtual void inverse(std::vector<Scalar> &ainv_data) override
     {
         Assert(initialized_);
         Check(ainv_data.size() == size_ * size_);
@@ -116,7 +110,7 @@ public:
     }
 
     // Get determinant
-    virtual Scalar determinant() const override
+    virtual Scalar determinant() override
     {
         Assert(initialized_);
         

@@ -26,28 +26,26 @@ public:
     // Rank of matrix
     virtual int size() const = 0;
 
+    // Solve problem Ax=b using temporary data (no initialization needed)
+    virtual void solve(std::vector<Scalar> &a_data, 
+                       std::vector<Scalar> &b_data,
+                       std::vector<Scalar> &x_data) = 0;
+    
     // Apply to one vector
     virtual void solve(std::vector<Scalar> &b,
-                       std::vector<Scalar> &x) const = 0;
+                       std::vector<Scalar> &x) = 0;
 
     // Apply to multiple vectors (possibly a matrix)
     virtual void multi_solve(int number_of_vectors,
                              std::vector<Scalar> &b,
-                             std::vector<Scalar> &x) const = 0;
+                             std::vector<Scalar> &x) = 0;
 
     // Inverse of matrix
-    virtual void inverse(std::vector<Scalar> &ainv) const = 0;
+    virtual void inverse(std::vector<Scalar> &ainv) = 0;
 
     // Determinant of matrix
-    virtual Scalar determinant() const = 0;
+    virtual Scalar determinant() = 0;
     
-    // Solve problem Ax=b using temporary data (no initialization needed)
-    virtual void solve(std::vector<Scalar> &a_data, 
-                       std::vector<Scalar> &b_data,
-                       std::vector<Scalar> &x_data) const = 0;
-    
-    // Size of square matrix
-    virtual int size() const = 0;
 };
 
 #endif

@@ -17,9 +17,29 @@ public:
     {
     }
     
+    // Check whether data has been initialized
+    virtual bool initialized() const
+    {
+        return initialized_;
+    }
+    
+    // Set matrix and perform decomposition
+    virtual void initialize(std::vector<Scalar> &a)
+    {
+        a_ = a;
+        initialized_ = true;
+    }
+
+    // Rank of matrix
+    virtual int size() const override
+    {
+        return size_;
+    }
+
+    // Solve problem Ax=b using temporary data (no initialization needed)
     virtual void solve(std::vector<Scalar> &a_data,
                        std::vector<Scalar> &b_data,
-                       std::vector<Scalar> &x_data) const override
+                       std::vector<Scalar> &x_data) override
     {
         Check(a_data.size() == size_ * size_);
         Check(b_data.size() == size_);
@@ -42,15 +62,58 @@ public:
             return;
         }
     }
-    
-    virtual int size() const override
+
+    // Apply to one vector
+    virtual void solve(std::vector<Scalar> &b_data,
+                       std::vector<Scalar> &x_data) override
     {
-        return size_;
+        return solve(a_,
+                     b_data,
+                     x_data);
     }
 
+    // Apply to multiple vectors (possibly a matrix)
+    virtual void multi_solve(int number_of_vectors,
+                             std::vector<Scalar> &b_data,
+                             std::vector<Scalar> &x_data) override
+    {
+        AssertMsg(false, "not implemented");
+    }
+    
+    // Inverse of matrix
+    virtual void inverse(std::vector<Scalar> &ainv_data) override
+    {
+        Check(ainv_data.size() == size_ * size_);
+        
+        switch(size_)
+        {
+        case 1:
+            return Linear_Algebra::direct_inverse_1(ainv_data, a_);
+        case 2:
+            return Linear_Algebra::direct_inverse_2(ainv_data, a_);
+        case 3:
+            return Linear_Algebra::direct_inverse_3(ainv_data, a_);
+        case 4:
+            return Linear_Algebra::direct_inverse_4(ainv_data, a_);
+        case 5:
+            return Linear_Algebra::direct_inverse_5(ainv_data, a_);
+        default:
+            AssertMsg(false, "linear solve of size (" + std::to_string(size_) + ") not implemented");
+            return;
+        }
+    }
+
+    // Determinant of matrix
+    virtual Scalar determinant() override
+    {
+        AssertMsg(false, "not implemented");
+    }
+    
 private:
 
+    bool initialized_;
     int size_;
+    std::vector<Scalar> a_;
 };
 
 #endif
