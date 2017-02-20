@@ -26,8 +26,9 @@ public:
                                                       Type type = Type::DEFAULT) const;
 
 private:
-    
+
     std::shared_ptr<Dense_Solver<Scalar> > get_default(int size) const;
+    std::shared_ptr<Dense_Solver<Scalar> > get_direct_solver(int size) const;
     std::shared_ptr<Dense_Solver<Scalar> > get_fixed_eigen_solver(int size) const;
 
 };

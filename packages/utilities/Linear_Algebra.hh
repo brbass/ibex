@@ -43,6 +43,11 @@ namespace Linear_Algebra
         x[0]=1/a[0];
         return;
     }
+
+    template<class T> T determinant_1(std::vector<T> &a)
+    {
+        return a[0];
+    }
     
     template<class T> void linear_solve_2(std::vector<T> const &a,
                                           std::vector<T> const &b,
@@ -90,6 +95,11 @@ namespace Linear_Algebra
         x[2]=-(o10*o5);
         x[3]=o10*o7;
         return;
+    }
+    
+    template<class T> T determinant_2(std::vector<T> &a)
+    {
+        return -(a[1]*a[2])+a[0]*a[3];
     }
     
     template<class T> void linear_solve_3(std::vector<T> const &a,
@@ -183,6 +193,20 @@ namespace Linear_Algebra
         return;
     }
 
+    template<class T> T determinant_3(std::vector<T> &a)
+    {
+        T o5=a[6];
+        T o3=a[2];
+        T o8=a[5];
+        T o11=a[7];
+        T o7=a[1];
+        T o10=a[3];
+        T o13=a[0];
+        T o4=a[4];
+        T o15=a[8];
+        return o10*o11*o3+o13*o15*o4-o3*o4*o5-o10*o15*o7-o11*o13*o8+o5*o7*o8;
+    }
+    
     template<class T> void linear_solve_4(std::vector<T> const &a,
                                           std::vector<T> const &b,
                                           std::vector<T> &x)
@@ -418,6 +442,27 @@ namespace Linear_Algebra
         return;
     }
 
+    template<class T> T determinant_4(std::vector<T> &a)
+    {
+        T o5=a[9];
+        T o6=a[12];
+        T o3=a[3];
+        T o9=a[7];
+        T o12=a[10];
+        T o8=a[2];
+        T o11=a[5];
+        T o14=a[1];
+        T o4=a[6];
+        T o16=a[11];
+        T o19=a[8];
+        T o20=a[13];
+        T o23=a[4];
+        T o25=a[0];
+        T o29=a[14];
+        T o36=a[15];
+        return o14*o16*o23*o29-o11*o16*o25*o29+o12*o20*o23*o3+o11*o19*o29*o3-o12*o14*o23*o36+o11*o12*o25*o36+o16*o20*o25*o4-o19*o20*o3*o4+o14*o19*o36*o4-o23*o29*o3*o5-o25*o36*o4*o5-o11*o12*o3*o6-o14*o16*o4*o6+o3*o4*o5*o6-o16*o20*o23*o8-o11*o19*o36*o8+o23*o36*o5*o8+o11*o16*o6*o8-o12*o20*o25*o9-o14*o19*o29*o9+o25*o29*o5*o9+o12*o14*o6*o9+o19*o20*o8*o9-o5*o6*o8*o9;
+    }
+    
     template<class T> void linear_solve_5(std::vector<T> const &a,
                                           std::vector<T> const &b,
                                           std::vector<T> &x)
@@ -969,6 +1014,36 @@ namespace Linear_Algebra
         return;
     }
 
+    template<class T> T determinant_5(std::vector<T> &a)
+    {
+        T o5=a[12];
+        T o6=a[16];
+        T o7=a[20];
+        T o3=a[4];
+        T o10=a[9];
+        T o13=a[13];
+        T o9=a[3];
+        T o12=a[7];
+        T o15=a[2];
+        T o4=a[8];
+        T o17=a[14];
+        T o20=a[11];
+        T o21=a[17];
+        T o24=a[6];
+        T o26=a[1];
+        T o30=a[18];
+        T o37=a[19];
+        T o44=a[15];
+        T o45=a[21];
+        T o52=a[10];
+        T o55=a[5];
+        T o57=a[0];
+        T o73=a[22];
+        T o98=a[23];
+        T o123=a[24];
+        return o123*o13*o15*o24*o44-o12*o123*o13*o26*o44-o123*o15*o20*o4*o44-o10*o13*o15*o44*o45+o12*o13*o3*o44*o45+o15*o17*o4*o44*o45+o123*o26*o4*o44*o5-o3*o4*o44*o45*o5-o123*o15*o24*o30*o52+o12*o123*o26*o30*o52-o123*o21*o26*o4*o52+o10*o15*o30*o45*o52-o12*o3*o30*o45*o52+o21*o3*o4*o45*o52-o15*o37*o4*o45*o52+o123*o13*o21*o26*o55+o123*o15*o20*o30*o55-o13*o21*o3*o45*o55-o15*o17*o30*o45*o55+o13*o15*o37*o45*o55-o123*o26*o30*o5*o55+o3*o30*o45*o5*o55-o123*o13*o21*o24*o57-o12*o123*o20*o30*o57+o123*o20*o21*o4*o57+o10*o13*o21*o45*o57+o12*o17*o30*o45*o57-o12*o13*o37*o45*o57-o17*o21*o4*o45*o57+o123*o24*o30*o5*o57-o10*o30*o45*o5*o57+o37*o4*o45*o5*o57+o123*o15*o4*o52*o6-o123*o13*o15*o55*o6+o12*o123*o13*o57*o6-o123*o4*o5*o57*o6-o10*o13*o21*o26*o7+o13*o21*o24*o3*o7-o10*o15*o20*o30*o7+o15*o17*o24*o30*o7-o12*o17*o26*o30*o7+o12*o20*o3*o30*o7-o13*o15*o24*o37*o7+o12*o13*o26*o37*o7+o17*o21*o26*o4*o7-o20*o21*o3*o4*o7+o15*o20*o37*o4*o7+o10*o26*o30*o5*o7-o24*o3*o30*o5*o7-o26*o37*o4*o5*o7+o10*o13*o15*o6*o7-o12*o13*o3*o6*o7-o15*o17*o4*o6*o7+o3*o4*o5*o6*o7+o10*o13*o26*o44*o73-o13*o24*o3*o44*o73-o17*o26*o4*o44*o73+o20*o3*o4*o44*o73-o10*o26*o30*o52*o73+o24*o3*o30*o52*o73+o26*o37*o4*o52*o73+o17*o26*o30*o55*o73-o20*o3*o30*o55*o73-o13*o26*o37*o55*o73+o10*o20*o30*o57*o73-o17*o24*o30*o57*o73+o13*o24*o37*o57*o73-o20*o37*o4*o57*o73-o3*o4*o52*o6*o73+o13*o3*o55*o6*o73-o10*o13*o57*o6*o73+o17*o4*o57*o6*o73+o12*o123*o20*o44*o9-o12*o17*o44*o45*o9-o123*o24*o44*o5*o9+o10*o44*o45*o5*o9+o123*o21*o24*o52*o9-o10*o21*o45*o52*o9+o12*o37*o45*o52*o9-o123*o20*o21*o55*o9+o17*o21*o45*o55*o9-o37*o45*o5*o55*o9-o12*o123*o52*o6*o9+o123*o5*o55*o6*o9+o10*o20*o21*o7*o9-o17*o21*o24*o7*o9-o12*o20*o37*o7*o9+o24*o37*o5*o7*o9+o12*o17*o6*o7*o9-o10*o5*o6*o7*o9-o10*o20*o44*o73*o9+o17*o24*o44*o73*o9-o24*o37*o52*o73*o9+o20*o37*o55*o73*o9+o10*o52*o6*o73*o9-o17*o55*o6*o73*o9+o10*o15*o20*o44*o98-o15*o17*o24*o44*o98+o12*o17*o26*o44*o98-o12*o20*o3*o44*o98-o10*o26*o44*o5*o98+o24*o3*o44*o5*o98+o10*o21*o26*o52*o98-o21*o24*o3*o52*o98+o15*o24*o37*o52*o98-o12*o26*o37*o52*o98-o17*o21*o26*o55*o98+o20*o21*o3*o55*o98-o15*o20*o37*o55*o98+o26*o37*o5*o55*o98-o10*o20*o21*o57*o98+o17*o21*o24*o57*o98+o12*o20*o37*o57*o98-o24*o37*o5*o57*o98-o10*o15*o52*o6*o98+o12*o3*o52*o6*o98+o15*o17*o55*o6*o98-o3*o5*o55*o6*o98-o12*o17*o57*o6*o98+o10*o5*o57*o6*o98;
+    }
+    
     template<class T> void linear_solve(std::vector<T> const &a,
                                         std::vector<T> const &b,
                                         std::vector<T> &x)

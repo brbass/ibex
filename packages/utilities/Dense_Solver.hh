@@ -25,7 +25,7 @@ public:
     
     // Rank of matrix
     virtual int size() const = 0;
-
+    
     // Solve problem Ax=b using temporary data (no initialization needed)
     virtual void solve(std::vector<Scalar> &a_data, 
                        std::vector<Scalar> &b_data,

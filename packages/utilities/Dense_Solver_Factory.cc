@@ -6,6 +6,11 @@
 #include "Epetra_Dense_Solver.hh"
 
 // Explicitly create fixed dense solvers for later use
+typedef Direct_Dense_Solver<1, Dense_Solver_Factory::Scalar> DDS1;
+typedef Direct_Dense_Solver<2, Dense_Solver_Factory::Scalar> DDS2;
+typedef Direct_Dense_Solver<3, Dense_Solver_Factory::Scalar> DDS3;
+typedef Direct_Dense_Solver<4, Dense_Solver_Factory::Scalar> DDS4;
+typedef Direct_Dense_Solver<5, Dense_Solver_Factory::Scalar> DDS5;
 typedef Eigen_Fixed_Dense_Solver<1, Dense_Solver_Factory::Scalar> EFDS1;
 typedef Eigen_Fixed_Dense_Solver<2, Dense_Solver_Factory::Scalar> EFDS2;
 typedef Eigen_Fixed_Dense_Solver<3, Dense_Solver_Factory::Scalar> EFDS3;
@@ -45,7 +50,7 @@ get_solver(int size,
     case Type::DEFAULT:
         return get_default(size);
     case Type::DIRECT:
-        return make_shared<Direct_Dense_Solver<double> >(size);
+        return get_direct_solver(size);
     case Type::EIGEN:
         return make_shared<Eigen_Dense_Solver<double> >(size);
     case Type::EIGEN_FIXED:
@@ -77,6 +82,26 @@ get_default(int size) const
     {
         return get_solver(size,
                           Type::EPETRA);
+    }
+}
+
+shared_ptr<Dense_Solver<Dense_Solver_Factory::Scalar> > Dense_Solver_Factory::
+get_direct_solver(int size) const
+{
+    switch (size)
+    {
+    case 1:
+        return make_shared<DDS1>();
+    case 2:
+        return make_shared<DDS2>();
+    case 3:
+        return make_shared<DDS3>();
+    case 4:
+        return make_shared<DDS4>();
+    case 5:
+        return make_shared<DDS5>();
+    default:
+        AssertMsg(false, "direct solver of size (" + to_string(size) + ") not available");
     }
 }
 

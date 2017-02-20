@@ -30,13 +30,14 @@ struct Solver_Data
     string description;
     double time;
     double error;
+    double det;
     shared_ptr<Dense_Solver<double> > solver;
 };
 
-int test_method(vector<double> const &a_data,
-                vector<double> const &b_data,
-                vector<double> const &x_data,
-                Solver_Data &solver_data)
+int test_linear_solve(vector<double> const &a_data,
+                      vector<double> const &b_data,
+                      vector<double> const &x_data,
+                      Solver_Data &solver_data)
 {
     int checksum = 0;
 
@@ -63,10 +64,10 @@ int test_method(vector<double> const &a_data,
     return checksum;
 }
 
-void get_data(int size,
-              vector<double> &a,
-              vector<double> &b,
-              vector<double> &x)
+void get_linear_problem(int size,
+                        vector<double> &a,
+                        vector<double> &b,
+                        vector<double> &x)
 {
     a = rng.vector(size * size);
     x = rng.vector(size);
@@ -76,7 +77,8 @@ void get_data(int size,
 }
 
 void get_solvers(int size,
-                 vector<Solver_Data> &solvers)
+                 vector<Solver_Data> &solvers,
+                 bool include_trilinos = true)
 {
     solvers.clear();
     
@@ -97,13 +99,16 @@ void get_solvers(int size,
     solvers.emplace_back("eigen",
                          factory.get_solver(size,
                                             Dense_Solver_Factory::Type::EIGEN));
-    solvers.emplace_back("epetra",
-                         factory.get_solver(size,
-                                            Dense_Solver_Factory::Type::EPETRA));
+    if (include_trilinos)
+    {
+        solvers.emplace_back("epetra",
+                             factory.get_solver(size,
+                                                Dense_Solver_Factory::Type::EPETRA));
+    }
 }
 
-int run_tests(int number_of_tests,
-              vector<int> sizes)
+int run_linear_solve(int number_of_tests,
+                     vector<int> sizes)
 {
     int checksum = 0;
     
@@ -119,14 +124,14 @@ int run_tests(int number_of_tests,
             vector<double> b;
             vector<double> x;
 
-            get_data(size,
-                     a,
-                     b,
-                     x);
+            get_linear_problem(size,
+                               a,
+                               b,
+                               x);
             
             for (Solver_Data &solver_data : solvers)
             {
-                checksum += test_method(a, b, x, solver_data);
+                checksum += test_linear_solve(a, b, x, solver_data);
             }
         }
 
@@ -151,6 +156,46 @@ int run_tests(int number_of_tests,
     return checksum;
 }
 
+int run_determinant()
+{
+    vector<Solver_Data> solvers;
+
+    for (int size = 1; size <= 5; ++size)
+    {
+        vector<double> a = rng.vector(size * size);
+        get_solvers(size,
+                    solvers,
+                    false);
+
+        cout << "solver dets for n = ";
+        cout << size;
+        cout << endl;
+        for (Solver_Data &solver : solvers)
+        {
+            solver.solver->initialize(a);
+            solver.det = solver.solver->determinant();
+
+            int w = 16;
+            cout << setw(w) << solver.description;
+            cout << setw(w) << solver.det;
+            cout << endl;
+        }
+
+        for (Solver_Data &solver : solvers)
+        {
+            if (!Check_Equality::approx(solver.det, solvers[0].det, 1e-10))
+            {
+                cout << "determinants disagree for n = ";
+                cout << size;
+                cout << "\tdiff from first: ";
+                cout << solver.det - solvers[0].det;
+                cout << endl;
+            }
+        }
+        
+    }
+}
+
 int main(int argc, char **argv)
 {
     int checksum = 0;
@@ -166,24 +211,26 @@ int main(int argc, char **argv)
         small_sizes.push_back(i);
     }
     
-    checksum += run_tests(100 * iteration_multiplier,
-                          small_sizes);
-
+    checksum += run_linear_solve(100 * iteration_multiplier,
+                                 small_sizes);
+    
     vector<int> medium_sizes;
     for (int i = 30; i <= 200; i += 10)
     {
         medium_sizes.push_back(i);
     }
-    checksum += run_tests(10 * iteration_multiplier,
-                          medium_sizes);
+    checksum += run_linear_solve(10 * iteration_multiplier,
+                                 medium_sizes);
 
     vector<int> large_sizes;
     for (int i = 300; i <= 1000; i += 100)
     {
         large_sizes.push_back(i);
     }
-    checksum += run_tests(1 * iteration_multiplier,
-                          large_sizes);
+    checksum += run_linear_solve(1 * iteration_multiplier,
+                                 large_sizes);
+    
+    checksum += run_determinant();
     
     MPI_Finalize();
     
