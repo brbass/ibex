@@ -21,15 +21,18 @@ public:
     
 private: 
 
+    virtual void check_class_invariants() const override;
+    
     // Apply within-group and out-of-group fission
     virtual void apply_full(std::vector<double> &x) const override;
 
     // Apply only within-group fission
     virtual void apply_coherent(std::vector<double> &x) const override;
-
-    void calculate_cross_sections(std::vector<double> &chi,
-                                  std::vector<double> &nu,
-                                  std::vector<double> &sigma_f) const;
+    
+private:
+    
+    int number_of_dimensional_moments_;
+    Cross_Section::Dependencies::Dimensional dimensional_dependence_;
 };
 
 #endif

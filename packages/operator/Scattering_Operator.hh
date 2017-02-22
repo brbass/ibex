@@ -20,9 +20,9 @@ public:
     // Types of scattering
     enum class Scattering_Type
     {
-        COHERENT,
-        INCOHERENT,
-        FULL
+        COHERENT, // within-group scattering
+        INCOHERENT, // out-of-group scattering
+        FULL // within-group and out-of-group scattering
     };
 
     // Constructor

@@ -5,6 +5,7 @@
 
 #include "Angular_Discretization.hh"
 #include "Check.hh"
+#include "Cross_Section.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
 #include "Spatial_Discretization.hh"
@@ -21,6 +22,42 @@ Fission(shared_ptr<Spatial_Discretization> spatial_discretization,
                         energy_discretization,
                         scattering_type)
 {
+    // Get dimensional dependence from first point
+    dimensional_dependence_ = spatial_discretization->point(0)->material()->sigma_f()->dependencies().dimensional;
+
+    // Set number of dimensional moments
+    int dimension = spatial_discretization->dimension();
+    switch (dimensional_dependence_)
+    {
+    case Cross_Section::Dependencies::Dimensional::NONE:
+        number_of_dimensional_moments_ = 1;
+        break;
+    case Cross_Section::Dependencies::Dimensional::NONE:
+        number_of_dimensional_moments_ = 1 + dimension;
+        break;
+    }
+    
+    check_class_invariants();
+}
+
+void Fission::
+check_class_invariants() const
+{
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        shared_ptr<Material> material = spatial_discretization_->point(i)->material();
+        vector<Cross_Section::Dependencies> deps
+            = {material->nu()->dependencies(),
+               material->sigma_f()->dependencies(),
+               material->chi()->dependencies()};
+        
+        for (Cross_Section::Dependencies &dep : deps)
+        {
+            Assert(dep.angular == Angular::NONE);
+            Assert(dep.energy == Angular::GROUP);
+            Assert(dep.dimensional == dimensional_dependences_);
+        }
+    }
 }
 
 void Fission::
@@ -37,10 +74,9 @@ apply_full(vector<double> &x) const
         for (int i = 0; i < number_of_points; ++i)
         {
             shared_ptr<Material> material = spatial_discretization_->point(i)->material();
-            
-            vector<double> const nu = material->nu();
-            vector<double> const sigma_f = material->sigma_f();
-            vector<double> const chi = material->chi();
+            shared_ptr<Cross_Section> nu = material->nu();
+            shared_ptr<Cross_Section> sigma_f = material->sigma_f();
+            shared_ptr<Cross_Section> chi = material->chi();
             
             for (int n = 0; n < number_of_nodes; ++n)
             {
@@ -77,7 +113,7 @@ apply_full(vector<double> &x) const
                 for (int n = 0; n < number_of_nodes; ++n)
                 {
                     int k_phi = n + number_of_nodes * (g + number_of_groups * (m + number_of_moments * i));
-
+                    
                     x[k_phi] = 0;
                 }
             }
