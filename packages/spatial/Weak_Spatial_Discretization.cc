@@ -21,8 +21,11 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
     number_of_basis_functions_.resize(number_of_points_);
     for (int i = 0; i < number_of_points_; ++i)
     {
-        number_of_basis_functions_[i] = weights[i]->number_of_basis_functions();
+        number_of_basis_functions_[i] = weights_[i]->number_of_basis_functions();
     }
+
+    // Get number of dimensional moments
+    number_of_dimensional_moments_ = weights_[0]->number_of_dimensional_moments();
     
     // Get boundary weights
     int j = 0;
@@ -54,9 +57,9 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
 
     // Get KD tree
     vector<double> points(number_of_points_ * dimension_);
-    for (int i = 0; i < number_of_points_; ++i)
+p    for (int i = 0; i < number_of_points_; ++i)
     {
-        vector<double> const point = weights[i]->position();
+        vector<double> const point = weights_[i]->position();
         for (int d = 0; d < dimension_; ++d)
         {
             int k = d + dimension_ * i;
@@ -93,7 +96,8 @@ collocation_value(int i,
     int number_of_basis_functions = weight->number_of_basis_functions();
     vector<int> const basis_indices = weight->basis_function_indices();
     vector<double> const v_b = weight->v_b();
-    
+
+    // Sum over coefficients
     double sum = 0;
     for (int j = 0; j < number_of_basis_functions; ++j)
     {
@@ -112,7 +116,8 @@ weighted_collocation_value(int i,
     vector<int> const basis_indices = weight->basis_function_indices();
     vector<double> const iv_b_w = weight->iv_b_w();
     double iv_w = weight->iv_w()[0];
-        
+    
+    // Sum over coefficients
     double sum = 0;
     for (int j = 0; j < number_of_basis_functions; ++j)
     {
@@ -126,6 +131,7 @@ void Weak_Spatial_Discretization::
 collocation_values(vector<double> const &coefficients,
                    vector<double> &values) const
 {
+    // Get values at each point
     values.resize(number_of_points_);
     for (int i = 0; i < number_of_points_; ++i)
     {
@@ -138,6 +144,7 @@ void Weak_Spatial_Discretization::
 weighted_collocation_values(vector<double> const &coefficients,
                             vector<double> &values) const
 {
+    // Get weighted values at each point
     values.resize(number_of_points_);
     for (int i = 0; i < number_of_points_; ++i)
     {
@@ -154,7 +161,8 @@ expansion_value(int i,
     shared_ptr<Weight_Function> weight = weights_[i];
     int number_of_basis_functions = weight->number_of_basis_functions();
     vector<int> const basis_indices = weight->basis_function_indices();
-    
+
+    // Get value of function at a specific point
     double sum = 0;
     for (int j = 0; j < number_of_basis_functions; ++j)
     {
@@ -188,6 +196,7 @@ check_class_invariants() const
     {
         Assert(weights_[i]);
         Assert(bases_[i]);
+        Assert(weights_[i]->number_of_dimensional_moments() == number_of_dimensional_moments_);
     }
     for (int i = 0; i < number_of_boundary_weights_; ++i)
     {

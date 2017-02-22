@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "Vector_Operator.hh"
+#include "Square_Vector_Operator.hh"
 
 class Angular_Discretization;
 class Energy_Discretization;
@@ -13,7 +13,7 @@ class Spatial_Discretization;
 /*
   Pure virtual class to apply scattering to a moment representation of the flux
 */
-class Scattering_Operator : public Vector_Operator
+class Scattering_Operator : public Square_Vector_Operator
 {
 public:
 

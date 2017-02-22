@@ -43,6 +43,10 @@ Fission(shared_ptr<Spatial_Discretization> spatial_discretization,
 void Fission::
 check_class_invariants() const
 {
+    Assert(spatial_discretization_);
+    Assert(angular_discretization_);
+    Assert(energy_discretization_);
+    
     for (int i = 0; i < number_of_points; ++i)
     {
         shared_ptr<Material> material = spatial_discretization_->point(i)->material();
@@ -55,7 +59,6 @@ check_class_invariants() const
         {
             Assert(dep.angular == Angular::NONE);
             Assert(dep.energy == Angular::GROUP);
-            Assert(dep.dimensional == dimensional_dependences_);
         }
     }
 }
@@ -65,6 +68,7 @@ apply_full(vector<double> &x) const
 {
     int number_of_points = spatial_discretization_->number_of_points();
     int number_of_nodes = spatial_discretization_->number_of_nodes();
+    int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
     int number_of_groups = energy_discretization_->number_of_groups();
     int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_ordinates = angular_discretization_->number_of_ordinates();
@@ -74,31 +78,35 @@ apply_full(vector<double> &x) const
         for (int i = 0; i < number_of_points; ++i)
         {
             shared_ptr<Material> material = spatial_discretization_->point(i)->material();
-            shared_ptr<Cross_Section> nu = material->nu();
-            shared_ptr<Cross_Section> sigma_f = material->sigma_f();
-            shared_ptr<Cross_Section> chi = material->chi();
+            vector<double> const nu = material->nu()->data();
+            vector<double> const sigma_f = material->sigma_f()->data();
+            vector<double> const chi = material->chi()->data();
             
             for (int n = 0; n < number_of_nodes; ++n)
             {
-                // Calculate fission source
-                
-                double fission_source = 0;
-                
-                for (int g = 0; g < number_of_groups; ++g)
+                for (int d = 0; d < number_of_dimensional_moments; ++d)
                 {
-                    int k_phi = n + number_of_nodes * (g + number_of_groups * (m + number_of_moments * i));
-                    
-                    fission_source += nu[g] * sigma_f[g] * x[k_phi];
-                }
+                    // Calculate fission source
                 
-                // Assign flux back to the appropriate group and zeroth moment
-                for (int g = 0; g < number_of_groups; ++g)
-                {
-                    int k_phi = n + number_of_nodes * (g + number_of_groups * (m + number_of_moments * i));
+                    double fission_source = 0;
                     
-                    x[k_phi] = chi[g] * fission_source;
+                    for (int g = 0; g < number_of_groups; ++g)
+                    {
+                        int k_phi = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                        int k_xs = d + number_of_dimensional_moments * g;
+                        
+                        fission_source += nu[k_xs] * sigma_f[g] * x[k_phi];
+                    }
+                    
+                    // Assign flux back to the appropriate group and zeroth moment
+                    for (int g = 0; g < number_of_groups; ++g)
+                    {
+                        int k_phi = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                        int k_xs = d + number_of_dimensional_moments * g;
+                        
+                        x[k_phi] = chi[k_xs] * fission_source;
+                    }
                 }
-
             }
         }
     }
@@ -112,9 +120,12 @@ apply_full(vector<double> &x) const
             {
                 for (int n = 0; n < number_of_nodes; ++n)
                 {
-                    int k_phi = n + number_of_nodes * (g + number_of_groups * (m + number_of_moments * i));
-                    
-                    x[k_phi] = 0;
+                    for (int d = 0; d < number_of_dimensional_moments; ++d)
+                    {
+                        int k_phi = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                        
+                        x[k_phi] = 0;
+                    }
                 }
             }
         }
@@ -126,6 +137,7 @@ apply_coherent(vector<double> &x) const
 {
     int number_of_points = spatial_discretization_->number_of_points();
     int number_of_nodes = spatial_discretization_->number_of_nodes();
+    int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
     int number_of_groups = energy_discretization_->number_of_groups();
     int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_ordinates = angular_discretization_->number_of_ordinates();
@@ -136,20 +148,23 @@ apply_coherent(vector<double> &x) const
         for (int i = 0; i < number_of_points; ++i)
         {
             shared_ptr<Material> material = spatial_discretization_->point(i)->material();
-
-            vector<double> const chi = material->chi();
-            vector<double> const nu = material->nu();
-            vector<double> const sigma_f = material->sigma_f();
+            vector<double> const nu = material->nu()->data();
+            vector<double> const sigma_f = material->sigma_f()->data();
+            vector<double> const chi = material->chi()->data();
             
             for (int g = 0; g < number_of_groups; ++g)
             {
-                double cs = chi[g] * nu[g] * sigma_f[g];
-                
-                for (int n = 0; n < number_of_nodes; ++n)
+                for (int d = 0; d < number_of_dimensional_moments; ++d)
                 {
-                    int k_phi = n + number_of_nodes * (g + number_of_groups * (m + number_of_moments * i));
-                    
-                    x[k_phi] = cs * x[k_phi];
+                    int k_xs = d + number_of_dimensional_moments * g;
+                    double cs = chi[k_xs] * nu[k_xs] * sigma_f[k_xs];
+                
+                    for (int n = 0; n < number_of_nodes; ++n)
+                    {
+                        int k_phi = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                        
+                        x[k_phi] = cs * x[k_phi];
+                    }
                 }
             }
         }
@@ -164,9 +179,12 @@ apply_coherent(vector<double> &x) const
             {
                 for (int n = 0; n < number_of_nodes; ++n)
                 {
-                    int k_phi = n + number_of_nodes * (g + number_of_groups * (m + number_of_moments * i));
-
-                    x[k_phi] = 0;
+                    for (int d = 0; d < number_of_dimensional_moments; ++d)
+                    {
+                        int k_phi = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                        
+                        x[k_phi] = 0;
+                    }
                 }
             }
         }

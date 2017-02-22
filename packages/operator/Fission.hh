@@ -32,7 +32,6 @@ private:
 private:
     
     int number_of_dimensional_moments_;
-    Cross_Section::Dependencies::Dimensional dimensional_dependence_;
 };
 
 #endif

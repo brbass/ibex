@@ -31,6 +31,10 @@ public:
     {
         return number_of_nodes_;
     }
+    virtual int number_of_dimensional_moments() const override
+    {
+        return number_of_dimensional_moments_;
+    }
     virtual std::vector<int> const &number_of_basis_functions() const
     {
         return number_of_basis_functions_;
@@ -70,6 +74,7 @@ private:
     int number_of_boundary_bases_;
     int dimension_;
     int number_of_nodes_;
+    int number_of_dimensional_moments_;
     std::vector<int> number_of_basis_functions_;
     std::vector<std::shared_ptr<Weight_Function> > weights_;
     std::vector<std::shared_ptr<Weight_Function> > boundary_weights_;

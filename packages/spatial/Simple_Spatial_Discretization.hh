@@ -27,6 +27,10 @@ public:
     {
         return 1;
     }
+    virtual int number_of_dimensional_moments() const override
+    {
+        return 1;
+    }
     virtual std::shared_ptr<Point> point(int point_index) const override
     {
         return points_[point_index];

@@ -10,30 +10,16 @@
 
 using namespace std;
 
-namespace // anonymous
-{
-    int get_size(shared_ptr<Spatial_Discretization> spatial_discretization,
-                 shared_ptr<Angular_Discretization> angular_discretization,
-                 shared_ptr<Energy_Discretization> energy_discretization)
-    {
-        return (spatial_discretization->number_of_points()
-                * spatial_discretization->number_of_nodes()
-                * energy_discretization->number_of_groups()
-                * angular_discretization->number_of_moments());
-    }
-} // namespace
-
 Scattering_Operator::
 Scattering_Operator(shared_ptr<Spatial_Discretization> spatial_discretization,
                     shared_ptr<Angular_Discretization> angular_discretization,
                     shared_ptr<Energy_Discretization> energy_discretization,
                     Scattering_Type scattering_type):
-    Vector_Operator(get_size(spatial_discretization,
-                             angular_discretization,
-                             energy_discretization),
-                    get_size(spatial_discretization,
-                             angular_discretization,
-                             energy_discretization)),
+    Square_Vector_Operator(spatial_discretization->number_of_points()
+                           * spatial_discretization->number_of_nodes()
+                           * spatial_discretization->number_of_dimensional_moments()
+                           * energy_discretization->number_of_groups()
+                           * angular_discretization->number_of_moments()),
     spatial_discretization_(spatial_discretization),
     angular_discretization_(angular_discretization),
     energy_discretization_(energy_discretization),
