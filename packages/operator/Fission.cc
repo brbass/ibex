@@ -22,21 +22,6 @@ Fission(shared_ptr<Spatial_Discretization> spatial_discretization,
                         energy_discretization,
                         scattering_type)
 {
-    // Get dimensional dependence from first point
-    dimensional_dependence_ = spatial_discretization->point(0)->material()->sigma_f()->dependencies().dimensional;
-
-    // Set number of dimensional moments
-    int dimension = spatial_discretization->dimension();
-    switch (dimensional_dependence_)
-    {
-    case Cross_Section::Dependencies::Dimensional::NONE:
-        number_of_dimensional_moments_ = 1;
-        break;
-    case Cross_Section::Dependencies::Dimensional::NONE:
-        number_of_dimensional_moments_ = 1 + dimension;
-        break;
-    }
-    
     check_class_invariants();
 }
 

@@ -22,6 +22,24 @@ Scattering(shared_ptr<Spatial_Discretization> spatial_discretization,
                         energy_discretization,
                         scattering_type)
 {
+    check_class_invariants();
+}
+
+void Scattering::
+check_class_invariants() const
+{
+    Assert(spatial_discretization_);
+    Assert(angular_discretization_);
+    Assert(energy_discretization_);
+    
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        shared_ptr<Material> material = spatial_discretization_->point(i)->material();
+        Cross_Section::Dependencies dep = material->sigma_s()->dependencies();
+        Assert(dep.angular == Angular::SCATTERING_MOMENTS
+               || dep.angular == Angular::MOMENTS);
+        Assert(dep.energy == Angular::GROUP_TO_GROUP);
+    }
 }
 
 void Scattering::
@@ -34,37 +52,77 @@ apply_full(vector<double> &x) const
     int number_of_groups = energy_discretization_->number_of_groups();
     int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_scattering_moments = angular_discretization_->number_of_scattering_moments();
+    int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
     vector<int> const scattering_indices = angular_discretization_->scattering_indices();
-
+    
     for (int i = 0; i < number_of_points; ++i)
     {
-        shared_ptr<Material> material = spatial_discretization_->point(i)->material();
+        shared_ptr<Cross_Section> sigma_s_cs = spatial_discretization_->point(i)->material()->sigma_s();
+        vector<double> const sigma_s = sigma_s->data();
+        Cross_Section::Dependencies::Angular angular_dep = sigma_s_cs->dependncies().angular;
 
-        vector<double> const sigma_s = material->sigma_s();
-        
-        for (int m = 0; m < number_of_moments; ++m)
+        switch (angular_dep)
         {
-            int l = scattering_indices[m];
-
-            for (int gt = 0; gt < number_of_groups; ++gt)
+        case Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS:
+        {
+            for (int m = 0; m < number_of_moments; ++m)
             {
-                for (int n = 0; n < number_of_nodes; ++n)
+                int l = scattering_indices[m];
+
+                for (int gt = 0; gt < number_of_groups; ++gt)
                 {
-                    double sum = 0;
-                        
-                    for (int gf = 0; gf < number_of_groups; ++gf)
+                    for (int d = 0; d < number_of_dimensional_moments; ++d)
                     {
-                        int k_phi_from = n + number_of_nodes * (gf + number_of_groups * (m + number_of_moments * i));
-                        int k_sigma = gf + number_of_groups * (gt + number_of_groups * l);
-                        
-                        sum += sigma_s[k_sigma] * y[k_phi_from];
+                        for (int n = 0; n < number_of_nodes; ++n)
+                        {
+                            double sum = 0;
+                            
+                            for (int gf = 0; gf < number_of_groups; ++gf)
+                            {
+                                int k_phi_from = n + number_of_nodes * (d + number_of_dimensional_moments * (gf + number_of_groups * (m + number_of_moments * i)));
+                                int k_sigma = d + number_of_dimensional_moments * (gf + number_of_groups * (gt + number_of_groups * l));
+                                
+                                sum += sigma_s[k_sigma] * y[k_phi_from];
+                            }
+                            
+                            int k_phi_to = n + number_of_nodes * (d + number_of_dimensional_moments * (gt + number_of_groups * (m + number_of_moments * i)));
+                    
+                            x[k_phi_to] = sum;
+                        }
                     }
-                    
-                    int k_phi_to = n + number_of_nodes * (gt + number_of_groups * (m + number_of_moments * i));
-                    
-                    x[k_phi_to] = sum;
                 }
             }
+            break;
+        }
+        case Cross_Section::Dependencies::Angular::MOMENTS:
+        {
+            for (int m = 0; m < number_of_moments; ++m)
+            {
+                for (int gt = 0; gt < number_of_groups; ++gt)
+                {
+                    for (int d = 0; d < number_of_dimensional_moments; ++d)
+                    {
+                        for (int n = 0; n < number_of_nodes; ++n)
+                        {
+                            double sum = 0;
+                            
+                            for (int gf = 0; gf < number_of_groups; ++gf)
+                            {
+                                int k_phi_from = n + number_of_nodes * (d + number_of_dimensional_moments * (gf + number_of_groups * (m + number_of_moments * i)));
+                                int k_sigma = d + number_of_dimensional_moments * (gf + number_of_groups * (gt + number_of_groups * m));
+                                
+                                sum += sigma_s[k_sigma] * y[k_phi_from];
+                            }
+                            
+                            int k_phi_to = n + number_of_nodes * (d + number_of_dimensional_moments * (gt + number_of_groups * (m + number_of_moments * i)));
+                    
+                            x[k_phi_to] = sum;
+                        }
+                    }
+                }
+            }
+            break;
+        }
         }
     }
 }
@@ -77,30 +135,67 @@ apply_coherent(vector<double> &x) const
     int number_of_groups = energy_discretization_->number_of_groups();
     int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_scattering_moments = angular_discretization_->number_of_scattering_moments();
+    int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
     vector<int> const scattering_indices = angular_discretization_->scattering_indices();
     
     for (int i = 0; i < number_of_points; ++i)
     {
-        vector<double> const sigma_s = spatial_discretization_->point(i)->material()->sigma_s();
+        shared_ptr<Cross_Section> sigma_s_cs = spatial_discretization_->point(i)->material()->sigma_s();
+        vector<double> const sigma_s = sigma_s->data();
+        Cross_Section::Dependencies::Angular angular_dep = sigma_s_cs->dependncies().angular;
         
-        for (int m = 0; m < number_of_moments; ++m)
+        switch (angular_dep)
         {
-            int l = scattering_indices[m];
-
-            for (int g = 0; g < number_of_groups; ++g)
+        case Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS:
+        {
+            for (int m = 0; m < number_of_moments; ++m)
             {
-                int k_sigma = g + number_of_groups * (g + number_of_groups * l);
-                
-                for (int n = 0; n < number_of_nodes; ++n)
+                int l = scattering_indices[m];
+
+                for (int g = 0; g < number_of_groups; ++g)
                 {
-                    double sum = 0;
+                    for (int d = 0; d < number_of_dimensional_moments; ++d)
+                    {
+                        int k_sigma = d + number_of_dimensional_moments * (g + number_of_groups * (g + number_of_groups * l));
+                
+                        for (int n = 0; n < number_of_nodes; ++n)
+                        {
+                            double sum = 0;
                     
-                    int k_phi = n + number_of_nodes * (g + number_of_groups * (m + number_of_moments * i));
+                            int k_phi = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
                     
-                    x[k_phi] = sigma_s[k_sigma] * x[k_phi];
+                            x[k_phi] = sigma_s[k_sigma] * x[k_phi];
+                        }
+                    }
                 }
             }
+            break;
         }
+        case Cross_Section::Dependencies::Angular::MOMENTS:
+        {
+            for (int m = 0; m < number_of_moments; ++m)
+            {
+                for (int g = 0; g < number_of_groups; ++g)
+                {
+                    for (int d = 0; d < number_of_dimensional_moments; ++d)
+                    {
+                        int k_sigma = d + number_of_dimensional_moments * (g + number_of_groups * (g + number_of_groups * m));
+                        
+                        for (int n = 0; n < number_of_nodes; ++n)
+                        {
+                            double sum = 0;
+                    
+                            int k_phi = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                            
+                            x[k_phi] = sigma_s[k_sigma] * x[k_phi];
+                        }
+                    }
+                }
+            }
+            break;
+        }
+        }
+        
     }
 }
 

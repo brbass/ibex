@@ -760,7 +760,6 @@ calculate_values()
          for (int g = 0; g < number_of_groups; ++g)
          {
              sigma_t_v[g] += w * sigma_t_temp[g] * integration_weights[i];
-             sigma_s_v[g] += w * sigma_s_temp[g] * integration_weights[i];
              nu_v[g] += w * nu_temp[g] * integration_weights[i];
              sigma_f_v[g] += w * sigma_f_temp[g] * integration_weights[i];
              chi_v[g] += w * chi_temp[g] * integration_weights[i];
@@ -781,7 +780,6 @@ calculate_values()
      for (int g = 0; g < number_of_groups; ++g)
      {
          sigma_t_v[g] /= iv_w_[0];
-         sigma_s_v[g] /= iv_w_[0];
          nu_v[g] /= iv_w_[0];
          sigma_f_v[g] /= iv_w_[0];
          chi_v[g] /= iv_w_[0];
@@ -964,7 +962,6 @@ calculate_values()
              {
                  int k1 = j + dimensionp1 * g;
                  sigma_t_v[k1] += w[j] * sigma_t_temp[g] * integration_weights[i];
-                 sigma_s_v[k1] += w[j] * sigma_s_temp[g] * integration_weights[i];
                  nu_v[k1] += w[j] * nu_temp[g] * integration_weights[i];
                  sigma_f_v[k1] += w[j] * sigma_f_temp[g] * integration_weights[i];
                  chi_v[k1] += w[j] * chi_temp[g] * integration_weights[i];
@@ -992,7 +989,6 @@ calculate_values()
              
              int k1 = j + dimensionp1 * g;
              sigma_t_v[k1] /= den;
-             sigma_s_v[k1] /= den;
              nu_v[k1] /= den;
              sigma_f_v[k1] /= den;
              chi_v[k1] /= den;

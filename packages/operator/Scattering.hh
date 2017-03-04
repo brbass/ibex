@@ -19,11 +19,13 @@ public:
                std::shared_ptr<Energy_Discretization> energy_discretization,
                Scattering_Type scattering_type = Scattering_Type::FULL);
     
+    virtual void check_class_invariants() const override;
+    
 private: 
 
     // Apply within-group and out-of-group scattering
     virtual void apply_full(std::vector<double> &x) const override;
-
+    
     // Apply only within-group scattering
     virtual void apply_coherent(std::vector<double> &x) const override;
 };
