@@ -8,4 +8,3 @@ Vector_Operator(int row_size,
 {
     check_class_invariants();
 }
-

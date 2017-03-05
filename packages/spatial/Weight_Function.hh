@@ -48,6 +48,7 @@ public:
             MOMENT
         };
 
+        double tau = 1; // SUPG parameter
         Weighting weighting = Weighting::WEIGHT;
         Total total = Total::ISOTROPIC;
         Output output = Output::STANDARD;
@@ -259,7 +260,7 @@ private:
 
     // Values
     std::vector<double> v_b_; // basis function at weight center
-    std::vector<double> v_db_; // derivative of basis function at weight center 
+    std::vector<double> v_db_; // derivative of basis function at weight pcenter 
     
     // Surface integrals
     std::vector<double> is_w_; // weight function
