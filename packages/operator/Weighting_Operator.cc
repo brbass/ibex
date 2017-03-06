@@ -12,11 +12,15 @@ Weighting_Operator::
 Weighting_Operator(shared_ptr<Weak_Spatial_Discretization> spatial,
                    shared_ptr<Angular_Discretization> angular,
                    shared_ptr<Energy_Discretization> energy):
-    Square_Vector_Operator(spatial->number_of_points()
-                           * spatial->number_of_nodes()
-                           * spatial->number_of_dimensional_moments()
-                           * angular->number_of_moments()
-                           * energy->number_of_groups()),
+    Vector_Operator(spatial->number_of_points()
+                    * spatial->number_of_nodes()
+                    * angular->number_of_moments()
+                    * energy->number_of_groups(),
+                    spatial->number_of_points()
+                    * spatial->number_of_nodes()
+                    * spatial->number_of_dimensional_moments()
+                    * angular->number_of_moments()
+                    * energy->number_of_groups()),
     spatial_(spatial),
     angular_(angular),
     energy_(energy)
@@ -58,7 +62,7 @@ apply(vector<double> &x) const
                         double sum = 0;
                         for (int j = 0; j < number_of_basis_functions; ++j)
                         {
-                            int k_phi = n + number_of_nodes * (0 + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * basis_indices[j])));
+                            int k_phi = n + number_of_nodes * (g + number_of_groups * (m + number_of_moments * basis_indices[j]));
                             sum += iv_b_w[j] * x[k_phi];
                         }
                         int k_res = n + number_of_nodes * (0 + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
@@ -71,7 +75,7 @@ apply(vector<double> &x) const
                         double sum = 0;
                         for (int j = 0; j < number_of_basis_functions; ++j)
                         {
-                            int k_phi = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * basis_indices[j])));
+                            int k_phi = n + number_of_nodes * (g + number_of_groups * (m + number_of_moments * basis_indices[j]));
                             int k_int = (d - 1) + dimension * j;
                             sum += iv_b_dw[k_int] * x[k_phi];
                         }

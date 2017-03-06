@@ -3,21 +3,19 @@
 
 #include <memory>
 
-#include "Vector_Operator.hh"
+#include "Square_Vector_Operator.hh"
 
 class Angular_Discretization;
 class Energy_Discretization;
 class Spatial_Discretization;
 class Transport_Discretization;
 
-#include "pugixml.hh"
-
 /*
   Transport inverse operator
   
   \Omega \cdot \nabla \psi + \Sigma_t \psi = q
 */
-class Sweep_Operator : public Vector_Operator
+class Sweep_Operator : public Square_Vector_Operator
 {
 public:
 
@@ -56,7 +54,7 @@ public:
         return transport_discretization_;
     }
 
-    virtual void output(pugi::xml_node output_node) const = 0;
+    virtual void output(XML_Node output_node) const = 0;
     virtual void check_class_invariants() const override = 0;
     
 protected:

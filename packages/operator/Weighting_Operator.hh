@@ -10,7 +10,7 @@ class Angular_Discretization;
 class Energy_Discretization;
 class Weak_Spatial_Discretization;
 
-class Weighting_Operator : public Square_Vector_Operator
+class Weighting_Operator : public Vector_Operator
 {
 public:
 
