@@ -1,5 +1,8 @@
 #include "Vector_Operator_Difference.hh"
 
+using std::shared_ptr;
+using std::vector;
+
 Vector_Operator_Difference::
 Vector_Operator_Difference(shared_ptr<Vector_Operator> op1,
                            shared_ptr<Vector_Operator> op2):

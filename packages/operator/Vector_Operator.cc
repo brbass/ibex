@@ -6,5 +6,4 @@ Vector_Operator(int row_size,
     row_size_(row_size),
     column_size_(column_size)
 {
-    check_class_invariants();
 }

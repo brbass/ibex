@@ -6,8 +6,10 @@
 
 #include "Angular_Discretization.hh"
 #include "Check.hh"
+#include "Cross_Section.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
+#include "Point.hh"
 #include "Spatial_Discretization.hh"
 
 using namespace std;
@@ -31,14 +33,16 @@ check_class_invariants() const
     Assert(spatial_discretization_);
     Assert(angular_discretization_);
     Assert(energy_discretization_);
+
+    int number_of_points = spatial_discretization_->number_of_points();
     
     for (int i = 0; i < number_of_points; ++i)
     {
         shared_ptr<Material> material = spatial_discretization_->point(i)->material();
         Cross_Section::Dependencies dep = material->sigma_s()->dependencies();
-        Assert(dep.angular == Angular::SCATTERING_MOMENTS
-               || dep.angular == Angular::MOMENTS);
-        Assert(dep.energy == Angular::GROUP_TO_GROUP);
+        Assert(dep.angular == Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS
+               || dep.angular == Cross_Section::Dependencies::Angular::MOMENTS);
+        Assert(dep.energy == Cross_Section::Dependencies::Energy::GROUP_TO_GROUP);
     }
 }
 
@@ -58,8 +62,8 @@ apply_full(vector<double> &x) const
     for (int i = 0; i < number_of_points; ++i)
     {
         shared_ptr<Cross_Section> sigma_s_cs = spatial_discretization_->point(i)->material()->sigma_s();
-        vector<double> const sigma_s = sigma_s->data();
-        Cross_Section::Dependencies::Angular angular_dep = sigma_s_cs->dependncies().angular;
+        vector<double> const sigma_s = sigma_s_cs->data();
+        Cross_Section::Dependencies::Angular angular_dep = sigma_s_cs->dependencies().angular;
 
         switch (angular_dep)
         {
@@ -141,8 +145,8 @@ apply_coherent(vector<double> &x) const
     for (int i = 0; i < number_of_points; ++i)
     {
         shared_ptr<Cross_Section> sigma_s_cs = spatial_discretization_->point(i)->material()->sigma_s();
-        vector<double> const sigma_s = sigma_s->data();
-        Cross_Section::Dependencies::Angular angular_dep = sigma_s_cs->dependncies().angular;
+        vector<double> const sigma_s = sigma_s_cs->data();
+        Cross_Section::Dependencies::Angular angular_dep = sigma_s_cs->dependencies().angular;
         
         switch (angular_dep)
         {

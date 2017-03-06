@@ -1,5 +1,8 @@
 #include "Vector_Operator_Product.hh"
 
+using std::shared_ptr;
+using std::vector;
+
 Vector_Operator_Product::
 Vector_Operator_Product(shared_ptr<Vector_Operator> op1,
                         shared_ptr<Vector_Operator> op2):

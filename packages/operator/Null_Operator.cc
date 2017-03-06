@@ -1,5 +1,7 @@
 #include "Null_Operator.hh"
 
+using std::vector;
+
 Null_Operator::
 Null_Operator(int size):
     Vector_Operator(size,

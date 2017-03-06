@@ -57,7 +57,7 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
 
     // Get KD tree
     vector<double> points(number_of_points_ * dimension_);
-p    for (int i = 0; i < number_of_points_; ++i)
+    for (int i = 0; i < number_of_points_; ++i)
     {
         vector<double> const point = weights_[i]->position();
         for (int d = 0; d < dimension_; ++d)

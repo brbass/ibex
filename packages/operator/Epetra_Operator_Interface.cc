@@ -1,6 +1,9 @@
 #include "Check.hh"
 #include "Epetra_Operator_Interface.hh"
 
+using std::shared_ptr;
+using std::vector;
+
 Epetra_Operator_Interface::
 Epetra_Operator_Interface(shared_ptr<Epetra_Comm> const &comm,
                           shared_ptr<Epetra_Map> const &map,

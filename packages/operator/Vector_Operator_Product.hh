@@ -21,7 +21,7 @@ public:
     
 private:
 
-    virtual void apply(vector<double> &x) const override;
+    virtual void apply(std::vector<double> &x) const override;
 
     std::shared_ptr<Vector_Operator> op1_;
     std::shared_ptr<Vector_Operator> op2_;

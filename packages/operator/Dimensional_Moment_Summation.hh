@@ -3,6 +3,8 @@
 
 #include "Vector_Operator.hh"
 
+#include <memory>
+
 class Angular_Discretization;
 class Energy_Discretization;
 class Weak_Spatial_Discretization;

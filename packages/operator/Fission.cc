@@ -8,6 +8,7 @@
 #include "Cross_Section.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
+#include "Point.hh"
 #include "Spatial_Discretization.hh"
 
 using namespace std;
@@ -31,6 +32,8 @@ check_class_invariants() const
     Assert(spatial_discretization_);
     Assert(angular_discretization_);
     Assert(energy_discretization_);
+
+    int number_of_points = spatial_discretization_->number_of_points();
     
     for (int i = 0; i < number_of_points; ++i)
     {
@@ -42,8 +45,8 @@ check_class_invariants() const
         
         for (Cross_Section::Dependencies &dep : deps)
         {
-            Assert(dep.angular == Angular::NONE);
-            Assert(dep.energy == Angular::GROUP);
+            Assert(dep.angular == Cross_Section::Dependencies::Angular::NONE);
+            Assert(dep.energy == Cross_Section::Dependencies::Energy::GROUP);
         }
     }
 }

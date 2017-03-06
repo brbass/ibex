@@ -5,6 +5,9 @@
 #include "Energy_Discretization.hh"
 #include "Spatial_Discretization.hh"
 
+using std::shared_ptr;
+using std::vector;
+
 namespace // anonymous
 {
     int get_row_size(shared_ptr<Spatial_Discretization> spatial_discretization,

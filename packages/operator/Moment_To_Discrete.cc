@@ -21,6 +21,7 @@ Moment_To_Discrete(shared_ptr<Spatial_Discretization> spatial_discretization,
     angular_discretization_(angular_discretization),
     energy_discretization_(energy_discretization)
 {
+    check_class_invariants();
 }
 
 void Moment_To_Discrete::

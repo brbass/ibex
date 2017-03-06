@@ -1,5 +1,8 @@
 #include "Vector_Operator_Sum.hh"
 
+using std::shared_ptr;
+using std::vector;
+
 Vector_Operator_Sum::
 Vector_Operator_Sum(shared_ptr<Vector_Operator> op1,
                     shared_ptr<Vector_Operator> op2):

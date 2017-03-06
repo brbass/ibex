@@ -14,7 +14,7 @@ Weighting_Operator(shared_ptr<Weak_Spatial_Discretization> spatial,
                    shared_ptr<Energy_Discretization> energy):
     Square_Vector_Operator(spatial->number_of_points()
                            * spatial->number_of_nodes()
-                           * spatial->number_of_dimensional_moments(),
+                           * spatial->number_of_dimensional_moments()
                            * angular->number_of_moments()
                            * energy->number_of_groups()),
     spatial_(spatial),
@@ -29,8 +29,8 @@ apply(vector<double> &x) const
     // Get size data
     int number_of_points = spatial_->number_of_points();
     int number_of_nodes = spatial_->number_of_nodes();
-    int number_of_groups = spatial_->number_of_groups();
-    int number_of_moments = spatial_->number_of_moments();
+    int number_of_groups = energy_->number_of_groups();
+    int number_of_moments = angular_->number_of_moments();
     int number_of_dimensional_moments = spatial_->number_of_dimensional_moments();
     int dimension = spatial_->dimension();
 
@@ -76,7 +76,7 @@ apply(vector<double> &x) const
                             sum += iv_b_dw[k_int] * x[k_phi];
                         }
                         int k_res = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
-                        result[k_res0] = sum;
+                        result[k_res] = sum;
                     }
                 }
             }

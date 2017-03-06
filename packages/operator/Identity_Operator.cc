@@ -1,5 +1,7 @@
 #include "Identity_Operator.hh"
 
+using std::vector;
+
 Identity_Operator::
 Identity_Operator(int size):
     Vector_Operator(size,

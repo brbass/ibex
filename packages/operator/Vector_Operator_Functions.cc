@@ -5,6 +5,7 @@
 #include "Vector_Operator_Sum.hh"
 
 using std::make_shared;
+using std::shared_ptr;
 
 shared_ptr<Vector_Operator> operator+(shared_ptr<Vector_Operator> const op1,
                                       shared_ptr<Vector_Operator> const op2)

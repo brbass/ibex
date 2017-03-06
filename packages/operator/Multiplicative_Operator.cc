@@ -1,5 +1,7 @@
 #include "Multiplicative_Operator.hh"
 
+using std::vector;
+
 Multiplicative_Operator::
 Multiplicative_Operator(int size,
                         double scalar):

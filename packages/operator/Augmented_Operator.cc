@@ -1,5 +1,8 @@
 #include "Augmented_Operator.hh"
 
+using std::shared_ptr;
+using std::vector;
+
 Augmented_Operator::
 Augmented_Operator(unsigned number_of_augments,
                    shared_ptr<Vector_Operator> vector_operator,

@@ -21,7 +21,7 @@ public:
 
 private:
     
-    virtual void apply(vector<double> &x) const override;
+    virtual void apply(std::vector<double> &x) const override;
 
     bool zero_out_augments_;
     int number_of_augments_;
