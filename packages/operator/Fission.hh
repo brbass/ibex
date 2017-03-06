@@ -17,7 +17,7 @@ public:
     Fission(std::shared_ptr<Spatial_Discretization> spatial_discretization,
             std::shared_ptr<Angular_Discretization> angular_discretization,
             std::shared_ptr<Energy_Discretization> energy_discretization,
-            Scattering_Type scattering_type = Scattering_Type::FULL);
+            Options options = Options());
     
     virtual void check_class_invariants() const override;
     

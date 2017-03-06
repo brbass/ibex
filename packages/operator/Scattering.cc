@@ -18,11 +18,11 @@ Scattering::
 Scattering(shared_ptr<Spatial_Discretization> spatial_discretization,
            shared_ptr<Angular_Discretization> angular_discretization,
            shared_ptr<Energy_Discretization> energy_discretization,
-           Scattering_Type scattering_type):
+           Options options):
     Scattering_Operator(spatial_discretization,
                         angular_discretization,
                         energy_discretization,
-                        scattering_type)
+                        options)
 {
     check_class_invariants();
 }
@@ -57,6 +57,9 @@ apply_full(vector<double> &x) const
     int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_scattering_moments = angular_discretization_->number_of_scattering_moments();
     int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
+    int local_number_of_dimensional_moments = (options_.include_dimensional_moments
+                                               ? number_of_dimensional_moments
+                                               : 1);
     vector<int> const scattering_indices = angular_discretization_->scattering_indices();
     
     for (int i = 0; i < number_of_points; ++i)
@@ -75,7 +78,7 @@ apply_full(vector<double> &x) const
 
                 for (int gt = 0; gt < number_of_groups; ++gt)
                 {
-                    for (int d = 0; d < number_of_dimensional_moments; ++d)
+                    for (int d = 0; d < local_number_of_dimensional_moments; ++d)
                     {
                         for (int n = 0; n < number_of_nodes; ++n)
                         {
@@ -83,13 +86,13 @@ apply_full(vector<double> &x) const
                             
                             for (int gf = 0; gf < number_of_groups; ++gf)
                             {
-                                int k_phi_from = n + number_of_nodes * (d + number_of_dimensional_moments * (gf + number_of_groups * (m + number_of_moments * i)));
+                                int k_phi_from = n + number_of_nodes * (d + local_number_of_dimensional_moments * (gf + number_of_groups * (m + number_of_moments * i)));
                                 int k_sigma = d + number_of_dimensional_moments * (gf + number_of_groups * (gt + number_of_groups * l));
                                 
                                 sum += sigma_s[k_sigma] * y[k_phi_from];
                             }
                             
-                            int k_phi_to = n + number_of_nodes * (d + number_of_dimensional_moments * (gt + number_of_groups * (m + number_of_moments * i)));
+                            int k_phi_to = n + number_of_nodes * (d + local_number_of_dimensional_moments * (gt + number_of_groups * (m + number_of_moments * i)));
                     
                             x[k_phi_to] = sum;
                         }
@@ -104,7 +107,7 @@ apply_full(vector<double> &x) const
             {
                 for (int gt = 0; gt < number_of_groups; ++gt)
                 {
-                    for (int d = 0; d < number_of_dimensional_moments; ++d)
+                    for (int d = 0; d < local_number_of_dimensional_moments; ++d)
                     {
                         for (int n = 0; n < number_of_nodes; ++n)
                         {
@@ -112,13 +115,13 @@ apply_full(vector<double> &x) const
                             
                             for (int gf = 0; gf < number_of_groups; ++gf)
                             {
-                                int k_phi_from = n + number_of_nodes * (d + number_of_dimensional_moments * (gf + number_of_groups * (m + number_of_moments * i)));
+                                int k_phi_from = n + number_of_nodes * (d + local_number_of_dimensional_moments * (gf + number_of_groups * (m + number_of_moments * i)));
                                 int k_sigma = d + number_of_dimensional_moments * (gf + number_of_groups * (gt + number_of_groups * m));
                                 
                                 sum += sigma_s[k_sigma] * y[k_phi_from];
                             }
                             
-                            int k_phi_to = n + number_of_nodes * (d + number_of_dimensional_moments * (gt + number_of_groups * (m + number_of_moments * i)));
+                            int k_phi_to = n + number_of_nodes * (d + local_number_of_dimensional_moments * (gt + number_of_groups * (m + number_of_moments * i)));
                     
                             x[k_phi_to] = sum;
                         }
@@ -140,6 +143,9 @@ apply_coherent(vector<double> &x) const
     int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_scattering_moments = angular_discretization_->number_of_scattering_moments();
     int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
+    int local_number_of_dimensional_moments = (options_.include_dimensional_moments
+                                               ? number_of_dimensional_moments
+                                               : 1);
     vector<int> const scattering_indices = angular_discretization_->scattering_indices();
     
     for (int i = 0; i < number_of_points; ++i)
@@ -158,7 +164,7 @@ apply_coherent(vector<double> &x) const
 
                 for (int g = 0; g < number_of_groups; ++g)
                 {
-                    for (int d = 0; d < number_of_dimensional_moments; ++d)
+                    for (int d = 0; d < local_number_of_dimensional_moments; ++d)
                     {
                         int k_sigma = d + number_of_dimensional_moments * (g + number_of_groups * (g + number_of_groups * l));
                 
@@ -166,7 +172,7 @@ apply_coherent(vector<double> &x) const
                         {
                             double sum = 0;
                     
-                            int k_phi = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                            int k_phi = n + number_of_nodes * (d + local_number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
                     
                             x[k_phi] = sigma_s[k_sigma] * x[k_phi];
                         }
@@ -189,7 +195,7 @@ apply_coherent(vector<double> &x) const
                         {
                             double sum = 0;
                     
-                            int k_phi = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                            int k_phi = n + number_of_nodes * (d + local_number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
                             
                             x[k_phi] = sigma_s[k_sigma] * x[k_phi];
                         }

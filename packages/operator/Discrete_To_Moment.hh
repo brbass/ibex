@@ -20,7 +20,8 @@ public:
     // Constructor
     Discrete_To_Moment(std::shared_ptr<Spatial_Discretization> spatial_discretization,
                        std::shared_ptr<Angular_Discretization> angular_discretization,
-                       std::shared_ptr<Energy_Discretization> energy_discretization);
+                       std::shared_ptr<Energy_Discretization> energy_discretization,
+                       bool include_dimensional_moments = false);
     
     virtual void check_class_invariants() const override;
     
@@ -28,6 +29,7 @@ private:
     
     virtual void apply(std::vector<double> &x) const override;
 
+    bool include_dimensional_moments_;
     std::shared_ptr<Spatial_Discretization> spatial_discretization_;
     std::shared_ptr<Angular_Discretization> angular_discretization_;
     std::shared_ptr<Energy_Discretization> energy_discretization_;

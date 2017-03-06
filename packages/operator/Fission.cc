@@ -17,11 +17,11 @@ Fission::
 Fission(shared_ptr<Spatial_Discretization> spatial_discretization,
         shared_ptr<Angular_Discretization> angular_discretization,
         shared_ptr<Energy_Discretization> energy_discretization,
-        Scattering_Type scattering_type):
+        Options options):
     Scattering_Operator(spatial_discretization,
                         angular_discretization,
                         energy_discretization,
-                        scattering_type)
+                        options)
 {
     check_class_invariants();
 }
@@ -57,6 +57,9 @@ apply_full(vector<double> &x) const
     int number_of_points = spatial_discretization_->number_of_points();
     int number_of_nodes = spatial_discretization_->number_of_nodes();
     int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
+    int local_number_of_dimensional_moments = (options_.include_dimensional_moments
+                                               ? number_of_dimensional_moments
+                                               : 1);
     int number_of_groups = energy_discretization_->number_of_groups();
     int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_ordinates = angular_discretization_->number_of_ordinates();
@@ -72,7 +75,7 @@ apply_full(vector<double> &x) const
             
             for (int n = 0; n < number_of_nodes; ++n)
             {
-                for (int d = 0; d < number_of_dimensional_moments; ++d)
+                for (int d = 0; d < local_number_of_dimensional_moments; ++d)
                 {
                     // Calculate fission source
                 
@@ -80,7 +83,7 @@ apply_full(vector<double> &x) const
                     
                     for (int g = 0; g < number_of_groups; ++g)
                     {
-                        int k_phi = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                        int k_phi = n + number_of_nodes * (d + local_number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
                         int k_xs = d + number_of_dimensional_moments * g;
                         
                         fission_source += nu[k_xs] * sigma_f[g] * x[k_phi];
@@ -89,7 +92,7 @@ apply_full(vector<double> &x) const
                     // Assign flux back to the appropriate group and zeroth moment
                     for (int g = 0; g < number_of_groups; ++g)
                     {
-                        int k_phi = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                        int k_phi = n + number_of_nodes * (d + local_number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
                         int k_xs = d + number_of_dimensional_moments * g;
                         
                         x[k_phi] = chi[k_xs] * fission_source;
@@ -108,9 +111,9 @@ apply_full(vector<double> &x) const
             {
                 for (int n = 0; n < number_of_nodes; ++n)
                 {
-                    for (int d = 0; d < number_of_dimensional_moments; ++d)
+                    for (int d = 0; d < local_number_of_dimensional_moments; ++d)
                     {
-                        int k_phi = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                        int k_phi = n + number_of_nodes * (d + local_number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
                         
                         x[k_phi] = 0;
                     }
@@ -126,6 +129,9 @@ apply_coherent(vector<double> &x) const
     int number_of_points = spatial_discretization_->number_of_points();
     int number_of_nodes = spatial_discretization_->number_of_nodes();
     int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
+    int local_number_of_dimensional_moments = (options_.include_dimensional_moments
+                                               ? number_of_dimensional_moments
+                                               : 1);
     int number_of_groups = energy_discretization_->number_of_groups();
     int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_ordinates = angular_discretization_->number_of_ordinates();
@@ -142,14 +148,14 @@ apply_coherent(vector<double> &x) const
             
             for (int g = 0; g < number_of_groups; ++g)
             {
-                for (int d = 0; d < number_of_dimensional_moments; ++d)
+                for (int d = 0; d < local_number_of_dimensional_moments; ++d)
                 {
                     int k_xs = d + number_of_dimensional_moments * g;
                     double cs = chi[k_xs] * nu[k_xs] * sigma_f[k_xs];
                 
                     for (int n = 0; n < number_of_nodes; ++n)
                     {
-                        int k_phi = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                        int k_phi = n + number_of_nodes * (d + local_number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
                         
                         x[k_phi] = cs * x[k_phi];
                     }

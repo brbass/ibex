@@ -14,31 +14,33 @@ Scattering_Operator::
 Scattering_Operator(shared_ptr<Spatial_Discretization> spatial_discretization,
                     shared_ptr<Angular_Discretization> angular_discretization,
                     shared_ptr<Energy_Discretization> energy_discretization,
-                    Scattering_Type scattering_type):
+                    Options options):
     Square_Vector_Operator(spatial_discretization->number_of_points()
                            * spatial_discretization->number_of_nodes()
-                           * spatial_discretization->number_of_dimensional_moments()
+                           * (options.include_dimensional_moments
+                              ? spatial_discretization->number_of_dimensional_moments()
+                              : 1)
                            * energy_discretization->number_of_groups()
                            * angular_discretization->number_of_moments()),
     spatial_discretization_(spatial_discretization),
     angular_discretization_(angular_discretization),
     energy_discretization_(energy_discretization),
-    scattering_type_(scattering_type)
+    options_(options)
 {
 }
 
 void Scattering_Operator::
 apply(vector<double> &x) const
 {
-    switch(scattering_type_)
+    switch(options_.scattering_type)
     {
-    case Scattering_Type::FULL:
+    case Options::Scattering_Type::FULL:
         apply_full(x);
         break;
-    case Scattering_Type::COHERENT:
+    case Options::Scattering_Type::COHERENT:
         apply_coherent(x);
         break;
-    case Scattering_Type::INCOHERENT:
+    case Options::Scattering_Type::INCOHERENT:
         apply_incoherent(x);
         break;
     }

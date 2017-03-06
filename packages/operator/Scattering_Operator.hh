@@ -18,25 +18,31 @@ class Scattering_Operator : public Square_Vector_Operator
 public:
 
     // Types of scattering
-    enum class Scattering_Type
+    struct Options
     {
-        COHERENT, // within-group scattering
-        INCOHERENT, // out-of-group scattering
-        FULL // within-group and out-of-group scattering
+        enum class Scattering_Type
+        {
+            COHERENT, // within-group scattering
+            INCOHERENT, // out-of-group scattering
+            FULL // within-group and out-of-group scattering
+        };
+
+        bool include_dimensional_moments = true;
+        Scattering_Type scattering_type = Scattering_Type::FULL;
     };
 
     // Constructor
     Scattering_Operator(std::shared_ptr<Spatial_Discretization> spatial_discretization,
                         std::shared_ptr<Angular_Discretization> angular_discretization,
                         std::shared_ptr<Energy_Discretization> energy_discretization,
-                        Scattering_Type scattering_type = Scattering_Type::FULL);
-
+                        Options options);
+    
     virtual void check_class_invariants() const override;
     
 protected:
 
     // Type of scattering
-    Scattering_Type scattering_type_;
+    Options options_;
 
     std::shared_ptr<Spatial_Discretization> spatial_discretization_;
     std::shared_ptr<Angular_Discretization> angular_discretization_;
