@@ -43,15 +43,23 @@ Weight_Function(int index,
     point_type_ = (number_of_boundary_surfaces_ > 0 ?
                    Weight_Function::Point_Type::BOUNDARY :
                    Weight_Function::Point_Type::INTERNAL);
-
-
+    
     switch (material_options_.output)
     {
     case Material_Options::Output::STANDARD:
         number_of_dimensional_moments_ = 1;
+        material_options_.include_supg = false;
         break;
     case Material_Options::Output::SUPG:
         number_of_dimensional_moments_ = 1 + dimension_;
+        if (material_options_.tau != 0)
+        {
+            material_options_.include_supg = true;
+        }
+        else
+        {
+            material_options_.include_supg = false;
+        }
         break;
     }
     

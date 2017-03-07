@@ -5,6 +5,8 @@
 #include "Spatial_Discretization.hh"
 #include "Transport_Discretization.hh"
 
+using std::shared_ptr;
+
 namespace // anonymous
 {
     int get_size(Sweep_Operator::Sweep_Type sweep_type,

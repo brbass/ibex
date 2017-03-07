@@ -14,13 +14,6 @@ class Weight_Function : public Point
 {
 public:
     
-    enum class Material_Type
-    {
-        STANDARD,
-        SUPG,
-        NONE
-    };
-
     struct Material_Options
     {
     public:
@@ -48,6 +41,8 @@ public:
             MOMENT
         };
 
+        // True only if tau != 0 and output is SUPG
+        bool include_supg = false;
         double tau = 1; // SUPG parameter
         Weighting weighting = Weighting::WEIGHT;
         Total total = Total::ISOTROPIC;
@@ -263,16 +258,16 @@ private:
     std::vector<double> v_db_; // derivative of basis function at weight pcenter 
     
     // Surface integrals
-    std::vector<double> is_w_; // weight function
-    std::vector<double> is_b_w_; // weight/basis functions
+    std::vector<double> is_w_; // weight function: s
+    std::vector<double> is_b_w_; // weight/basis functions: s->i
 
     // Volume integrals
-    std::vector<double> iv_w_; // weight function
-    std::vector<double> iv_dw_; // derivative of weight function
-    std::vector<double> iv_b_w_; // basis function and weight function
-    std::vector<double> iv_b_dw_; // basis function and derivative of weight function
-    std::vector<double> iv_db_w_; // weight function and derivative of basis function
-    std::vector<double> iv_db_dw_; // derivative of basis and weight functions
+    std::vector<double> iv_w_; // weight function: none
+    std::vector<double> iv_dw_; // derivative of weight function: d
+    std::vector<double> iv_b_w_; // basis function and weight function: i
+    std::vector<double> iv_b_dw_; // basis function and derivative of weight function: dw->i
+    std::vector<double> iv_db_w_; // weight function and derivative of basis function: db->i
+    std::vector<double> iv_db_dw_; // derivative of basis and weight functions: db->dw->i
 };
 
 #endif

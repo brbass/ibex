@@ -9,6 +9,7 @@ class Angular_Discretization;
 class Energy_Discretization;
 class Spatial_Discretization;
 class Transport_Discretization;
+class XML_Node;
 
 /*
   Transport inverse operator
@@ -65,7 +66,7 @@ protected:
     
 private:
     
-    virtual void apply(vector<double> &x) const override = 0;
+    virtual void apply(std::vector<double> &x) const override = 0;
 };
 
 #endif

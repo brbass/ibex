@@ -4,6 +4,9 @@
 #include "Energy_Discretization.hh"
 #include "Spatial_Discretization.hh"
 
+using std::shared_ptr;
+using std::vector;
+
 Transport_Discretization::
 Transport_Discretization(shared_ptr<Spatial_Discretization> spatial,
                          shared_ptr<Angular_Discretization> angular,
