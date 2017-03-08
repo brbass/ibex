@@ -1,6 +1,8 @@
 #include "Weak_Spatial_Discretization.hh"
 
 #include "Basis_Function.hh"
+#include "Boundary_Source.hh"
+#include "Cartesian_Plane.hh"
 #include "Check.hh"
 #include "KD_Tree.hh"
 #include "Meshless_Function.hh"
@@ -44,13 +46,23 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
     // Get boundary bases
     j = 0;
     boundary_bases_.resize(number_of_points_);
+    has_reflection_ = false;
     for (int i = 0; i < number_of_points_; ++i)
     {
-        if (bases_[i]->number_of_boundary_surfaces() > 0)
+        int number_of_boundary_surfaces = bases_[i]->number_of_boundary_surfaces();
+        if (number_of_boundary_surfaces > 0)
         {
             boundary_bases_[j] = bases[i];
             bases[i]->set_boundary_index(j);
             j += 1;
+
+            for (int s = 0; s < number_of_boundary_surfaces; ++s)
+            {
+                if (bases[i]->boundary_surface(s)->boundary_source()->has_reflection())
+                {
+                    has_reflection_ = true;
+                }
+            }
         }
     }
     number_of_boundary_bases_ = j;

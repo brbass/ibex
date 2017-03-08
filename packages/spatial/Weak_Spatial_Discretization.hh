@@ -16,6 +16,10 @@ public:
                                 std::vector<std::shared_ptr<Weight_Function> > &weights);
 
     // Point functions
+    virtual bool has_reflection() const override
+    {
+        return has_reflection_;
+    }
     virtual int number_of_points() const override
     {
         return number_of_points_;
@@ -84,6 +88,7 @@ public:
                                    std::vector<double> const &coefficients) const;
 private:
 
+    bool has_reflection_;
     int number_of_points_;
     int number_of_boundary_weights_;
     int number_of_boundary_bases_;

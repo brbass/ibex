@@ -10,7 +10,11 @@ class Simple_Spatial_Discretization : public Spatial_Discretization
 public:
     
     Simple_Spatial_Discretization(std::vector<std::shared_ptr<Point> > points);
-    
+
+    virtual bool has_reflection() const override
+    {
+        return false;
+    }
     virtual int number_of_points() const override
     {
         return number_of_points_;

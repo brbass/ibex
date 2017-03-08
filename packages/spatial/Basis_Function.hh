@@ -16,7 +16,7 @@ public:
     {
         INTERNAL,
         BOUNDARY
-    }
+    };
 
     // Constructor
     Basis_Function(int index,

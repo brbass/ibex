@@ -16,6 +16,9 @@ public:
 
     // Constructor
     Spatial_Discretization();
+
+    // Do boundaries have reflective surfaces
+    virtual bool has_reflection() const = 0;
     
     // Number of spatial points to solve for in the problem
     virtual int number_of_points() const = 0;
