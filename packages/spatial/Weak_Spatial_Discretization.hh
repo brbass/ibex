@@ -14,14 +14,15 @@ public:
     // Constructor
     Weak_Spatial_Discretization(std::vector<std::shared_ptr<Basis_Function> > &bases,
                                 std::vector<std::shared_ptr<Weight_Function> > &weights);
-    
+
+    // Point functions
     virtual int number_of_points() const override
     {
         return number_of_points_;
     }
     virtual int number_of_boundary_points() const override
     {
-        return number_of_boundary_weights_;
+        return number_of_boundary_bases_;
     }
     virtual int dimension() const override
     {
@@ -35,13 +36,21 @@ public:
     {
         return number_of_dimensional_moments_;
     }
-    virtual std::vector<int> const &number_of_basis_functions() const
-    {
-        return number_of_basis_functions_;
-    }
     virtual std::shared_ptr<Point> point(int point_index) const override
     {
         return weights_[point_index];
+    }
+    virtual void output(XML_Node output_node) const override;
+    virtual void check_class_invariants() const override;
+
+    // Weight_Function functions
+    virtual int number_of_boundary_weights() const
+    {
+        return number_of_boundary_weights_;
+    }
+    virtual std::vector<int> const &number_of_basis_functions() const
+    {
+        return number_of_basis_functions_;
     }
     virtual std::shared_ptr<Weight_Function> weight(int point_index) const
     {
@@ -51,8 +60,14 @@ public:
     {
         return bases_[point_index];
     }
-    virtual void output(XML_Node output_node) const override;
-    virtual void check_class_invariants() const override;
+    virtual std::shared_ptr<Weight_Function> boundary_weight(int boundary_index) const
+    {
+        return boundary_weights_[boundary_index];
+    }
+    virtual std::shared_ptr<Basis_Function> boundary_basis(int boundary_index) const
+    {
+        return boundary_bases_[boundary_index];
+    }
     virtual int nearest_point(std::vector<double> const &position) const;
     virtual double collocation_value(int i,
                                      std::vector<double> const &coefficients) const;

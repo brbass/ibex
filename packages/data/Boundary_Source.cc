@@ -18,23 +18,32 @@ Boundary_Source(int index,
     dependencies_(dependencies),
     angular_discretization_(angular_discretization),
     energy_discretization_(energy_discretization),
-    boundary_source_(boundary_source),
     alpha_(alpha)
 {
     int number_of_ordinates = angular_discretization_->number_of_ordinates();
-    int number_of_moments = angular_discretization_->number_of_moments();
+    // int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_groups = energy_discretization_->number_of_groups();
+    size_ = number_of_ordinates * number_of_groups;
     
     switch (dependencies_.angular)
     {
     case Dependencies::Angular::ISOTROPIC:
-        size_ = number_of_groups;
+        Assert(boundary_source.size() == number_of_groups); 
+        boundary_source_.resize(size_);
+        for (int o = 0; o < number_of_ordinates; ++o)
+        {
+            for (int g = 0; g < number_of_groups; ++g)
+            {
+                int index = g + number_of_groups * o;
+                boundary_source_[index] = boundary_source[g];
+            }
+        }
         break;
     case Dependencies::Angular::MOMENTS:
-        size_ = number_of_moments * number_of_groups;
+        AssertMsg(false, "not yet implemented");
         break;
     case Dependencies::Angular::ORDINATES:
-        size_ = number_of_ordinates * number_of_groups;
+        boundary_source_ = boundary_source;
         break;
     }
     

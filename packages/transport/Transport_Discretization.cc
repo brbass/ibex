@@ -35,5 +35,12 @@ Transport_Discretization(shared_ptr<Spatial_Discretization> spatial,
     
     phi_size_ = number_of_points * number_of_groups * number_of_moments * number_of_nodes;
     psi_size_ = number_of_points * number_of_groups * number_of_ordinates * number_of_nodes;
-    number_of_augments_ = number_of_boundary_points * number_of_groups * number_of_ordinates * number_of_nodes;
+    if (has_reflection_)
+    {
+        number_of_augments_ = number_of_boundary_points * number_of_groups * number_of_ordinates * number_of_nodes;
+    }
+    else
+    {
+        number_of_augments_ = 0;
+    }
 }

@@ -50,17 +50,21 @@ private:
     virtual void apply(std::vector<double> &x) const override;
 
     // Weak_RBF_Sweep functions
-    void get_matrix_row(int i, // row
+    void get_matrix_row(int i, // weight function index (row)
                         int o, // ordinate
                         int g, // group
-                        vector<int> &indices,
-                        vector<double> &values) const;
+                        vector<int> &indices, // global basis (column indices)
+                        vector<double> &values) const; // column values
+    void get_rhs(int i, // weight function index (row)
+                 int o, // ordinate
+                 int g, // group
+                 vector<double> const &x, // angular flux w/ augments
+                 double &value) const; // rhs value
     
     // Data
     std::shared_ptr<Weak_Spatial_Discretization> spatial_discretization_;
     std::shared_ptr<Angular_Discretization> angular_discretization_;
     std::shared_ptr<Energy_Discretization> energy_discretization_;
-    std::shared_ptr<Transport_Discretization> transport_discretization_;
 };
 
 #endif

@@ -49,6 +49,7 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
         if (bases_[i]->number_of_boundary_surfaces() > 0)
         {
             boundary_bases_[j] = bases[i];
+            bases[i]->set_boundary_index(j);
             j += 1;
         }
     }

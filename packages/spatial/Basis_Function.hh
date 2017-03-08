@@ -11,7 +11,13 @@ class XML_Node;
 class Basis_Function
 {
 public:
-    
+
+    enum class Point_Type
+    {
+        INTERNAL,
+        BOUNDARY
+    }
+
     // Constructor
     Basis_Function(int index,
                    int dimension,
@@ -22,6 +28,10 @@ public:
     virtual int index() const
     {
         return index_;
+    }
+    virtual int boundary_index() const
+    {
+        return boundary_index_;
     }
     virtual int dimension() const
     {
@@ -34,6 +44,10 @@ public:
     virtual double radius() const
     {
         return radius_;
+    }
+    virtual Point_Type point_type() const
+    {
+        return point_type_;
     }
     virtual std::vector<double> const &position() const
     {
@@ -50,13 +64,21 @@ public:
     virtual void output(XML_Node output_node) const;
     virtual void check_class_invariants() const;
     
+    // Set data 
+    virtual void set_boundary_index(int index)
+    {
+        boundary_index_ = index;
+    }
+    
 private:
     
     // Data
     int index_;
+    int boundary_index_;
     int dimension_;
     int number_of_boundary_surfaces_;
     double radius_;
+    Point_Type point_type_;
     std::vector<double> position_;
     std::shared_ptr<Meshless_Function> meshless_function_;
     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces_;

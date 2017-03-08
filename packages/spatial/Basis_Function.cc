@@ -12,6 +12,7 @@ Basis_Function(int index,
                shared_ptr<Meshless_Function> meshless_function,
                vector<shared_ptr<Cartesian_Plane> > boundary_surfaces):
     index_(index),
+    boundary_index_(-1),
     dimension_(dimension),
     number_of_boundary_surfaces_(boundary_surfaces.size()),
     radius_(meshless_function->radius()),
@@ -19,6 +20,9 @@ Basis_Function(int index,
     meshless_function_(meshless_function),
     boundary_surfaces_(boundary_surfaces)
 {
+    point_type_ = (number_of_boundary_surfaces_ == 0
+                   ? Point_Type::INTERNAL
+                   : Point_Type::BOUNDARY);
     check_class_invariants();
 }
 
