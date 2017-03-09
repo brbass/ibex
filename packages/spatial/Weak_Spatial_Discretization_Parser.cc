@@ -282,7 +282,7 @@ vector<shared_ptr<Cartesian_Plane> > Weak_Spatial_Discretization_Parser::
 get_boundary_surfaces(shared_ptr<Meshless_Function> function) const
 {
     vector<shared_ptr<Cartesian_Plane> > surfaces;
-
+    
     for (shared_ptr<Cartesian_Plane> surface : boundary_surfaces_)
     {
         double surface_position = surface->position();

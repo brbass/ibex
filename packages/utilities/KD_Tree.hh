@@ -28,7 +28,7 @@ public:
     // Constructor
     KD_Tree(int dimension,
             int number_of_points,
-            std::vector<double> const &points);
+            std::vector<std::vector<double> > const &points);
 
     // Find nearest neighbor indices and distances given a position
     virtual void find_neighbors(int number_of_neighbors,
@@ -46,7 +46,7 @@ private:
     int number_of_points_;
     int dimension_;
     
-    std::vector<double> points_;
+    std::vector<std::vector<double> > points_;
     
     std::shared_ptr<KD_Adaptor> adaptor_;
     std::shared_ptr<KDT> kd_tree_;
@@ -64,16 +64,16 @@ private:
         
         inline double kdtree_get_pt(const int idx, int dim) const
         {
-            return tree_.points_[dim + tree_.dimension_ * idx];
+            return tree_.points_[idx][dim];
         }
         
         inline double kdtree_distance(const double *p1, const int idx_p2, int /*size*/) const
         {
             double sum = 0;
             
-            for (int i = 0; i < tree_.dimension_; ++i)
+            for (int d = 0; d < tree_.dimension_; ++d)
             {
-                double dist = (p1[i] - tree_.points_[i + tree_.dimension_ * idx_p2]);
+                double dist = (p1[d] - tree_.points_[idx_p2][d]);
                 
                 sum += dist * dist;
             }

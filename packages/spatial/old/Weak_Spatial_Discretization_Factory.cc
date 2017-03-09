@@ -25,8 +25,9 @@ Weak_Spatial_Discretization_Factory(shared_ptr<Solid_Geometry> solid_geometry,
     }
 }
 
-shared_ptr<Weak_Spatial_Discretization>
-square_grid(vector<int> const &number_of_points_1d) const
+void Weak_Spatial_Discretization_Parser::
+cartesian_points(vector<int> const &number_of_points_1d,
+                 vector<vector<double> > &points) const
 {
     int dimension = solid_geometry_->dimension();
 
@@ -47,8 +48,8 @@ square_grid(vector<int> const &number_of_points_1d) const
         number_of_points *= number_of_points_1d[d];
     }
     
-    vector<vector<double> > points(number_of_points);
-
+    points.resize(number_of_points);
+    
     switch (dimension)
     {
     case 1:
@@ -81,5 +82,21 @@ square_grid(vector<int> const &number_of_points_1d) const
         }
         break;
     }
+}
+
+shared_ptr<Weak_Spatial_Discretization> Weak_Spatial_Discretization_Parser::
+cartesian_grid(vector<int> const &number_of_points_1d) const
+{
+    int dimension = solid_geometry_->dimension();
+    vector<vector<double> > points;
+    cartesian_points(number_of_points_1d,
+                     points);
+    int number_of_points = points.size();
+    shared_ptr<KD_Tree> kd_tree
+        = make_shared<KD_Tree>(dimension,
+                               number_of_points,
+                               points);
+    
     
 }
+

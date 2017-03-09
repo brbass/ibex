@@ -7,7 +7,7 @@ using namespace std;
 KD_Tree::
 KD_Tree(int dimension,
         int number_of_points,
-        vector<double> const &points):
+        vector<vector<double> > const &points):
     dimension_(dimension),
     number_of_points_(number_of_points),
     points_(points)
@@ -35,8 +35,6 @@ find_neighbors(int number_of_neighbors,
     indices.resize(number_of_neighbors);
     distances.resize(number_of_neighbors);
 
-    vector<double> points(dimension_);
-    
     kd_tree_->knnSearch(&position[0],
                         number_of_neighbors,
                         &indices[0],
