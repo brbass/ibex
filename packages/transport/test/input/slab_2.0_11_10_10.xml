@@ -1,0 +1,185 @@
+<?xml version='1.0' encoding='ASCII'?>
+<spatial_discretization>
+  <number_of_points>11</number_of_points>
+  <basis_functions>
+    <basis index="0">
+      <radius>0.9999999999999998</radius>
+      <position>-1.</position>
+      <number_of_basis_neighbors>10</number_of_basis_neighbors>
+      <basis_neighbors>0 1 2 3 4 5 6 7 8 9</basis_neighbors>
+    </basis>
+    <basis index="1">
+      <radius>0.9999999999999998</radius>
+      <position>-0.8</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 1  0  2  3  4  5  6  7  8  9 10</basis_neighbors>
+    </basis>
+    <basis index="2">
+      <radius>1.0000000000000004</radius>
+      <position>-0.6</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 2  1  3  0  4  5  6  7  8  9 10</basis_neighbors>
+    </basis>
+    <basis index="3">
+      <radius>0.9999999999999998</radius>
+      <position>-0.3999999999999999</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 3  4  2  5  1  0  6  7  8  9 10</basis_neighbors>
+    </basis>
+    <basis index="4">
+      <radius>0.9999999999999998</radius>
+      <position>-0.2</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 4  3  5  2  6  1  7  0  8  9 10</basis_neighbors>
+    </basis>
+    <basis index="5">
+      <radius>0.9999999999999998</radius>
+      <position> 0.</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 5  4  6  3  7  2  8  1  9  0 10</basis_neighbors>
+    </basis>
+    <basis index="6">
+      <radius>0.9999999999999998</radius>
+      <position> 0.2000000000000002</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 6  7  5  8  4  9  3 10  2  1  0</basis_neighbors>
+    </basis>
+    <basis index="7">
+      <radius>0.9999999999999998</radius>
+      <position> 0.4000000000000001</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 7  6  8  9  5 10  4  3  2  1  0</basis_neighbors>
+    </basis>
+    <basis index="8">
+      <radius>0.9999999999999998</radius>
+      <position> 0.6000000000000001</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 8  7  9  6 10  5  4  3  2  1  0</basis_neighbors>
+    </basis>
+    <basis index="9">
+      <radius>0.9999999999999998</radius>
+      <position> 0.8</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 9  8 10  7  6  5  4  3  2  1  0</basis_neighbors>
+    </basis>
+    <basis index="10">
+      <radius>0.9999999999999998</radius>
+      <position> 1.</position>
+      <number_of_basis_neighbors>10</number_of_basis_neighbors>
+      <basis_neighbors>10  9  8  7  6  5  4  3  2  1</basis_neighbors>
+    </basis>
+  </basis_functions>
+  <weight_functions>
+    <weight index="0">
+      <radius>0.9999999999999998</radius>
+      <position>-1.</position>
+      <number_of_basis_neighbors>10</number_of_basis_neighbors>
+      <basis_neighbors>0 1 2 3 4 5 6 7 8 9</basis_neighbors>
+      <number_of_weight_neighbors>10</number_of_weight_neighbors>
+      <weight_neighbors>0 1 2 3 4 5 6 7 8 9</weight_neighbors>
+    </weight>
+    <weight index="1">
+      <radius>0.9999999999999998</radius>
+      <position>-0.8</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 1  0  2  3  4  5  6  7  8  9 10</basis_neighbors>
+      <number_of_weight_neighbors>11</number_of_weight_neighbors>
+      <weight_neighbors> 1  0  2  3  4  5  6  7  8  9 10</weight_neighbors>
+    </weight>
+    <weight index="2">
+      <radius>1.0000000000000004</radius>
+      <position>-0.6</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 2  1  3  0  4  5  6  7  8  9 10</basis_neighbors>
+      <number_of_weight_neighbors>11</number_of_weight_neighbors>
+      <weight_neighbors> 2  1  3  0  4  5  6  7  8  9 10</weight_neighbors>
+    </weight>
+    <weight index="3">
+      <radius>0.9999999999999998</radius>
+      <position>-0.3999999999999999</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 3  4  2  5  1  0  6  7  8  9 10</basis_neighbors>
+      <number_of_weight_neighbors>11</number_of_weight_neighbors>
+      <weight_neighbors> 3  4  2  5  1  0  6  7  8  9 10</weight_neighbors>
+    </weight>
+    <weight index="4">
+      <radius>0.9999999999999998</radius>
+      <position>-0.2</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 4  3  5  2  6  1  7  0  8  9 10</basis_neighbors>
+      <number_of_weight_neighbors>11</number_of_weight_neighbors>
+      <weight_neighbors> 4  3  5  2  6  1  7  0  8  9 10</weight_neighbors>
+    </weight>
+    <weight index="5">
+      <radius>0.9999999999999998</radius>
+      <position> 0.</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 5  4  6  3  7  2  8  1  9  0 10</basis_neighbors>
+      <number_of_weight_neighbors>11</number_of_weight_neighbors>
+      <weight_neighbors> 5  4  6  3  7  2  8  1  9  0 10</weight_neighbors>
+    </weight>
+    <weight index="6">
+      <radius>0.9999999999999998</radius>
+      <position> 0.2000000000000002</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 6  7  5  8  4  9  3 10  2  1  0</basis_neighbors>
+      <number_of_weight_neighbors>11</number_of_weight_neighbors>
+      <weight_neighbors> 6  7  5  8  4  9  3 10  2  1  0</weight_neighbors>
+    </weight>
+    <weight index="7">
+      <radius>0.9999999999999998</radius>
+      <position> 0.4000000000000001</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 7  6  8  9  5 10  4  3  2  1  0</basis_neighbors>
+      <number_of_weight_neighbors>11</number_of_weight_neighbors>
+      <weight_neighbors> 7  6  8  9  5 10  4  3  2  1  0</weight_neighbors>
+    </weight>
+    <weight index="8">
+      <radius>0.9999999999999998</radius>
+      <position> 0.6000000000000001</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 8  7  9  6 10  5  4  3  2  1  0</basis_neighbors>
+      <number_of_weight_neighbors>11</number_of_weight_neighbors>
+      <weight_neighbors> 8  7  9  6 10  5  4  3  2  1  0</weight_neighbors>
+    </weight>
+    <weight index="9">
+      <radius>0.9999999999999998</radius>
+      <position> 0.8</position>
+      <number_of_basis_neighbors>11</number_of_basis_neighbors>
+      <basis_neighbors> 9  8 10  7  6  5  4  3  2  1  0</basis_neighbors>
+      <number_of_weight_neighbors>11</number_of_weight_neighbors>
+      <weight_neighbors> 9  8 10  7  6  5  4  3  2  1  0</weight_neighbors>
+    </weight>
+    <weight index="10">
+      <radius>0.9999999999999998</radius>
+      <position> 1.</position>
+      <number_of_basis_neighbors>10</number_of_basis_neighbors>
+      <basis_neighbors>10  9  8  7  6  5  4  3  2  1</basis_neighbors>
+      <number_of_weight_neighbors>10</number_of_weight_neighbors>
+      <weight_neighbors>10  9  8  7  6  5  4  3  2  1</weight_neighbors>
+    </weight>
+  </weight_functions>
+  <solid_geometry>
+    <dimension>1</dimension>
+    <surfaces>
+      <number_of_surfaces>2</number_of_surfaces>
+      <surface index="0" shape="plane" type="boundary">
+        <origin>-1.0</origin>
+        <normal>-1</normal>
+        <boundary_source>0</boundary_source>
+      </surface>
+      <surface index="1" shape="plane" type="boundary">
+        <origin>1.0</origin>
+        <normal>1</normal>
+        <boundary_source>0</boundary_source>
+      </surface>
+    </surfaces>
+    <regions>
+      <region index="0" material="0">
+        <surface_relation surface="0" relation="inside"/>
+        <surface_relation surface="1" relation="inside"/>
+      </region>
+      <number_of_regions>1</number_of_regions>
+    </regions>
+  </solid_geometry>
+</spatial_discretization>

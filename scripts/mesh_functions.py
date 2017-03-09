@@ -150,12 +150,14 @@ def get_neighbors(num_points,
     neighbor_distances = np.asarray(neighbor_distances)
 
     return num_neighbors, neighbors, neighbor_distances
-    
+
+
 # Get connectivity for points
 def get_connectivity(num_points,
                      points,
                      num_neighbors_basis,
-                     num_neighbors_weight):
+                     num_neighbors_weight,
+                     use_constant_radius = False):
     # Get information on point connectivity
     num_neighbors = max(num_neighbors_basis, num_neighbors_weight) + 1
     temp_neighbors, temp_neighbor_distances, kd_tree \
@@ -165,8 +167,12 @@ def get_connectivity(num_points,
 
     # Get the max distance for each of the basis and weight functions
     mult = 1.
-    radius_basis = mult * temp_neighbor_distances[:, num_neighbors_basis]
-    radius_weight = mult * temp_neighbor_distances[:, num_neighbors_weight]
+    if use_constant_radius:
+        radius_basis = mult * temp_neighbor_distances[:, 1] * 5
+        radius_weight = mult * temp_neighbor_distances[:, 1] * 5
+    else:
+        radius_basis = mult * temp_neighbor_distances[:, num_neighbors_basis]
+        radius_weight = mult * temp_neighbor_distances[:, num_neighbors_weight]
     
     # Get the maximum radius for each of the basis and weight functions
     overall_max_basis = np.amax(radius_basis)
@@ -202,7 +208,7 @@ def get_connectivity(num_points,
 
 # Convert data to text
 def numpy_to_text(data):
-    a = np.array2string(data, separator=" ", precision=20, max_line_width=1e5)
+    a = np.array2string(data, separator=" ", precision=16, max_line_width=1e5)
     if a[0] == "[":
         return a[1:-1]
     else:

@@ -4,14 +4,16 @@ from mesh_functions import *
 def get_slab_discretization(length,
                             num_points,
                             num_neighbors_basis,
-                            num_neighbors_weight):
+                            num_neighbors_weight,
+                            use_constant_radius):
     points = get_cartesian_points_1d(length,
                                      num_points)
     
     return get_connectivity(num_points,
                             points,
                             num_neighbors_basis,
-                            num_neighbors_weight)
+                            num_neighbors_weight,
+                            use_constant_radius)
 
 def output_slab_discretization(length,
                                num_points,
@@ -21,7 +23,8 @@ def output_slab_discretization(length,
         = get_slab_discretization(length,
                                   num_points,
                                   num_neighbors_basis,
-                                  num_neighbors_weight)
+                                  num_neighbors_weight,
+                                  True)
     output_path = "in/slab_{}_{}_{}_{}.xml".format(length, num_points, num_neighbors_basis, num_neighbors_weight)
 
     # Get spatial discretization node
