@@ -43,6 +43,7 @@ Boundary_Source(int index,
         AssertMsg(false, "not yet implemented");
         break;
     case Dependencies::Angular::ORDINATES:
+        Assert(boundary_source.size() == size_); 
         boundary_source_ = boundary_source;
         break;
     }

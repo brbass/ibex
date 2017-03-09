@@ -139,17 +139,17 @@ int test_boundary_slab(string input_folder)
     (*sweeper)(rhs);
     
     // Check results
-    int number_of_points = spatial->number_of_points();
-    int number_of_groups = energy->number_of_groups();
-    int number_of_ordinates = angular->number_of_ordinates();
-    for (int i = 0; i < number_of_points; ++i)
-    {
-        int o = 1;
-        int g = 0;
-        int k = g + number_of_groups * (o + number_of_ordinates * i);
+    // int number_of_points = spatial->number_of_points();
+    // int number_of_groups = energy->number_of_groups();
+    // int number_of_ordinates = angular->number_of_ordinates();
+    // for (int i = 0; i < number_of_points; ++i)
+    // {
+    //     int o = 1;
+    //     int g = 0;
+    //     int k = g + number_of_groups * (o + number_of_ordinates * i);
         
-        cout << rhs[k] << endl;
-    }
+    //     cout << rhs[k] << endl;
+    // }
 
     return 0;
 }

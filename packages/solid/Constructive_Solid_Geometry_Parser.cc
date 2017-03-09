@@ -67,8 +67,6 @@ get_surfaces(XML_Node surfaces_node,
         
         string type = surface_node.get_attribute<string>("type");
         
-        shared_ptr<Boundary_Source> boundary_source;
-        
         if (type == "boundary")
         {
             surface_type = Surface::Surface_Type::BOUNDARY;
@@ -177,7 +175,7 @@ get_surfaces(XML_Node surfaces_node,
         if (surface_type == Surface::Surface_Type::BOUNDARY)
         {
             int boundary_source_number = surface_node.get_child_value<int>("boundary_source");
-            
+            Assert(boundary_source_number < boundary_sources_.size());
             surface->set_boundary_source(boundary_sources_[boundary_source_number]);
         }
         

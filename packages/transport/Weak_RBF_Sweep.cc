@@ -1,5 +1,7 @@
 #include "Weak_RBF_Sweep.hh"
 
+#include <iostream>
+
 #include <Amesos.h>
 #include <AztecOO.h>
 #include <AztecOO_ConditionNumber.h>
@@ -124,7 +126,8 @@ get_rhs(int i,
     int dimension = spatial_discretization_->dimension();
     int psi_size = transport_discretization_->psi_size();
     bool has_reflection = transport_discretization_->has_reflection();
-    
+
+    value = 0;
     // Add reflection and boundary source contribution
     {
         // Get sum of normals and integrals
@@ -312,6 +315,8 @@ Trilinos_Solver(Weak_RBF_Sweep const &wrs):
     map_ = make_shared<Epetra_Map>(number_of_points, 0, *comm_);
     lhs_ = make_shared<Epetra_Vector>(*map_);
     rhs_ = make_shared<Epetra_Vector>(*map_);
+    lhs_->PutScalar(1.0);
+    rhs_->PutScalar(1.0);
 }
 
 shared_ptr<Epetra_CrsMatrix> Weak_RBF_Sweep::Trilinos_Solver::
@@ -342,6 +347,8 @@ get_matrix(int o,
     }
     mat->FillComplete();
     mat->OptimizeStorage();
+
+    return mat;
 }
 
 void Weak_RBF_Sweep::Trilinos_Solver::
@@ -412,11 +419,12 @@ solve(vector<double> &x) const
             set_rhs(o,
                     g,
                     x);
-
             // Solve, putting result into LHS
             int k = g + number_of_groups * o;
+            std::cout << *rhs_ << std::endl;
+            std::cout << *mat_[k] << std::endl;
             (*solver_[k])->Solve();
-
+            
             // Update solution value (overwrite x for this o and g)
             for (int i = 0; i < number_of_points; ++i)
             {

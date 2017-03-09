@@ -86,6 +86,11 @@ Constructive_Solid_Geometry(int dimension,
                                                    surface_dimension,
                                                    position,
                                                    normal_direction);
+                
+                if (surface_type == Surface::Surface_Type::BOUNDARY)
+                {
+                    cartesian_boundary_surfaces_[i]->set_boundary_source(surface->boundary_source());
+                }
             }
         }
         else

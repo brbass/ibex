@@ -196,8 +196,7 @@ get_weight_functions(XML_Node input_node,
     Weight_Function::Material_Options material_options;
     {
         XML_Node material_node = input_node.get_child("material_options");
-        string weighting = material_node.get_attribute<string>("weighting",
-                                                               "weight");
+        string weighting = material_node.get_attribute<string>("weighting");
         if (weighting == "point")
         {
             material_options.weighting = Weight_Function::Material_Options::Weighting::POINT;
@@ -215,8 +214,7 @@ get_weight_functions(XML_Node input_node,
             AssertMsg(false, "weighting option (" + weighting + ") not found");
         }
         
-        string output = material_node.get_attribute<string>("output",
-                                                            "standard");
+        string output = material_node.get_attribute<string>("output");
         if (output == "standard")
         {
             material_options.output = Weight_Function::Material_Options::Output::STANDARD;

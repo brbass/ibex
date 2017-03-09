@@ -53,25 +53,25 @@ def output_square_discretization(length,
                         [0., -1],
                         [0., 1.]])
     boundary_sources = [0, 0, 0, 0]
+    et.SubElement(surfaces, "number_of_surfaces").text = "4"
     for i in range(4):
         surface = et.SubElement(surfaces, "surface")
         surface.set("index", str(i))
-        et.SubElement(surface, "shape").text = "plane"
-        et.SubElement(surface, "type").text = "boundary"
+        surface.set("shape", "plane")
+        surface.set("type", "boundary")
         et.SubElement(surface, "origin").text = numpy_to_text(origins[i])
         et.SubElement(surface, "normal").text = numpy_to_text(normals[i])
         et.SubElement(surface, "boundary_source").text = str(boundary_sources[i])
         
     regions = et.SubElement(solid, "regions")
-    
     region = et.SubElement(regions, "region")
     region.set("index", "0")
-    et.SubElement(region, "material").text = str(0)
+    region.set("material", str(0))
+    et.SubElement(regions, "number_of_regions").text = "1"
     for i in range(4):
         sr = et.SubElement(region, "surface_relation")
-        sr.set("index", str(i))
-        et.SubElement(sr, "surface").text = str(i)
-        et.SubElement(sr, "relation").text = "inside"
+        sr.set("surface", str(i))
+        sr.set("relation", "inside")
         
     et.ElementTree(node).write(output_path,
                                pretty_print=True,

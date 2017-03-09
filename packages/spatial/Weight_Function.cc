@@ -321,7 +321,7 @@ get_basis_quadrature_2d(int i,
      {
      case 1:
          integration_ordinates.assign(1, vector<double>({boundary_surfaces_[s]->position()}));
-         integration_weights.assign(1, 0.);
+         integration_weights.assign(1, 1.);
          return true;
      case 2:
          return get_full_surface_quadrature_2d(s,
@@ -1096,10 +1096,12 @@ calculate_values()
          {
              new_data[i] = old_data[i] * is_w_[s];
          }
-         
+
+         Boundary_Source::Dependencies bs_dependencies = source->dependencies();
+         bs_dependencies.angular = Boundary_Source::Dependencies::Angular::ORDINATES;
          shared_ptr<Boundary_Source> new_source
              = make_shared<Boundary_Source>(s + number_of_boundary_surfaces_ * index_,
-                                            source->dependencies(),
+                                            bs_dependencies,
                                             source->angular_discretization(),
                                             source->energy_discretization(),
                                             new_data,
