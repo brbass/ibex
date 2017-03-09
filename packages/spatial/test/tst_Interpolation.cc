@@ -20,7 +20,7 @@
 #include "Check_Equality.hh"
 #include "Energy_Discretization.hh"
 #include "Energy_Discretization_Parser.hh"
-#include "Interpolation_Solid_Geometry.hh"
+#include "Analytic_Solid_Geometry.hh"
 #include "Material.hh"
 #include "Material_Parser.hh"
 #include "Random_Number_Generator.hh"
@@ -467,9 +467,9 @@ int main(int argc, char **argv)
     
     string input_folder = argv[1];
     input_folder += "/";
-
-    check_basis(input_folder);
-    run_interpolation(input_folder);
+    
+    checksum += check_basis(input_folder);
+    checksum += run_interpolation(input_folder);
     
     MPI_Finalize();
     

@@ -61,31 +61,42 @@ def output_pincell_discretization(radius,
                         [0, -1],
                         [0, 1]])
     boundary_sources = [0, 0, 0, 0]
+
+    # Get surfaces
+    et.SubElement(surfaces, "number_of_surfaces").text = "5"
+
+    # Planes
     for i in range(4):
         surface = et.SubElement(surfaces, "surface")
         surface.set("index", str(i))
-        et.SubElement(surface, "shape").text = "plane"
-        et.SubElement(surface, "type").text = "boundary"
+        surface.set("shape", "plane")
+        surface.set("type", "boundary")
         et.SubElement(surface, "origin").text = numpy_to_text(origins[i])
         et.SubElement(surface, "normal").text = numpy_to_text(normals[i])
         et.SubElement(surface, "boundary_source").text = str(boundary_sources[i])
+        
+    # Cylinder
     surface = et.SubElement(surfaces, "surface")
     surface.set("index", "4")
-    et.SubElement(surface, "shape").text = "cylinder"
-    et.SubElement(surface, "type").text = "internal"
+    surface.set("shape", "cylinder")
+    surface.set("type", "internal")
     et.SubElement(surface, "origin").text = "0 0"
     et.SubElement(surface, "radius").text = numpy_to_text(np.array(radius))
 
+    # Regions
+
+    # Inside pincell
     regions = et.SubElement(solid, "regions")
-    
+    et.SubElement(regions, "number_of_regions").text = "2"
     region = et.SubElement(regions, "region")
     region.set("index", "0")
     et.SubElement(region, "material").text = str(0)
     sr = et.SubElement(region, "surface_relation")
     sr.set("index", "0")
-    et.SubElement(sr, "surface").text = str(4)
-    et.SubElement(sr, "relation").text = "inside"
+    sr.set("surface", str(4))
+    sr.set("relation", "inside")
 
+    # Outside pincell
     region = et.SubElement(regions, "region")
     region.set("index", "1")
     et.SubElement(region, "material").text = str(1)
@@ -97,11 +108,10 @@ def output_pincell_discretization(radius,
             et.SubElement(sr, "relation").text = "inside"
         else:
             et.SubElement(sr, "relation").text = "outside"
-
+            
     et.ElementTree(node).write(output_path,
                                pretty_print=True,
                                xml_declaration=True)
-
     
 def plot_pincell_discretization(radius,
                                 length,

@@ -5,6 +5,16 @@ import scipy.spatial as sps
 from matplotlib import pyplot as plt
 import lxml.etree as et
 
+# Get a 1D Cartesian mesh
+def get_cartesian_points_1d(length,
+                            num_points):
+    points_1d = np.linspace(-length/2, length/2, num_points, endpoint=True)
+    points = np.zeros((num_points, 1))
+    for i in range(num_points):
+        points[i][0] = points_1d[i]
+    return points
+                            
+
 # Get a Cartesian mesh with a cylindrical cutout
 def get_cartesian_mesh_cutout(radius, # Radius of cutout circle
                               length, # Length of a single side
