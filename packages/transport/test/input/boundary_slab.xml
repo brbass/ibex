@@ -37,14 +37,14 @@
     </material>
   </materials>
   
-  <spatial_discretization file='slab_2.0_51_15_15.xml'>
+  <spatial_discretization file='slab_2.0_11_10_10.xml'>
     <basis_functions>
       <meshless_function type='rbf' function='compact_gaussian'/>
     </basis_functions>
     <weight_functions>
       <meshless_function type='rbf' function='compact_gaussian'/>
       <material_options weighting='weight' output='standard'/>
-      <integration_ordinates>16</integration_ordinates>
+      <integration_ordinates>64</integration_ordinates>
     </weight_functions>
   </spatial_discretization>
 </input>

@@ -392,7 +392,7 @@ get_basis_quadrature_2d(int i,
      {
      case 1:
          integration_ordinates.assign(1, vector<double>({boundary_surfaces_[s]->position()}));
-         integration_weights.assign(1, 0.);
+         integration_weights.assign(1, 1.);
          return true;
      case 2:
          return get_basis_surface_quadrature_2d(i,
