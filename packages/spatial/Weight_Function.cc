@@ -53,10 +53,11 @@ Weight_Function(int index,
         break;
     case Material_Options::Output::SUPG:
         number_of_dimensional_moments_ = 1 + dimension_;
-        if (material_options_.tau != 0)
+        if (material_options_.tau_const != 0)
         {
             material_options_.include_supg = true;
             material_options_.normalized = false;
+            material_options_.tau = material_options_.tau_const / meshless_function->shape();
         }
         else
         {

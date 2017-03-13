@@ -21,6 +21,10 @@ public:
     
     virtual int dimension() const override;
     virtual double radius() const override;
+    virtual double shape() const override
+    {
+        return shape_;
+    }
     virtual std::vector<double> position() const override
     {
         return position_;

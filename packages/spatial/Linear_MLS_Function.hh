@@ -29,6 +29,10 @@ public:
     {
         return radius_;
     }
+    virtual double shape() const override
+    {
+        return function_->shape();
+    }
     virtual std::vector<double> position() const override
     {
         return position_;

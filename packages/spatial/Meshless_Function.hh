@@ -13,6 +13,7 @@ public:
     
     virtual int dimension() const = 0;
     virtual double radius() const = 0;
+    virtual double shape() const = 0;
     virtual std::vector<double> position() const = 0;
     virtual double value(std::vector<double> const &r) const = 0;
     virtual double d_value(int dim,

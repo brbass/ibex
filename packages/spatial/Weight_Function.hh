@@ -44,7 +44,8 @@ public:
         // True only if tau != 0 and output is SUPG
         bool include_supg = false;
         bool normalized = true;
-        double tau = 1; // SUPG parameter
+        double tau_const = 1; // Constant in front of 1/shape
+        double tau; // SUPG parameter (tau_const / shape)
         Weighting weighting = Weighting::WEIGHT;
         Total total = Total::ISOTROPIC;
         Output output = Output::STANDARD;
