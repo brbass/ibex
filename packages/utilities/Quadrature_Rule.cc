@@ -814,7 +814,7 @@ namespace Quadrature_Rule
     void convert_to_position_1d(vector<double> const &ordinates_x,
                                 vector<vector<double> > &ordinates)
     {
-        int dimension = 2;
+        int dimension = 1;
         int number_of_ordinates = ordinates_x.size();
         vector<double> position_template(dimension, 0);
         ordinates.assign(number_of_ordinates, position_template);

@@ -43,6 +43,7 @@ public:
 
         // True only if tau != 0 and output is SUPG
         bool include_supg = false;
+        bool normalized = true;
         double tau = 1; // SUPG parameter
         Weighting weighting = Weighting::WEIGHT;
         Total total = Total::ISOTROPIC;

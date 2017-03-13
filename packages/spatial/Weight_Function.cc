@@ -49,16 +49,19 @@ Weight_Function(int index,
     case Material_Options::Output::STANDARD:
         number_of_dimensional_moments_ = 1;
         material_options_.include_supg = false;
+        material_options_.normalized = true;
         break;
     case Material_Options::Output::SUPG:
         number_of_dimensional_moments_ = 1 + dimension_;
         if (material_options_.tau != 0)
         {
             material_options_.include_supg = true;
+            material_options_.normalized = false;
         }
         else
         {
             material_options_.include_supg = false;
+            material_options_.normalized = true;
         }
         break;
     }
@@ -785,23 +788,26 @@ calculate_values()
      } // integration ordinates
 
      // Divide numerator by denominator for cross sections
-     for (int g = 0; g < number_of_groups; ++g)
+     if (material_options_.normalized)
      {
-         sigma_t_v[g] /= iv_w_[0];
-         nu_v[g] /= iv_w_[0];
-         sigma_f_v[g] /= iv_w_[0];
-         chi_v[g] /= iv_w_[0];
-
-         for (int g2 = 0; g2 < number_of_groups; ++g2)
+         for (int g = 0; g < number_of_groups; ++g)
          {
-             for (int m = 0; m < number_of_scattering_moments; ++m)
+             sigma_t_v[g] /= iv_w_[0];
+             nu_v[g] /= iv_w_[0];
+             sigma_f_v[g] /= iv_w_[0];
+             chi_v[g] /= iv_w_[0];
+
+             for (int g2 = 0; g2 < number_of_groups; ++g2)
              {
-                 int k = g + number_of_groups * (g2 + number_of_groups * m);
-                 sigma_s_v[k] /= iv_w_[0];
+                 for (int m = 0; m < number_of_scattering_moments; ++m)
+                 {
+                     int k = g + number_of_groups * (g2 + number_of_groups * m);
+                     sigma_s_v[k] /= iv_w_[0];
+                 }
              }
          }
      }
-
+     
      // Create cross sections
      Cross_Section::Dependencies none_group;
      none_group.energy = Cross_Section::Dependencies::Energy::GROUP;
@@ -961,11 +967,9 @@ calculate_values()
          {
              w[j+1] = w2[j];
          }
-
+         
          for (int j = 0; j < dimension_ + 1; ++j)
          {
-             iv_w_[j] += w[j] * integration_weights[i];
-
              for (int g = 0; g < number_of_groups; ++g)
              {
                  int k1 = j + dimensionp1 * g;
@@ -989,29 +993,31 @@ calculate_values()
      }
 
      // Divide numerator by denominator for cross sections
-     for (int j = 0; j < dimension_ + 1; ++j)
-     {    
-         for (int g = 0; g < number_of_groups; ++g)
-         {
-             double den = j == 0 ? iv_w_[0] : iv_dw_[j-1];
-             
-             int k1 = j + dimensionp1 * g;
-             sigma_t_v[k1] /= den;
-             nu_v[k1] /= den;
-             sigma_f_v[k1] /= den;
-             chi_v[k1] /= den;
-
-             for (int g2 = 0; g2 < number_of_groups; ++g2)
+     if (material_options_.normalized)
+     {
+         for (int j = 0; j < dimension_ + 1; ++j)
+         {    
+             for (int g = 0; g < number_of_groups; ++g)
              {
-                 for (int m = 0; m < number_of_scattering_moments; ++m)
+                 double den = j == 0 ? iv_w_[0] : iv_dw_[j-1];
+             
+                 int k1 = j + dimensionp1 * g;
+                 sigma_t_v[k1] /= den;
+                 nu_v[k1] /= den;
+                 sigma_f_v[k1] /= den;
+                 chi_v[k1] /= den;
+             
+                 for (int g2 = 0; g2 < number_of_groups; ++g2)
                  {
-                     int k2 = j + dimensionp1 * (g + number_of_groups * (g2 + number_of_groups * m));
-                     sigma_s_v[k2] /= den;
+                     for (int m = 0; m < number_of_scattering_moments; ++m)
+                     {
+                         int k2 = j + dimensionp1 * (g + number_of_groups * (g2 + number_of_groups * m));
+                         sigma_s_v[k2] /= den;
+                     }
                  }
              }
          }
      }
-
      // Create cross sections
      Cross_Section::Dependencies none_group;
      none_group.energy = Cross_Section::Dependencies::Energy::GROUP;

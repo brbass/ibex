@@ -200,12 +200,14 @@ get_matrix_row(int i, // weight function index (row)
 {
     // Get data
     shared_ptr<Weight_Function> weight = spatial_discretization_->weight(i);
+    vector<double> const iv_w = weight->iv_w();
+    vector<double> const iv_dw = weight->iv_dw();
     vector<double> const is_b_w = weight->is_b_w();
     vector<double> const iv_b_w = weight->iv_b_w();
     vector<double> const iv_b_dw = weight->iv_b_dw();
     vector<double> const iv_db_dw = weight->iv_db_dw();
     vector<double> const direction = angular_discretization_->direction(o);
-    vector<double> const sigma_t = weight->material()->sigma_t()->data();
+    vector<double> const sigma_t_data = weight->material()->sigma_t()->data();
     int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
     int number_of_basis_functions = weight->number_of_basis_functions();
     int number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
@@ -214,6 +216,30 @@ get_matrix_row(int i, // weight function index (row)
     bool include_supg = options.include_supg;
     double tau = options.tau;
     Assert(options.total == Weight_Function::Material_Options::Total::ISOTROPIC); // moment method not yet implemented
+
+    // Get total cross section
+    double sigma_t = 0;
+    if (include_supg)
+    {
+        // Get weighted cross section and normalization separately
+        double den = 0;
+        sigma_t += sigma_t_data[0 + number_of_dimensional_moments * g];
+        den += iv_w[0];
+        
+        for (int d = 1; d < number_of_dimensional_moments; ++d)
+        {
+            sigma_t += tau * direction[d - 1] * sigma_t_data[d + number_of_dimensional_moments * g];
+            den += tau * direction[d - 1] * iv_dw[d - 1];
+        }
+
+        // Normalize cross section
+        sigma_t /= den;
+    }
+    else
+    {
+        // Cross section already normalized for non-SUPG
+        sigma_t = sigma_t_data[0 + number_of_dimensional_moments * g];
+    }
     
     // Get indices
     {
@@ -277,19 +303,17 @@ get_matrix_row(int i, // weight function index (row)
 
         // Add absorption term
         {
-            int sig_index = 0 + number_of_dimensional_moments * g;
-            value += iv_b_w[j] * sigma_t[sig_index];
-        }
-
-        // Add absorption SUPG term
-        if (include_supg)
-        {
-            for (int d = 0; d < dimension; ++d)
+            double sum = iv_b_w[j];
+            if (include_supg)
             {
-                int sig_index = (d + 1) + number_of_dimensional_moments * g;
-                int iv_index = d + dimension * j;
-                value += tau * direction[d] * sigma_t[sig_index] * iv_b_dw[iv_index];
+                for (int d = 0; d < dimension; ++d)
+                {
+                    int iv_index = d + dimension * j;
+                    sum += tau * direction[d] * iv_b_dw[iv_index];
+                }
             }
+            
+            value += sum * sigma_t;
         }
     }
 }
@@ -421,7 +445,10 @@ solve(vector<double> &x) const
                     x);
             // Solve, putting result into LHS
             int k = g + number_of_groups * o;
+            std::cout << *mat_[k] << std::endl;
+            std::cout << *rhs_ << std::endl;
             (*solver_[k])->Solve();
+            std::cout << *lhs_ << std::endl;
             
             // Update solution value (overwrite x for this o and g)
             for (int i = 0; i < number_of_points; ++i)
