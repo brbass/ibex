@@ -22,16 +22,20 @@ public:
     virtual void check_class_invariants() const override;
     
 private: 
-
+    
     // Apply within-group and out-of-group fission
     virtual void apply_full(std::vector<double> &x) const override;
-
+    
     // Apply only within-group fission
     virtual void apply_coherent(std::vector<double> &x) const override;
     
-private:
+    // Regular fission with nu, chi and sigma_f
+    void group_full(std::vector<double> &x) const;
+    void group_coherent(std::vector<double> &x) const;
     
-    int number_of_dimensional_moments_;
+    // Scattering-like fission (group to group) with all info in sigma_f
+    void group_to_group_full(std::vector<double> &x) const;
+    void group_to_group_coherent(std::vector<double> &x) const;
 };
 
 #endif

@@ -34,7 +34,9 @@ check_class_invariants() const
     Assert(energy_discretization_);
 
     int number_of_points = spatial_discretization_->number_of_points();
-    
+
+    // For now, assume that all points have the same energy dependence
+    Cross_Section::Dependencies::Energy energy_dep = spatial_discretization_->point(0)->material()->sigma_f()->dependencies().energy;
     for (int i = 0; i < number_of_points; ++i)
     {
         shared_ptr<Material> material = spatial_discretization_->point(i)->material();
@@ -46,13 +48,122 @@ check_class_invariants() const
         for (Cross_Section::Dependencies &dep : deps)
         {
             Assert(dep.angular == Cross_Section::Dependencies::Angular::NONE);
-            Assert(dep.energy == Cross_Section::Dependencies::Energy::GROUP);
+        }
+        if (energy_dep == Cross_Section::Dependencies::Energy::GROUP_TO_GROUP)
+        {
+            Assert(deps[1].energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP);
+        }
+        else
+        {
+            for (Cross_Section::Dependencies &dep : deps)
+            {
+                Assert(dep.energy == Cross_Section::Dependencies::Energy::GROUP);
+            }
         }
     }
 }
 
 void Fission::
 apply_full(vector<double> &x) const
+{
+    switch (material->sigma_f()->dependencies())
+    {
+    case Cross_Section::Dependencies::Energy::GROUP:
+        group_full(x);
+        break;
+    case Cross_Section::Dependencies::Energy::GROUP_TO_GROUP:
+        group_to_group_full(x);
+        break;
+    }
+}
+
+void Fission::
+apply_coherent(vector<double> &x) const
+{
+    switch (material->sigma_f()->dependencies())
+    {
+    case Cross_Section::Dependencies::Energy::GROUP:
+        group_coherent(x);
+        break;
+    case Cross_Section::Dependencies::Energy::GROUP_TO_GROUP:
+        group_to_group_coherent(x);
+        break;
+    }
+}
+
+void Fission::
+group_to_group_full(vector<double> &x) const
+{
+    vector<double> y(x);
+
+    int number_of_points = spatial_discretization_->number_of_points();
+    int number_of_nodes = spatial_discretization_->number_of_nodes();
+    int number_of_groups = energy_discretization_->number_of_groups();
+    int number_of_moments = angular_discretization_->number_of_moments();
+    int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
+    int local_number_of_dimensional_moments = (options_.include_dimensional_moments
+                                               ? number_of_dimensional_moments
+                                               : 1);
+    
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        shared_ptr<Cross_Section> sigma_f_cs = spatial_discretization_->point(i)->material()->sigma_f();
+        vector<double> const sigma_f = sigma_f_cs->data();
+        
+        int m = 0;
+        for (int gt = 0; gt < number_of_groups; ++gt)
+        {
+            for (int d = 0; d < local_number_of_dimensional_moments; ++d)
+            {
+                for (int n = 0; n < number_of_nodes; ++n)
+                {
+                    double sum = 0;
+                    
+                    for (int gf = 0; gf < number_of_groups; ++gf)
+                    {
+                        int k_phi_from = n + number_of_nodes * (d + local_number_of_dimensional_moments * (gf + number_of_groups * (m + number_of_moments * i)));
+                        int k_sigma = d + number_of_dimensional_moments * (gf + number_of_groups * gt);
+                        
+                        sum += sigma_f[k_sigma] * y[k_phi_from];
+                    }
+                            
+                    int k_phi_to = n + number_of_nodes * (d + local_number_of_dimensional_moments * (gt + number_of_groups * (m + number_of_moments * i)));
+                    
+                    x[k_phi_to] = sum;
+                }
+            }
+        }
+    }
+    
+    // Zero out other moments
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        for (int m = 1; m < number_of_moments; ++m)
+        {
+            for (int g = 0; g < number_of_groups; ++g)
+            {
+                for (int n = 0; n < number_of_nodes; ++n)
+                {
+                    for (int d = 0; d < local_number_of_dimensional_moments; ++d)
+                    {
+                        int k_phi = n + number_of_nodes * (d + local_number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                        
+                        x[k_phi] = 0;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Fission::
+group_to_group_coherent(vector<double> &x) const
+{
+    AssertMsg(false, "not implemented");
+}
+
+void Fission::
+group_full(vector<double> &x) const
 {
     int number_of_points = spatial_discretization_->number_of_points();
     int number_of_nodes = spatial_discretization_->number_of_nodes();
@@ -124,7 +235,7 @@ apply_full(vector<double> &x) const
 }
 
 void Fission::
-apply_coherent(vector<double> &x) const
+group_coherent(vector<double> &x) const
 {
     int number_of_points = spatial_discretization_->number_of_points();
     int number_of_nodes = spatial_discretization_->number_of_nodes();
@@ -184,4 +295,3 @@ apply_coherent(vector<double> &x) const
         }
     }
 }
-
