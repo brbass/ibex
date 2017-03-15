@@ -51,7 +51,7 @@ check_class_invariants() const
         }
         if (energy_dep == Cross_Section::Dependencies::Energy::GROUP_TO_GROUP)
         {
-            Assert(deps[1].energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP);
+            Assert(deps[1].energy == Cross_Section::Dependencies::Energy::GROUP_TO_GROUP);
         }
         else
         {
@@ -66,7 +66,7 @@ check_class_invariants() const
 void Fission::
 apply_full(vector<double> &x) const
 {
-    switch (material->sigma_f()->dependencies())
+    switch (spatial_discretization_->point(0)->material()->sigma_f()->dependencies().energy)
     {
     case Cross_Section::Dependencies::Energy::GROUP:
         group_full(x);
@@ -80,7 +80,7 @@ apply_full(vector<double> &x) const
 void Fission::
 apply_coherent(vector<double> &x) const
 {
-    switch (material->sigma_f()->dependencies())
+    switch (spatial_discretization_->point(0)->material()->sigma_f()->dependencies().energy)
     {
     case Cross_Section::Dependencies::Energy::GROUP:
         group_coherent(x);

@@ -21,9 +21,7 @@ public:
         scalar_ = scalar;
     }
     
-    virtual void check_class_invariants() const override
-    {
-    }
+    virtual void check_class_invariants() const override;
 
 private:
 

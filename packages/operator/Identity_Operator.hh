@@ -15,9 +15,7 @@ public:
     // Constructor
     Identity_Operator(int size);
     
-    virtual void check_class_invariants() const override
-    {
-    }
+    virtual void check_class_invariants() const override;
     
 private:
 

@@ -8,10 +8,10 @@
 using std::shared_ptr;
 using std::vector;
 
-Dimensional_Moment_Summation::
-Dimensional_Moment_Summation(shared_ptr<Weak_Spatial_Discretization> spatial,
-                             shared_ptr<Angular_Discretization> angular,
-                             shared_ptr<Energy_Discretization> energy):
+Dimensional_Moment_Copy::
+Dimensional_Moment_Copy(shared_ptr<Weak_Spatial_Discretization> spatial,
+                        shared_ptr<Angular_Discretization> angular,
+                        shared_ptr<Energy_Discretization> energy):
     Vector_Operator(spatial->number_of_points()
                     * spatial->number_of_nodes()
                     * energy->number_of_groups()
@@ -28,7 +28,7 @@ Dimensional_Moment_Summation(shared_ptr<Weak_Spatial_Discretization> spatial,
 {
 }
 
-void Dimensional_Moment_Summation::
+void Dimensional_Moment_Copy::
 check_class_invariants() const
 {
     Assert(spatial_);

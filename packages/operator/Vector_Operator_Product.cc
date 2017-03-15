@@ -30,4 +30,4 @@ check_class_invariants() const
     int row2 = op2_->row_size();
     int col1 = op1_->column_size();
     Assert(row2 == col1);
-}}
+}
