@@ -25,4 +25,9 @@ check_class_invariants() const
 {
     Assert(op1_);
     Assert(op2_);
-}
+    
+    // Check that input of op1 is of the size of the output of op2
+    int row2 = op2_->row_size();
+    int col1 = op1_->column_size();
+    Assert(row2 == col1);
+}}

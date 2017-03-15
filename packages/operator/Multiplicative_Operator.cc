@@ -9,6 +9,7 @@ Multiplicative_Operator(int size,
                     size),
     scalar_(scalar)
 {
+    check_class_invariants();
 }
 
 void Multiplicative_Operator::
@@ -18,4 +19,9 @@ apply(vector<double> &x) const
     {
         x[i] *= scalar_;
     }
+}
+
+void Multiplicative_Operator::
+check_class_invariants() const
+{
 }

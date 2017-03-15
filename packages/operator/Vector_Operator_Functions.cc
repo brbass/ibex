@@ -10,6 +10,7 @@ using std::shared_ptr;
 shared_ptr<Vector_Operator> operator+(shared_ptr<Vector_Operator> const op1,
                                       shared_ptr<Vector_Operator> const op2)
 {
+    
     return make_shared<Vector_Operator_Sum>(op1, op2);
 }
 

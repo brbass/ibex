@@ -32,4 +32,12 @@ check_class_invariants() const
 {
     Assert(op1_);
     Assert(op2_);
+
+    // Check that input and output sizes are the same
+    int row1 = op1_->row_size();
+    int row2 = op2_->row_size();
+    int col1 = op1_->column_size();
+    int col2 = op2_->column_size();
+    Assert(row1 == row2);
+    Assert(col1 == col2);
 }

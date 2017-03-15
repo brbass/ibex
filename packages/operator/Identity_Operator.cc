@@ -14,3 +14,8 @@ apply(vector<double> &x) const
 {
 
 }
+
+void Identity_Operator::
+check_class_invariants() const
+{
+}
