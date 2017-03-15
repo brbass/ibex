@@ -1,4 +1,4 @@
-#include "Moment_Weighting_Operator.hh"
+#include "Moment_Value_Operator.hh"
 
 #include "Angular_Discretization.hh"
 #include "Energy_Discretization.hh"
@@ -8,22 +8,24 @@
 using std::shared_ptr;
 using std::vector;
 
-Moment_Weighting_Operator::
-Moment_Weighting_Operator(shared_ptr<Weak_Spatial_Discretization> spatial,
-                            shared_ptr<Angular_Discretization> angular,
-                            shared_ptr<Energy_Discretization> energy):
+Moment_Value_Operator::
+Moment_Value_Operator(shared_ptr<Weak_Spatial_Discretization> spatial,
+                      shared_ptr<Angular_Discretization> angular,
+                      shared_ptr<Energy_Discretization> energy,
+                      bool weighted):
     Square_Vector_Operator(spatial->number_of_points()
                            * spatial->number_of_nodes()
                            * angular->number_of_ordinates()
                            * energy->number_of_groups()),
     spatial_(spatial),
     angular_(angular),
-    energy_(energy)
+    energy_(energy),
+    weighted_(weighted)
 {
     check_class_invariants();
 }
 
-void Moment_Weighting_Operator::
+void Moment_Value_Operator::
 apply(vector<double> &x) const
 {
     // Get size data
@@ -40,21 +42,20 @@ apply(vector<double> &x) const
         shared_ptr<Weight_Function> weight = spatial_->weight(i);
         int number_of_basis_functions = weight->number_of_basis_functions();
         vector<int> basis_indices = weight->basis_function_indices();
-        Weight_Function::Material_Options options = weight->material_options();
-        bool const normalized = options.normalized;
-        vector<double> const iv_w = weight->iv_w();
-        vector<double> const iv_b_w = weight->iv_b_w();
+        double const iv_w = (weighted_
+                             ? weight->iv_w()[0]
+                             : 1);
+        vector<double> const iv_b_w = (weighted_
+                                       ? weight->iv_b_w()
+                                       : weight->v_b());
         
-        for (int m = 0; m < number_of_moments; ++m)
+        for (int j = 0; j < number_of_basis_functions; ++j)
         {
-            // Get normalization constant
-            double const norm = normalized ? 1 : iv_w[0];
+            // Get summation constant
+            double const mult = iv_b_w[j] / iv_w;
             
-            for (int j = 0; j < number_of_basis_functions; ++j)
+            for (int m = 0; m < number_of_moments; ++m)
             {
-                // Get summation constant
-                double const mult = iv_b_w[j] / norm;
-                
                 for (int g = 0; g < number_of_groups; ++g)
                 {
                     for (int n = 0; n < number_of_nodes; ++n)
@@ -74,7 +75,7 @@ apply(vector<double> &x) const
     x.swap(result);
 }
 
-void Moment_Weighting_Operator::
+void Moment_Value_Operator::
 check_class_invariants() const
 {
 }

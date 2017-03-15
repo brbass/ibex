@@ -96,9 +96,12 @@ void get_solvers(int size,
                              factory.get_solver(size,
                                                 Dense_Solver_Factory::Type::EIGEN_FIXED));
     }
-    solvers.emplace_back("eigen",
-                         factory.get_solver(size,
-                                            Dense_Solver_Factory::Type::EIGEN));
+    if (size <= 30)
+    {
+        solvers.emplace_back("eigen",
+                             factory.get_solver(size,
+                                                Dense_Solver_Factory::Type::EIGEN));
+    }
     if (include_trilinos)
     {
         solvers.emplace_back("epetra",
@@ -132,6 +135,7 @@ int run_linear_solve(int number_of_tests,
             for (Solver_Data &solver_data : solvers)
             {
                 checksum += test_linear_solve(a, b, x, solver_data);
+                
             }
         }
 
@@ -158,6 +162,8 @@ int run_linear_solve(int number_of_tests,
 
 int run_determinant()
 {
+    int checksum = 0;
+    
     vector<Solver_Data> solvers;
 
     for (int size = 1; size <= 5; ++size)
@@ -185,6 +191,7 @@ int run_determinant()
         {
             if (!Check_Equality::approx(solver.det, solvers[0].det, 1e-10))
             {
+                checksum += 1;
                 cout << "determinants disagree for n = ";
                 cout << size;
                 cout << "\tdiff from first: ";
@@ -192,8 +199,9 @@ int run_determinant()
                 cout << endl;
             }
         }
-        
     }
+
+    return checksum;
 }
 
 int main(int argc, char **argv)
