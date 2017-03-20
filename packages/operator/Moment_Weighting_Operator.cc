@@ -10,11 +10,11 @@ using std::vector;
 
 Moment_Weighting_Operator::
 Moment_Weighting_Operator(shared_ptr<Weak_Spatial_Discretization> spatial,
-                            shared_ptr<Angular_Discretization> angular,
-                            shared_ptr<Energy_Discretization> energy):
+                          shared_ptr<Angular_Discretization> angular,
+                          shared_ptr<Energy_Discretization> energy):
     Square_Vector_Operator(spatial->number_of_points()
                            * spatial->number_of_nodes()
-                           * angular->number_of_ordinates()
+                           * angular->number_of_moments()
                            * energy->number_of_groups()),
     spatial_(spatial),
     angular_(angular),
@@ -30,7 +30,7 @@ apply(vector<double> &x) const
     int number_of_points = spatial_->number_of_points();
     int number_of_nodes = spatial_->number_of_nodes();
     int number_of_groups = energy_->number_of_groups();
-    int number_of_moments = angular_->number_of_ordinates();
+    int number_of_moments = angular_->number_of_moments();
     
     vector<double> result(number_of_points * number_of_nodes * number_of_groups * number_of_moments, 0);
     
