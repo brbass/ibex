@@ -1,4 +1,4 @@
-#include "Moment_Value_Operator.hh"
+#include "Discrete_Value_Operator.hh"
 
 #include "Angular_Discretization.hh"
 #include "Energy_Discretization.hh"
@@ -8,14 +8,14 @@
 using std::shared_ptr;
 using std::vector;
 
-Moment_Value_Operator::
-Moment_Value_Operator(shared_ptr<Weak_Spatial_Discretization> spatial,
+Discrete_Value_Operator::
+Discrete_Value_Operator(shared_ptr<Weak_Spatial_Discretization> spatial,
                       shared_ptr<Angular_Discretization> angular,
                       shared_ptr<Energy_Discretization> energy,
                       bool weighted):
     Square_Vector_Operator(spatial->number_of_points()
                            * spatial->number_of_nodes()
-                           * angular->number_of_moments()
+                           * angular->number_of_ordinates()
                            * energy->number_of_groups()),
     spatial_(spatial),
     angular_(angular),
@@ -25,16 +25,16 @@ Moment_Value_Operator(shared_ptr<Weak_Spatial_Discretization> spatial,
     check_class_invariants();
 }
 
-void Moment_Value_Operator::
+void Discrete_Value_Operator::
 apply(vector<double> &x) const
 {
     // Get size data
     int number_of_points = spatial_->number_of_points();
     int number_of_nodes = spatial_->number_of_nodes();
     int number_of_groups = energy_->number_of_groups();
-    int number_of_moments = angular_->number_of_ordinates();
+    int number_of_ordinates = angular_->number_of_ordinates();
     
-    vector<double> result(number_of_points * number_of_nodes * number_of_groups * number_of_moments, 0);
+    vector<double> result(number_of_points * number_of_nodes * number_of_groups * number_of_ordinates, 0);
     
     for (int i = 0; i < number_of_points; ++i)
     {
@@ -55,14 +55,14 @@ apply(vector<double> &x) const
             double const mult = iv_b_w[j] / iv_w;
             int k_bas = basis_indices[j];
             
-            for (int m = 0; m < number_of_moments; ++m)
+            for (int o = 0; o < number_of_ordinates; ++o)
             {
                 for (int g = 0; g < number_of_groups; ++g)
                 {
                     for (int n = 0; n < number_of_nodes; ++n)
                     {
-                        int k_x = n + number_of_nodes * (g + number_of_groups * (m + number_of_moments * k_bas));
-                        int k_res = n + number_of_nodes * (g + number_of_groups * (m + number_of_moments * i));
+                        int k_x = n + number_of_nodes * (g + number_of_groups * (o + number_of_ordinates * k_bas));
+                        int k_res = n + number_of_nodes * (g + number_of_groups * (o + number_of_ordinates * i));
                         
                         result[k_res] += mult * x[k_x];
                     }
@@ -75,7 +75,7 @@ apply(vector<double> &x) const
     x.swap(result);
 }
 
-void Moment_Value_Operator::
+void Discrete_Value_Operator::
 check_class_invariants() const
 {
 }
