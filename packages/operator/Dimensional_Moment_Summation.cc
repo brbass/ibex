@@ -52,7 +52,7 @@ apply(vector<double> &x) const
     // Sum the dimensional coefficients
     for (int i = 0; i < number_of_points; ++i)
     {
-        double tau = spatial_->weight(i)->material_options().tau;
+        double tau = spatial_->weight(i)->options().tau;
         
         for (int o = 0; o < number_of_ordinates; ++o)
         {

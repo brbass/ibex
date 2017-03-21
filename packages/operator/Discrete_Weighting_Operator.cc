@@ -45,14 +45,14 @@ apply(vector<double> &x) const
         shared_ptr<Weight_Function> weight = spatial_->weight(i);
         int number_of_basis_functions = weight->number_of_basis_functions();
         vector<int> basis_indices = weight->basis_function_indices();
-        Weight_Function::Material_Options material_options = weight->material_options();
-        double const tau = material_options.tau;
+        Weight_Function::Options weight_options = weight->options();
+        double const tau = weight_options.tau;
         
         bool normalized;
         switch (options_.normalized)
         {
         case Options::Normalized::AUTO:
-            normalized = material_options.normalized;
+            normalized = weight_options.normalized;
             break;
         case Options::Normalized::TRUE:
             normalized = true;
@@ -66,7 +66,7 @@ apply(vector<double> &x) const
         switch (options_.include_supg)
         {
         case Options::Include_SUPG::AUTO:
-            normalized = material_options.include_supg;
+            normalized = weight_options.include_supg;
             break;
         case Options::Include_SUPG::TRUE:
             include_supg = true;

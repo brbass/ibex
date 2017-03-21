@@ -4,7 +4,8 @@ from mesh_functions import *
 def get_square_discretization(length,
                               num_points_xy,
                               num_neighbors_basis,
-                              num_neighbors_weight):
+                              num_neighbors_weight,
+                              use_constant_radius):
 
     num_points, points = get_cartesian_points(length,
                                               num_points_xy)
@@ -12,20 +13,23 @@ def get_square_discretization(length,
     return get_connectivity(num_points,
                             points,
                             num_neighbors_basis,
-                            num_neighbors_weight)
+                            num_neighbors_weight,
+                            use_constant_radius)
 
 def output_square_discretization(length,
                                  num_points_xy,
                                  num_neighbors_basis,
-                                 num_neighbors_weight):
+                                 num_neighbors_weight,
+                                 use_constant_radius):
     num_points, points, radius_basis, radius_weight, b_neighbors, b_neighbor_distances, w_neighbors, w_neighbor_distances, bw_neighbors, bw_neighbor_distances \
         = get_square_discretization(length,
                                     num_points_xy,
                                     num_neighbors_basis,
-                                    num_neighbors_weight)
+                                    num_neighbors_weight,
+                                    use_constant_radius)
     
-    output_path = "in/square_{}_{}_{}_{}.xml".format(length, num_points_xy, num_neighbors_basis, num_neighbors_weight)
-
+    output_path = "in/square_{}_{}_{}_{}_{}.xml".format(length, num_points_xy, num_neighbors_basis, num_neighbors_weight, int(use_constant_radius))
+    
     # Get spatial discretization node
     node = xml_discretization(output_path,
                               num_points,
@@ -90,5 +94,6 @@ if __name__ == '__main__':
     output_square_discretization(length,
                                  num_points_xy,
                                  num_neighbors_basis,
-                                 num_neighbors_weight)
+                                 num_neighbors_weight,
+                                 True)
     

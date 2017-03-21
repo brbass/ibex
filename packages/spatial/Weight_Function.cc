@@ -21,8 +21,7 @@ namespace qr = Quadrature_Rule;
 Weight_Function::
 Weight_Function(int index,
                 int dimension,
-                int number_of_integration_ordinates,
-                Material_Options material_options,
+                Options options,
                 shared_ptr<Meshless_Function> meshless_function,
                 vector<shared_ptr<Basis_Function> > basis_functions,
                 shared_ptr<Solid_Geometry> solid_geometry,
@@ -30,11 +29,10 @@ Weight_Function(int index,
     index_(index),
     dimension_(dimension),
     position_(meshless_function->position()),
-    number_of_integration_ordinates_(number_of_integration_ordinates),
     number_of_basis_functions_(basis_functions.size()),
     number_of_boundary_surfaces_(boundary_surfaces.size()),
     radius_(meshless_function->radius()),
-    material_options_(material_options),
+    options_(options),
     meshless_function_(meshless_function),
     basis_functions_(basis_functions),
     solid_geometry_(solid_geometry),
@@ -44,25 +42,25 @@ Weight_Function(int index,
                    Weight_Function::Point_Type::BOUNDARY :
                    Weight_Function::Point_Type::INTERNAL);
     
-    switch (material_options_.output)
+    switch (options_.output)
     {
-    case Material_Options::Output::STANDARD:
+    case Options::Output::STANDARD:
         number_of_dimensional_moments_ = 1;
-        material_options_.include_supg = false;
-        material_options_.normalized = true;
+        options_.include_supg = false;
+        options_.normalized = true;
         break;
-    case Material_Options::Output::SUPG:
+    case Options::Output::SUPG:
         number_of_dimensional_moments_ = 1 + dimension_;
-        if (material_options_.tau_const != 0)
+        if (options_.tau_const != 0)
         {
-            material_options_.include_supg = true;
-            material_options_.normalized = false;
-            material_options_.tau = material_options_.tau_const / meshless_function->shape();
+            options_.include_supg = true;
+            options_.normalized = false;
+            options_.tau = options_.tau_const / meshless_function->shape();
         }
         else
         {
-            material_options_.include_supg = false;
-            material_options_.normalized = true;
+            options_.include_supg = false;
+            options_.normalized = true;
         }
         break;
     }
@@ -134,7 +132,7 @@ get_full_quadrature_1d(vector<vector<double> > &integration_ordinates,
     // Get quadrature
     vector<double> ordinates_x;
     bool success =  qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                     number_of_integration_ordinates_,
+                                     options_.integration_ordinates,
                                      x1,
                                      x2,
                                      ordinates_x,
@@ -156,8 +154,8 @@ get_full_quadrature_2d(vector<vector<double> > &integration_ordinates,
     {
         success = qr::cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
                                      qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                     number_of_integration_ordinates_,
-                                     number_of_integration_ordinates_,
+                                     options_.integration_ordinates,
+                                     options_.integration_ordinates,
                                      position_[0],
                                      position_[1],
                                      0.,
@@ -172,8 +170,8 @@ get_full_quadrature_2d(vector<vector<double> > &integration_ordinates,
     {
         success = qr::cartesian_bounded_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
                                                        qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                                       number_of_integration_ordinates_,
-                                                       number_of_integration_ordinates_,
+                                                       options_.integration_ordinates,
+                                                       options_.integration_ordinates,
                                                        position_[0],
                                                        position_[1],
                                                        radius_,
@@ -241,7 +239,7 @@ get_basis_quadrature_1d(int i,
     // Get quadrature
     vector<double> ordinates_x;
     bool success = qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                    number_of_integration_ordinates_,
+                                    options_.integration_ordinates,
                                     x1,
                                     x2,
                                     ordinates_x,
@@ -270,8 +268,8 @@ get_basis_quadrature_2d(int i,
     {
         success = qr::double_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
                                             qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                            number_of_integration_ordinates_,
-                                            number_of_integration_ordinates_,
+                                            options_.integration_ordinates,
+                                            options_.integration_ordinates,
                                             position_[0],
                                             position_[1],
                                             radius_,
@@ -286,8 +284,8 @@ get_basis_quadrature_2d(int i,
     {
         success = qr::cartesian_bounded_double_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
                                                               qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                                              number_of_integration_ordinates_,
-                                                              number_of_integration_ordinates_,
+                                                              options_.integration_ordinates,
+                                                              options_.integration_ordinates,
                                                               position_[0],
                                                               position_[1],
                                                               radius_,
@@ -360,7 +358,7 @@ get_full_surface_quadrature_2d(int s,
     // Get ordinates for integration dimension
     vector<double> ordinates_main;
     bool success = qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                    number_of_integration_ordinates_,
+                                    options_.integration_ordinates,
                                     smin,
                                     smax,
                                     ordinates_main,
@@ -459,7 +457,7 @@ get_basis_surface_quadrature_2d(int i,
 
     vector<double> ordinates_main;
     bool success = qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                    number_of_integration_ordinates_,
+                                    options_.integration_ordinates,
                                     smin,
                                     smax,
                                     ordinates_main,
@@ -625,35 +623,35 @@ void Weight_Function::
 calculate_material()
 {
     // Make sure options for material weighting are cohesive
-    switch (material_options_.weighting)
+    switch (options_.weighting)
     {
-    case Material_Options::Weighting::POINT:
-        material_options_.total = Material_Options::Total::ISOTROPIC;
+    case Options::Weighting::POINT:
+        options_.total = Options::Total::ISOTROPIC;
         AssertMsg(false, "disabled until equations are checked");
         break; // POINT
-    case Material_Options::Weighting::WEIGHT:
-        material_options_.total = Material_Options::Total::ISOTROPIC;
+    case Options::Weighting::WEIGHT:
+        options_.total = Options::Total::ISOTROPIC;
         break; // WEIGHT
-    case Material_Options::Weighting::FLUX:
+    case Options::Weighting::FLUX:
         AssertMsg(false, "not yet implemented");
         break; // FLUX
     }
 
-    switch (material_options_.output)
+    switch (options_.output)
     {
-    case Material_Options::Output::STANDARD:
+    case Options::Output::STANDARD:
     {
-        switch(material_options_.weighting)
+        switch(options_.weighting)
         {
-        case Material_Options::Weighting::POINT:
+        case Options::Weighting::POINT:
         {
             return calculate_standard_point_material();
         } // POINT
-        case Material_Options::Weighting::WEIGHT:
+        case Options::Weighting::WEIGHT:
         {
             return calculate_standard_weight_material();
         } // WEIGHT
-        case Material_Options::Weighting::FLUX:
+        case Options::Weighting::FLUX:
         {
             AssertMsg(false, "Weight_Function flux weighting not yet implemented");
             return;
@@ -661,19 +659,19 @@ calculate_material()
         } // Weighting
         break;
     } // STANDARD
-    case Material_Options::Output::SUPG:
+    case Options::Output::SUPG:
     {
-        switch(material_options_.weighting)
+        switch(options_.weighting)
         {
-        case Material_Options::Weighting::POINT:
+        case Options::Weighting::POINT:
         {
             return calculate_supg_point_material();
         } // POINT
-        case Material_Options::Weighting::WEIGHT:
+        case Options::Weighting::WEIGHT:
         {
             return calculate_supg_weight_material();
         } // WEIGHT
-        case Material_Options::Weighting::FLUX:
+        case Options::Weighting::FLUX:
         {
             AssertMsg(false, "Weight_Function flux weighting not yet implemented");
             return;
@@ -790,7 +788,7 @@ calculate_standard_weight_material()
     } // integration ordinates
 
     // Divide numerator by denominator for cross sections
-    if (material_options_.normalized)
+    if (options_.normalized)
     {
         for (int g = 0; g < number_of_groups; ++g)
         {
@@ -995,7 +993,7 @@ calculate_supg_weight_material()
     }
 
     // Divide numerator by denominator for cross sections
-    if (material_options_.normalized)
+    if (options_.normalized)
     {
         for (int j = 0; j < dimension_ + 1; ++j)
         {    
@@ -1075,14 +1073,14 @@ calculate_supg_weight_material()
 void Weight_Function::
 calculate_boundary_source()
 {
-    switch(material_options_.weighting)
+    switch(options_.weighting)
     {
-    case Material_Options::Weighting::POINT:
+    case Options::Weighting::POINT:
         // Point weighting doesn't make sense for boundary
         return calculate_weight_boundary_source(); 
-    case Material_Options::Weighting::WEIGHT:
+    case Options::Weighting::WEIGHT:
         return calculate_weight_boundary_source();
-    case Material_Options::Weighting::FLUX:
+    case Options::Weighting::FLUX:
         AssertMsg(false, "Weight_Function flux weighting not yet implemented");
         return;
     }
@@ -1170,7 +1168,7 @@ output(XML_Node output_node) const
     output_node.set_child_value(dimension_, "dimension");
     output_node.set_child_vector(position_, "position");
     material_->output(output_node.append_child("material"));
-    output_node.set_child_value(number_of_integration_ordinates_, "number_of_integration_ordinates");
+    output_node.set_child_value(options_.integration_ordinates, "number_of_integration_ordinates");
     output_node.set_child_value(number_of_basis_functions_, "number_of_basis_functions");
     output_node.set_child_value(number_of_dimensional_moments_, "number_of_dimensional_moments");
     output_node.set_child_value(radius_, "radius");

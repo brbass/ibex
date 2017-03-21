@@ -18,14 +18,15 @@ def get_slab_discretization(length,
 def output_slab_discretization(length,
                                num_points,
                                num_neighbors_basis,
-                               num_neighbors_weight):
+                               num_neighbors_weight,
+                               use_constant_radius):
     num_points, points, radius_basis, radius_weight, b_neighbors, b_neighbor_distances, w_neighbors, w_neighbor_distances, bw_neighbors, bw_neighbor_distances \
         = get_slab_discretization(length,
                                   num_points,
                                   num_neighbors_basis,
                                   num_neighbors_weight,
-                                  True)
-    output_path = "in/slab_{}_{}_{}_{}.xml".format(length, num_points, num_neighbors_basis, num_neighbors_weight)
+                                  use_constant_radius)
+    output_path = "in/slab_{}_{}_{}_{}_{}.xml".format(length, num_points, num_neighbors_basis, num_neighbors_weight, int(use_constant_radius))
 
     # Get spatial discretization node
     node = xml_discretization(output_path,
@@ -87,5 +88,7 @@ if __name__ == '__main__':
     output_slab_discretization(length,
                                num_points,
                                num_neighbors_basis,
-                               num_neighbors_weight)
+                               num_neighbors_weight,
+                               True)
+    
     

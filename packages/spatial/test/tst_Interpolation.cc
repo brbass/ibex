@@ -135,15 +135,15 @@ shared_ptr<Epetra_CrsMatrix> get_matrix(shared_ptr<Weak_Spatial_Discretization> 
         shared_ptr<Weight_Function> weight = spatial->weight(i);
         vector<int> const basis_function_indices = weight->basis_function_indices();
         vector<double> vals(number_of_basis_functions[i]);
-        switch (weight->material_options().weighting)
+        switch (weight->options().weighting)
         {
-        case Weight_Function::Material_Options::Weighting::POINT:
+        case Weight_Function::Options::Weighting::POINT:
         {
             vector<double> const v_b = weight->v_b();
             mat->InsertGlobalValues(i, number_of_basis_functions[i], &v_b[0], &basis_function_indices[0]);
             break;
         }
-        case Weight_Function::Material_Options::Weighting::WEIGHT:
+        case Weight_Function::Options::Weighting::WEIGHT:
         {
             vector<double> const iv_b_w = weight->iv_b_w();
             mat->InsertGlobalValues(i, number_of_basis_functions[i], &iv_b_w[0], &basis_function_indices[0]);
@@ -175,14 +175,14 @@ shared_ptr<Epetra_Vector> get_rhs(shared_ptr<Weak_Spatial_Discretization> spatia
         vector<int> global_index = {i};
         shared_ptr<Weight_Function> weight = spatial->weight(i);
         vector<double> const data = weight->material()->internal_source()->data();
-        switch (weight->material_options().weighting)
+        switch (weight->options().weighting)
         {
-        case Weight_Function::Material_Options::Weighting::POINT:
+        case Weight_Function::Options::Weighting::POINT:
         {
             (*vec)[i] = data[0] / weight->iv_w()[0];
             break;
         }
-        case Weight_Function::Material_Options::Weighting::WEIGHT:
+        case Weight_Function::Options::Weighting::WEIGHT:
         {
             (*vec)[i] = data[0];
             break;

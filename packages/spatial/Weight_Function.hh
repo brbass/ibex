@@ -14,7 +14,7 @@ class Weight_Function : public Point
 {
 public:
     
-    struct Material_Options
+    struct Options
     {
     public:
 
@@ -44,6 +44,7 @@ public:
         // True only if tau != 0 and output is SUPG
         bool include_supg = false;
         bool normalized = true;
+        int integration_ordinates = 32;
         double tau_const = 1; // Constant in front of 1/shape
         double tau; // SUPG parameter (tau_const / shape)
         Weighting weighting = Weighting::WEIGHT;
@@ -57,8 +58,7 @@ public:
     // Constructor
     Weight_Function(int index,
                     int dimension,
-                    int integration_ordinates,
-                    Material_Options material_options,
+                    Options options,
                     std::shared_ptr<Meshless_Function> meshless_function,
                     std::vector<std::shared_ptr<Basis_Function> > basis_functions,
                     std::shared_ptr<Solid_Geometry> solid_geometry,
@@ -93,10 +93,6 @@ public:
     virtual void check_class_invariants() const override;
 
     // Weight_Function functions
-    virtual int number_of_integration_ordinates() const
-    {
-        return number_of_integration_ordinates_;
-    }
     virtual int number_of_basis_functions() const
     {
         return number_of_basis_functions_;
@@ -113,9 +109,9 @@ public:
     {
         return radius_;
     }
-    virtual Material_Options material_options() const
+    virtual Options options() const
     {
-        return material_options_;
+        return options_;
     }
     virtual std::vector<int> const &basis_function_indices() const
     {
@@ -238,12 +234,11 @@ private:
     std::shared_ptr<Material> material_;
 
     // Weight_Function data
-    int number_of_integration_ordinates_;
     int number_of_basis_functions_;
     int number_of_boundary_surfaces_;
     int number_of_dimensional_moments_;
     double radius_;
-    Material_Options material_options_;
+    Options options_;
     std::vector<int> basis_function_indices_;
     std::shared_ptr<Meshless_Function> meshless_function_;
     std::vector<std::shared_ptr<Basis_Function> > basis_functions_;
