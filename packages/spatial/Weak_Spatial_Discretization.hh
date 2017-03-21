@@ -13,7 +13,8 @@ public:
 
     // Constructor
     Weak_Spatial_Discretization(std::vector<std::shared_ptr<Basis_Function> > &bases,
-                                std::vector<std::shared_ptr<Weight_Function> > &weights);
+                                std::vector<std::shared_ptr<Weight_Function> > &weights,
+                                std::shared_ptr<KD_Tree> kd_tree = std::shared_ptr<KD_Tree>());
 
     // Point functions
     virtual bool has_reflection() const override

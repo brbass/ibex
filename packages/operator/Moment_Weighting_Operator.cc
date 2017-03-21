@@ -43,7 +43,7 @@ apply(vector<double> &x) const
         shared_ptr<Weight_Function> weight = spatial_->weight(i);
         int number_of_basis_functions = weight->number_of_basis_functions();
         vector<int> basis_indices = weight->basis_function_indices();
-        Weight_Function::Material_Options weight_options = weight->options();
+        Weight_Function::Options weight_options = weight->options();
         bool normalized;
         switch (options_.normalized)
         {

@@ -12,12 +12,14 @@ using namespace std;
 
 Weak_Spatial_Discretization::
 Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
-                            vector<shared_ptr<Weight_Function> > &weights):
+                            vector<shared_ptr<Weight_Function> > &weights,
+                            shared_ptr<KD_Tree> kd_tree):
     number_of_points_(weights.size()),
     dimension_(weights[0]->dimension()),
     number_of_nodes_(weights[0]->number_of_nodes()),
     weights_(weights),
-    bases_(bases)
+    bases_(bases),
+    kd_tree_(kd_tree)
 {
     // Get number of basis functions
     number_of_basis_functions_.resize(number_of_points_);
@@ -69,16 +71,19 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
     boundary_bases_.resize(number_of_boundary_bases_);
 
     // Get KD tree
-    vector<vector<double> > points(number_of_points_);
-    for (int i = 0; i < number_of_points_; ++i)
+    if (!kd_tree_)
     {
-        vector<double> const point = weights_[i]->position();
+        vector<vector<double> > points(number_of_points_);
+        for (int i = 0; i < number_of_points_; ++i)
+        {
+            vector<double> const point = weights_[i]->position();
         
-        points[i] = point;
+            points[i] = point;
+        }
+        kd_tree_ = make_shared<KD_Tree>(dimension_,
+                                        number_of_points_,
+                                        points);
     }
-    kd_tree_ = make_shared<KD_Tree>(dimension_,
-                                    number_of_points_,
-                                    points);
     
     check_class_invariants();
 }

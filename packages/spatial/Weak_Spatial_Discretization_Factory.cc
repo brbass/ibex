@@ -1,8 +1,12 @@
 #include "Weak_Spatial_Discretization_Factory.hh"
 
 #include "Basis_Function.hh"
+#include "Cartesian_Distance.hh"
+#include "Cartesian_Plane.hh"
+#include "Check.hh"
 #include "Constructive_Solid_Geometry.hh"
 #include "Distance.hh"
+#include "KD_Tree.hh"
 #include "Linear_MLS_Function.hh"
 #include "RBF.hh"
 #include "RBF_Factory.hh"
@@ -10,8 +14,13 @@
 #include "Weak_Spatial_Discretization.hh"
 #include "Weight_Function.hh"
 
+using std::make_shared;
+using std::shared_ptr;
+using std::string;
+using std::vector;
+
 Weak_Spatial_Discretization_Factory::
-Weak_Spatial_Discretization_Factory(shared_ptr<Constructive_Solid_Geometry> solid_geometry)
+Weak_Spatial_Discretization_Factory(shared_ptr<Constructive_Solid_Geometry> solid_geometry):
     solid_geometry_(solid_geometry)
 {
     Assert(solid_geometry_->cartesian_boundaries());
@@ -120,8 +129,9 @@ get_cartesian_points(vector<int> dimensional_points,
     } // switch(dimension)
 }
 
-shared_ptr<KD_Tree> get_kd_tree(int number_of_points,
-                                vector<vector<double> > &points) const
+shared_ptr<KD_Tree> Weak_Spatial_Discretization_Factory::
+get_kd_tree(int number_of_points,
+            vector<vector<double> > &points) const
 {
     int dimension = solid_geometry_->dimension();
     return make_shared<KD_Tree>(dimension,
@@ -129,16 +139,19 @@ shared_ptr<KD_Tree> get_kd_tree(int number_of_points,
                                 points);
 }
 
-void get_neighbors(shared_ptr<KD_Tree> kd_tree,
-                   int number_of_points,
-                   vector<double> const &radii,
-                   vector<double> const &other_radii,
-                   vector<vector<double> > const &positions,
-                   vector<vector<int> > &neighbors)
+void Weak_Spatial_Discretization_Factory::
+get_neighbors(shared_ptr<KD_Tree> kd_tree,
+              int number_of_points,
+              vector<double> const &radii,
+              vector<double> const &other_radii,
+              vector<vector<double> > const &positions,
+              vector<vector<int> > &neighbors) const
 {
     Assert(radii.size() == number_of_points);
     Assert(radii.size() == number_of_points);
 
+    int dimension = solid_geometry_->dimension();
+    
     // Get maximum possible radius for neighboring points
     double max_radius = 0;
     for (double radius: other_radii)
@@ -225,7 +238,7 @@ void Weak_Spatial_Discretization_Factory::
 get_mls_functions(int number_of_points,
                   vector<shared_ptr<Meshless_Function> > const &functions,
                   vector<vector<int> > const &neighbors,
-                  vector<shared_ptr<Meshless_Function> > &mls_functions)
+                  vector<shared_ptr<Meshless_Function> > &mls_functions) const
 {
     Assert(functions.size() == number_of_points);
     Assert(neighbors.size() == number_of_points);
@@ -325,7 +338,7 @@ get_weight_functions(int number_of_points,
         vector<shared_ptr<Basis_Function> > local_bases(number_of_bases);
         for (int j = 0; j < number_of_bases; ++j)
         {
-            local_bases[j] = bases[local_neighbors[j]);
+            local_bases[j] = bases[local_neighbors[j]];
         }
         
         weights[i]
@@ -345,9 +358,10 @@ get_simple_discretization(int num_dimensional_points,
                           bool basis_mls,
                           bool weight_mls,
                           string basis_type,
-                          string weight_type) const
+                          string weight_type,
+                          Weight_Function::Options options) const
 {
-    int dimension = solid_geometry_->dimnesion();
+    int dimension = solid_geometry_->dimension();
     
     // Get points
     int number_of_points;
@@ -370,12 +384,13 @@ get_simple_discretization(int num_dimensional_points,
                   number_of_points,
                   radii,
                   radii,
+                  points,
                   neighbors);
 
     // Get RBF and distance
     RBF_Factory rbf_factory;
-    shared_ptr<RBF> basis_rbf = get_rbf(basis_type); 
-    shared_ptr<RBF> weight_rbf = get_rbf(basis_type);
+    shared_ptr<RBF> basis_rbf = rbf_factory.get_rbf(basis_type); 
+    shared_ptr<RBF> weight_rbf = rbf_factory.get_rbf(basis_type);
     shared_ptr<Distance> distance
         = make_shared<Cartesian_Distance>(dimension);
     
@@ -400,7 +415,7 @@ get_simple_discretization(int num_dimensional_points,
     }
     else
     {
-        get_rbf_funcitons(number_of_points,
+        get_rbf_functions(number_of_points,
                           radii,
                           points,
                           basis_rbf,
@@ -427,7 +442,7 @@ get_simple_discretization(int num_dimensional_points,
     }
     else
     {
-        get_rbf_funcitons(number_of_points,
+        get_rbf_functions(number_of_points,
                           radii,
                           points,
                           weight_rbf,
@@ -438,17 +453,19 @@ get_simple_discretization(int num_dimensional_points,
     // Get basis functions
     vector<shared_ptr<Basis_Function> > bases;
     get_basis_functions(number_of_points,
-                        functions,
+                        meshless_basis,
                         bases);
 
     // Get weight functions
     vector<shared_ptr<Weight_Function> > weights;
     get_weight_functions(number_of_points,
+                         options,
                          neighbors,
-                         functions,
+                         meshless_weight,
                          bases,
                          weights);
     
     return make_shared<Weak_Spatial_Discretization>(bases,
-                                                    weights);
+                                                    weights,
+                                                    kd_tree);
 }

@@ -212,7 +212,7 @@ get_matrix_row(int i, // weight function index (row)
     int number_of_basis_functions = weight->number_of_basis_functions();
     int number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
     int dimension = spatial_discretization_->dimension();
-    Weight_Function::Options weight_options = weight->material_options();
+    Weight_Function::Options weight_options = weight->options();
     bool include_supg = weight_options.include_supg;
     double tau = weight_options.tau;
     Assert(weight_options.total == Weight_Function::Options::Total::ISOTROPIC); // moment method not yet implemented

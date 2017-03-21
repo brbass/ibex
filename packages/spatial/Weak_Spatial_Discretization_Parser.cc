@@ -192,22 +192,23 @@ get_weight_functions(XML_Node input_node,
                      vector<shared_ptr<Basis_Function> > const &basis_functions) const
 {
     // Get global weight function information
-    int integration_ordinates = input_node.get_child_value<int>("integration_ordinates");
-    Weight_Function::Material_Options material_options;
+    Weight_Function::Options material_options;
     {
+        int integration_ordinates = input_node.get_child_value<int>("integration_ordinates");
+        material_options.integration_ordinates = integration_ordinates;
         XML_Node material_node = input_node.get_child("material_options");
         string weighting = material_node.get_attribute<string>("weighting");
         if (weighting == "point")
         {
-            material_options.weighting = Weight_Function::Material_Options::Weighting::POINT;
+            material_options.weighting = Weight_Function::Options::Weighting::POINT;
         }
         else if (weighting == "weight")
         {
-            material_options.weighting = Weight_Function::Material_Options::Weighting::WEIGHT;
+            material_options.weighting = Weight_Function::Options::Weighting::WEIGHT;
         }
         else if (weighting == "weight")
         {
-            material_options.weighting = Weight_Function::Material_Options::Weighting::FLUX;
+            material_options.weighting = Weight_Function::Options::Weighting::FLUX;
         }
         else
         {
@@ -217,11 +218,11 @@ get_weight_functions(XML_Node input_node,
         string output = material_node.get_attribute<string>("output");
         if (output == "standard")
         {
-            material_options.output = Weight_Function::Material_Options::Output::STANDARD;
+            material_options.output = Weight_Function::Options::Output::STANDARD;
         }
         else if (output == "supg")
         {
-            material_options.output = Weight_Function::Material_Options::Output::SUPG;
+            material_options.output = Weight_Function::Options::Output::SUPG;
         }
         else
         {
@@ -267,7 +268,6 @@ get_weight_functions(XML_Node input_node,
         weight_functions[index]
             = make_shared<Weight_Function>(index,
                                            dimension,
-                                           integration_ordinates,
                                            material_options,
                                            meshless_functions[index],
                                            local_basis_functions,
