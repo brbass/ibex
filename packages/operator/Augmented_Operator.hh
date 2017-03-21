@@ -13,7 +13,7 @@ class Augmented_Operator : public Vector_Operator
 public:
 
     // Constructor
-    Augmented_Operator(unsigned number_of_augments,
+    Augmented_Operator(int number_of_augments,
                        std::shared_ptr<Vector_Operator> vector_operator,
                        bool zero_out_augments = false);
     

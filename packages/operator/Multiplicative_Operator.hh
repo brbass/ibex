@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "Vector_Operator.hh"
+#include "Square_Vector_Operator.hh"
 
 /*
   Return the given vector
@@ -21,7 +21,7 @@ public:
         scalar_ = scalar;
     }
 
-    virtual void size() const override
+    virtual int size() const override
     {
         return size_;
     }

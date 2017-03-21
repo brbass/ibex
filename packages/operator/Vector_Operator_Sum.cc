@@ -6,8 +6,7 @@ using std::vector;
 Vector_Operator_Sum::
 Vector_Operator_Sum(shared_ptr<Vector_Operator> op1,
                     shared_ptr<Vector_Operator> op2):
-    Vector_Operator(op1->row_size(),
-                    op1->column_size()),
+    Vector_Operator(),
     op1_(op1),
     op2_(op2)
 {

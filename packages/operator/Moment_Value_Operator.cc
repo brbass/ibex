@@ -13,16 +13,16 @@ Moment_Value_Operator(shared_ptr<Weak_Spatial_Discretization> spatial,
                       shared_ptr<Angular_Discretization> angular,
                       shared_ptr<Energy_Discretization> energy,
                       bool weighted):
-    Square_Vector_Operator(,
+    Square_Vector_Operator(),
     spatial_(spatial),
     angular_(angular),
     energy_(energy),
     weighted_(weighted)
 {
-    row_size_ = (spatial->number_of_points()
-                 * spatial->number_of_nodes()
-                 * angular->number_of_moments()
-                 * energy->number_of_groups());
+    size_ = (spatial->number_of_points()
+             * spatial->number_of_nodes()
+             * angular->number_of_moments()
+             * energy->number_of_groups());
     
     check_class_invariants();
 }

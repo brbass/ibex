@@ -25,11 +25,11 @@ public:
     
     virtual void check_class_invariants() const override;
     
-    virtual void row_size() const override
+    virtual int row_size() const override
     {
         return row_size_;
     }
-    virtual void column_size() const override
+    virtual int column_size() const override
     {
         return column_size_;
     }

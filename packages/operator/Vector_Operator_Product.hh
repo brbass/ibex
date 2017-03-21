@@ -18,6 +18,15 @@ public:
                             std::shared_ptr<Vector_Operator> op2);
 
     virtual void check_class_invariants() const override;
+
+    virtual int row_size() const override
+    {
+        return op1_->row_size();
+    }
+    virtual int column_size() const override
+    {
+        return op2_->column_size();
+    }
     
 private:
 

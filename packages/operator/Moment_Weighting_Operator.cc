@@ -48,7 +48,7 @@ apply(vector<double> &x) const
         switch (options_.normalized)
         {
         case Options::Normalized::AUTO:
-            normalzed = material_options.normalized;
+            normalized = material_options.normalized;
             break;
         case Options::Normalized::TRUE:
             normalized = true;

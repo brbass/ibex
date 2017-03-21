@@ -31,7 +31,7 @@ Discrete_To_Moment(shared_ptr<Spatial_Discretization> spatial_discretization,
                             ? spatial_discretization->number_of_dimensional_moments()
                             : 1);
     row_size_ = phi_size * dimensional_size;
-    column_size = psi_size * dimensional_size;
+    column_size_ = psi_size * dimensional_size;
     
     check_class_invariants();
 }

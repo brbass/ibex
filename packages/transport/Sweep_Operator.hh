@@ -29,6 +29,11 @@ public:
     // Constructor
     Sweep_Operator(Sweep_Type sweep_type,
                    std::shared_ptr<Transport_Discretization> transport_discretization);
+
+    virtual int size() const override
+    {
+        return size_;
+    }
     
     // Include boundary source in sweep
     virtual bool include_boundary_source() const
@@ -65,7 +70,8 @@ protected:
     std::shared_ptr<Transport_Discretization> transport_discretization_;
     
 private:
-    
+
+    int size_;
     virtual void apply(std::vector<double> &x) const override = 0;
 };
 
