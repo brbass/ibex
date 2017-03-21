@@ -223,8 +223,16 @@ get_rbf_functions(int number_of_points,
         // Calculate shape parameter from radii
         double const radius = radii[i];
         vector<double> const &position = points[i];
-        double const shape = rbf->radius() / radius;
-
+        double shape;
+        switch (rbf->range())
+        {
+        case RBF::Range::LOCAL:
+            shape = rbf->radius() / radius;
+            break;
+        case RBF::Range::GLOBAL:
+            shape = 5. / radius;
+        }
+        
         // Create function
         functions[i]
             = make_shared<RBF_Function>(shape,
