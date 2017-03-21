@@ -227,6 +227,8 @@ get_weight_functions(XML_Node input_node,
         {
             AssertMsg(false, "output option (" + output + ") not found");
         }
+
+        material_options.tau_const = material_node.get_attribute<double>("tau", 1.0);
     }
     
     // Get meshless functions

@@ -239,7 +239,7 @@ next_intersection(int initial_region,
                  initial_direction,
                  plus_position);
 
-    final_region = find_region(plus_position);
+    final_region = find_region_including_surface(plus_position);
     
     return best_surface;
 }

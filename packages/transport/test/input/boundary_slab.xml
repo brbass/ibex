@@ -11,7 +11,7 @@
   </energy_discretization>
   
   <boundary_sources>
-    <number_of_boundary_sources>2</number_of_boundary_sources>
+    <number_of_boundary_sources>1</number_of_boundary_sources>
     
     <boundary_source index='0'>
       <alpha>0</alpha>
@@ -38,7 +38,7 @@
     </basis_functions>
     <weight_functions>
       <meshless_function type='rbf' function='compact_gaussian'/>
-      <material_options weighting='weight' output='supg'/>
+      <material_options weighting='weight' output='supg' tau='1.0'/>
       <integration_ordinates>32</integration_ordinates>
     </weight_functions>
   </spatial_discretization>

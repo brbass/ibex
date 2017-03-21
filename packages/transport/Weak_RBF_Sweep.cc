@@ -445,10 +445,10 @@ solve(vector<double> &x) const
                     x);
             // Solve, putting result into LHS
             int k = g + number_of_groups * o;
-            std::cout << *mat_[k] << std::endl;
-            std::cout << *rhs_ << std::endl;
+            // std::cout << *mat_[k] << std::endl;
+            // std::cout << *rhs_ << std::endl;
             (*solver_[k])->Solve();
-            std::cout << *lhs_ << std::endl;
+            // std::cout << *lhs_ << std::endl;
             
             // Update solution value (overwrite x for this o and g)
             for (int i = 0; i < number_of_points; ++i)

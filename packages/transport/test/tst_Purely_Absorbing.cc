@@ -6,6 +6,8 @@
 #include "Boundary_Source_Parser.hh"
 #include "Constructive_Solid_Geometry.hh"
 #include "Constructive_Solid_Geometry_Parser.hh"
+#include "Cross_Section.hh"
+#include "Discrete_Value_Operator.hh"
 #include "Energy_Discretization.hh"
 #include "Energy_Discretization_Parser.hh"
 #include "Material.hh"
@@ -17,6 +19,8 @@
 #include "XML_Document.hh"
 #include "XML_Node.hh"
 
+#include <iomanip>
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -197,25 +201,32 @@ int run_test(string input_filename)
             {
                 opp_direction[d] = -direction[d];
             }
-            int boundary_region;
+            int region;
             double distance;
             vector<double> final_position;
-            solid->next_boundary(position,
-                                 opp_direction,
-                                 boundary_region,
-                                 distance,
-                                 final_position);
-            
-            for (int g = 0; g < number_of_groups; ++g)
+            solid->next_intersection(position,
+                                     opp_direction,
+                                     region,
+                                     distance,
+                                     final_position);
+
+            // Next_intersection struggles on corners
+            // Only include points that correctly find vacuum
+            if (region == Solid_Geometry::Geometry_Errors::NO_REGION)
             {
-                int k = g + number_of_groups * (o + number_of_ordinates * i);
-                double solution = get_solution(sigma_t[g],
-                                               angular_normalization,
-                                               internal_source[g],
-                                               boundary_source[g + number_of_groups * o],
-                                               distance);
+                for (int g = 0; g < number_of_groups; ++g)
+                {
+                    int k = g + number_of_groups * (o + number_of_ordinates * i);
                 
-                cout << rhs[k] << "\t" << solution << endl;
+                    double solution = get_solution(sigma_t[g],
+                                                   angular_normalization,
+                                                   internal_source[g],
+                                                   boundary_source[g + number_of_groups * o],
+                                                   distance);
+
+                    int w = 16;
+                    cout << setw(w) << rhs[k] << setw(w) << solution << setw(w) << (rhs[k] - solution) / solution << endl;
+                }
             }
         }
     }
