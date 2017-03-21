@@ -8,6 +8,6 @@ macro(include_test test_exec test_src test_args)
     install(TARGETS ${test_exec} DESTINATION ${CMAKE_INSTALL_PREFIX}/test)
 endmacro()
 
-include_test(tst_slab_transport tst_Slab_Transport.cc ${CMAKE_CURRENT_SOURCE_DIR}/input)
+include_test(tst_purely_absorbing tst_Purely_Absorbing.cc ${CMAKE_CURRENT_SOURCE_DIR}/input)
 
 add_subdirectory(input)

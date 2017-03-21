@@ -731,7 +731,7 @@
       <surface index="1" shape="plane" type="boundary">
         <origin>1.0</origin>
         <normal>1</normal>
-        <boundary_source>1</boundary_source>
+        <boundary_source>0</boundary_source>
       </surface>
     </surfaces>
     <regions>

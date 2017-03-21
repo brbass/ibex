@@ -49,6 +49,7 @@ void get_transport(string input_filename,
                    shared_ptr<Angular_Discretization> &angular,
                    shared_ptr<Energy_Discretization> &energy,
                    shared_ptr<Transport_Discretization> &transport,
+                   shared_ptr<Constructive_Solid_Geometry> &solid,
                    vector<shared_ptr<Material> > &materials,
                    vector<shared_ptr<Boundary_Source> > &boundary_sources,
                    shared_ptr<Weak_RBF_Sweep> &sweeper)
@@ -82,7 +83,7 @@ void get_transport(string input_filename,
     // Get solid geometry
     Constructive_Solid_Geometry_Parser solid_parser(materials,
                                                     boundary_sources);
-    shared_ptr<Constructive_Solid_Geometry> solid
+    solid
         = solid_parser.parse_from_xml(input_node.get_child("solid_geometry"));
 
     // Get spatial discretization
@@ -107,14 +108,25 @@ void get_transport(string input_filename,
                                       transport);
 }
 
-int test_boundary_slab(string input_folder)
+double get_solution(double sigma_t,
+                    double angular_normalization,
+                    double internal_source,
+                    double boundary_source,
+                    double distance)
+{
+    double att = exp(-sigma_t * distance);
+
+    return boundary_source * att + internal_source / (angular_normalization * sigma_t) * (1 - att);
+}
+
+int run_test(string input_filename)
 {
     // Parse input file
-    string input_filename = input_folder + "boundary_slab.xml";
     shared_ptr<Weak_Spatial_Discretization> spatial;
     shared_ptr<Angular_Discretization> angular;
     shared_ptr<Energy_Discretization> energy;
     shared_ptr<Transport_Discretization> transport;
+    shared_ptr<Constructive_Solid_Geometry> solid;
     vector<shared_ptr<Material> > materials;
     vector<shared_ptr<Boundary_Source> > sources;
     shared_ptr<Weak_RBF_Sweep> sweeper;
@@ -123,33 +135,90 @@ int test_boundary_slab(string input_folder)
                   angular,
                   energy,
                   transport,
+                  solid,
                   materials,
                   sources,
                   sweeper);
     shared_ptr<Material> material = materials[0];
     shared_ptr<Boundary_Source> source = sources[0];
     
-    // Get RHS
+    // Get data
+    int phi_size = transport->phi_size();
     int psi_size = transport->psi_size();
+    int dimension = solid->dimension();
     int number_of_augments = transport->number_of_augments();
+    int number_of_points = spatial->number_of_points();
+    int number_of_groups = energy->number_of_groups();
+    int number_of_ordinates = angular->number_of_ordinates();
+    double angular_normalization = angular->angular_normalization();
+    
+    // Get RHS
     vector<double> rhs(psi_size + number_of_augments, 0);
-
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        vector<double> const internal_source = spatial->weight(i)->material()->internal_source()->data();
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            double is = internal_source[g];
+            for (int o = 0; o < number_of_ordinates; ++o)
+            {
+                int k = g + number_of_groups * (o + number_of_ordinates * i);
+                rhs[k] = is / angular_normalization;
+            }
+        }
+    }
+    
     // Sweep
     sweeper->set_include_boundary_source(true);
     (*sweeper)(rhs);
     
+    // Get values
+    shared_ptr<Discrete_Value_Operator> discrete_value
+        = make_shared<Discrete_Value_Operator>(spatial,
+                                               angular,
+                                               energy,
+                                               false); // weighted
+    (*discrete_value)(rhs);
+    
     // Check results
-    // int number_of_points = spatial->number_of_points();
-    // int number_of_groups = energy->number_of_groups();
-    // int number_of_ordinates = angular->number_of_ordinates();
-    // for (int i = 0; i < number_of_points; ++i)
-    // {
-    //     int o = 1;
-    //     int g = 0;
-    //     int k = g + number_of_groups * (o + number_of_ordinates * i);
+    vector<double> const internal_source = material->internal_source()->data();
+    vector<double> const sigma_t = material->sigma_t()->data();
+    vector<double> const boundary_source = source->data();
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        vector<double> const position = spatial->weight(i)->position();
         
-    //     cout << rhs[k] << endl;
-    // }
+        for (int o = 0; o < number_of_ordinates; ++o)
+        {
+            // Get distance to boundary
+            vector<double> const direction = angular->direction(o);
+            vector<double> opp_direction(dimension);
+            for (int d = 0; d < dimension; ++d)
+            {
+                opp_direction[d] = -direction[d];
+            }
+            int boundary_region;
+            double distance;
+            vector<double> final_position;
+            solid->next_boundary(position,
+                                 opp_direction,
+                                 boundary_region,
+                                 distance,
+                                 final_position);
+            
+            for (int g = 0; g < number_of_groups; ++g)
+            {
+                int k = g + number_of_groups * (o + number_of_ordinates * i);
+                double solution = get_solution(sigma_t[g],
+                                               angular_normalization,
+                                               internal_source[g],
+                                               boundary_source[g + number_of_groups * o],
+                                               distance);
+                
+                cout << rhs[k] << "\t" << solution << endl;
+            }
+        }
+    }
 
     return 0;
 }
@@ -157,19 +226,22 @@ int test_boundary_slab(string input_folder)
 int main(int argc, char **argv)
 {
     int checksum = 0;
-
+    
     MPI_Init(&argc, &argv);
     
     if (argc != 2)
     {
-        cerr << "usage: tst_Slab_Transport [input_folder]" << endl;
+        cerr << "usage: tst_Purely_Absorbing [input_folder]" << endl;
         return 1;
     }
     
-    string input_folder = argv[1];
+    string input_folder = argv[1]; 
     input_folder += "/";
-    
-    checksum += test_boundary_slab(input_folder);
+    {
+        string input_filename = input_folder + "boundary_slab.xml";
+        
+        checksum += run_test(input_filename);
+    }
     
     MPI_Finalize();
     

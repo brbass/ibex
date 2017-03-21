@@ -550,5 +550,5 @@ output(XML_Node output_node) const
 shared_ptr<Material> Constructive_Solid_Geometry::
 material(vector<double> const &position) const
 {
-    return regions_[find_region(position)]->material();
+    return regions_[find_region_including_surface(position)]->material();
 }

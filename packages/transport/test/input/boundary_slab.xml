@@ -17,11 +17,6 @@
       <alpha>0</alpha>
       <isotropic_source>2</isotropic_source>
     </boundary_source>
-    
-    <boundary_source index='1'>
-      <alpha>0</alpha>
-      <isotropic_source>0</isotropic_source>
-    </boundary_source>
   </boundary_sources>
 
   <materials>
@@ -33,7 +28,7 @@
       <nu>0.0</nu>
       <sigma_f>0.0</sigma_f>
       <chi>0.0</chi>
-      <internal_source>0.0</internal_source>
+      <internal_source>1.0</internal_source>
     </material>
   </materials>
   
