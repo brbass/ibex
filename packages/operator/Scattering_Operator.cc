@@ -15,18 +15,21 @@ Scattering_Operator(shared_ptr<Spatial_Discretization> spatial_discretization,
                     shared_ptr<Angular_Discretization> angular_discretization,
                     shared_ptr<Energy_Discretization> energy_discretization,
                     Options options):
-    Square_Vector_Operator(spatial_discretization->number_of_points()
-                           * spatial_discretization->number_of_nodes()
-                           * (options.include_dimensional_moments
-                              ? spatial_discretization->number_of_dimensional_moments()
-                              : 1)
-                           * energy_discretization->number_of_groups()
-                           * angular_discretization->number_of_moments()),
+    Square_Vector_Operator(),
     spatial_discretization_(spatial_discretization),
     angular_discretization_(angular_discretization),
     energy_discretization_(energy_discretization),
     options_(options)
 {
+    int dimensional_size = (options.include_dimensional_moments
+                            ? spatial_discretization->number_of_dimensional_moments()
+                            : 1);
+    int phi_size = (spatial_discretization->number_of_points()
+                    * spatial_discretization->number_of_nodes()
+                    * energy_discretization->number_of_groups()
+                    * angular_discretization->number_of_moments());
+    
+    size_ = dimensional_size * phi_size;
 }
 
 void Scattering_Operator::

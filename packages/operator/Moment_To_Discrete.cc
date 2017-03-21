@@ -12,25 +12,26 @@ Moment_To_Discrete(shared_ptr<Spatial_Discretization> spatial_discretization,
                    shared_ptr<Angular_Discretization> angular_discretization,
                    shared_ptr<Energy_Discretization> energy_discretization,
                    bool include_dimensional_moments):
-    Vector_Operator(spatial_discretization->number_of_points()
-                    * spatial_discretization->number_of_nodes()
-                    * (include_dimensional_moments
-                       ? spatial_discretization->number_of_dimensional_moments()
-                       : 1)
-                    * energy_discretization->number_of_groups()
-                    * angular_discretization->number_of_ordinates(), // row size
-                    spatial_discretization->number_of_points()
-                    * spatial_discretization->number_of_nodes()
-                    * (include_dimensional_moments
-                       ? spatial_discretization->number_of_dimensional_moments()
-                       : 1)
-                    * energy_discretization->number_of_groups()
-                    * angular_discretization->number_of_moments()), // column size
+    Vector_Operator(),
     include_dimensional_moments_(include_dimensional_moments),
     spatial_discretization_(spatial_discretization),
     angular_discretization_(angular_discretization),
     energy_discretization_(energy_discretization)
 {
+    int phi_size = (spatial_discretization->number_of_points()
+                    * spatial_discretization->number_of_nodes()
+                    * energy_discretization->number_of_groups()
+                    * angular_discretization->number_of_moments());
+    int psi_size = (spatial_discretization->number_of_points()
+                    * spatial_discretization->number_of_nodes()
+                    * energy_discretization->number_of_groups()
+                    * angular_discretization->number_of_ordinates());
+    int dimensional_size = (include_dimensional_moments
+                            ? spatial_discretization->number_of_dimensional_moments()
+                            : 1);
+    row_size_ = psi_size * dimensional_size;
+    column_size = phi_size * dimensional_size;
+    
     check_class_invariants();
 }
 

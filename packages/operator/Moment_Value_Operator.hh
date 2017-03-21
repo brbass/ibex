@@ -18,16 +18,22 @@ public:
                           std::shared_ptr<Angular_Discretization> angular,
                           std::shared_ptr<Energy_Discretization> energy,
                           bool weighted);
+
+    virtual int row_size() const
+    {
+        return row_size_;
+    }
     
     virtual void check_class_invariants() const override;
     virtual void apply(std::vector<double> &x) const override;
 
 private:
 
+    bool weighted_;
+    int row_size_;
     std::shared_ptr<Weak_Spatial_Discretization> spatial_;
     std::shared_ptr<Angular_Discretization> angular_;
     std::shared_ptr<Energy_Discretization> energy_;
-    bool weighted_;
 };
 
 #endif

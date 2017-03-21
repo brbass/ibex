@@ -37,10 +37,17 @@ public:
                         std::shared_ptr<Energy_Discretization> energy_discretization,
                         Options options);
     
+    virtual int size() const override
+    {
+        return size_;
+    }
+    
     virtual void check_class_invariants() const override;
     
 protected:
 
+    int size_;
+    
     // Type of scattering
     Options options_;
 
@@ -49,7 +56,7 @@ protected:
     std::shared_ptr<Energy_Discretization> energy_discretization_;
 
 private: 
-
+    
     // Apply scattering of chosen type
     virtual void apply(std::vector<double> &x) const override;
 

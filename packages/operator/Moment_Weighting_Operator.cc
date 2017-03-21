@@ -11,15 +11,18 @@ using std::vector;
 Moment_Weighting_Operator::
 Moment_Weighting_Operator(shared_ptr<Weak_Spatial_Discretization> spatial,
                           shared_ptr<Angular_Discretization> angular,
-                          shared_ptr<Energy_Discretization> energy):
-    Square_Vector_Operator(spatial->number_of_points()
-                           * spatial->number_of_nodes()
-                           * angular->number_of_moments()
-                           * energy->number_of_groups()),
-    spatial_(spatial),
-    angular_(angular),
-    energy_(energy)
+                          shared_ptr<Energy_Discretization> energy,
+                          Options options):
+    Weighting_Operator(spatial,
+                       angular,
+                       energy,
+                       options)
 {
+    size_ = (spatial->number_of_points()
+             * spatial->number_of_nodes()
+             * angular->number_of_moments()
+             * energy->number_of_groups());
+    
     check_class_invariants();
 }
 
@@ -40,8 +43,21 @@ apply(vector<double> &x) const
         shared_ptr<Weight_Function> weight = spatial_->weight(i);
         int number_of_basis_functions = weight->number_of_basis_functions();
         vector<int> basis_indices = weight->basis_function_indices();
-        Weight_Function::Material_Options options = weight->material_options();
-        bool const normalized = options.normalized;
+        Weight_Function::Material_Options material_options = weight->material_options();
+        bool normalized;
+        switch (options_.normalized)
+        {
+        case Options::Normalized::AUTO:
+            normalzed = material_options.normalized;
+            break;
+        case Options::Normalized::TRUE:
+            normalized = true;
+            break;
+        case Options::Normalized::FALSE:
+            normalized = false;
+            break;
+        }
+        
         vector<double> const iv_w = weight->iv_w();
         vector<double> const iv_b_w = weight->iv_b_w();
         

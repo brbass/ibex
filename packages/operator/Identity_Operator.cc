@@ -4,8 +4,8 @@ using std::vector;
 
 Identity_Operator::
 Identity_Operator(int size):
-    Vector_Operator(size,
-                    size)
+    Square_Vector_Operator(),
+    size_(size)
 {
 }
 

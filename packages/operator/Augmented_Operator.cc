@@ -4,11 +4,10 @@ using std::shared_ptr;
 using std::vector;
 
 Augmented_Operator::
-Augmented_Operator(unsigned number_of_augments,
+Augmented_Operator(int number_of_augments,
                    shared_ptr<Vector_Operator> vector_operator,
                    bool zero_out_augments):
-    Vector_Operator(vector_operator->row_size() + number_of_augments,
-                    vector_operator->column_size() + number_of_augments),
+    Vector_Operator(),
     zero_out_augments_(zero_out_augments),
     number_of_augments_(number_of_augments),
     vector_operator_(vector_operator)

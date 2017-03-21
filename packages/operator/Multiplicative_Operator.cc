@@ -5,8 +5,8 @@ using std::vector;
 Multiplicative_Operator::
 Multiplicative_Operator(int size,
                         double scalar):
-    Vector_Operator(size,
-                    size),
+    Square_Vector_Operator(),
+    size_(size),
     scalar_(scalar)
 {
     check_class_invariants();
@@ -15,7 +15,7 @@ Multiplicative_Operator(int size,
 void Multiplicative_Operator::
 apply(vector<double> &x) const
 {
-    for (int i = 0; i < column_size(); ++i)
+    for (int i = 0; i < size_; ++i)
     {
         x[i] *= scalar_;
     }

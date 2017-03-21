@@ -12,20 +12,17 @@ Dimensional_Moment_Summation::
 Dimensional_Moment_Summation(shared_ptr<Weak_Spatial_Discretization> spatial,
                              shared_ptr<Angular_Discretization> angular,
                              shared_ptr<Energy_Discretization> energy):
-    Vector_Operator(spatial->number_of_points()
-                    * spatial->number_of_nodes()
-                    * spatial->number_of_dimensional_moments()
-                    * energy->number_of_groups()
-                    * angular->number_of_ordinates(),
-                    spatial->number_of_points()
-                    * spatial->number_of_nodes()
-                    * energy->number_of_groups()
-                    * angular->number_of_ordinates()),
-                    
+    Vector_Operator(),                    
     spatial_(spatial),
     angular_(angular),
     energy_(energy)
 {
+    int phi_size =(spatial->number_of_points()
+                   * spatial->number_of_nodes()
+                   * energy->number_of_groups()
+                   * angular->number_of_moments());
+    row_size_ = phi_size * spatial->number_of_dimensional_moments();
+    column_size_ = phi_size;
 }
 
 void Dimensional_Moment_Summation::

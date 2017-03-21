@@ -19,6 +19,15 @@ public:
     
     virtual void check_class_invariants() const override;
 
+    virtual int row_size() const override
+    {
+        return vector_operator_->row_size() + number_of_augments_;
+    }
+    virtual int column_size() const override
+    {
+        return vector_operator_->column_size() + number_of_augments_;
+    }
+    
 private:
     
     virtual void apply(std::vector<double> &x) const override;

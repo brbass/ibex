@@ -13,7 +13,7 @@ class Square_Vector_Operator : public Vector_Operator
 public:
     
     // Constructor
-    Square_Vector_Operator(int size);
+    Square_Vector_Operator();
     
     // Are the input and output size the same?
     virtual bool square() const override
@@ -21,6 +21,21 @@ public:
         return true;
     }
 
+    // Input and output size should be the same
+    virtual int size() const = 0;
+    
+    // Output size
+    virtual int row_size() const
+    {
+        return size();
+    }
+    
+    // Input size
+    virtual int column_size() const
+    {
+        return size();
+    }
+    
     virtual void check_class_invariants() const = 0;
     
 private:
