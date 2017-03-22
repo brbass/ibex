@@ -22,6 +22,8 @@ Linear_MLS_Function(vector<shared_ptr<Meshless_Function> > neighbor_functions):
 {
     number_of_polynomials_ = dimension_ + 1;
     radius_ = function_->radius();
+
+    check_class_invariants();
 }
 
 double Linear_MLS_Function::
@@ -173,7 +175,7 @@ check_class_invariants() const
     Assert(function_);
     for (shared_ptr<Meshless_Function> func : neighbor_functions_)
     {
-        Assert(func);
+        AssertMsg(func, "basis for mls function not initialized");
     }
 }
 

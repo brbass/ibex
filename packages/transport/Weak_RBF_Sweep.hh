@@ -25,7 +25,6 @@ public:
             AZTEC
         };
         
-        bool use_supg;
         Solver solver = Solver::AMESOS;
     };
 

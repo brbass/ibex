@@ -41,12 +41,14 @@ public:
             MOMENT
         };
 
-        // True only if tau != 0 and output is SUPG
+        // Parameters that are automatically set
         bool include_supg = false;
         bool normalized = true;
+        double tau; // SUPG parameter (tau_const / shape)
+
+        // Parameters for the user to set
         int integration_ordinates = 32;
         double tau_const = 1; // Constant in front of 1/shape
-        double tau; // SUPG parameter (tau_const / shape)
         Weighting weighting = Weighting::WEIGHT;
         Total total = Total::ISOTROPIC;
         Output output = Output::STANDARD;

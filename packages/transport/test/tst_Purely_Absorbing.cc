@@ -1,9 +1,11 @@
 #include <mpi.h>
 
 #include "Angular_Discretization.hh"
+#include "Angular_Discretization_Factory.hh"
 #include "Angular_Discretization_Parser.hh"
 #include "Boundary_Source.hh"
 #include "Boundary_Source_Parser.hh"
+#include "Cartesian_Plane.hh"
 #include "Constructive_Solid_Geometry.hh"
 #include "Constructive_Solid_Geometry_Parser.hh"
 #include "Cross_Section.hh"
@@ -11,9 +13,12 @@
 #include "Energy_Discretization.hh"
 #include "Energy_Discretization_Parser.hh"
 #include "Material.hh"
+#include "Material_Factory.hh"
 #include "Material_Parser.hh"
+#include "Region.hh"
 #include "Transport_Discretization.hh"
 #include "Weak_Spatial_Discretization.hh"
+#include "Weak_Spatial_Discretization_Factory.hh"
 #include "Weak_Spatial_Discretization_Parser.hh"
 #include "Weak_RBF_Sweep.hh"
 #include "XML_Document.hh"
@@ -48,15 +53,140 @@ XML_Document get_xml_document(string input_filename)
     return input_file;
 }
 
-void get_transport(string input_filename,
-                   shared_ptr<Weak_Spatial_Discretization> &spatial,
-                   shared_ptr<Angular_Discretization> &angular,
-                   shared_ptr<Energy_Discretization> &energy,
-                   shared_ptr<Transport_Discretization> &transport,
-                   shared_ptr<Constructive_Solid_Geometry> &solid,
-                   vector<shared_ptr<Material> > &materials,
-                   vector<shared_ptr<Boundary_Source> > &boundary_sources,
-                   shared_ptr<Weak_RBF_Sweep> &sweeper)
+void get_one_region(bool basis_mls,
+                    bool weight_mls,
+                    string basis_type,
+                    string weight_type,
+                    Weight_Function::Options weight_options,
+                    int dimension,
+                    int angular_rule,
+                    int num_dimensional_points,
+                    double radius_num_intervals,
+                    double sigma_t,
+                    double internal_source,
+                    double boundary_source,
+                    double length,
+                    shared_ptr<Weak_Spatial_Discretization> &spatial,
+                    shared_ptr<Angular_Discretization> &angular,
+                    shared_ptr<Energy_Discretization> &energy,
+                    shared_ptr<Transport_Discretization> &transport,
+                    shared_ptr<Constructive_Solid_Geometry> &solid,
+                    vector<shared_ptr<Material> > &materials,
+                    vector<shared_ptr<Boundary_Source> > &boundary_sources,
+                    shared_ptr<Weak_RBF_Sweep> &sweeper)
+{
+    // Get angular discretization
+    int number_of_moments = 1;
+    Angular_Discretization_Factory angular_factory;
+    angular = angular_factory.get_angular_discretization(dimension,
+                                                         number_of_moments,
+                                                         angular_rule);
+    
+    // Get energy discretization
+    int number_of_groups = 1;
+    energy = make_shared<Energy_Discretization>(number_of_groups);
+    
+    // Get material
+    materials.resize(1);
+    Material_Factory material_factory(angular,
+                                      energy);
+    materials[0]
+        = material_factory.get_standard_material(0, // index
+                                                 {sigma_t},
+                                                 {0}, // sigma_s
+                                                 {0}, // nu
+                                                 {0}, // sigma_f
+                                                 {0}, // chi
+                                                 {internal_source});
+    
+    // Get boundary source
+    boundary_sources.resize(1);
+    Boundary_Source::Dependencies boundary_dependencies;
+    boundary_sources[0]
+        = make_shared<Boundary_Source>(0, // index
+                                       boundary_dependencies,
+                                       angular,
+                                       energy,
+                                       vector<double>(1, boundary_source),
+                                       vector<double>(1, 0));
+    
+    // Get solid geometry
+    vector<shared_ptr<Surface> > surfaces(2 * dimension);
+    vector<shared_ptr<Region> > regions(1);
+    for (int d = 0; d < dimension; ++d)
+    {
+        int index1 = 0 + 2 * d;
+        surfaces[index1]
+            = make_shared<Cartesian_Plane>(index1,
+                                           dimension,
+                                           Surface::Surface_Type::BOUNDARY,
+                                           d,
+                                           -0.5 * length,
+                                           -1);
+        int index2 = 1 + 2 * d;
+        surfaces[index2]
+            = make_shared<Cartesian_Plane>(index2,
+                                           dimension,
+                                           Surface::Surface_Type::BOUNDARY,
+                                           d,
+                                           0.5 * length,
+                                           1);
+    }
+    for (shared_ptr<Surface> surface : surfaces)
+    {
+        surface->set_boundary_source(boundary_sources[0]);
+    }
+    vector<Surface::Relation> surface_relations(2 * dimension,
+                                                Surface::Relation::NEGATIVE);
+    regions[0]
+        = make_shared<Region>(0, // index
+                              materials[0],
+                              surface_relations,
+                              surfaces);
+    solid
+        = make_shared<Constructive_Solid_Geometry>(dimension,
+                                                   surfaces,
+                                                   regions,
+                                                   materials,
+                                                   boundary_sources);
+    
+    // Get spatial discretization
+    Weak_Spatial_Discretization_Factory spatial_factory(solid);
+    spatial
+        = spatial_factory.get_simple_discretization(num_dimensional_points,
+                                                    radius_num_intervals,
+                                                    basis_mls,
+                                                    weight_mls,
+                                                    basis_type,
+                                                    weight_type,
+                                                    weight_options);
+    
+    // Get transport discretization
+    transport
+        = make_shared<Transport_Discretization>(spatial,
+                                                angular,
+                                                energy);
+    
+    // Get weak RBF sweep
+    Weak_RBF_Sweep::Options options;
+    sweeper
+        = make_shared<Weak_RBF_Sweep>(options,
+                                      spatial,
+                                      angular,
+                                      energy,
+                                      transport);
+}
+
+
+void get_transport_from_xml(string input_filename,
+                            shared_ptr<Weak_Spatial_Discretization> &spatial,
+                            shared_ptr<Angular_Discretization> &angular,
+                            shared_ptr<Energy_Discretization> &energy,
+                            shared_ptr<Transport_Discretization> &transport,
+                            shared_ptr<Constructive_Solid_Geometry> &solid,
+                            vector<shared_ptr<Material> > &materials,
+                            vector<shared_ptr<Boundary_Source> > &boundary_sources,
+                            shared_ptr<Weak_RBF_Sweep> &sweeper)
 {
     // Get input document
     XML_Document input_file = get_xml_document(input_filename);
@@ -123,26 +253,15 @@ double get_solution(double sigma_t,
     return boundary_source * att + internal_source / (angular_normalization * sigma_t) * (1 - att);
 }
 
-int run_test(string input_filename)
+int run_test(shared_ptr<Weak_Spatial_Discretization> spatial,
+             shared_ptr<Angular_Discretization> angular,
+             shared_ptr<Energy_Discretization> energy,
+             shared_ptr<Transport_Discretization> transport,
+             shared_ptr<Constructive_Solid_Geometry> solid,
+             vector<shared_ptr<Material> > materials,
+             vector<shared_ptr<Boundary_Source> > sources,
+             shared_ptr<Weak_RBF_Sweep> sweeper)
 {
-    // Parse input file
-    shared_ptr<Weak_Spatial_Discretization> spatial;
-    shared_ptr<Angular_Discretization> angular;
-    shared_ptr<Energy_Discretization> energy;
-    shared_ptr<Transport_Discretization> transport;
-    shared_ptr<Constructive_Solid_Geometry> solid;
-    vector<shared_ptr<Material> > materials;
-    vector<shared_ptr<Boundary_Source> > sources;
-    shared_ptr<Weak_RBF_Sweep> sweeper;
-    get_transport(input_filename,
-                  spatial,
-                  angular,
-                  energy,
-                  transport,
-                  solid,
-                  materials,
-                  sources,
-                  sweeper);
     shared_ptr<Material> material = materials[0];
     shared_ptr<Boundary_Source> source = sources[0];
     
@@ -188,6 +307,8 @@ int run_test(string input_filename)
     vector<double> const internal_source = material->internal_source()->data();
     vector<double> const sigma_t = material->sigma_t()->data();
     vector<double> const boundary_source = source->data();
+    int w = 16;
+    cout << setw(w) << "calculated" << setw(w) << "solution" << setw(w) << "rel_error" << endl;
     for (int i = 0; i < number_of_points; ++i)
     {
         vector<double> const position = spatial->weight(i)->position();
@@ -212,7 +333,7 @@ int run_test(string input_filename)
 
             // Next_intersection struggles on corners
             // Only include points that correctly find vacuum
-            if (region == Solid_Geometry::Geometry_Errors::NO_REGION)
+            if (region == Solid_Geometry::Geometry_Errors::NO_REGION && o == 0)
             {
                 for (int g = 0; g < number_of_groups; ++g)
                 {
@@ -223,8 +344,7 @@ int run_test(string input_filename)
                                                    internal_source[g],
                                                    boundary_source[g + number_of_groups * o],
                                                    distance);
-
-                    int w = 16;
+                    
                     cout << setw(w) << rhs[k] << setw(w) << solution << setw(w) << (rhs[k] - solution) / solution << endl;
                 }
             }
@@ -240,19 +360,96 @@ int main(int argc, char **argv)
     
     MPI_Init(&argc, &argv);
     
-    if (argc != 2)
+    shared_ptr<Weak_Spatial_Discretization> spatial;
+    shared_ptr<Angular_Discretization> angular;
+    shared_ptr<Energy_Discretization> energy;
+    shared_ptr<Transport_Discretization> transport;
+    shared_ptr<Constructive_Solid_Geometry> solid;
+    vector<shared_ptr<Material> > materials;
+    vector<shared_ptr<Boundary_Source> > sources;
+    shared_ptr<Weak_RBF_Sweep> sweeper;
+    
+    if (argc == 2)
+    {
+        string input_folder = argv[1]; 
+        input_folder += "/";
+        string input_filename = input_folder + "boundary_slab.xml";
+        
+        get_transport_from_xml(input_filename,
+                               spatial,
+                               angular,
+                               energy,
+                               transport,
+                               solid,
+                               materials,
+                               sources,
+                               sweeper);
+        
+        checksum += run_test(spatial,
+                             angular,
+                             energy,
+                             transport,
+                             solid,
+                             materials,
+                             sources,
+                             sweeper);
+
+    }
+    else if (argc == 1)
+    {
+        int dimension = 2;
+        int angular_rule = 1;
+        int num_dimensional_points = 5;
+        double radius_num_intervals = 5.0;
+        double sigma_t = 2.0;
+        double internal_source = 0.0;
+        double boundary_source = 1.0;
+        double length = 2;
+        bool basis_mls = false;
+        bool weight_mls = false;
+        string basis_type = "compact_gaussian";
+        string weight_type = "compact_gaussian";
+        Weight_Function::Options weight_options;
+        weight_options.integration_ordinates = 64;
+        weight_options.tau_const = 0;
+        weight_options.output = Weight_Function::Options::Output::STANDARD;
+        get_one_region(basis_mls,
+                       weight_mls,
+                       basis_type,
+                       weight_type,
+                       weight_options,
+                       dimension,
+                       angular_rule,
+                       num_dimensional_points,
+                       radius_num_intervals,
+                       sigma_t,
+                       internal_source,
+                       boundary_source,
+                       length,
+                       spatial,
+                       angular,
+                       energy,
+                       transport,
+                       solid,
+                       materials,
+                       sources,
+                       sweeper);
+        
+        checksum += run_test(spatial,
+                             angular,
+                             energy,
+                             transport,
+                             solid,
+                             materials,
+                             sources,
+                             sweeper);
+    }
+    else
     {
         cerr << "usage: tst_Purely_Absorbing [input_folder]" << endl;
         return 1;
     }
     
-    string input_folder = argv[1]; 
-    input_folder += "/";
-    {
-        string input_filename = input_folder + "boundary_slab.xml";
-        
-        checksum += run_test(input_filename);
-    }
     
     MPI_Finalize();
     

@@ -1,5 +1,8 @@
 #include "Weak_Spatial_Discretization_Factory.hh"
 
+#include <cmath>
+#include <iostream>
+
 #include "Basis_Function.hh"
 #include "Cartesian_Distance.hh"
 #include "Cartesian_Plane.hh"
@@ -14,10 +17,7 @@
 #include "Weak_Spatial_Discretization.hh"
 #include "Weight_Function.hh"
 
-using std::make_shared;
-using std::shared_ptr;
-using std::string;
-using std::vector;
+using namespace std;
 
 Weak_Spatial_Discretization_Factory::
 Weak_Spatial_Discretization_Factory(shared_ptr<Constructive_Solid_Geometry> solid_geometry):
@@ -257,12 +257,14 @@ get_mls_functions(int number_of_points,
     {
         // Get local neighbors
         vector<int> const &local_neighbors = neighbors[i];
-        vector<shared_ptr<Meshless_Function> > neighbor_functions(local_neighbors.size());
-        for (int index : local_neighbors)
+        int number_of_local_neighbors = local_neighbors.size();
+        vector<shared_ptr<Meshless_Function> > neighbor_functions(number_of_local_neighbors);
+        for (int j = 0; j < number_of_local_neighbors; ++j)
         {
-            neighbor_functions[i] = functions[index];
+            int index = local_neighbors[j];
+            neighbor_functions[j] = functions[index];
         }
-
+        
         // Create MLS function
         mls_functions[i]
             = make_shared<Linear_MLS_Function>(neighbor_functions);
@@ -282,7 +284,7 @@ get_boundary_surfaces(shared_ptr<Meshless_Function> function,
     {
         // Get distance between boundary and center
         double distance = abs(position[boundary->surface_dimension()] - boundary->position());
-
+        
         // If boundary is within the radius, add to local surfaces
         if (distance < radius)
         {

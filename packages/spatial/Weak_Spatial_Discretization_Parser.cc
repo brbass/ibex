@@ -14,11 +14,7 @@
 #include "Weight_Function.hh"
 #include "XML_Node.hh"
 
-using std::abs;
-using std::make_shared;
-using std::shared_ptr;
-using std::string;
-using std::vector;
+using namespace std;
 
 Weak_Spatial_Discretization_Parser::
 Weak_Spatial_Discretization_Parser(shared_ptr<Solid_Geometry> solid_geometry,

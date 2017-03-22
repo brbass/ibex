@@ -443,6 +443,7 @@ solve(vector<double> &x) const
             set_rhs(o,
                     g,
                     x);
+            
             // Solve, putting result into LHS
             int k = g + number_of_groups * o;
             // std::cout << *mat_[k] << std::endl;
