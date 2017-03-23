@@ -66,67 +66,31 @@ get_cartesian_points(vector<int> dimensional_points,
 
     // Get Cartesian grid of points
     points.assign(number_of_points, vector<double>(dimension));
-    switch (dimension)
+    int index = 0;
+    vector<int> indices(dimension, 0);
+    vector<double> dh(dimension);
+    for (int d = 0; d < dimension; ++d)
     {
-    case 1:
-    {
-        double xmin = limits[0][0];
-        double xmax = limits[0][1];
-        int nx = dimensional_points[0];
-        for (int i = 0; i < nx; ++i)
-        {
-            points[i][0] = xmin + (xmax - xmin) * i / (nx - 1);
-        }
-        break;
+        dh[d] = (limits[d][1] - limits[d][0]) / static_cast<double>(dimensional_points[d] - 1);
     }
-    case 2:
+    while (index < number_of_points)
     {
-        double xmin = limits[0][0];
-        double xmax = limits[0][1];
-        double ymin = limits[1][0];
-        double ymax = limits[1][1];
-        int nx = dimensional_points[0];
-        int ny = dimensional_points[1];
-        for (int j = 0; j < ny; ++j)
+        for (int d = 0; d < dimension; ++d)
         {
-            for (int i = 0; i < nx; ++i)
+            points[index][d] = limits[d][0] + dh[d] * indices[d];
+        }
+        
+        index += 1;
+        indices[0] += 1;
+        for (int d = 0; d < dimension - 1; ++d)
+        {
+            if (indices[d] >= dimensional_points[d])
             {
-                int l = i + nx * j;
-
-                points[l][0] = xmin + (xmax - xmin) * i / (nx - 1);
-                points[l][1] = ymin + (ymax - ymin) * i / (ny - 1);
+                indices[d] = 0;
+                indices[d + 1] += 1;
             }
         }
-        break;
     }
-    case 3:
-    {
-        double xmin = limits[0][0];
-        double xmax = limits[0][1];
-        double ymin = limits[1][0];
-        double ymax = limits[1][1];
-        double zmin = limits[2][0];
-        double zmax = limits[2][1];
-        int nx = dimensional_points[0];
-        int ny = dimensional_points[1];
-        int nz = dimensional_points[2];
-        for (int k = 0; k < nz; ++k)
-        {
-            for (int j = 0; j < ny; ++j)
-            {
-                for (int i = 0; i < nx; ++i)
-                {
-                    int l = i + nx * (j + ny * k);
-
-                    points[l][0] = xmin + (xmax - xmin) * i / (nx - 1);
-                    points[l][1] = ymin + (ymax - ymin) * i / (ny - 1);
-                    points[l][2] = zmin + (zmax - zmin) * i / (nz - 1);
-                }
-            }
-        }
-        break;
-    }
-    } // switch(dimension)
 }
 
 shared_ptr<KD_Tree> Weak_Spatial_Discretization_Factory::
@@ -171,11 +135,11 @@ get_neighbors(shared_ptr<KD_Tree> kd_tree,
         double search_radius = radius + max_radius;
         vector<double> const &position = positions[i];
         vector<int> indices;
-        vector<double> distances;
+        vector<double> squared_distances;
         kd_tree->radius_search(search_radius,
                                position,
                                indices,
-                               distances);
+                               squared_distances);
         Assert(indices.size() > 0);
         
         // Check to see if points actually overlap

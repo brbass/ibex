@@ -14,6 +14,7 @@ Gauss_Legendre_Quadrature(int dimension,
                            number_of_moments,
                            number_of_ordinates)
 {
+    Assert(number_of_ordinates > 1);
     Quadrature_Rule::gauss_legendre(number_of_ordinates, ordinates_, weights_);
     
     directions_.resize(number_of_ordinates_);

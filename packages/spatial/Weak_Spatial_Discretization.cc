@@ -92,13 +92,13 @@ int Weak_Spatial_Discretization::
 nearest_point(vector<double> const &position) const
 {
     vector<int> index;
-    vector<double> distance;
+    vector<double> squared_distance;
 
     kd_tree_->find_neighbors(1,
                              position,
                              index,
-                             distance);
-
+                             squared_distance);
+    
     return index[0];
 }
 

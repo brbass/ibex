@@ -273,20 +273,33 @@ int run_test(shared_ptr<Weak_Spatial_Discretization> spatial,
     int number_of_points = spatial->number_of_points();
     int number_of_groups = energy->number_of_groups();
     int number_of_ordinates = angular->number_of_ordinates();
-    double angular_normalization = angular->angular_normalization();
+    int number_of_dimensional_moments = spatial->number_of_dimensional_moments();
+    double angular_normalization = 1;//angular->angular_normalization();
     
     // Get RHS
     vector<double> rhs(psi_size + number_of_augments, 0);
     for (int i = 0; i < number_of_points; ++i)
     {
-        vector<double> const internal_source = spatial->weight(i)->material()->internal_source()->data();
+        shared_ptr<Weight_Function> weight = spatial->weight(i);
+        vector<double> const internal_source = weight->material()->internal_source()->data();
+        double tau = weight->options().tau;
         for (int g = 0; g < number_of_groups; ++g)
         {
-            double is = internal_source[g];
             for (int o = 0; o < number_of_ordinates; ++o)
             {
+                vector<double> const direction = angular->direction(o);
+                
                 int k = g + number_of_groups * (o + number_of_ordinates * i);
-                rhs[k] = is / angular_normalization;
+                {
+                    int d = 0;
+                    rhs[k] = internal_source[d + number_of_dimensional_moments * g];
+                }
+                for (int d = 1; d < number_of_dimensional_moments; ++d)
+                {
+                    rhs[k] += tau * direction[d-1] * internal_source[d + number_of_dimensional_moments * g];
+                }
+                
+                rhs[k] /= angular_normalization;
             }
         }
     }
@@ -333,7 +346,7 @@ int run_test(shared_ptr<Weak_Spatial_Discretization> spatial,
 
             // Next_intersection struggles on corners
             // Only include points that correctly find vacuum
-            if (region == Solid_Geometry::Geometry_Errors::NO_REGION && o == 0)
+            if (region == Solid_Geometry::Geometry_Errors::NO_REGION && o == 1)
             {
                 for (int g = 0; g < number_of_groups; ++g)
                 {
@@ -397,22 +410,22 @@ int main(int argc, char **argv)
     }
     else if (argc == 1)
     {
-        int dimension = 2;
-        int angular_rule = 1;
-        int num_dimensional_points = 5;
+        int dimension = 1;
+        int angular_rule = 2;
+        int num_dimensional_points = 11;
         double radius_num_intervals = 5.0;
-        double sigma_t = 2.0;
-        double internal_source = 0.0;
-        double boundary_source = 1.0;
+        double sigma_t = 1.0;
+        double internal_source = 1.0;
+        double boundary_source = 0.5;
         double length = 2;
-        bool basis_mls = false;
-        bool weight_mls = false;
+        bool basis_mls = true;
+        bool weight_mls = true;
         string basis_type = "compact_gaussian";
         string weight_type = "compact_gaussian";
         Weight_Function::Options weight_options;
-        weight_options.integration_ordinates = 64;
-        weight_options.tau_const = 0;
-        weight_options.output = Weight_Function::Options::Output::STANDARD;
+        weight_options.integration_ordinates = 128;
+        weight_options.tau_const = 1;
+        weight_options.output = Weight_Function::Options::Output::SUPG;
         get_one_region(basis_mls,
                        weight_mls,
                        basis_type,
