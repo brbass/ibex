@@ -9,7 +9,8 @@
 #include "Multiquadric_RBF.hh"
 #include "RBF.hh"
 #include "Truncated_Gaussian_RBF.hh"
-#include "Wendland_RBF.hh"
+#include "Wendland1_RBF.hh"
+#include "Wendland3_RBF.hh"
 
 using std::make_shared;
 using std::shared_ptr;
@@ -45,21 +46,37 @@ get_rbf(string rbf_type)
         double radius = 5.;
         return make_shared<Truncated_Gaussian_RBF>(radius);
     }
+    else if (rbf_type == "wendland10")
+    {
+        return make_shared<Wendland1_RBF>(0);
+    }
+    else if (rbf_type == "wendland11")
+    {
+        return make_shared<Wendland1_RBF>(1);
+    }
+    else if (rbf_type == "wendland12")
+    {
+        return make_shared<Wendland1_RBF>(2);
+    }
+    else if (rbf_type == "wendland13")
+    {
+        return make_shared<Wendland1_RBF>(3);
+    }
     else if (rbf_type == "wendland30")
     {
-        return make_shared<Wendland_RBF>(0);
+        return make_shared<Wendland3_RBF>(0);
     }
     else if (rbf_type == "wendland31")
     {
-        return make_shared<Wendland_RBF>(1);
+        return make_shared<Wendland3_RBF>(1);
     }
     else if (rbf_type == "wendland32")
     {
-        return make_shared<Wendland_RBF>(2);
+        return make_shared<Wendland3_RBF>(2);
     }
     else if (rbf_type == "wendland33")
     {
-        return make_shared<Wendland_RBF>(3);
+        return make_shared<Wendland3_RBF>(3);
     }
     else
     {

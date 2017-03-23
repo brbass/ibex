@@ -9,6 +9,7 @@
 #include "Linear_MLS_Function.hh"
 #include "Random_Number_Generator.hh"
 #include "RBF_Function.hh"
+#include "Weak_Spatial_Discretization_Factory.hh"
 
 using namespace std;
 namespace ce = Check_Equality;
@@ -155,11 +156,36 @@ int test_1d()
     return checksum;
 }
 
+int test_values()
+{
+    int checksum = 0;
+
+    Meshless_Function_Factory meshless_factory;
+    int dimension = 1;
+    double radius_num_intervals = 5.1;
+    vector<int> dimensional_points(dimension, 5);
+    vector<vector<double> > limits(dimension);
+    limits[0] = {0, 2};
+    string rbf_type = "wendland11";
+    vector<shared_ptr<Meshless_Function> > functions;
+    meshless_factory.get_cartesian_mls_functions(dimension,
+                                                 radius_num_intervals,
+                                                 dimensional_points,
+                                                 limits,
+                                                 rbf_type,
+                                                 functions);
+    shared_ptr<Meshless_Function> function = functions[0];
+    cout << function->d_value(0, {0}) << endl;
+    
+    return checksum;
+}
+
 int main()
 {
     int checksum = 0;
 
     checksum += test_1d();
+    checksum += test_values();
     
     return checksum;
 }

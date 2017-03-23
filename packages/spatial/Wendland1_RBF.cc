@@ -1,4 +1,4 @@
-#include "Wendland_RBF.hh"
+#include "Wendland1_RBF.hh"
 
 #include <cmath>
 #include <string>
@@ -9,13 +9,13 @@ using std::abs;
 using std::pow;
 using std::to_string;
 
-Wendland_RBF::
-Wendland_RBF(int order):
+Wendland1_RBF::
+Wendland1_RBF(int order):
     order_(order)
 {
 }
 
-double Wendland_RBF::
+double Wendland1_RBF::
 value(double r) const
 {
     r = abs(r);
@@ -25,13 +25,13 @@ value(double r) const
         switch(order_)
         {
         case 0:
-            return pow(1 - r, 2);
+            return 1 - r;
         case 1:
-            return pow(1 - r, 4) * (1 + 4 * r);
+            return pow(1 - r, 3) * (1 + 3 * r);
         case 2:
-            return pow(1 - r, 6) * (3 + 18 * r + 35 * r * r);
+            return pow(1 - r, 5) * (1 + 5 * r + 8 * r * r);
         case 3:
-            return pow(1 - r, 8) * (1 + 8 * r + 25 * r * r + 32 * r * r * r);
+            return pow(1 - r, 7) * (1 + 7 * r + 19 * r * r + 21 * r * r * r);
         default:
             AssertMsg(false, "order \"" + to_string(order_) + "\" not implemented");
         }
@@ -39,7 +39,7 @@ value(double r) const
     return 0;
 }
 
-double Wendland_RBF::
+double Wendland1_RBF::
 d_value(double r) const
 {
     r = abs(r);
@@ -48,14 +48,14 @@ d_value(double r) const
     {
         switch(order_)
         {
-        case 0:
-            return 2 * (-1 + r);
+        case 0: // not smooth at r = 1
+            return -1;
         case 1:
-            return 20 * pow(-1 + r, 3) * r;
+            return -12 * pow(-1 + r, 2) * r;
         case 2:
-            return 56 * pow(-1 + r, 5) * r * (1 + 5 * r);
+            return -14 * pow(-1 + r, 4) * r * (1 + 4 * r);
         case 3:
-            return 22 * pow(-1 + r, 7) * r * (1 + 7 * r + 16 * r * r);
+            return -6 * pow(-1 + r, 6) * r * (3 + 18 * r + 35 * r * r);
         default:
             AssertMsg(false, "order \"" + to_string(order_) + "\" not implemented");
         }
@@ -63,8 +63,8 @@ d_value(double r) const
     
     return 0;
 }
-    
-double Wendland_RBF::
+
+double Wendland1_RBF::
 dd_value(double r) const
 {
     r = abs(r);
@@ -73,14 +73,14 @@ dd_value(double r) const
     {
         switch(order_)
         {
-        case 0: // not smooth at r = 1
-            return 2;
+        case 0: 
+            return 0;
         case 1:
-            return 20 * pow(-1 + r, 2) * (-1 + 4 * r);
+            return -12 * (1 - 4 * r + 3 * r * r);
         case 2:
-            return 56 * pow(-1 + r, 4) * (-1 - 4 * r + 35 * r * r);
+            return -14 * pow(-1 + r, 3) * (-1 - 3 * r + 24 * r * r);
         case 3:
-            return 22 * pow(-1 + r, 6) * (-1 - 6 * r + 15 * r * r + 160 * r * r * r);
+            return -18 * pow(-1 + r, 5) * (-1 - 5 * r + 13 * r * r + 105 * r * r * r);
         default:
             AssertMsg(false, "order \"" + to_string(order_) + "\" not implemented");
         }

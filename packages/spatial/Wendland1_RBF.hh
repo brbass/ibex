@@ -1,17 +1,17 @@
-#ifndef Wendland_RBF_hh
-#define Wendland_RBF_hh
+#ifndef Wendland1_RBF_hh
+#define Wendland1_RBF_hh
 
 #include "Local_RBF.hh"
 
 /*
   Local polynomial radial basis function
 */
-class Wendland_RBF : public Local_RBF
+class Wendland1_RBF : public Local_RBF
 {
 public:
 
     // Constructor
-    Wendland_RBF(int order);
+    Wendland1_RBF(int order);
     
     // Distance from center the function is nonzero
     virtual double radius() const

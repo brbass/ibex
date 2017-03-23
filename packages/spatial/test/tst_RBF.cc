@@ -9,7 +9,7 @@
 #include "Multiquadric_RBF.hh"
 #include "RBF.hh"
 #include "Truncated_Gaussian_RBF.hh"
-#include "Wendland_RBF.hh"
+#include "Wendland3_RBF.hh"
 
 namespace ce = Check_Equality;
 
@@ -77,30 +77,30 @@ int main()
                          {1., sqrt(5.) / 2., sqrt(2.)},
                          {0, 1. / sqrt(5.), 1. / sqrt(2.)},
                          {1, 8. / (5. * sqrt(5.)), 1. / (2. * sqrt(2.))});
-    checksum += test_rbf(make_shared<Wendland_RBF>(0),
+    checksum += test_rbf(make_shared<Wendland3_RBF>(0),
                          number_of_cases,
-                         "wendland0",
+                         "wendland30",
                          points,
                          {1., 1. / 4., 0.},
                          {-2., -1., 0.},
                          {2., 2., 2.});
-    checksum += test_rbf(make_shared<Wendland_RBF>(1),
+    checksum += test_rbf(make_shared<Wendland3_RBF>(1),
                          number_of_cases,
-                         "wendland1",
+                         "wendland31",
                          points,
                          {1., 3. / 16., 0.},
                          {0., -5. / 4., 0.},
                          {-20., 5., 0.});
-    checksum += test_rbf(make_shared<Wendland_RBF>(2),
+    checksum += test_rbf(make_shared<Wendland3_RBF>(2),
                          number_of_cases,
-                         "wendland2",
+                         "wendland32",
                          points,
                          {3., 83. / 256., 0.},
                          {0., -49. / 16., 0.},
                          {-56., 161. / 8., 0.});
-    checksum += test_rbf(make_shared<Wendland_RBF>(3),
+    checksum += test_rbf(make_shared<Wendland3_RBF>(3),
                          number_of_cases,
-                         "wendland3",
+                         "wendland33",
                          points,
                          {1., 61. / 1024., 0.},
                          {0., -187. / 256., 0.},
