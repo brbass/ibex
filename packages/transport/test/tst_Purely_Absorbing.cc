@@ -410,8 +410,8 @@ int main(int argc, char **argv)
     }
     else if (argc == 1)
     {
-        int dimension = 1;
-        int angular_rule = 2;
+        int dimension = 2;
+        int angular_rule = 1;
         int num_dimensional_points = 5;
         double radius_num_intervals = 5.0;
         double sigma_t = 1.0;
@@ -423,7 +423,7 @@ int main(int argc, char **argv)
         string basis_type = "wendland11";
         string weight_type = "wendland11";
         Weight_Function::Options weight_options;
-        weight_options.integration_ordinates = 256;
+        weight_options.integration_ordinates = 32;
         weight_options.tau_const = 1;
         weight_options.output = Weight_Function::Options::Output::SUPG;
         get_one_region(basis_mls,
