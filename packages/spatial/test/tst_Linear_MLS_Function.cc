@@ -163,7 +163,7 @@ int test_values()
     Meshless_Function_Factory meshless_factory;
     int dimension = 1;
     double radius_num_intervals = 5.1;
-    vector<int> dimensional_points(dimension, 5);
+    vector<int> dimensional_points(dimension, 11);
     vector<vector<double> > limits(dimension);
     limits[0] = {0, 2};
     string rbf_type = "wendland11";
@@ -175,7 +175,8 @@ int test_values()
                                                  rbf_type,
                                                  functions);
     shared_ptr<Meshless_Function> function = functions[0];
-    cout << function->d_value(0, {0}) << endl;
+    cout << function->value({0.1}) << endl;
+    cout << function->d_value(0, {0.1}) << endl;
     
     return checksum;
 }
@@ -185,7 +186,6 @@ int main()
     int checksum = 0;
 
     checksum += test_1d();
-    checksum += test_values();
     
     return checksum;
 }

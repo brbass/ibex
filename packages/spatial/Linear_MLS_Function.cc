@@ -38,7 +38,7 @@ value(vector<double> const &r) const
     vector<double> a_mat(number_of_polynomials_ * number_of_polynomials_);
     get_a(r,
           a_mat);
-
+    
     // Get B
     vector<double> b_vec(number_of_polynomials_);
     get_b(r,
@@ -76,7 +76,7 @@ d_value(int dim,
             r,
             a_mat,
             d_a_mat);
-    
+
     // Get A inverse
     vector<double> a_inv_mat(number_of_polynomials_ * number_of_polynomials_);
     la::direct_inverse(a_mat,
@@ -106,8 +106,8 @@ d_value(int dim,
     vector<double> d_p_vec(number_of_polynomials_);
     get_d_polynomial(dim,
                      r,
-                     p_vec);
-
+                     d_p_vec);
+    
     // Calculate terms
     double t1 = vf::dot(d_p_vec,
                         mf::square_matrix_vector_product(number_of_polynomials_,
@@ -121,7 +121,6 @@ d_value(int dim,
                         mf::square_matrix_vector_product(number_of_polynomials_,
                                                          a_inv_mat,
                                                          d_b_vec));
-
     return t1 + t2 + t3;
 }
 
@@ -199,7 +198,7 @@ get_d_polynomial(int dim,
 {
     d_poly.assign(dimension_ + 1, 0);
     
-    d_poly[dim] = 1.;
+    d_poly[dim + 1] = 1.;
 }
 
 void Linear_MLS_Function::
@@ -215,7 +214,7 @@ get_a(vector<double> const &position,
             get_polynomial(func->position(),
                            poly);
             double weight = func->value(position);
-        
+
             for (int j = 0; j < number_of_polynomials_; ++j)
             {
                 for (int k = 0; k < number_of_polynomials_; ++k)
@@ -248,7 +247,7 @@ get_d_a(int dim,
             double weight = func->value(position);
             double d_weight = func->d_value(dim,
                                             position);
-        
+                      
             for (int j = 0; j < number_of_polynomials_; ++j)
             {
                 for (int k = 0; k < number_of_polynomials_; ++k)
