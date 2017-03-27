@@ -64,7 +64,7 @@ private:
     bool check_phi_convergence(vector<double> const &x, 
                                vector<double> const &x_old,
                                double &error) const;
-
+    
     bool check_k_convergence(double k,
                              double k_old,
                              double &error) const;

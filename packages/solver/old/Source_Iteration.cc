@@ -91,7 +91,7 @@ solve_steady_state(vector<double> &x)
             q_old = q;
             
             (*SI)(q);
-
+            
             double error;
             bool converged = check_phi_convergence(q, q_old, error);
             print_error(error);

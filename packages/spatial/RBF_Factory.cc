@@ -28,11 +28,11 @@ get_rbf(string rbf_type)
     {
         return make_shared<Gaussian_RBF>();
     }
-    else if (rbf_type == "multiquadric_rbf")
+    else if (rbf_type == "multiquadric")
     {
         return make_shared<Multiquadric_RBF>();
     }
-    else if (rbf_type == "inverse_multiquadric_rbf")
+    else if (rbf_type == "inverse_multiquadric")
     {
         return make_shared<Inverse_Multiquadric_RBF>();
     }
