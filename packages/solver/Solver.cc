@@ -4,12 +4,21 @@
 #include <iostream>
 #include <string>
 
+#include "Check.hh"
+
 using namespace std;
 
 Solver::
-Solver(int solver_print):
+Solver(int solver_print,
+       Solver::Type type):
     solver_print_(solver_print)
 {
+}
+
+void Solver::
+get_eigenvalue(double &eigenvalue) const
+{
+    AssertMsg(false, "not implemented");
 }
 
 void Solver::

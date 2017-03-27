@@ -27,7 +27,7 @@ public:
     {
         // Data
         int index;
-        vector<double> position;
+        std::vector<double> position;
 
         // Connectivity
         std::vector<int> cells;
