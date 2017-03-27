@@ -45,6 +45,7 @@ public:
         bool include_supg = false;
         bool normalized = true;
         double tau; // SUPG parameter (tau_const / shape)
+        bool outside_integral_calculation = false;
 
         // Parameters for the user to set
         int integration_ordinates = 32;
@@ -216,6 +217,7 @@ private:
                                                  std::vector<double> &weights) const;
     
     // Integration methods
+    virtual void set_options_and_limits();
     virtual void calculate_values();
     virtual void calculate_integrals();
     virtual void calculate_material();

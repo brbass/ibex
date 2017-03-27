@@ -202,7 +202,7 @@ get_weight_functions(XML_Node input_node,
         {
             material_options.weighting = Weight_Function::Options::Weighting::WEIGHT;
         }
-        else if (weighting == "weight")
+        else if (weighting == "flux")
         {
             material_options.weighting = Weight_Function::Options::Weighting::FLUX;
         }

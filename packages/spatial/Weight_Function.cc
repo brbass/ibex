@@ -38,6 +38,24 @@ Weight_Function(int index,
     solid_geometry_(solid_geometry),
     boundary_surfaces_(boundary_surfaces)
 {
+    set_options_and_limits();
+    calculate_values();
+    // if (options_.outside_integral_calculation)
+    // {
+    //     initialize_data();
+    // }
+    // else
+    // {
+        calculate_integrals();
+        calculate_material();
+        calculate_boundary_source();
+        check_class_invariants();
+    // }
+}
+
+void Weight_Function::
+set_options_and_limits()
+{
     point_type_ = (number_of_boundary_surfaces_ > 0 ?
                    Weight_Function::Point_Type::BOUNDARY :
                    Weight_Function::Point_Type::INTERNAL);
@@ -55,7 +73,7 @@ Weight_Function(int index,
         {
             options_.include_supg = true;
             options_.normalized = false;
-            options_.tau = options_.tau_const / meshless_function->shape();
+            options_.tau = options_.tau_const / meshless_function_->shape();
         }
         else
         {
@@ -91,12 +109,6 @@ Weight_Function(int index,
     {
         basis_function_indices_[i] = basis_functions_[i]->index();
     }
-
-    calculate_values();
-    calculate_integrals();
-    calculate_material();
-    calculate_boundary_source();
-    check_class_invariants();
 }
 
 bool Weight_Function::
@@ -1097,12 +1109,12 @@ calculate_weight_boundary_source()
         int source_size = source->size();
         vector<double> const old_data = source->data();
         vector<double> new_data(source_size);
-         
+        
         for (int i = 0; i < source_size; ++i)
         {
             new_data[i] = old_data[i] * is_w_[s];
         }
-
+        
         Boundary_Source::Dependencies bs_dependencies = source->dependencies();
         bs_dependencies.angular = Boundary_Source::Dependencies::Angular::ORDINATES;
         shared_ptr<Boundary_Source> new_source
@@ -1120,7 +1132,7 @@ calculate_weight_boundary_source()
                                            surface->position(),
                                            surface->normal());
         new_surface->set_boundary_source(new_source);
-
+        
         weighted_boundary_surfaces_[s] = new_surface;
     }
 }
