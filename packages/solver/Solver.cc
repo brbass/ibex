@@ -16,12 +16,6 @@ Solver(int solver_print,
 }
 
 void Solver::
-get_eigenvalue(double &eigenvalue) const
-{
-    AssertMsg(false, "not implemented");
-}
-
-void Solver::
 print_name(string solution_type) const
 {
     if (solver_print_)

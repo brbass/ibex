@@ -4,6 +4,7 @@
 #include "Solver.hh"
 
 class Angular_Discretization;
+class Convergence_Measure;
 class Energy_Discretization;
 class Spatial_Discretization;
 class Transport_Discretization;
@@ -15,6 +16,7 @@ public:
 
     struct Options
     {
+        int max_source_iterations = 1000;
         int max_iterations = 1000;
         int solver_print = 0;
         double tolerance = 1e-8;
@@ -22,8 +24,8 @@ public:
     
     struct Result
     {
-        int source_iterations;
-        int total_iterations;
+        int source_iterations = -1;
+        int total_iterations = -1;
         std::vector<double> phi;
     };
     
@@ -31,14 +33,14 @@ public:
                      std::shared_ptr<Spatial_Discretization> spatial_discretization,
                      std::shared_ptr<Angular_Discretization> angular_discretization,
                      std::shared_ptr<Energy_Discretization> energy_discretization,
-                     std::shared_ptr<Transport_Discretization> transport_discretization,                     std::shared_ptr<Vector_Operator> source_operator,
+                     std::shared_ptr<Transport_Discretization> transport_discretization,
+                     std::shared_ptr<Convergence_Measure> convergence,
+                     std::shared_ptr<Vector_Operator> source_operator,
                      std::shared_ptr<Vector_Operator> flux_operator,
                      std::shared_ptr<Vector_Operator> value_operator);
     
     virtual void solve() override;
     
-    virtual void get_flux(std::vector<double> &x) const override;
-
     virtual void output(XML_Node output_node) const override;
     
     virtual void check_class_invariants() const override;
@@ -47,13 +49,14 @@ private:
 
     // Input data
     Options options_;
-    std::shared_ptr<Spatial_Discretization> spatial_discretization;
-    std::shared_ptr<Angular_Discretization> angular_discretization;
-    std::shared_ptr<Energy_Discretization> energy_discretization;
-    std::shared_ptr<Transport_Discretization> transport_discretization;
-    std::shared_ptr<Vector_Operator> source_operator;
-    std::shared_ptr<Vector_Operator> flux_operator;
-    std::shared_ptr<Vector_Operator> value_operator;
+    std::shared_ptr<Spatial_Discretization> spatial_discretization_;
+    std::shared_ptr<Angular_Discretization> angular_discretization_;
+    std::shared_ptr<Energy_Discretization> energy_discretization_;
+    std::shared_ptr<Transport_Discretization> transport_discretization_;
+    std::shared_ptr<Convergence_Measure> convergence_;
+    std::shared_ptr<Vector_Operator> source_operator_;
+    std::shared_ptr<Vector_Operator> flux_operator_;
+    std::shared_ptr<Vector_Operator> value_operator_;
     
     
     // Output data

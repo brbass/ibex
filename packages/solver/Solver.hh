@@ -29,10 +29,6 @@ public:
     // Solve problem
     virtual void solve() = 0;
     
-    // Get solution
-    virtual void get_eigenvalue(double &eigenvalue) const;
-    virtual void get_flux(std::vector<double> &x) const = 0;
-    
     // Ouput data to XML file
     virtual void output(XML_Node output_node) const = 0;
 
