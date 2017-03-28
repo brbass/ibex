@@ -7,8 +7,12 @@ class Linf_Convergence : public Convergence_Measure
 {
 public:
 
-    Linf_Convergence(double tolerance);
-    
+    Linf_Convergence(double tolerance = 1e-8);
+
+    virtual void set_tolerance(double tolerance)
+    {
+        tolerance_ = tolerance;
+    }
     virtual double tolerance() const override
     {
         return tolerance_;

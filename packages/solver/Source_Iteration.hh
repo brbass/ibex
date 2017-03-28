@@ -26,7 +26,8 @@ public:
     {
         int source_iterations = -1;
         int total_iterations = -1;
-        std::vector<double> phi;
+        std::vector<double> coefficients;
+        std::vector<std::vector<double> > phi;
     };
     
     Source_Iteration(Options options,
@@ -37,7 +38,7 @@ public:
                      std::shared_ptr<Convergence_Measure> convergence,
                      std::shared_ptr<Vector_Operator> source_operator,
                      std::shared_ptr<Vector_Operator> flux_operator,
-                     std::shared_ptr<Vector_Operator> value_operator);
+                     std::vector<std::shared_ptr<Vector_Operator> > value_operators);
     
     virtual void solve() override;
     
@@ -56,7 +57,7 @@ private:
     std::shared_ptr<Convergence_Measure> convergence_;
     std::shared_ptr<Vector_Operator> source_operator_;
     std::shared_ptr<Vector_Operator> flux_operator_;
-    std::shared_ptr<Vector_Operator> value_operator_;
+    std::vector<std::shared_ptr<Vector_Operator> > value_operators_;
     
     
     // Output data

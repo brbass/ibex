@@ -19,7 +19,7 @@ Source_Iteration(Options options,
                  shared_ptr<Convergence_Measure> convergence,
                  shared_ptr<Vector_Operator> source_operator,
                  shared_ptr<Vector_Operator> flux_operator,
-                 shared_ptr<Vector_Operator> value_operator):
+                 vector<shared_ptr<Vector_Operator> > value_operators):
     Solver(options.solver_print,
            Solver::Type::STEADY_STATE),
     options_(options),
@@ -30,8 +30,9 @@ Source_Iteration(Options options,
     convergence_(convergence),
     source_operator_(source_operator),
     flux_operator_(flux_operator),
-    value_operator_(value_operator)
+    value_operators_(value_operators)
 {
+    convergence_->set_tolerance(options.tolerance);
 }
 
 void Source_Iteration::
@@ -134,8 +135,18 @@ solve()
     // Remove augments from result
     x.resize(phi_size);
 
-    // Store result
-    result_.phi = x;
+    // Store coefficients
+    result_.coefficients = x;
+
+    // Get result
+    int number_of_values = value_operators_.size();
+    result_.phi.resize(number_of_values);
+    for (int i = 0; i < number_of_values; ++i)
+    {
+        vector<double> &phi = result_.phi[i];
+        phi = x;
+        (*value_operators_[i])(phi);
+    }
 }
 
 void Source_Iteration::

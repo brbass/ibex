@@ -8,6 +8,7 @@ class Convergence_Measure
 public:
     Convergence_Measure();
 
+    virtual void set_tolerance(double tolerance) = 0;
     virtual double tolerance() const = 0;
     virtual double error(double val_new,
                          double val_old) const = 0;
