@@ -13,6 +13,7 @@
 #include "Moment_To_Discrete.hh"
 #include "Moment_Value_Operator.hh"
 #include "Moment_Weighting_Operator.hh"
+#include "Resize_Operator.hh"
 #include "Scattering.hh"
 #include "Source_Iteration.hh"
 #include "Transport_Discretization.hh"
@@ -40,7 +41,10 @@ get_supg_source_iteration(shared_ptr<Sweep_Operator> Linv,
                           shared_ptr<Convergence_Measure> convergence) const
 {
     // Check to be sure that this problem is SUPG
-    Assert(spatial_->number_of_dimensional_moments() > 1);
+    int number_of_dimensional_moments = spatial_->number_of_dimensional_moments();
+    int phi_size = transport_->phi_size();
+    int number_of_augments = transport_->number_of_augments();
+    Assert(number_of_dimensional_moments > 1);
     
     // Get moment-to-discrete and discrete-to-moment operators
     shared_ptr<Vector_Operator> M
@@ -91,9 +95,14 @@ get_supg_source_iteration(shared_ptr<Sweep_Operator> Linv,
         = make_shared<Internal_Source_Operator>(spatial_,
                                                 angular_,
                                                 energy_);
+
+    // Get the operator to resize given source to correct size
+    shared_ptr<Vector_Operator> R
+        = make_shared<Resize_Operator>(phi_size * number_of_dimensional_moments + number_of_augments,
+                                       phi_size + number_of_augments);
+
     
     // Add augments to operators
-    int number_of_augments = transport_->number_of_augments();
     if (number_of_augments > 0)
     {
         M = make_shared<Augmented_Operator>(number_of_augments,
@@ -120,6 +129,9 @@ get_supg_source_iteration(shared_ptr<Sweep_Operator> Linv,
         Q = make_shared<Augmented_Operator>(number_of_augments,
                                             Q,
                                             false);
+        R = make_shared<Augmented_Operator>(number_of_augments,
+                                            R,
+                                            false);
     }
     
     // Get sweep operator with boundary source off/on
@@ -143,7 +155,7 @@ get_supg_source_iteration(shared_ptr<Sweep_Operator> Linv,
 
     // Get combined operators
     shared_ptr<Vector_Operator> source_operator
-        = D * LinvB * Ns * M * Q;
+        = D * LinvB * Ns * M * Q * R;
     shared_ptr<Vector_Operator> flux_operator
         = D * LinvI * Wd * Ns * M * (S + F) * Nc;
     
