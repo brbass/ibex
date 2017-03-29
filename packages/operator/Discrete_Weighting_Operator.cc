@@ -47,7 +47,6 @@ apply(vector<double> &x) const
         vector<int> basis_indices = weight->basis_function_indices();
         Weight_Function::Options weight_options = weight->options();
         double const tau = weight_options.tau;
-        
         bool normalized;
         switch (options_.normalized)
         {
@@ -66,7 +65,7 @@ apply(vector<double> &x) const
         switch (options_.include_supg)
         {
         case Options::Include_SUPG::AUTO:
-            normalized = weight_options.include_supg;
+            include_supg = weight_options.include_supg;
             break;
         case Options::Include_SUPG::TRUE:
             include_supg = true;

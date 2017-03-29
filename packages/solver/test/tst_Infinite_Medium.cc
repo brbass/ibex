@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <mpi.h>
@@ -39,7 +40,11 @@ void get_one_region(bool basis_mls,
                     int num_dimensional_points,
                     double radius_num_intervals,
                     double sigma_t,
+                    double sigma_s,
+                    double chi_nu_sigma_f,
                     double internal_source,
+                    double boundary_source,
+                    double alpha,
                     double length,
                     shared_ptr<Weak_Spatial_Discretization> &spatial,
                     shared_ptr<Angular_Discretization> &angular,
@@ -70,10 +75,10 @@ void get_one_region(bool basis_mls,
     materials[0]
         = material_factory.get_standard_material(0, // index
                                                  {sigma_t},
-                                                 {0}, // sigma_s
-                                                 {0}, // nu
-                                                 {0}, // sigma_f
-                                                 {0}, // chi
+                                                 {sigma_s}, // sigma_s
+                                                 {1}, // nu
+                                                 {chi_nu_sigma_f}, // sigma_f
+                                                 {1}, // chi
                                                  {internal_source});
     
     // Get boundary source
@@ -84,8 +89,8 @@ void get_one_region(bool basis_mls,
                                        boundary_dependencies,
                                        angular,
                                        energy,
-                                       vector<double>(1, 0), // boundary source
-                                       vector<double>(1, 0)); // alpha
+                                       vector<double>(number_of_groups, boundary_source), // boundary source
+                                       vector<double>(number_of_groups, alpha)); // alpha
     
     // Get solid geometry
    vector<shared_ptr<Surface> > surfaces(2 * dimension);
@@ -177,7 +182,11 @@ int test_infinite(bool basis_mls,
                   int num_dimensional_points,
                   double radius_num_intervals,
                   double sigma_t,
+                  double sigma_s,
+                  double chi_nu_sigma_f,
                   double internal_source,
+                  double boundary_source,
+                  double alpha,
                   double length)
 {
     int checksum = 0;
@@ -205,7 +214,11 @@ int test_infinite(bool basis_mls,
                    num_dimensional_points,
                    radius_num_intervals,
                    sigma_t,
+                   sigma_s,
+                   chi_nu_sigma_f,
                    internal_source,
+                   boundary_source,
+                   alpha,
                    length,
                    spatial,
                    angular,
@@ -248,19 +261,41 @@ int main(int argc, char **argv)
     
     {
         int dimension = 1;
-        int angular_rule = 2;
         int num_dimensional_points = 5;
+        int angular_rule = dimension == 1 ? 2 : 1;
+        double norm = dimension == 1 ? 2 : 2 * M_PI;
         double radius_num_intervals = 3.0;
-        double sigma_t = 1.0;
-        double internal_source = 1.0;
-        double length = 1;
+        double sigma_t = 2.0;
+        double sigma_s = 1.0;
+        double chi_nu_sigma_f = 0.5;
+        double internal_source = 1;
+        double boundary_source = 0 / (norm * sigma_t);
+        double alpha = 1.0;
+        double length = 2;
         bool basis_mls = true;
         bool weight_mls = true;
         string basis_type = "wendland11";
         string weight_type = "wendland11";
         Weight_Function::Options weight_options;
         weight_options.integration_ordinates = 32;
-        weight_options.tau_const = 0.5;
+        weight_options.tau_const = 0;
+        weight_options.output = Weight_Function::Options::Output::STANDARD;
+        checksum += test_infinite(basis_mls,
+                                  weight_mls,
+                                  basis_type,
+                                  weight_type,
+                                  weight_options,
+                                  dimension,
+                                  angular_rule,
+                                  num_dimensional_points,
+                                  radius_num_intervals,
+                                  sigma_t,
+                                  sigma_s,
+                                  chi_nu_sigma_f,
+                                  internal_source,
+                                  boundary_source,
+                                  alpha,
+                                  length);
         weight_options.output = Weight_Function::Options::Output::SUPG;
         checksum += test_infinite(basis_mls,
                                   weight_mls,
@@ -272,7 +307,11 @@ int main(int argc, char **argv)
                                   num_dimensional_points,
                                   radius_num_intervals,
                                   sigma_t,
+                                  sigma_s,
+                                  chi_nu_sigma_f,
                                   internal_source,
+                                  boundary_source,
+                                  alpha,
                                   length);
     }
     

@@ -69,17 +69,9 @@ set_options_and_limits()
         break;
     case Options::Output::SUPG:
         number_of_dimensional_moments_ = 1 + dimension_;
-        if (options_.tau_const != 0)
-        {
-            options_.include_supg = true;
-            options_.normalized = false;
-            options_.tau = options_.tau_const / meshless_function_->shape();
-        }
-        else
-        {
-            options_.include_supg = false;
-            options_.normalized = true;
-        }
+        options_.include_supg = true;
+        options_.normalized = false;
+        options_.tau = options_.tau_const / meshless_function_->shape();
         break;
     }
     
@@ -657,6 +649,7 @@ calculate_material()
         {
         case Options::Weighting::POINT:
         {
+            AssertMsg(false, "Weight_Function point weighting not tested");
             return calculate_standard_point_material();
         } // POINT
         case Options::Weighting::WEIGHT:
@@ -677,6 +670,7 @@ calculate_material()
         {
         case Options::Weighting::POINT:
         {
+            AssertMsg(false, "Weight_Function point weighting not tested");
             return calculate_supg_point_material();
         } // POINT
         case Options::Weighting::WEIGHT:
@@ -762,9 +756,9 @@ calculate_standard_weight_material()
 
     vector<double> sigma_t_v(number_of_groups, 0.);
     vector<double> sigma_s_v(number_of_groups * number_of_groups * number_of_scattering_moments, 0.);
-    vector<double> nu_v(number_of_groups, 0.);
-    vector<double> sigma_f_v(number_of_groups, 0.);
-    vector<double> chi_v(number_of_groups, 0.);
+    vector<double> nu_v(1, 0);
+    vector<double> sigma_f_v(number_of_groups * number_of_groups, 0.);
+    vector<double> chi_v(1, 0);
     vector<double> internal_source_v(number_of_groups, 0.);
 
     // Calculate numerator and denominator separately
@@ -773,27 +767,29 @@ calculate_standard_weight_material()
         vector<double> position = integration_ordinates[i];
         shared_ptr<Material> material = solid_geometry_->material(position);
         vector<double> const sigma_t_temp = material->sigma_t()->data();
-        vector<double> const sigma_s_temp = material->sigma_t()->data();
-        vector<double> const nu_temp = material->sigma_t()->data();
-        vector<double> const sigma_f_temp = material->sigma_t()->data();
-        vector<double> const chi_temp = material->sigma_t()->data();
+        vector<double> const sigma_s_temp = material->sigma_s()->data();
+        vector<double> const nu_temp = material->nu()->data();
+        vector<double> const sigma_f_temp = material->sigma_f()->data();
+        vector<double> const chi_temp = material->chi()->data();
         vector<double> const internal_source_temp = material->internal_source()->data();
         double w = meshless_function_->value(position);
 
         for (int g = 0; g < number_of_groups; ++g)
         {
             sigma_t_v[g] += w * sigma_t_temp[g] * integration_weights[i];
-            nu_v[g] += w * nu_temp[g] * integration_weights[i];
-            sigma_f_v[g] += w * sigma_f_temp[g] * integration_weights[i];
-            chi_v[g] += w * chi_temp[g] * integration_weights[i];
             internal_source_v[g] += w * internal_source_temp[g] * integration_weights[i];
-
+            
             for (int g2 = 0; g2 < number_of_groups; ++g2)
             {
+                // Fission from g2 to g
+                int k1 = g2 + number_of_groups * g;
+                sigma_f_v[k1] += w * chi_temp[g] * nu_temp[g2] * sigma_f_temp[g2] * integration_weights[i];
+                
                 for (int m = 0; m < number_of_scattering_moments; ++m)
                 {
-                    int k = g + number_of_groups * (g2 + number_of_groups * m);
-                    sigma_s_v[k] += w * sigma_s_temp[k] * integration_weights[i];
+                    // Scattering from g2 to g
+                    int k2 = g2 + number_of_groups * (g + number_of_groups * m);
+                    sigma_s_v[k2] += w * sigma_s_temp[k2] * integration_weights[i];
                 }
             } // groups2
         } // groups
@@ -805,24 +801,27 @@ calculate_standard_weight_material()
         for (int g = 0; g < number_of_groups; ++g)
         {
             sigma_t_v[g] /= iv_w_[0];
-            nu_v[g] /= iv_w_[0];
-            sigma_f_v[g] /= iv_w_[0];
-            chi_v[g] /= iv_w_[0];
-
+            
             for (int g2 = 0; g2 < number_of_groups; ++g2)
             {
+                int k1 = g2 + number_of_groups * g;
+                sigma_f_v[k1] /= iv_w_[0];
+                
                 for (int m = 0; m < number_of_scattering_moments; ++m)
                 {
-                    int k = g + number_of_groups * (g2 + number_of_groups * m);
-                    sigma_s_v[k] /= iv_w_[0];
+                    int k2 = g2 + number_of_groups * (g + number_of_groups * m);
+                    sigma_s_v[k2] /= iv_w_[0];
                 }
             }
         }
     }
      
     // Create cross sections
+    Cross_Section::Dependencies none_none;
     Cross_Section::Dependencies none_group;
     none_group.energy = Cross_Section::Dependencies::Energy::GROUP;
+    Cross_Section::Dependencies none_group2;
+    none_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
     Cross_Section::Dependencies scattering_group2;
     scattering_group2.angular = Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS;
     scattering_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
@@ -838,17 +837,17 @@ calculate_standard_weight_material()
                                      energy_discretization,
                                      sigma_s_v);
     shared_ptr<Cross_Section> nu
-        = make_shared<Cross_Section>(none_group,
+        = make_shared<Cross_Section>(none_none,
                                      angular_discretization,
                                      energy_discretization,
                                      nu_v);
     shared_ptr<Cross_Section> sigma_f
-        = make_shared<Cross_Section>(none_group,
+        = make_shared<Cross_Section>(none_group2,
                                      angular_discretization,
                                      energy_discretization,
                                      sigma_f_v);
     shared_ptr<Cross_Section> chi
-        = make_shared<Cross_Section>(none_group,
+        = make_shared<Cross_Section>(none_none,
                                      angular_discretization,
                                      energy_discretization,
                                      chi_v);
@@ -953,9 +952,9 @@ calculate_supg_weight_material()
 
     vector<double> sigma_t_v(dimensionp1 * number_of_groups, 0);
     vector<double> sigma_s_v(dimensionp1 * number_of_groups * number_of_groups * number_of_scattering_moments, 0);
-    vector<double> nu_v(dimensionp1 * number_of_groups, 0);
-    vector<double> sigma_f_v(dimensionp1 * number_of_groups, 0);
-    vector<double> chi_v(dimensionp1 * number_of_groups, 0);
+    vector<double> nu_v(1, 0);
+    vector<double> sigma_f_v(dimensionp1 * number_of_groups * number_of_groups, 0);
+    vector<double> chi_v(1, 0);;
     vector<double> internal_source_v(dimensionp1 * number_of_groups, 0);
 
     // Calculate numerator and denominator separately
@@ -964,10 +963,10 @@ calculate_supg_weight_material()
         vector<double> position = integration_ordinates[i];
         shared_ptr<Material> material = solid_geometry_->material(position);
         vector<double> const sigma_t_temp = material->sigma_t()->data();
-        vector<double> const sigma_s_temp = material->sigma_t()->data();
-        vector<double> const nu_temp = material->sigma_t()->data();
-        vector<double> const sigma_f_temp = material->sigma_t()->data();
-        vector<double> const chi_temp = material->sigma_t()->data();
+        vector<double> const sigma_s_temp = material->sigma_s()->data();
+        vector<double> const nu_temp = material->nu()->data();
+        vector<double> const sigma_f_temp = material->sigma_f()->data();
+        vector<double> const chi_temp = material->chi()->data();
         vector<double> const internal_source_temp = material->internal_source()->data();
 
         // Get function weight values
@@ -986,18 +985,20 @@ calculate_supg_weight_material()
             {
                 int k1 = j + dimensionp1 * g;
                 sigma_t_v[k1] += w[j] * sigma_t_temp[g] * integration_weights[i];
-                nu_v[k1] += w[j] * nu_temp[g] * integration_weights[i];
-                sigma_f_v[k1] += w[j] * sigma_f_temp[g] * integration_weights[i];
-                chi_v[k1] += w[j] * chi_temp[g] * integration_weights[i];
                 internal_source_v[k1] += w[j] * internal_source_temp[g] * integration_weights[i];
 
                 for (int g2 = 0; g2 < number_of_groups; ++g2)
                 {
+                    // Fission from g2 to g
+                    int k2 = j + dimensionp1 * (g2 + number_of_groups * g);
+                    sigma_f_v[k2] += w[j] * chi_temp[g] * nu_temp[g2] * sigma_f_temp[g2] * integration_weights[i];
+                    
                     for (int m = 0; m < number_of_scattering_moments; ++m)
                     {
-                        int k2 = j + dimensionp1 * (g + number_of_groups * (g2 + number_of_groups * m));
-                        int k3 = g + number_of_groups * (g2 + number_of_groups * m);
-                        sigma_s_v[k2] += w[j] * sigma_s_temp[k3] * integration_weights[i];
+                        // Scattering from g2 to g
+                        int k3 = j + dimensionp1 * (g2 + number_of_groups * (g + number_of_groups * m));
+                        int k4 = g2 + number_of_groups * (g + number_of_groups * m);
+                        sigma_s_v[k3] += w[j] * sigma_s_temp[k4] * integration_weights[i];
                     }
                 }
             }
@@ -1021,9 +1022,12 @@ calculate_supg_weight_material()
              
                 for (int g2 = 0; g2 < number_of_groups; ++g2)
                 {
+                    int k2 = j + dimensionp1 * (g2 + number_of_groups * g);
+                    sigma_f_v[k2] /= den;
+                    
                     for (int m = 0; m < number_of_scattering_moments; ++m)
                     {
-                        int k2 = j + dimensionp1 * (g + number_of_groups * (g2 + number_of_groups * m));
+                        int k3 = j + dimensionp1 * (g2 + number_of_groups * (g + number_of_groups * m));
                         sigma_s_v[k2] /= den;
                     }
                 }
@@ -1031,9 +1035,13 @@ calculate_supg_weight_material()
         }
     }
     // Create cross sections
+    Cross_Section::Dependencies none_none;
     Cross_Section::Dependencies none_group;
     none_group.energy = Cross_Section::Dependencies::Energy::GROUP;
     none_group.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
+    Cross_Section::Dependencies none_group2;
+    none_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
+    none_group2.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
     Cross_Section::Dependencies scattering_group2;
     scattering_group2.angular = Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS;
     scattering_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
@@ -1050,17 +1058,17 @@ calculate_supg_weight_material()
                                      energy_discretization,
                                      sigma_s_v);
     shared_ptr<Cross_Section> nu
-        = make_shared<Cross_Section>(none_group,
+        = make_shared<Cross_Section>(none_none,
                                      angular_discretization,
                                      energy_discretization,
                                      nu_v);
     shared_ptr<Cross_Section> sigma_f
-        = make_shared<Cross_Section>(none_group,
+        = make_shared<Cross_Section>(none_group2,
                                      angular_discretization,
                                      energy_discretization,
                                      sigma_f_v);
     shared_ptr<Cross_Section> chi
-        = make_shared<Cross_Section>(none_group,
+        = make_shared<Cross_Section>(none_none,
                                      angular_discretization,
                                      energy_discretization,
                                      chi_v);
@@ -1069,7 +1077,7 @@ calculate_supg_weight_material()
                                      angular_discretization,
                                      energy_discretization,
                                      internal_source_v);
-
+    
     // Create material
     material_ = make_shared<Material>(index_,
                                       angular_discretization,

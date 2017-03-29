@@ -199,8 +199,8 @@ get_supg_source_operators(shared_ptr<Sweep_Operator> Linv,
 
     // Get the operator to resize given source to correct size
     shared_ptr<Vector_Operator> R
-        = make_shared<Resize_Operator>(phi_size * number_of_dimensional_moments + number_of_augments,
-                                       phi_size + number_of_augments);
+        = make_shared<Resize_Operator>(phi_size * number_of_dimensional_moments,
+                                       phi_size);
 
     
     // Add augments to operators
@@ -230,9 +230,9 @@ get_supg_source_operators(shared_ptr<Sweep_Operator> Linv,
         Q = make_shared<Augmented_Operator>(number_of_augments,
                                             Q,
                                             false);
-        // R = make_shared<Augmented_Operator>(number_of_augments,
-        //                                     R,
-        //                                     false);
+        R = make_shared<Augmented_Operator>(number_of_augments,
+                                            R,
+                                            false);
     }
     
     // Get sweep operator with boundary source off/on
@@ -254,12 +254,6 @@ std::shared_ptr<Source_Iteration> Solver_Factory::
 get_source_iteration(shared_ptr<Sweep_Operator> Linv,
                      shared_ptr<Convergence_Measure> convergence) const
 {
-    // Check to be sure that this problem is SUPG
-    int number_of_dimensional_moments = spatial_->number_of_dimensional_moments();
-    int phi_size = transport_->phi_size();
-    int number_of_augments = transport_->number_of_augments();
-    Assert(number_of_dimensional_moments > 1);
-
     // Get combined operators
     shared_ptr<Vector_Operator> source_operator;
     shared_ptr<Vector_Operator> flux_operator;

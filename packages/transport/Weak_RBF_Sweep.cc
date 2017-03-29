@@ -217,13 +217,12 @@ get_matrix_row(int i, // weight function index (row)
     double tau = weight_options.tau;
     Assert(weight_options.total == Weight_Function::Options::Total::ISOTROPIC); // moment method not yet implemented
 
-    // Get total cross section
-    double sigma_t = 0;
+    // Get total cross section: already normalized if not SUPG
+    double sigma_t = sigma_t_data[0 + number_of_dimensional_moments * g];
     if (include_supg)
     {
         // Get weighted cross section and normalization separately
         double den = 0;
-        sigma_t += sigma_t_data[0 + number_of_dimensional_moments * g];
         den += iv_w[0];
         
         for (int d = 1; d < number_of_dimensional_moments; ++d)
@@ -234,11 +233,6 @@ get_matrix_row(int i, // weight function index (row)
 
         // Normalize cross section
         sigma_t /= den;
-    }
-    else
-    {
-        // Cross section already normalized for non-SUPG
-        sigma_t = sigma_t_data[0 + number_of_dimensional_moments * g];
     }
     
     // Get indices
