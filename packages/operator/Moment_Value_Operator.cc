@@ -34,7 +34,7 @@ apply(vector<double> &x) const
     int number_of_points = spatial_->number_of_points();
     int number_of_nodes = spatial_->number_of_nodes();
     int number_of_groups = energy_->number_of_groups();
-    int number_of_moments = angular_->number_of_ordinates();
+    int number_of_moments = angular_->number_of_moments();
     
     vector<double> result(number_of_points * number_of_nodes * number_of_groups * number_of_moments, 0);
     

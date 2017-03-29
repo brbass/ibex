@@ -30,9 +30,6 @@ public:
 private:
 
     int size_;
-    std::shared_ptr<Weak_Spatial_Discretization> spatial_;
-    std::shared_ptr<Angular_Discretization> angular_;
-    std::shared_ptr<Energy_Discretization> energy_;
 };
 
 #endif

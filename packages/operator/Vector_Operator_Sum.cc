@@ -10,6 +10,7 @@ Vector_Operator_Sum(shared_ptr<Vector_Operator> op1,
     op1_(op1),
     op2_(op2)
 {
+    check_class_invariants();
 }
 
 void Vector_Operator_Sum::

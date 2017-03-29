@@ -20,9 +20,7 @@ public:
         return size_;
     }
     
-    virtual void check_class_invariants() const override
-    {
-    }
+    virtual void check_class_invariants() const override;
     
 private:
 

@@ -40,13 +40,15 @@ solve()
 {
     int phi_size = transport_discretization_->phi_size();
     int number_of_augments = transport_discretization_->number_of_augments();
+
+    // Initialize result
+    result_ = make_shared<Result>();
     
     // Calculate first-flight source
     vector<double> q(phi_size + number_of_augments, 0);
+    print_name("Initial source iteration");
     if (transport_discretization_->has_reflection())
     {
-        print_name("Initial source iteration");
-        
         double error = 1;
         double error_old = 1;
         vector<double> q_old;
@@ -69,7 +71,7 @@ solve()
                                                  error_old);
             if (converged)
             {
-                result_.source_iterations = it + 1;
+                result_->source_iterations = it + 1;
                 print_convergence();
                 break;
             }
@@ -78,8 +80,11 @@ solve()
     else
     {
         // Without reflection, only one application of operator is needed
-        (*source_operator_)(q);
-    }
+        print_iteration(0);
+        (*source_operator_)(q); 
+        print_error(0);
+        print_convergence();
+   }
 
     // Zero out augments of first-flight source
     for (int i = phi_size; i < phi_size + number_of_augments; ++i)
@@ -89,10 +94,10 @@ solve()
 
     // Perform source iterations
     print_name("Source iteration");
-    vector<double> x(phi_size + number_of_augments, 0);
+    vector<double> x(q);
     double error = 1;
     {
-        vector<double> x_old(phi_size + number_of_augments);
+        vector<double> x_old;
         double error_old = 1;
         for (int it = 0; it < options_.max_iterations; ++it)
         {
@@ -101,34 +106,34 @@ solve()
             // Perform sweep to get new phi
             x_old = x;
             (*flux_operator_)(x);
-            
+
             // Add first-flight source to phi
             for (int i = 0; i < phi_size; ++i)
             {
                 x[i] += q[i];
             }
-
+            
             // Get error
             error_old = error;
             error = convergence_->error(x,
                                         x_old);;
             print_error(error);
-
+            
             // Check convergence
             bool converged = convergence_->check(error,
                                                  error_old);
             if (converged)
             {
-                result_.total_iterations = it + 1;
+                result_->total_iterations = it + 1;
                 print_convergence();
                 break;
             }
         }
     }
     // If total iterations has not been changed, the result did not converge
-    if (result_.total_iterations == -1)
+    if (result_->total_iterations == -1)
     {
-        result_.total_iterations = options_.max_iterations;
+        result_->total_iterations = options_.max_iterations;
         print_failure();
     }
 
@@ -136,14 +141,14 @@ solve()
     x.resize(phi_size);
 
     // Store coefficients
-    result_.coefficients = x;
+    result_->coefficients = x;
 
     // Get result
     int number_of_values = value_operators_.size();
-    result_.phi.resize(number_of_values);
+    result_->phi.resize(number_of_values);
     for (int i = 0; i < number_of_values; ++i)
     {
-        vector<double> &phi = result_.phi[i];
+        vector<double> &phi = result_->phi[i];
         phi = x;
         (*value_operators_[i])(phi);
     }

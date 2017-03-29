@@ -39,4 +39,5 @@ void Augmented_Operator::
 check_class_invariants() const
 {
     Assert(vector_operator_);
+    Assert(number_of_augments_ >= 0);
 }

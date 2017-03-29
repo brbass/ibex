@@ -41,7 +41,10 @@ public:
                      std::vector<std::shared_ptr<Vector_Operator> > value_operators);
     
     virtual void solve() override;
-    
+    std::shared_ptr<Result> result() const
+    {
+        return result_;
+    }
     virtual void output(XML_Node output_node) const override;
     
     virtual void check_class_invariants() const override;
@@ -61,7 +64,7 @@ private:
     
     
     // Output data
-    Result result_;
+    std::shared_ptr<Result> result_;
 };
 
 #endif

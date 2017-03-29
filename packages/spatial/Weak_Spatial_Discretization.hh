@@ -49,6 +49,10 @@ public:
     virtual void check_class_invariants() const override;
 
     // Weight_Function functions
+    virtual bool include_supg() const
+    {
+        return include_supg_;
+    }
     virtual int number_of_boundary_weights() const
     {
         return number_of_boundary_weights_;
@@ -90,6 +94,7 @@ public:
 private:
 
     bool has_reflection_;
+    bool include_supg_;
     int number_of_points_;
     int number_of_boundary_weights_;
     int number_of_boundary_bases_;

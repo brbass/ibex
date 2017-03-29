@@ -36,15 +36,116 @@ Solver_Factory(shared_ptr<Weak_Spatial_Discretization> spatial,
 {
 }
 
-std::shared_ptr<Source_Iteration> Solver_Factory::
-get_supg_source_iteration(shared_ptr<Sweep_Operator> Linv,
-                          shared_ptr<Convergence_Measure> convergence) const
+void Solver_Factory::
+get_source_operators(shared_ptr<Sweep_Operator> Linv,
+                     shared_ptr<Vector_Operator> &source_operator,
+                     shared_ptr<Vector_Operator> &flux_operator) const
 {
-    // Check to be sure that this problem is SUPG
+    // Check if problem includes SUPG terms
+    bool include_supg = spatial_->include_supg();
+    if (include_supg)
+    {
+        return get_supg_source_operators(Linv,
+                                         source_operator,
+                                         flux_operator);
+                                         
+    }
+
+    // Get size data
+    int phi_size = transport_->phi_size();
+    int number_of_augments = transport_->number_of_augments();
+    
+    // Get moment-to-discrete and discrete-to-moment operators
+    shared_ptr<Vector_Operator> M
+        = make_shared<Moment_To_Discrete>(spatial_,
+                                          angular_,
+                                          energy_,
+                                          false); // include dimensional moments
+    shared_ptr<Vector_Operator> D
+        = make_shared<Discrete_To_Moment>(spatial_,
+                                          angular_,
+                                          energy_,
+                                          false); // include dimensional moments
+
+    // Get Scattering operators
+    Scattering_Operator::Options scattering_options;
+    scattering_options.include_dimensional_moments = false;
+    shared_ptr<Vector_Operator> S
+        = make_shared<Scattering>(spatial_,
+                                  angular_,
+                                  energy_,
+                                  scattering_options);
+    shared_ptr<Vector_Operator> F
+        = make_shared<Fission>(spatial_,
+                               angular_,
+                               energy_,
+                               scattering_options);
+    
+    // Get weighting operator
+    Weighting_Operator::Options weighting_options;
+    shared_ptr<Vector_Operator> Wm
+        = make_shared<Moment_Weighting_Operator>(spatial_,
+                                                 angular_,
+                                                 energy_,
+                                                 weighting_options);
+    
+    // Get source operator
+    shared_ptr<Vector_Operator> Q
+        = make_shared<Internal_Source_Operator>(spatial_,
+                                                angular_,
+                                                energy_);
+    
+    // Add augments to operators
+    if (number_of_augments > 0)
+    {
+        M = make_shared<Augmented_Operator>(number_of_augments,
+                                            M,
+                                            false);
+        D = make_shared<Augmented_Operator>(number_of_augments,
+                                            D,
+                                            false);
+        S = make_shared<Augmented_Operator>(number_of_augments,
+                                            S,
+                                            false);
+        F = make_shared<Augmented_Operator>(number_of_augments,
+                                            F,
+                                            true);
+        Wm = make_shared<Augmented_Operator>(number_of_augments,
+                                             Wm,
+                                             false);
+        Q = make_shared<Augmented_Operator>(number_of_augments,
+                                            Q,
+                                            false);
+    }
+    
+    // Get sweep operator with boundary source off/on
+    shared_ptr<Vector_Operator> LinvB
+        = make_shared<Boundary_Source_Toggle>(true,
+                                              Linv);
+    shared_ptr<Vector_Operator> LinvI
+        = make_shared<Boundary_Source_Toggle>(false,
+                                              Linv);
+    
+    // Get combined operators
+    source_operator
+        = D * LinvB * M * Q;
+    flux_operator
+        = D * LinvI * M * (S + F) * Wm;
+}
+
+void Solver_Factory::
+get_supg_source_operators(shared_ptr<Sweep_Operator> Linv,
+                          shared_ptr<Vector_Operator> &source_operator,
+                          shared_ptr<Vector_Operator> &flux_operator) const
+{
+    // Check that this problem is SUPG
+    bool include_supg = spatial_->include_supg();
+    Assert(include_supg);
+
+    // Get size data
     int number_of_dimensional_moments = spatial_->number_of_dimensional_moments();
     int phi_size = transport_->phi_size();
     int number_of_augments = transport_->number_of_augments();
-    Assert(number_of_dimensional_moments > 1);
     
     // Get moment-to-discrete and discrete-to-moment operators
     shared_ptr<Vector_Operator> M
@@ -129,9 +230,9 @@ get_supg_source_iteration(shared_ptr<Sweep_Operator> Linv,
         Q = make_shared<Augmented_Operator>(number_of_augments,
                                             Q,
                                             false);
-        R = make_shared<Augmented_Operator>(number_of_augments,
-                                            R,
-                                            false);
+        // R = make_shared<Augmented_Operator>(number_of_augments,
+        //                                     R,
+        //                                     false);
     }
     
     // Get sweep operator with boundary source off/on
@@ -141,26 +242,45 @@ get_supg_source_iteration(shared_ptr<Sweep_Operator> Linv,
     shared_ptr<Vector_Operator> LinvI
         = make_shared<Boundary_Source_Toggle>(false,
                                               Linv);
+    
+    // Get combined operators
+    source_operator
+        = D * LinvB * Ns * M * Q * R;
+    flux_operator
+        = D * LinvI * Wd * Ns * M * (S + F) * Nc;
+}
 
+std::shared_ptr<Source_Iteration> Solver_Factory::
+get_source_iteration(shared_ptr<Sweep_Operator> Linv,
+                     shared_ptr<Convergence_Measure> convergence) const
+{
+    // Check to be sure that this problem is SUPG
+    int number_of_dimensional_moments = spatial_->number_of_dimensional_moments();
+    int phi_size = transport_->phi_size();
+    int number_of_augments = transport_->number_of_augments();
+    Assert(number_of_dimensional_moments > 1);
+
+    // Get combined operators
+    shared_ptr<Vector_Operator> source_operator;
+    shared_ptr<Vector_Operator> flux_operator;
+    get_source_operators(Linv,
+                         source_operator,
+                         flux_operator);
+    
     // Get value operators
     vector<shared_ptr<Vector_Operator> > value_operators
         = {make_shared<Moment_Value_Operator>(spatial_,
                                               angular_,
                                               energy_,
-                                              false),
+                                              false), // no weighting
            make_shared<Moment_Value_Operator>(spatial_,
                                               angular_,
                                               energy_,
-                                              true)};
-
-    // Get combined operators
-    shared_ptr<Vector_Operator> source_operator
-        = D * LinvB * Ns * M * Q * R;
-    shared_ptr<Vector_Operator> flux_operator
-        = D * LinvI * Wd * Ns * M * (S + F) * Nc;
+                                              true)}; // weighting
     
     // Get source iteration
     Source_Iteration::Options iteration_options;
+    iteration_options.solver_print = 1;
     return make_shared<Source_Iteration>(iteration_options,
                                          spatial_,
                                          angular_,

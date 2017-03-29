@@ -93,4 +93,7 @@ apply(vector<double> &x) const
 void Moment_Weighting_Operator::
 check_class_invariants() const
 {
+    Assert(spatial_);
+    Assert(angular_);
+    Assert(energy_);
 }

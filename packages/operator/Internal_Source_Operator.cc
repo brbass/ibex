@@ -24,6 +24,8 @@ Internal_Source_Operator(shared_ptr<Spatial_Discretization> spatial,
     int number_of_dimensional_moments = spatial_->number_of_dimensional_moments();
     
     size_ = number_of_points * number_of_moments * number_of_groups * number_of_dimensional_moments;
+
+    check_class_invariants();
 }
 
 void Internal_Source_Operator::
@@ -42,7 +44,8 @@ apply(vector<double> &x) const
     int number_of_moments = angular_->number_of_moments();
     int number_of_groups = energy_->number_of_groups();
     int number_of_dimensional_moments = spatial_->number_of_dimensional_moments();
-
+    double normalization = angular_->angular_normalization();
+    
     for (int i = 0; i < number_of_points; ++i)
     {
         shared_ptr<Cross_Section> internal_source

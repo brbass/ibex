@@ -30,6 +30,7 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
 
     // Get number of dimensional moments
     number_of_dimensional_moments_ = weights_[0]->number_of_dimensional_moments();
+    include_supg_ = weights_[0]->options().include_supg;
     
     // Get boundary weights
     int j = 0;

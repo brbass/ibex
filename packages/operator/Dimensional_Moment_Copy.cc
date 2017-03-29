@@ -21,8 +21,10 @@ Dimensional_Moment_Copy(shared_ptr<Weak_Spatial_Discretization> spatial,
                    * spatial->number_of_nodes()
                    * energy->number_of_groups()
                    * angular->number_of_moments());
-    row_size_ = phi_size;
-    column_size_ = phi_size * spatial->number_of_dimensional_moments();
+    row_size_ = phi_size * spatial->number_of_dimensional_moments();
+    column_size_ = phi_size;
+
+    check_class_invariants();
 }
 
 void Dimensional_Moment_Copy::
@@ -49,11 +51,22 @@ apply(vector<double> &x) const
     vector<double> result(size * number_of_dimensional_moments);
 
     // Put data into result
-    for (int i = 0; i < size; ++i)
+    for (int i = 0; i < number_of_points; ++i)
     {
-        for (int d = 0; d < number_of_dimensional_moments; ++d)
+        for (int m = 0; m < number_of_moments; ++m)
         {
-            result[d + size * i] = x[i];
+            for (int g = 0; g < number_of_groups; ++g)
+            {
+                for (int n = 0; n < number_of_nodes; ++n)
+                {
+                    int k_x = n + number_of_nodes * (g + number_of_groups * (m + number_of_moments * i));
+                    for (int d = 0; d < number_of_dimensional_moments; ++d)
+                    {
+                        int k_res = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                        result[k_res] = x[k_x];
+                    }
+                }
+            }
         }
     }
 

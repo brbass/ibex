@@ -23,6 +23,7 @@ Discrete_Value_Operator(shared_ptr<Weak_Spatial_Discretization> spatial,
              * spatial->number_of_nodes()
              * angular->number_of_ordinates()
              * energy->number_of_groups());
+    
     check_class_invariants();
 }
 
@@ -79,4 +80,7 @@ apply(vector<double> &x) const
 void Discrete_Value_Operator::
 check_class_invariants() const
 {
+    Assert(spatial_);
+    Assert(angular_);
+    Assert(energy_);
 }

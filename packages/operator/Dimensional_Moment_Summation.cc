@@ -17,12 +17,14 @@ Dimensional_Moment_Summation(shared_ptr<Weak_Spatial_Discretization> spatial,
     angular_(angular),
     energy_(energy)
 {
-    int phi_size =(spatial->number_of_points()
+    int psi_size =(spatial->number_of_points()
                    * spatial->number_of_nodes()
                    * energy->number_of_groups()
-                   * angular->number_of_moments());
-    row_size_ = phi_size * spatial->number_of_dimensional_moments();
-    column_size_ = phi_size;
+                   * angular->number_of_ordinates());
+    row_size_ = psi_size;
+    column_size_ = psi_size * spatial->number_of_dimensional_moments();
+    
+    check_class_invariants();
 }
 
 void Dimensional_Moment_Summation::

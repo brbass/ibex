@@ -60,26 +60,26 @@ apply(vector<double> &x) const
         {
             for (int d = 0; d < local_number_of_dimensional_moments; ++d)
             {
-            for (int n = 0; n < number_of_nodes; ++n)
-            {
-                for (int m = 0; m < number_of_moments; ++m)
+                for (int n = 0; n < number_of_nodes; ++n)
                 {
-                    double sum = 0;
-                    
-                    for (int o = 0; o < number_of_ordinates; ++o)
+                    for (int m = 0; m < number_of_moments; ++m)
                     {
-                        int k = n + number_of_nodes * (d + local_number_of_dimensional_moments * (g + number_of_groups * (o + number_of_ordinates * i)));
+                        double sum = 0;
+                    
+                        for (int o = 0; o < number_of_ordinates; ++o)
+                        {
+                            int k = n + number_of_nodes * (d + local_number_of_dimensional_moments * (g + number_of_groups * (o + number_of_ordinates * i)));
                         
-                        double p = angular_discretization_->moment(m, o);
+                            double p = angular_discretization_->moment(m, o);
 
-                        sum += weights[o] * p * y[k];
+                            sum += weights[o] * p * y[k];
+                        }
+                    
+                        int k = n + number_of_nodes * (d + local_number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                    
+                        x[k] = sum;
                     }
-                    
-                    int k = n + number_of_nodes * (d + local_number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
-                    
-                    x[k] = sum;
                 }
-            }
             }
         }
     }
