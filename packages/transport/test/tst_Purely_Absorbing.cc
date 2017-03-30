@@ -260,7 +260,8 @@ int run_test(shared_ptr<Weak_Spatial_Discretization> spatial,
              shared_ptr<Constructive_Solid_Geometry> solid,
              vector<shared_ptr<Material> > materials,
              vector<shared_ptr<Boundary_Source> > sources,
-             shared_ptr<Weak_RBF_Sweep> sweeper)
+             shared_ptr<Weak_RBF_Sweep> sweeper,
+             bool print)
 {
     shared_ptr<Material> material = materials[0];
     shared_ptr<Boundary_Source> source = sources[0];
@@ -321,7 +322,13 @@ int run_test(shared_ptr<Weak_Spatial_Discretization> spatial,
     vector<double> const sigma_t = material->sigma_t()->data();
     vector<double> const boundary_source = source->data();
     int w = 16;
-    cout << setw(w) << "calculated" << setw(w) << "solution" << setw(w) << "rel_error" << endl;
+    int num_average = 0;
+    double l2err = 0;
+    double l2relerr = 0;
+    if (print)
+    {
+        cout << setw(w) << "calculated" << setw(w) << "solution" << setw(w) << "rel_error" << endl;
+    }
     for (int i = 0; i < number_of_points; ++i)
     {
         vector<double> const position = spatial->weight(i)->position();
@@ -346,7 +353,7 @@ int run_test(shared_ptr<Weak_Spatial_Discretization> spatial,
 
             // Next_intersection struggles on corners
             // Only include points that correctly find vacuum
-            if (region == Solid_Geometry::Geometry_Errors::NO_REGION && o == 1)
+            if (region == Solid_Geometry::Geometry_Errors::NO_REGION)
             {
                 for (int g = 0; g < number_of_groups; ++g)
                 {
@@ -357,13 +364,23 @@ int run_test(shared_ptr<Weak_Spatial_Discretization> spatial,
                                                    internal_source[g],
                                                    boundary_source[g + number_of_groups * o],
                                                    distance);
-                    
-                    cout << setw(w) << rhs[k] << setw(w) << solution << setw(w) << (rhs[k] - solution) / solution << endl;
+                    double err = rhs[k] - solution;
+                    double relerr = err / solution;
+                    l2err += err * err;
+                    l2relerr += relerr * relerr;
+                    num_average += 1;
+                    if (o == 1 && print)
+                    {
+                        cout << setw(w) << rhs[k] << setw(w) << solution << setw(w) << relerr << endl;
+                    }
                 }
             }
         }
     }
-
+    l2err = sqrt(l2err) / num_average;
+    l2relerr = sqrt(l2relerr) / num_average;
+    cout << setw(w) << l2err << setw(w) << l2relerr << endl;
+    
     return 0;
 }
 
@@ -381,6 +398,7 @@ int main(int argc, char **argv)
     vector<shared_ptr<Material> > materials;
     vector<shared_ptr<Boundary_Source> > sources;
     shared_ptr<Weak_RBF_Sweep> sweeper;
+    bool print = false;
     
     if (argc == 2)
     {
@@ -405,25 +423,26 @@ int main(int argc, char **argv)
                              solid,
                              materials,
                              sources,
-                             sweeper);
+                             sweeper,
+                             print);
 
     }
-    else if (argc == 1)
+    else if (argc == 4)
     {
-        int dimension = 2;
-        int angular_rule = 2;
-        int num_dimensional_points = 10;
-        double radius_num_intervals = 3.0;
+        int dimension = atoi(argv[1]);
+        int angular_rule = dimension == 1 ? 2 : 1;
+        int num_dimensional_points = atoi(argv[2]);
+        double radius_num_intervals = atof(argv[3]);
         double sigma_t = 1.0;
         double internal_source = 2.0;
-        double boundary_source = 4.0;
+        double boundary_source = 1.0;
         double length = 2;
         bool basis_mls = true;
         bool weight_mls = true;
-        string basis_type = "wendland11";
-        string weight_type = "wendland11";
+        string basis_type = "compact_gaussian";
+        string weight_type = "compact_gaussian";
         Weight_Function::Options weight_options;
-        weight_options.integration_ordinates = 32;
+        weight_options.integration_ordinates = 64;
         weight_options.tau_const = 0.5;
         weight_options.output = Weight_Function::Options::Output::SUPG;
         get_one_region(basis_mls,
@@ -447,7 +466,8 @@ int main(int argc, char **argv)
                        materials,
                        sources,
                        sweeper);
-        
+
+        cout << setw(16) << dimension << setw(16) << num_dimensional_points << setw(16) << radius_num_intervals;
         checksum += run_test(spatial,
                              angular,
                              energy,
@@ -455,11 +475,13 @@ int main(int argc, char **argv)
                              solid,
                              materials,
                              sources,
-                             sweeper);
+                             sweeper,
+                             print);
     }
     else
     {
         cerr << "usage: tst_Purely_Absorbing [input_folder]" << endl;
+        cerr << "usage: tst_Purely_Absorbing [dimension num_points num_intervals]" << endl;
         return 1;
     }
     
