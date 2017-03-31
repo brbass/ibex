@@ -35,6 +35,10 @@ public:
     {
         return 1;
     }
+    virtual std::shared_ptr<Dimensional_Moments> dimensional_moments() const override
+    {
+        return dimensional_moments_;
+    }
     virtual std::shared_ptr<Point> point(int point_index) const override
     {
         return points_[point_index];
@@ -48,6 +52,7 @@ private:
     int dimension_;
     int number_of_points_;
     int number_of_boundary_points_;
+    std::shared_ptr<Dimensional_Moments> dimensional_moments_;
     std::vector<std::shared_ptr<Point> > points_;
 };
 

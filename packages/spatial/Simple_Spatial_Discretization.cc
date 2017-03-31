@@ -1,5 +1,6 @@
 #include "Simple_Spatial_Discretization.hh"
 
+#include "Dimensional_Moments.hh"
 #include "XML_Node.hh"
 
 using std::shared_ptr;
@@ -23,6 +24,10 @@ Simple_Spatial_Discretization(vector<shared_ptr<Point> > points):
             break;
         }
     }
+
+    dimensional_moments_
+        = make_shared<Dimensional_Moments>(false, // supg
+                                           dimension_);
 }
 
 void Simple_Spatial_Discretization::
