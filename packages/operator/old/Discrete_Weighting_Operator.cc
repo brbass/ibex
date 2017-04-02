@@ -77,8 +77,8 @@ apply(vector<double> &x) const
         
         vector<double> const iv_w = weight->iv_w();
         vector<double> const iv_dw = weight->iv_dw();
-        vector<double> const iv_b_w = weight->iv_b_w();
-        vector<double> const iv_b_dw = weight->iv_b_dw();
+        // vector<double> const iv_b_w = weight->iv_b_w();
+        // vector<double> const iv_b_dw = weight->iv_b_dw();
         
         for (int o = 0; o < number_of_ordinates; ++o)
         {

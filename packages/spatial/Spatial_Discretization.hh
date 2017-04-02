@@ -32,6 +32,9 @@ public:
     
     // Number of unknowns per point
     virtual int number_of_nodes() const = 0;
+
+    // Number of dimensional moments
+    virtual int number_of_dimensional_moments() const = 0;
     
     // Return point
     virtual std::shared_ptr<Point> point(int point_index) const = 0;

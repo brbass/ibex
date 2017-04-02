@@ -6,7 +6,6 @@
 #include "Dimensional_Moment_Copy.hh"
 #include "Dimensional_Moment_Summation.hh"
 #include "Discrete_To_Moment.hh"
-#include "Discrete_Weighting_Operator.hh"
 #include "Energy_Discretization.hh"
 #include "Fission.hh"
 #include "Internal_Source_Operator.hh"

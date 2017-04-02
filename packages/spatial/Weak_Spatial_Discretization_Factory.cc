@@ -8,6 +8,7 @@
 #include "Cartesian_Plane.hh"
 #include "Check.hh"
 #include "Constructive_Solid_Geometry.hh"
+#include "Dimensional_Moments.hh"
 #include "Distance.hh"
 #include "KD_Tree.hh"
 #include "Linear_MLS_Function.hh"
@@ -225,8 +226,15 @@ get_simple_discretization(int num_dimensional_points,
                          meshless_weight,
                          bases,
                          weights);
+
+    // Get dimensional moments
+    bool supg = options.include_supg;
+    shared_ptr<Dimensional_Moments> dimensional_moments
+        = make_shared<Dimensional_Moments>(supg,
+                                           dimension);
     
     return make_shared<Weak_Spatial_Discretization>(bases,
                                                     weights,
+                                                    dimensional_moments,
                                                     kd_tree);
 }

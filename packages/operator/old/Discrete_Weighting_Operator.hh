@@ -19,7 +19,11 @@ public:
                                 std::shared_ptr<Energy_Discretization> energy,
                                 Options options);
     
-    virtual int size() const override
+    virtual int row_size() const override
+    {
+        return size_;
+    }
+    virtual int column_size() const override
     {
         return size_;
     }

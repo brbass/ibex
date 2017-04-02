@@ -1,35 +1,40 @@
-#include "Scattering_Operator.hh"
+#include "SUPG_Scattering_Operator.hh"
 
 #include <memory>
 #include <vector>
 
 #include "Angular_Discretization.hh"
 #include "Check.hh"
+#include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
 #include "Spatial_Discretization.hh"
 
 using namespace std;
 
-Scattering_Operator::
-Scattering_Operator(shared_ptr<Spatial_Discretization> spatial_discretization,
+SUPG_Scattering_Operator::
+SUPG_Scattering_Operator(shared_ptr<Spatial_Discretization> spatial_discretization,
                     shared_ptr<Angular_Discretization> angular_discretization,
                     shared_ptr<Energy_Discretization> energy_discretization,
                     Options options):
-    Square_Vector_Operator(),
+    Vector_Operator(),
     spatial_discretization_(spatial_discretization),
     angular_discretization_(angular_discretization),
     energy_discretization_(energy_discretization),
     options_(options)
 {
+    shared_ptr<Dimensional_Moments> dimensional_moments
+        = spatial_discretization->dimensional_moments();
+    
     int phi_size = (spatial_discretization->number_of_points()
                     * spatial_discretization->number_of_nodes()
                     * energy_discretization->number_of_groups()
                     * angular_discretization->number_of_moments());
 
-    size_ = phi_size;
+    column_size_ = phi_size * dimensional_moments->number_of_dimensional_moments();
+    row_size_ = phi_size * dimensional_moments->number_of_double_dimensional_moments();
 }
 
-void Scattering_Operator::
+void SUPG_Scattering_Operator::
 apply(vector<double> &x) const
 {
     switch(options_.scattering_type)
@@ -46,7 +51,7 @@ apply(vector<double> &x) const
     }
 }
 
-void Scattering_Operator::
+void SUPG_Scattering_Operator::
 apply_incoherent(vector<double> &x) const
 {
     vector<double> y(x);
@@ -61,7 +66,7 @@ apply_incoherent(vector<double> &x) const
     }
 }
 
-void Scattering_Operator::
+void SUPG_Scattering_Operator::
 check_class_invariants() const
 {
     Assert(spatial_discretization_);

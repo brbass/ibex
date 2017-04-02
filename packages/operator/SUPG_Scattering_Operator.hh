@@ -1,10 +1,10 @@
-#ifndef Scattering_Operator_hh
-#define Scattering_Operator_hh
+#ifndef SUPG_Scattering_Operator_hh
+#define SUPG_Scattering_Operator_hh
 
 #include <memory>
 #include <vector>
 
-#include "Square_Vector_Operator.hh"
+#include "Vector_Operator.hh"
 
 class Angular_Discretization;
 class Energy_Discretization;
@@ -13,7 +13,7 @@ class Spatial_Discretization;
 /*
   Pure virtual class to apply scattering to a moment representation of the flux
 */
-class Scattering_Operator : public Square_Vector_Operator
+class SUPG_Scattering_Operator : public Vector_Operator
 {
 public:
 
@@ -31,21 +31,26 @@ public:
     };
 
     // Constructor
-    Scattering_Operator(std::shared_ptr<Spatial_Discretization> spatial_discretization,
-                        std::shared_ptr<Angular_Discretization> angular_discretization,
-                        std::shared_ptr<Energy_Discretization> energy_discretization,
-                        Options options);
+    SUPG_Scattering_Operator(std::shared_ptr<Spatial_Discretization> spatial_discretization,
+                             std::shared_ptr<Angular_Discretization> angular_discretization,
+                             std::shared_ptr<Energy_Discretization> energy_discretization,
+                             Options options);
     
-    virtual int size() const override
+    virtual int row_size() const override
     {
-        return size_;
+        return row_size_;
+    }
+    virtual int column_size() const override
+    {
+        return column_size_;
     }
     
     virtual void check_class_invariants() const override;
     
 protected:
 
-    int size_;
+    int column_size_;
+    int row_size_;
     
     // Type of scattering
     Options options_;

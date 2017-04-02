@@ -4,6 +4,7 @@
 #include "Cartesian_Distance.hh"
 #include "Cartesian_Plane.hh"
 #include "Compact_Gaussian_RBF.hh"
+#include "Dimensional_Moments.hh"
 #include "Linear_MLS_Function.hh"
 #include "Meshless_Function.hh"
 #include "RBF_Function.hh"
@@ -39,9 +40,13 @@ get_weak_discretization(XML_Node input_node) const
                                number_of_points,
                                dimension,
                                basis_functions);
-
+    bool supg = weight_functions[0]->options().include_supg;
+    shared_ptr<Dimensional_Moments> dimensional_moments
+        = make_shared<Dimensional_Moments>(supg,
+                                           dimension);
     return make_shared<Weak_Spatial_Discretization>(basis_functions,
-                                                    weight_functions);
+                                                    weight_functions,
+                                                    dimensional_moments);
 }
 
 vector<shared_ptr<Meshless_Function> > Weak_Spatial_Discretization_Parser::

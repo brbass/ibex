@@ -3,8 +3,8 @@
 using std::vector;
 
 Dimensional_Moments::
-Dimennsional_Moments(bool supg,
-                     int dimension):
+Dimensional_Moments(bool supg,
+                    int dimension):
     supg_(supg),
     dimension_(dimension)
 {
@@ -81,4 +81,22 @@ coefficients(double tau,
     {
         vals[d] = tau * direction[d - 1];
     }
+}
+
+vector<double> Dimensional_Moments::
+double_coefficients(double tau,
+                    vector<double> const &direction) const
+{
+    vector<double> coeffs = coefficients(tau,
+                                         direction);
+    vector<double> vals(number_of_double_dimensional_moments_);
+    for (int d = 0; d < number_of_double_dimensional_moments_; ++d)
+    {
+        int d1 = dimensional_subscripts_[0 + 2 * d];
+        int d2 = dimensional_subscripts_[1 + 2 * d];
+        
+        vals[d] = coeffs[d1] * coeffs[d2];
+    }
+
+    return vals;
 }

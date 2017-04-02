@@ -14,6 +14,7 @@ public:
     // Constructor
     Weak_Spatial_Discretization(std::vector<std::shared_ptr<Basis_Function> > &bases,
                                 std::vector<std::shared_ptr<Weight_Function> > &weights,
+                                std::shared_ptr<Dimensional_Moments> dimensional_moments,
                                 std::shared_ptr<KD_Tree> kd_tree = std::shared_ptr<KD_Tree>());
 
     // Point functions
@@ -40,6 +41,10 @@ public:
     virtual int number_of_dimensional_moments() const override
     {
         return number_of_dimensional_moments_;
+    }
+    virtual std::shared_ptr<Dimensional_Moments> dimensional_moments() const override
+    {
+        return dimensional_moments_;
     }
     virtual std::shared_ptr<Point> point(int point_index) const override
     {
@@ -106,6 +111,7 @@ private:
     std::vector<std::shared_ptr<Weight_Function> > boundary_weights_;
     std::vector<std::shared_ptr<Basis_Function> > bases_;
     std::vector<std::shared_ptr<Basis_Function> > boundary_bases_;
+    std::shared_ptr<Dimensional_Moments> dimensional_moments_;
     std::shared_ptr<KD_Tree> kd_tree_;
     
 };

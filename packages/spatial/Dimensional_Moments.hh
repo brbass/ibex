@@ -48,8 +48,9 @@ public:
     // Get coefficients for summation
     // In 3D, {1, tau * direction[0], tau * direction[1], tau * direction[2]}
     std::vector<double> coefficients(double tau,
-                                std::vector<double> const &direction) const;
-
+                                     std::vector<double> const &direction) const;
+    std::vector<double> double_coefficients(double tau,
+                                            std::vector<double> const &direction) const;
 private:
 
     bool supg_;

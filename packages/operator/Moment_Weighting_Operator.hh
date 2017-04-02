@@ -18,9 +18,13 @@ public:
                               std::shared_ptr<Angular_Discretization> angular,
                               std::shared_ptr<Energy_Discretization> energy,
                               Options options);    
-    virtual int size() const override
+    virtual int row_size() const override
     {
-        return size_;
+        return row_size_;
+    }
+    virtual int column_size() const override
+    {
+        return column_size_;
     }
     
     virtual void check_class_invariants() const override;
@@ -28,7 +32,8 @@ public:
 
 private:
 
-    int size_;
+    int row_size_;
+    int column_size_;
 };
 
 #endif

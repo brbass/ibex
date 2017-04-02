@@ -4,6 +4,7 @@
 #include "Boundary_Source.hh"
 #include "Cartesian_Plane.hh"
 #include "Check.hh"
+#include "Dimensional_Moments.hh"
 #include "KD_Tree.hh"
 #include "Meshless_Function.hh"
 #include "XML_Node.hh"
@@ -13,12 +14,14 @@ using namespace std;
 Weak_Spatial_Discretization::
 Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
                             vector<shared_ptr<Weight_Function> > &weights,
+                            shared_ptr<Dimensional_Moments> dimensional_moments,
                             shared_ptr<KD_Tree> kd_tree):
     number_of_points_(weights.size()),
     dimension_(weights[0]->dimension()),
     number_of_nodes_(weights[0]->number_of_nodes()),
     weights_(weights),
     bases_(bases),
+    dimensional_moments_(dimensional_moments),
     kd_tree_(kd_tree)
 {
     // Get number of basis functions
