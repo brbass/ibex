@@ -20,8 +20,7 @@ public:
     // Constructor
     Moment_To_Discrete(std::shared_ptr<Spatial_Discretization> spatial_discretization,
                        std::shared_ptr<Angular_Discretization> angular_discretization,
-                       std::shared_ptr<Energy_Discretization> energy_discretization,
-                       bool include_dimensional_moments = false);
+                       std::shared_ptr<Energy_Discretization> energy_discretization);
     
     virtual void check_class_invariants() const override;
 

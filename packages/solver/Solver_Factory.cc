@@ -3,9 +3,8 @@
 #include "Angular_Discretization.hh"
 #include "Augmented_Operator.hh"
 #include "Boundary_Source_Toggle.hh"
-#include "Dimensional_Moment_Copy.hh"
-#include "Dimensional_Moment_Summation.hh"
 #include "Discrete_To_Moment.hh"
+#include "Discrete_Normalization_Operator.hh"
 #include "Energy_Discretization.hh"
 #include "Fission.hh"
 #include "Internal_Source_Operator.hh"
@@ -15,6 +14,10 @@
 #include "Resize_Operator.hh"
 #include "Scattering.hh"
 #include "Source_Iteration.hh"
+#include "SUPG_Fission.hh"
+#include "SUPG_Internal_Source_Operator.hh"
+#include "SUPG_Moment_To_Discrete.hh"
+#include "SUPG_Scattering.hh"
 #include "Transport_Discretization.hh"
 #include "Vector_Operator_Functions.hh"
 #include "Weak_Spatial_Discretization.hh"
@@ -58,17 +61,14 @@ get_source_operators(shared_ptr<Sweep_Operator> Linv,
     shared_ptr<Vector_Operator> M
         = make_shared<Moment_To_Discrete>(spatial_,
                                           angular_,
-                                          energy_,
-                                          false); // include dimensional moments
+                                          energy_);
     shared_ptr<Vector_Operator> D
         = make_shared<Discrete_To_Moment>(spatial_,
                                           angular_,
-                                          energy_,
-                                          false); // include dimensional moments
-
+                                          energy_);
+    
     // Get Scattering operators
     Scattering_Operator::Options scattering_options;
-    scattering_options.include_dimensional_moments = false;
     shared_ptr<Vector_Operator> S
         = make_shared<Scattering>(spatial_,
                                   angular_,
@@ -147,67 +147,62 @@ get_supg_source_operators(shared_ptr<Sweep_Operator> Linv,
     int number_of_augments = transport_->number_of_augments();
     
     // Get moment-to-discrete and discrete-to-moment operators
-    shared_ptr<Vector_Operator> M
-        = make_shared<Moment_To_Discrete>(spatial_,
-                                          angular_,
-                                          energy_,
-                                          true); // include dimensional moments
+    shared_ptr<Vector_Operator> M1
+        = make_shared<SUPG_Moment_To_Discrete>(spatial_,
+                                               angular_,
+                                               energy_,
+                                               false); // include double dimenisonal moments
+    shared_ptr<Vector_Operator> M2
+        = make_shared<SUPG_Moment_To_Discrete>(spatial_,
+                                               angular_,
+                                               energy_,
+                                               true); // include double dimensional moments
     shared_ptr<Vector_Operator> D
         = make_shared<Discrete_To_Moment>(spatial_,
                                           angular_,
-                                          energy_,
-                                          false); // include dimensional moments
-
+                                          energy_);
+    
     // Get Scattering operators
-    Scattering_Operator::Options scattering_options;
-    scattering_options.include_dimensional_moments = true;
+    SUPG_Scattering_Operator::Options scattering_options;
     shared_ptr<Vector_Operator> S
-        = make_shared<Scattering>(spatial_,
-                                  angular_,
-                                  energy_,
-                                  scattering_options);
+        = make_shared<SUPG_Scattering>(spatial_,
+                                       angular_,
+                                       energy_,
+                                       scattering_options);
     shared_ptr<Vector_Operator> F
-        = make_shared<Fission>(spatial_,
-                               angular_,
-                               energy_,
-                               scattering_options);
+        = make_shared<SUPG_Fission>(spatial_,
+                                    angular_,
+                                    energy_,
+                                    scattering_options);
     
-    // Get weighting operator
+    // Get normalization operator
     Weighting_Operator::Options weighting_options;
-    shared_ptr<Vector_Operator> Wd
-        = make_shared<Discrete_Weighting_Operator>(spatial_,
-                                                   angular_,
-                                                   energy_,
-                                                   weighting_options);
+    shared_ptr<Vector_Operator> W
+        = make_shared<Moment_Weighting_Operator>(spatial_,
+                                                 angular_,
+                                                 energy_,
+                                                 weighting_options);
+    shared_ptr<Vector_Operator> N
+        = make_shared<Discrete_Normalization_Operator>(spatial_,
+                                                       angular_,
+                                                       energy_,
+                                                       weighting_options);
     
-    // Get dimensional summation and copy operators
-    shared_ptr<Vector_Operator> Ns
-        = make_shared<Dimensional_Moment_Summation>(spatial_,
-                                                    angular_,
-                                                    energy_);
-    shared_ptr<Vector_Operator> Nc
-        = make_shared<Dimensional_Moment_Copy>(spatial_,
-                                               angular_,
-                                               energy_);
-
     // Get source operator
     shared_ptr<Vector_Operator> Q
-        = make_shared<Internal_Source_Operator>(spatial_,
-                                                angular_,
-                                                energy_);
-
-    // Get the operator to resize given source to correct size
-    shared_ptr<Vector_Operator> R
-        = make_shared<Resize_Operator>(phi_size * number_of_dimensional_moments,
-                                       phi_size);
-
+        = make_shared<SUPG_Internal_Source_Operator>(spatial_,
+                                                     angular_,
+                                                     energy_);
     
     // Add augments to operators
     if (number_of_augments > 0)
     {
-        M = make_shared<Augmented_Operator>(number_of_augments,
-                                            M,
-                                            false);
+        M1 = make_shared<Augmented_Operator>(number_of_augments,
+                                             M1,
+                                             false);
+        M2 = make_shared<Augmented_Operator>(number_of_augments,
+                                             M2,
+                                             false);
         D = make_shared<Augmented_Operator>(number_of_augments,
                                             D,
                                             false);
@@ -217,20 +212,14 @@ get_supg_source_operators(shared_ptr<Sweep_Operator> Linv,
         F = make_shared<Augmented_Operator>(number_of_augments,
                                             F,
                                             true);
-        Wd = make_shared<Augmented_Operator>(number_of_augments,
-                                             Wd,
-                                             false);
-        Ns = make_shared<Augmented_Operator>(number_of_augments,
-                                             Ns,
-                                             false);
-        Nc = make_shared<Augmented_Operator>(number_of_augments,
-                                             Nc,
-                                             false);
+        W = make_shared<Augmented_Operator>(number_of_augments,
+                                            W,
+                                            false);
+        N = make_shared<Augmented_Operator>(number_of_augments,
+                                            N,
+                                            false);
         Q = make_shared<Augmented_Operator>(number_of_augments,
                                             Q,
-                                            false);
-        R = make_shared<Augmented_Operator>(number_of_augments,
-                                            R,
                                             false);
     }
     
@@ -244,9 +233,9 @@ get_supg_source_operators(shared_ptr<Sweep_Operator> Linv,
     
     // Get combined operators
     source_operator
-        = D * LinvB * Ns * M * Q * R;
+        = D * LinvB * M1 * Q;
     flux_operator
-        = D * LinvI * Wd * Ns * M * (S + F) * Nc;
+        = D * LinvI * N * M2 * (S + F) * W;
 }
 
 std::shared_ptr<Source_Iteration> Solver_Factory::

@@ -19,10 +19,10 @@ SUPG_Fission(shared_ptr<Spatial_Discretization> spatial_discretization,
         shared_ptr<Angular_Discretization> angular_discretization,
         shared_ptr<Energy_Discretization> energy_discretization,
         Options options):
-    Scattering_Operator(spatial_discretization,
-                        angular_discretization,
-                        energy_discretization,
-                        options)
+    SUPG_Scattering_Operator(spatial_discretization,
+                             angular_discretization,
+                             energy_discretization,
+                             options)
 {
     check_class_invariants();
 }

@@ -4,12 +4,12 @@
 #include <memory>
 #include <vector>
 
-#include "Scattering_Operator.hh"
+#include "SUPG_Scattering_Operator.hh"
 
 /*
   Applies fission to a moment representation of the flux
 */
-class SUPG_Fission : public Scattering_Operator
+class SUPG_Fission : public SUPG_Scattering_Operator
 {
 public:
 

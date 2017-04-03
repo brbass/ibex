@@ -13,14 +13,14 @@ class Spatial_Discretization;
 /*
   Return the internal source
 */
-class SUPG_Internal_Source_Operator : public Square_Vector_Operator
+class SUPG_Internal_Source_Operator : public Vector_Operator
 {
 public:
     
     // Constructor
     SUPG_Internal_Source_Operator(std::shared_ptr<Spatial_Discretization> spatial_discretization,
-            std::shared_ptr<Angular_Discretization> angular_discretization,
-            std::shared_ptr<Energy_Discretization> energy_discretization);
+                                  std::shared_ptr<Angular_Discretization> angular_discretization,
+                                  std::shared_ptr<Energy_Discretization> energy_discretization);
     
     virtual int row_size() const override
     {
