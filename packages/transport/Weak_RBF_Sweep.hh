@@ -50,7 +50,10 @@ public:
     }
     virtual void output(XML_Node output_node) const override;
     virtual void check_class_invariants() const override;
-    
+    virtual std::string description() const override
+    {
+        return "Weak_RBF_Sweep";
+    }
 private:
 
     // Vector_Operator function

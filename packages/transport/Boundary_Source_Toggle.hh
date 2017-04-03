@@ -41,6 +41,7 @@ public:
     {
         sweep_->check_class_invariants();
     }
+    virtual std::string description() const override;
     
 private:
 

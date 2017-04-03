@@ -1,6 +1,7 @@
 #include "Vector_Operator_Difference.hh"
 
 using std::shared_ptr;
+using std::string;
 using std::vector;
 
 Vector_Operator_Difference::
@@ -38,6 +39,16 @@ check_class_invariants() const
     int row2 = op2_->row_size();
     int col1 = op1_->column_size();
     int col2 = op2_->column_size();
-    Assert(row1 == row2);
-    Assert(col1 == col2);
+    AssertMsg(row1 == row2, description());
+    AssertMsg(col1 == col2, description());
+}
+
+string Vector_Operator_Difference::
+description() const
+{
+    return ("(Vector_Operator_Difference -> "
+            + op1_->description()
+            + " - "
+            + op2_->description()
+            + ")");
 }

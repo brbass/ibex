@@ -21,6 +21,11 @@ public:
     
     virtual void check_class_invariants() const override;
     
+    virtual std::string description() const override
+    {
+        return "SUPG_Scattering";
+    }
+    
 private: 
 
     // Apply within-group and out-of-group scattering

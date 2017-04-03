@@ -42,6 +42,7 @@ public:
         };
 
         // Parameters that are automatically set
+        // Don't use before Weight_Function is created
         bool include_supg = false;
         bool normalized = true;
         double tau; // SUPG parameter (tau_const / shape)

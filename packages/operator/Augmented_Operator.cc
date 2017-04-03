@@ -1,6 +1,7 @@
 #include "Augmented_Operator.hh"
 
 using std::shared_ptr;
+using std::string;
 using std::vector;
 
 Augmented_Operator::
@@ -40,4 +41,10 @@ check_class_invariants() const
 {
     Assert(vector_operator_);
     Assert(number_of_augments_ >= 0);
+}
+
+string Augmented_Operator::
+description() const
+{
+    return "(Augmented_Operator -> " + vector_operator_->description() + ")";
 }

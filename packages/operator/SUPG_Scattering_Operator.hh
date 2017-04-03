@@ -45,7 +45,9 @@ public:
         return column_size_;
     }
     
-    virtual void check_class_invariants() const override;
+    virtual void check_class_invariants() const override = 0;
+    
+    virtual std::string description() const override = 0;
     
 protected:
 

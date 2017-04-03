@@ -205,6 +205,7 @@ expansion_value(vector<double> const &position,
 void Weak_Spatial_Discretization::
 check_class_invariants() const
 {
+    Assert(number_of_dimensional_moments_ == dimensional_moments_->number_of_dimensional_moments());
     Assert(weights_.size() == number_of_points_);
     Assert(boundary_weights_.size() == number_of_boundary_weights_);
     Assert(bases_.size() == number_of_points_);

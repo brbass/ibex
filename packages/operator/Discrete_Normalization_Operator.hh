@@ -30,7 +30,11 @@ public:
     
     virtual void check_class_invariants() const override;
     virtual void apply(std::vector<double> &x) const override;
-
+    virtual std::string description() const override
+    {
+        return "Discrete_Normalization_Operator";
+    }
+    
 private:
 
     int size_;

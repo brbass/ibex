@@ -32,6 +32,10 @@ public:
     {
         return column_size_;
     }
+    virtual std::string description() const override
+    {
+        return "Discrete_To_Moment";
+    }
     
 private:
     

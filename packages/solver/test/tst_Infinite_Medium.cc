@@ -239,11 +239,12 @@ int test_infinite(bool basis_mls,
     // Print
     int phi_size = transport->phi_size();
     int num_values = result->phi.size();
+    int w = 16;
+    cout << setw(w) << "value" << setw(w) << "weighted" << endl;
     for (int i = 0; i < phi_size; ++i)
     {
         for (int j = 0; j < num_values; ++j)
         {
-            int w = 16;
             cout << setw(w) << result->phi[j][i];
         }
         cout << endl;
@@ -262,14 +263,14 @@ int main(int argc, char **argv)
     {
         int dimension = 1;
         int num_dimensional_points = 5;
-        int angular_rule = dimension == 1 ? 2 : 1;
+        int angular_rule = dimension == 1 ? 16 : 1;
         double norm = dimension == 1 ? 2 : 2 * M_PI;
         double radius_num_intervals = 3.0;
         double sigma_t = 2.0;
-        double sigma_s = 1.0;
-        double chi_nu_sigma_f = 0.5;
+        double sigma_s = 0.5;
+        double chi_nu_sigma_f = 0.0;
         double internal_source = 1;
-        double boundary_source = 0 / (norm * sigma_t);
+        double boundary_source = 0 / (norm * (sigma_t - sigma_s - chi_nu_sigma_f));
         double alpha = 1.0;
         double length = 2;
         bool basis_mls = true;
@@ -277,8 +278,8 @@ int main(int argc, char **argv)
         string basis_type = "wendland11";
         string weight_type = "wendland11";
         Weight_Function::Options weight_options;
-        weight_options.integration_ordinates = 32;
-        weight_options.tau_const = 0;
+        weight_options.integration_ordinates = 128;
+        weight_options.tau_const = 1.0;
         weight_options.output = Weight_Function::Options::Output::STANDARD;
         checksum += test_infinite(basis_mls,
                                   weight_mls,

@@ -228,7 +228,7 @@ get_simple_discretization(int num_dimensional_points,
                          weights);
 
     // Get dimensional moments
-    bool supg = options.include_supg;
+    bool supg = (options.output == Weight_Function::Options::Output::SUPG);
     shared_ptr<Dimensional_Moments> dimensional_moments
         = make_shared<Dimensional_Moments>(supg,
                                            dimension);

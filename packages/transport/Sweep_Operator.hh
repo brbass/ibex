@@ -62,6 +62,7 @@ public:
 
     virtual void output(XML_Node output_node) const = 0;
     virtual void check_class_invariants() const override = 0;
+    virtual std::string description() const override = 0;
     
 protected:
     
@@ -72,7 +73,7 @@ protected:
 private:
 
     int size_;
-    virtual void apply(std::vector<double> &x) const override = 0;
+    virtual void apply(std::vector<double> &x) const override= 0;
 };
 
 #endif

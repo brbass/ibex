@@ -30,6 +30,10 @@ public:
     {
         return column_size_;
     }
+    virtual std::string description() const override
+    {
+        return "SUPG_Moment_To_Discrete";
+    }
     
 private:
 

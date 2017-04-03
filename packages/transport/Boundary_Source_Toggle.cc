@@ -26,3 +26,9 @@ output(XML_Node output_node) const
 {
     sweep_->output(output_node);
 }
+
+string Boundary_Source_Toggle::
+description() const
+{
+    return "(Boundary_Source_Toggle -> " + sweep_->description() + ")";
+}

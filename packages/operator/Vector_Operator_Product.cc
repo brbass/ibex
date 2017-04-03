@@ -1,6 +1,7 @@
 #include "Vector_Operator_Product.hh"
 
 using std::shared_ptr;
+using std::string;
 using std::vector;
 
 Vector_Operator_Product::
@@ -29,5 +30,15 @@ check_class_invariants() const
     // Check that input of op1 is of the size of the output of op2
     int row2 = op2_->row_size();
     int col1 = op1_->column_size();
-    Assert(row2 == col1);
+    AssertMsg(row2 == col1, description());
+}
+
+string Vector_Operator_Product::
+description() const
+{
+    return ("(Vector_Operator_Product -> "
+            + op1_->description()
+            + " + "
+            + op2_->description()
+            + ")");
 }

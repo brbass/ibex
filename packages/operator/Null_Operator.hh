@@ -22,6 +22,11 @@ public:
     
     virtual void check_class_invariants() const override;
     
+    virtual std::string description() const override
+    {
+        return "Null_Operator";
+    }
+    
 private:
 
     int size_;

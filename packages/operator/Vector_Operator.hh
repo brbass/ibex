@@ -1,6 +1,7 @@
 #ifndef Vector_Operator_hh
 #define Vector_Operator_hh
 
+#include <string>
 #include <vector>
 
 #include "Check.hh"
@@ -40,6 +41,7 @@ public:
     }
     
     virtual void check_class_invariants() const = 0;
+    virtual std::string description() const = 0;
     
 private:
     

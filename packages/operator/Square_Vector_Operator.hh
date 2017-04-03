@@ -25,22 +25,24 @@ public:
     virtual int size() const = 0;
     
     // Output size
-    virtual int row_size() const
+    virtual int row_size() const override
     {
         return size();
     }
     
     // Input size
-    virtual int column_size() const
+    virtual int column_size() const override
     {
         return size();
     }
     
-    virtual void check_class_invariants() const = 0;
+    virtual void check_class_invariants() const override = 0;
+
+    virtual std::string description() const override = 0;
     
 private:
     
-    virtual void apply(std::vector<double> &x) const = 0;
+    virtual void apply(std::vector<double> &x) const override = 0;
 };
 
 #endif

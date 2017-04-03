@@ -81,6 +81,8 @@ coefficients(double tau,
     {
         vals[d] = tau * direction[d - 1];
     }
+
+    return vals;
 }
 
 vector<double> Dimensional_Moments::

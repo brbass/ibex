@@ -22,6 +22,11 @@ public:
         return size_;
     }
     
+    virtual std::string description() const override
+    {
+        return "Identity_Operator";
+    }
+    
 private:
 
     virtual void apply(std::vector<double> &x) const override;

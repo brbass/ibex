@@ -30,6 +30,11 @@ public:
     
     virtual void check_class_invariants() const override;
     
+    virtual std::string description() const override
+    {
+        return "Internal_Source_Operator";
+    }
+    
 private:
     
     virtual void apply(std::vector<double> &x) const override;

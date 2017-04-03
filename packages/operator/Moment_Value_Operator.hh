@@ -27,6 +27,11 @@ public:
     virtual void check_class_invariants() const override;
     virtual void apply(std::vector<double> &x) const override;
 
+    virtual std::string description() const override
+    {
+        return "Moment_Value_Operator";
+    }
+    
 private:
 
     bool weighted_;

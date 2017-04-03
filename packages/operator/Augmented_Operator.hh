@@ -27,6 +27,7 @@ public:
     {
         return vector_operator_->column_size() + number_of_augments_;
     }
+    virtual std::string description() const override;
     
 private:
     

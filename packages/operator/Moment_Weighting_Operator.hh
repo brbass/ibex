@@ -29,7 +29,11 @@ public:
     
     virtual void check_class_invariants() const override;
     virtual void apply(std::vector<double> &x) const override;
-
+    virtual std::string description() const override
+    {
+        return "Moment_Weighting_Operator";
+    }
+    
 private:
 
     int row_size_;

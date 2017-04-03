@@ -39,11 +39,12 @@ public:
                        std::shared_ptr<Energy_Discretization> energy,
                        Options options);
     
-    virtual void check_class_invariants() const = 0;
-    virtual void apply(std::vector<double> &x) const = 0;
+    virtual void check_class_invariants() const override = 0;
     
-    virtual int row_size() const = 0;
-    virtual int column_size() const = 0;
+    virtual int row_size() const override = 0;
+    virtual int column_size() const override = 0;
+    
+    virtual std::string description() const override = 0;
     
 protected:
     
@@ -53,6 +54,11 @@ protected:
     std::shared_ptr<Weak_Spatial_Discretization> spatial_;
     std::shared_ptr<Angular_Discretization> angular_;
     std::shared_ptr<Energy_Discretization> energy_;
+
+private:
+    
+    virtual void apply(std::vector<double> &x) const override = 0;
+    
 };
 
 #endif

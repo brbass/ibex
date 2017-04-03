@@ -27,6 +27,7 @@ public:
     {
         return op2_->column_size();
     }
+    virtual std::string description() const override;
     
 private:
 

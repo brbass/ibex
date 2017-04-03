@@ -61,10 +61,3 @@ apply_incoherent(vector<double> &x) const
     }
 }
 
-void Scattering_Operator::
-check_class_invariants() const
-{
-    Assert(spatial_discretization_);
-    Assert(angular_discretization_);
-    Assert(energy_discretization_);
-}

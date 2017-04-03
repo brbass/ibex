@@ -21,6 +21,11 @@ public:
     
     virtual void check_class_invariants() const override;
     
+    virtual std::string description() const override
+    {
+        return "SUPG_Fission";
+    }
+    
 private: 
     
     // Apply within-group and out-of-group fission

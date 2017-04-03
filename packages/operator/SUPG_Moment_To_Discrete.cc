@@ -53,8 +53,7 @@ apply(vector<double> &x) const
     double angular_normalization = angular_discretization_->angular_normalization();
     vector<int> const scattering_indices = angular_discretization_->scattering_indices();
     vector<double> const weights = angular_discretization_->weights();
-    vector<double> const ordinates = angular_discretization_->ordinates();
-
+    
     for (int i = 0; i < number_of_points; ++i)
     {
         double tau = spatial_discretization_->weight(i)->options().tau;
@@ -65,13 +64,14 @@ apply(vector<double> &x) const
                 for (int o = 0; o < number_of_ordinates; ++o)
                 {
                     // Get dimensional coefficients
+                    vector<double> const direction = angular_discretization_->direction(o);
                     vector<double> const coefficients
                         = (include_double_dimensional_moments_
                            ? dimensional_moments_->double_coefficients(tau,
-                                                                       angular_discretization_->direction(o))
+                                                                       direction)
                            : dimensional_moments_->coefficients(tau,
-                                                                angular_discretization_->direction(o)));
-                        
+                                                                direction));
+                    
                     // Sum over all moments
                     double dir_sum = 0;
                     for (int m = 0; m < number_of_moments; ++m)

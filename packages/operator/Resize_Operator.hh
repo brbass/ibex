@@ -27,6 +27,10 @@ public:
     {
         return original_size_;
     }
+    virtual std::string description() const override
+    {
+        return "Resize_Operator";
+    }
     
 private:
 
