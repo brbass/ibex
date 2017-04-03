@@ -51,6 +51,7 @@ apply(vector<double> &x) const
     int number_of_nodes = spatial_->number_of_nodes();
     int number_of_groups = energy_->number_of_groups();
     int number_of_moments = angular_->number_of_moments();
+    int dimension = spatial_->dimension();
     
     vector<double> result(number_of_points * number_of_nodes * number_of_groups * number_of_moments * local_number_of_dimensional_moments_, 0);
     
@@ -104,7 +105,8 @@ apply(vector<double> &x) const
             mult[0] = iv_b_w[j] / norm;
             for (int d = 1; d < local_number_of_dimensional_moments_; ++d)
             {
-                mult[d] = iv_b_dw[d - 1] / norm;
+                int k_i = d - 1 + dimension * j;
+                mult[d] = iv_b_dw[k_i] / norm;
             }
             int k_bas = basis_indices[j];
 
