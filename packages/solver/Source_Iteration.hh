@@ -16,10 +16,10 @@ public:
 
     struct Options
     {
-        int max_source_iterations = 1000;
-        int max_iterations = 1000;
+        int max_source_iterations = 5000;
+        int max_iterations = 5000;
         int solver_print = 0;
-        double tolerance = 1e-8;
+        double tolerance = 1e-10;
     };
     
     struct Result
