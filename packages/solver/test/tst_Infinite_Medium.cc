@@ -262,16 +262,16 @@ int main(int argc, char **argv)
     
     {
         int dimension = 1;
-        int num_dimensional_points = 5;
+        int num_dimensional_points = 20;
         int angular_rule = dimension == 1 ? 16 : 1;
         double norm = dimension == 1 ? 2 : 2 * M_PI;
         double radius_num_intervals = 3.0;
         double sigma_t = 2.0;
-        double sigma_s = 0.0;
-        double chi_nu_sigma_f = 0.5;
+        double sigma_s = 1.0;
+        double chi_nu_sigma_f = 0.0;
         double internal_source = 1.0;
         double boundary_source = 0 / (norm * (sigma_t - sigma_s - chi_nu_sigma_f));
-        double alpha = 1.0;
+        double alpha = 0.0;
         double length = 2;
         bool basis_mls = true;
         bool weight_mls = true;

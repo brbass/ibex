@@ -139,7 +139,7 @@ group_to_group_full(vector<double> &x) const
                         int d = dimensional_indices[d1 + number_of_dimensional_moments * d2];
                         int k_phi_to = n + number_of_nodes * (d + number_of_double_dimensional_moments * (gt + number_of_groups * (m + number_of_moments * i)));
                         
-                        x[k_phi_to] = sum;
+                        x[k_phi_to] += sum;
                     }
                 }
             }
