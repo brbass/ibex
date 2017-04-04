@@ -35,6 +35,7 @@ Krylov_Steady_State(Options options,
     value_operators_(value_operators)
 {
     convergence_->set_tolerance(options.tolerance);
+    check_class_invariants();
 }
 
 void Krylov_Steady_State::
@@ -130,5 +131,15 @@ output(XML_Node output_node) const
 void Krylov_Steady_State::
 check_class_invariants() const
 {
-    
+    Assert(spatial_discretization_);
+    Assert(angular_discretization_);
+    Assert(energy_discretization_);
+    Assert(transport_discretization_);
+    Assert(convergence_);
+    Assert(source_operator_);
+    Assert(flux_operator_);
+    for (std::shared_ptr<Vector_Operator> oper : value_operators_)
+    {
+        Assert(oper);
+    }
 }

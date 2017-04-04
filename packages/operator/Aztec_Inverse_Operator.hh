@@ -30,6 +30,11 @@ public:
     // Constructor
     Aztec_Inverse_Operator(Options options,
                            std::shared_ptr<Vector_Operator> vector_operator);
+    Aztec_Inverse_Operator(Options options,
+                           std::shared_ptr<Vector_Operator> vector_operator,
+                           std::shared_ptr<Epetra_Comm> comm,
+                           std::shared_ptr<Epetra_Map> map);
+    
     
     virtual void check_class_invariants() const override;
     
@@ -38,7 +43,7 @@ public:
 private:
     
     virtual void apply(std::vector<double> &x) const override;
-    virtual void initialize_trilinos();
+    virtual void initialize_trilinos(bool initialize_comm);
     
     // Solver data
     Options options_;

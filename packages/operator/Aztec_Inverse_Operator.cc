@@ -19,15 +19,32 @@ Aztec_Inverse_Operator(Options options,
     Inverse_Operator(vector_operator),
     options_(options)
 {
-    initialize_trilinos();
+    initialize_trilinos(true);
+    check_class_invariants();
+}
+
+Aztec_Inverse_Operator::
+Aztec_Inverse_Operator(Options options,
+                       shared_ptr<Vector_Operator> vector_operator,
+                       shared_ptr<Epetra_Comm> comm,
+                       shared_ptr<Epetra_Map> map):
+    Inverse_Operator(vector_operator),
+    options_(options),
+    comm_(comm),
+    map_(map)
+{
+    initialize_trilinos(false);
     check_class_invariants();
 }
 
 void Aztec_Inverse_Operator::
-initialize_trilinos()
+initialize_trilinos(bool initialize_comm)
 {
-    comm_ = make_shared<Epetra_MpiComm>(MPI_COMM_WORLD);
-    map_ = make_shared<Epetra_Map>(size_, 0, *comm_);
+    if (initialize_comm)
+    {
+        comm_ = make_shared<Epetra_MpiComm>(MPI_COMM_WORLD);
+        map_ = make_shared<Epetra_Map>(size_, 0, *comm_);
+    }
     lhs_ = make_shared<Epetra_Vector>(*map_);
     rhs_ = make_shared<Epetra_Vector>(*map_);
     oper_ = make_shared<Epetra_Operator_Interface>(comm_,
@@ -73,6 +90,14 @@ check_class_invariants() const
 {
     Assert(vector_operator_);
     Assert(vector_operator_->square());
+    Assert(comm_);
+    Assert(map_);
+    Assert(lhs_);
+    Assert(rhs_);
+    Assert(oper_);
+    Assert(problem_);
+    Assert(solver_);
+    Assert(map_->NumMyElements() == size_);
 }
 
 string Aztec_Inverse_Operator::

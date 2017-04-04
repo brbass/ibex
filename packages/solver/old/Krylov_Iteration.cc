@@ -313,7 +313,7 @@ solve_k_eigenvalue(double &k_eigenvalue,
     //     return;
     // }
 
-    if (solver->solve() != Anasazi::ReturnType::Converged)
+    if (converged != Anasazi::ReturnType::Converged)
     {
         cerr << "Eigenvalue solve did not converge" << endl;
     }
