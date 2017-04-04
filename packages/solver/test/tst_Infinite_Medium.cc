@@ -15,6 +15,7 @@
 #include "Discrete_Value_Operator.hh"
 #include "Energy_Discretization.hh"
 #include "Energy_Discretization_Parser.hh"
+#include "Krylov_Steady_State.hh"
 #include "Linf_Convergence.hh"
 #include "Material.hh"
 #include "Material_Factory.hh"
@@ -35,6 +36,7 @@ void get_one_region(bool basis_mls,
                     string basis_type,
                     string weight_type,
                     Weight_Function::Options weight_options,
+                    bool krylov,
                     int dimension,
                     int angular_rule,
                     int num_dimensional_points,
@@ -55,7 +57,7 @@ void get_one_region(bool basis_mls,
                     vector<shared_ptr<Boundary_Source> > &boundary_sources,
                     shared_ptr<Weak_RBF_Sweep> &sweeper,
                     shared_ptr<Convergence_Measure> &convergence,
-                    shared_ptr<Source_Iteration> &solver)
+                    shared_ptr<Solver> &solver)
 {
     // Get angular discretization
     int number_of_moments = 1;
@@ -167,9 +169,19 @@ void get_one_region(bool basis_mls,
                                   angular,
                                   energy,
                                   transport);
-    solver
-        = solver_factory.get_source_iteration(sweeper,
-                                              convergence);
+    
+    if (krylov)
+    {
+        solver
+            = solver_factory.get_krylov_steady_state(sweeper,
+                                                     convergence);
+    }
+    else
+    {
+        solver
+            = solver_factory.get_source_iteration(sweeper,
+                                                  convergence);
+    }
 }
 
 int test_infinite(bool basis_mls,
@@ -177,6 +189,7 @@ int test_infinite(bool basis_mls,
                   string basis_type,
                   string weight_type,
                   Weight_Function::Options weight_options,
+                  bool krylov,
                   int dimension,
                   int angular_rule,
                   int num_dimensional_points,
@@ -201,7 +214,7 @@ int test_infinite(bool basis_mls,
     vector<shared_ptr<Boundary_Source> > boundary_sources;
     shared_ptr<Weak_RBF_Sweep> sweeper;
     shared_ptr<Convergence_Measure> convergence;
-    shared_ptr<Source_Iteration> solver;
+    shared_ptr<Solver> solver;
 
     // Get problem
     get_one_region(basis_mls,
@@ -209,6 +222,7 @@ int test_infinite(bool basis_mls,
                    basis_type,
                    weight_type,
                    weight_options,
+                   krylov,
                    dimension,
                    angular_rule,
                    num_dimensional_points,
@@ -233,7 +247,7 @@ int test_infinite(bool basis_mls,
 
     // Solve problem
     solver->solve();
-    shared_ptr<Source_Iteration::Result> result
+    shared_ptr<Solver::Result> result
         = solver->result();
     
     // Print
@@ -261,16 +275,17 @@ int main(int argc, char **argv)
     MPI_Init(&argc, &argv);
     
     {
+        bool krylov = true;
         int dimension = 1;
-        int num_dimensional_points = 201;
-        int angular_rule = dimension == 1 ? 16 : 1;
+        int num_dimensional_points = 5;
+        int angular_rule = dimension == 1 ? 128 : 3;
         double norm = dimension == 1 ? 2 : 2 * M_PI;
         double radius_num_intervals = 3.0;
-        double sigma_t = 2.5;
+        double sigma_t = 2.0;
         double sigma_s = 1.0;
-        double chi_nu_sigma_f = 1.0;
+        double chi_nu_sigma_f = 0.5;
         double internal_source = 1.0;
-        double boundary_source = 0 / (norm * (sigma_t - sigma_s - chi_nu_sigma_f));
+        double boundary_source = 1 / (norm * (sigma_t - sigma_s - chi_nu_sigma_f));
         double alpha = 0.0;
         double length = 10;
         bool basis_mls = true;
@@ -278,31 +293,34 @@ int main(int argc, char **argv)
         string basis_type = "wendland11";
         string weight_type = "wendland11";
         Weight_Function::Options weight_options;
-        weight_options.integration_ordinates = 128;
+        weight_options.integration_ordinates = 32;
         weight_options.tau_const = 1.0;
-        weight_options.output = Weight_Function::Options::Output::STANDARD;
-        checksum += test_infinite(basis_mls,
-                                  weight_mls,
-                                  basis_type,
-                                  weight_type,
-                                  weight_options,
-                                  dimension,
-                                  angular_rule,
-                                  num_dimensional_points,
-                                  radius_num_intervals,
-                                  sigma_t,
-                                  sigma_s,
-                                  chi_nu_sigma_f,
-                                  internal_source,
-                                  boundary_source,
-                                  alpha,
-                                  length);
+        weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
+        // weight_options.output = Weight_Function::Options::Output::STANDARD;
+        // checksum += test_infinite(basis_mls,
+        //                           weight_mls,
+        //                           basis_type,
+        //                           weight_type,
+        //                           weight_options,
+        //                           krylov,
+        //                           dimension,
+        //                           angular_rule,
+        //                           num_dimensional_points,
+        //                           radius_num_intervals,
+        //                           sigma_t,
+        //                           sigma_s,
+        //                           chi_nu_sigma_f,
+        //                           internal_source,
+        //                           boundary_source,
+        //                           alpha,
+        //                           length);
         weight_options.output = Weight_Function::Options::Output::SUPG;
         checksum += test_infinite(basis_mls,
                                   weight_mls,
                                   basis_type,
                                   weight_type,
                                   weight_options,
+                                  krylov,
                                   dimension,
                                   angular_rule,
                                   num_dimensional_points,

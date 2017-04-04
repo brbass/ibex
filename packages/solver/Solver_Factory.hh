@@ -6,10 +6,11 @@
 class Angular_Discretization;
 class Convergence_Measure;
 class Energy_Discretization;
-class Vector_Operator;
+class Krylov_Steady_State;
 class Source_Iteration;
 class Sweep_Operator;
 class Transport_Discretization;
+class Vector_Operator;
 class Weak_Spatial_Discretization;
 
 class Solver_Factory
@@ -31,7 +32,8 @@ public:
     
     std::shared_ptr<Source_Iteration> get_source_iteration(std::shared_ptr<Sweep_Operator> Linv,
                                                            std::shared_ptr<Convergence_Measure> convergence) const;
-    
+    std::shared_ptr<Krylov_Steady_State> get_krylov_steady_state(std::shared_ptr<Sweep_Operator> Linv,
+                                                                 std::shared_ptr<Convergence_Measure> convergence) const;
 private:
     
     std::shared_ptr<Weak_Spatial_Discretization> spatial_;

@@ -41,6 +41,14 @@ public:
             MOMENT
         };
 
+        enum class Tau_Scaling
+        {
+            NONE,
+            FUNCTIONAL, // 1 - b(boundary) - b(center)
+            LINEAR, // pos_boundary / radius
+            ABSOLUTE // 0 if on boundary
+        };
+        
         // Parameters that are automatically set
         // Don't use before Weight_Function is created
         bool include_supg = false;
@@ -49,11 +57,12 @@ public:
         bool outside_integral_calculation = false;
 
         // Parameters for the user to set
-        int integration_ordinates = 32;
+        int integration_ordinates = 32; // Dimensional integration quadrature
         double tau_const = 1; // Constant in front of 1/shape
-        Weighting weighting = Weighting::WEIGHT;
+        Weighting weighting = Weighting::WEIGHT; 
         Total total = Total::ISOTROPIC;
         Output output = Output::STANDARD;
+        Tau_Scaling tau_scaling = Tau_Scaling::LINEAR;
         std::function<double(int /*moment*/,
                              int /*group*/,
                              std::vector<double> const & /*position*/)> flux;

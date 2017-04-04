@@ -7,7 +7,9 @@
 #include "Discrete_Normalization_Operator.hh"
 #include "Energy_Discretization.hh"
 #include "Fission.hh"
+#include "Identity_Operator.hh"
 #include "Internal_Source_Operator.hh"
+#include "Krylov_Steady_State.hh"
 #include "Moment_To_Discrete.hh"
 #include "Moment_Value_Operator.hh"
 #include "Moment_Weighting_Operator.hh"
@@ -272,6 +274,46 @@ get_source_iteration(shared_ptr<Sweep_Operator> Linv,
                                          source_operator,
                                          flux_operator,
                                          value_operators); 
+    
+}
+
+std::shared_ptr<Krylov_Steady_State> Solver_Factory::
+get_krylov_steady_state(shared_ptr<Sweep_Operator> Linv,
+                        shared_ptr<Convergence_Measure> convergence) const
+{
+    // Get combined operators
+    shared_ptr<Vector_Operator> source_operator;
+    shared_ptr<Vector_Operator> flux_operator;
+    get_source_operators(Linv,
+                         source_operator,
+                         flux_operator);
+    shared_ptr<Identity_Operator> identity
+        = make_shared<Identity_Operator>(flux_operator->column_size());
+    flux_operator = identity - flux_operator;
+    
+    // Get value operators
+    vector<shared_ptr<Vector_Operator> > value_operators
+        = {make_shared<Moment_Value_Operator>(spatial_,
+                                              angular_,
+                                              energy_,
+                                              false), // no weighting
+           make_shared<Moment_Value_Operator>(spatial_,
+                                              angular_,
+                                              energy_,
+                                              true)}; // weighting
+    
+    // Get source iteration
+    Krylov_Steady_State::Options iteration_options;
+    iteration_options.solver_print = 1;
+    return make_shared<Krylov_Steady_State>(iteration_options,
+                                            spatial_,
+                                            angular_,
+                                            energy_,
+                                            transport_,
+                                            convergence,
+                                            source_operator,
+                                            flux_operator,
+                                            value_operators); 
     
 }
 

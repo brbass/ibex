@@ -22,6 +22,20 @@ public:
         TIME_DEPENDENT
     };
     
+    struct Result
+    {
+        // General
+        int total_iterations = -1;
+        std::vector<double> coefficients;
+        std::vector<std::vector<double> > phi;
+
+        // Source iteration
+        int source_iterations = -1;
+
+        // Eigenvalue
+        double k_eigenvalue = -1;
+    };
+    
     // Constructor
     Solver(int solver_print,
            Solver::Type type);
@@ -34,17 +48,19 @@ public:
 
     // Check class values
     virtual void check_class_invariants() const = 0;
+
+    virtual std::shared_ptr<Result> result() const = 0;
     
 protected:
     
     // Print functions
-    virtual void print_name(std::string solution_type) const;
-    virtual void print_iteration(int iteration) const;
-    virtual void print_convergence() const;
-    virtual void print_value(double value) const;
-    virtual void print_error(double error) const;
-    virtual void print_failure() const;
-    virtual void print_eigenvalue(double eigenvalue) const;
+    virtual void print_name(std::string solution_type) const final;
+    virtual void print_iteration(int iteration) const final;
+    virtual void print_convergence() const final;
+    virtual void print_value(double value) const final;
+    virtual void print_error(double error) const final;
+    virtual void print_failure() const final;
+    virtual void print_eigenvalue(double eigenvalue) const final;
 
     // Solver print code
     int solver_print_;

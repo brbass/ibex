@@ -60,28 +60,12 @@ set_options_and_limits()
                    Weight_Function::Point_Type::BOUNDARY :
                    Weight_Function::Point_Type::INTERNAL);
     
-    switch (options_.output)
-    {
-    case Options::Output::STANDARD:
-        number_of_dimensional_moments_ = 1;
-        options_.include_supg = false;
-        options_.normalized = true;
-        break;
-    case Options::Output::SUPG:
-        number_of_dimensional_moments_ = 1 + dimension_;
-        options_.include_supg = true;
-        options_.normalized = false;
-        options_.tau = options_.tau_const / meshless_function_->shape();
-        break;
-    }
-    
     // Calculate boundary limits
     double lim = numeric_limits<double>::max();
     min_boundary_limits_.assign(dimension_, -lim);
     max_boundary_limits_.assign(dimension_, lim);
-    for (int i = 0; i < number_of_boundary_surfaces_; ++i)
+    for (shared_ptr<Cartesian_Plane> surface : boundary_surfaces_)
     {
-        shared_ptr<Cartesian_Plane> surface = boundary_surfaces_[i];
         int dim_sur = surface->surface_dimension();
         double pos_sur = surface->position();
         double n_sur = surface->normal();
@@ -95,7 +79,84 @@ set_options_and_limits()
             max_boundary_limits_[dim_sur] = min(max_boundary_limits_[dim_sur], pos_sur);
         }
     }
+    
+    switch (options_.output)
+    {
+    case Options::Output::STANDARD:
+        number_of_dimensional_moments_ = 1;
+        options_.include_supg = false;
+        options_.normalized = true;
+        break;
+    case Options::Output::SUPG:
+        // Scale tau appropriately to boundary
+        if (number_of_boundary_surfaces_ > 0)
+        {
+            // Find closest surface
+            shared_ptr<Cartesian_Plane> closest_surface;
+            double min_distance = numeric_limits<double>::max();
+            for (shared_ptr<Cartesian_Plane> surface : boundary_surfaces_)
+            {
+                int dim_sur = surface->surface_dimension();
+                double pos_sur = surface->position();
+                double dist = abs(pos_sur - position_[dim_sur]);
+                if (dist < min_distance)
+                {
+                    closest_surface = surface;
+                    min_distance = dist;
+                }
+            }
+            Assert(closest_surface >= 0);
 
+            // Get boundary position
+            vector<double> b_position(position_);
+            b_position[closest_surface->surface_dimension()]
+                = closest_surface->position();
+
+            // Get ratio of old to new tau
+            double ratio = 1;
+            switch (options_.tau_scaling)
+            {
+            case Options::Tau_Scaling::NONE:
+                ratio = 1;
+                break;
+            case Options::Tau_Scaling::ABSOLUTE:
+                ratio = 0;
+                break;
+            case Options::Tau_Scaling::LINEAR:
+            {
+                double dist = abs(closest_surface->position() - position_[closest_surface->surface_dimension()]);
+                ratio = dist / radius_;
+                break;
+            }
+            case Options::Tau_Scaling::FUNCTIONAL:
+            {
+                double val_rad = meshless_function_->value(b_position);
+                double val_center = meshless_function_->value(position_);
+                ratio = val_rad / val_center;
+                break;
+            }
+            }
+
+            // Check to see if ratio has out-of-bounds values
+            if (ratio > 1)
+            {
+                ratio = 1;
+            }
+            else if (ratio < 0)
+            {
+                ratio = 0;
+            }
+
+            // Set new tau
+            options_.tau_const *= ratio;
+        }
+        number_of_dimensional_moments_ = 1 + dimension_;
+        options_.include_supg = true;
+        options_.normalized = false;
+        options_.tau = options_.tau_const / meshless_function_->shape();
+        break;
+    }
+    
     basis_function_indices_.resize(number_of_basis_functions_);
     for (int i = 0; i < number_of_basis_functions_; ++i)
     {
