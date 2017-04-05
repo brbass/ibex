@@ -125,8 +125,9 @@ solve()
     }
     
     // Set GeneralizedDavidson parameters
-    params->set("Maximum Subspace Dimension", options_.kspace);
-    params->set("Restart Dimension", int(ceil(options_.kspace / 3)));
+    int kspace = min(options_.kspace, phi_size + number_of_augments);
+    params->set("Maximum Subspace Dimension", kspace);
+    params->set("Restart Dimension", int(ceil(kspace / 3)));
     params->set("Initial Guess", "User");
     
     // Get solver
