@@ -123,6 +123,11 @@ solve()
         params->set("Verbosity", verbosity);
         params->set("Output Frequency", 1);
     }
+    else
+    {
+        int verbosity = Anasazi::Errors;
+        params->set("Verbosity", verbosity);
+    }
     
     // Set GeneralizedDavidson parameters
     int kspace = min(options_.kspace, phi_size + number_of_augments);

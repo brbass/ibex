@@ -433,7 +433,7 @@ get_source_iteration(shared_ptr<Sweep_Operator> Linv,
     
     // Get source iteration
     Source_Iteration::Options iteration_options;
-    iteration_options.solver_print = 1;
+    iteration_options.solver_print = 0;
     return make_shared<Source_Iteration>(iteration_options,
                                          spatial_,
                                          angular_,
@@ -473,7 +473,7 @@ get_krylov_steady_state(shared_ptr<Sweep_Operator> Linv,
     
     // Get source iteration
     Krylov_Steady_State::Options iteration_options;
-    iteration_options.solver_print = 1;
+    iteration_options.solver_print = 0;
     return make_shared<Krylov_Steady_State>(iteration_options,
                                             spatial_,
                                             angular_,
@@ -512,7 +512,7 @@ get_krylov_eigenvalue(shared_ptr<Sweep_Operator> Linv) const
     
     // Get source iteration
     Krylov_Eigenvalue::Options iteration_options;
-    iteration_options.solver_print = 1;
+    iteration_options.solver_print = 0;
     return make_shared<Krylov_Eigenvalue>(iteration_options,
                                           spatial_,
                                           angular_,

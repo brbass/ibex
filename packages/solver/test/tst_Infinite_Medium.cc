@@ -9,6 +9,7 @@
 #include "Boundary_Source.hh"
 #include "Boundary_Source_Parser.hh"
 #include "Cartesian_Plane.hh"
+#include "Check_Equality.hh"
 #include "Constructive_Solid_Geometry.hh"
 #include "Constructive_Solid_Geometry_Parser.hh"
 #include "Cross_Section.hh"
@@ -30,6 +31,7 @@
 #include "Weak_Spatial_Discretization_Parser.hh"
 #include "Weak_RBF_Sweep.hh"
 
+namespace ce = Check_Equality;
 using namespace std;
 
 void get_one_region(bool basis_mls,
@@ -210,7 +212,8 @@ int test_infinite(bool basis_mls,
                   double internal_source,
                   double boundary_source,
                   double alpha,
-                  double length)
+                  double length,
+                  double tolerance)
 {
     int checksum = 0;
     
@@ -260,23 +263,64 @@ int test_infinite(bool basis_mls,
     shared_ptr<Solver::Result> result
         = solver->result();
     
-    // Print
-    int phi_size = transport->phi_size();
-    int num_values = result->phi.size();
+    // Print and check results
+    bool print = true;
     int w = 16;
-    cout << setw(w) << "value" << setw(w) << "weighted" << endl;
-    for (int i = 0; i < phi_size; ++i)
+    
+    // Eigenvalue problem
+    if (method.find("eigenvalue") != string::npos)
     {
+        // Check that eigenvalue is correct
+        double expected = chi_nu_sigma_f / (sigma_t - sigma_s);
+        double calculated = result->k_eigenvalue;
+        if (!ce::approx(expected, calculated, tolerance))
+        {
+            cerr << "eigenvalue incorrect" << endl;
+            checksum += 1;
+        }
+
+        // Print results
+        if (print)
+        {
+            cout << setw(w) << "expected" << setw(w) << expected << endl;
+            cout << setw(w) << "eigenvalue" << setw(w) << result->k_eigenvalue << endl;
+        }
+
+    }
+    // Steady state problem
+    else
+    {
+        int phi_size = transport->phi_size();
+        int num_values = result->phi.size();
+
+        // Check values
+        double solution = internal_source / (sigma_t - sigma_s - chi_nu_sigma_f);
+        vector<double> solution_vec(phi_size, solution);
+
         for (int j = 0; j < num_values; ++j)
         {
-            cout << setw(w) << result->phi[j][i];
+            if (!ce::approx(solution_vec, result->phi[j], tolerance))
+            {
+                checksum += 1;
+                cerr << "flux incorrect" << endl;
+            }
+        }
+        
+        // Print results
+        if (print)
+        {
+            cout << setw(w) << "expected: " << setw(w) << solution << endl;
+            cout << setw(w) << "value" << setw(w) << "weighted" << endl;
+            for (int i = 0; i < phi_size; ++i)
+            {
+                for (int j = 0; j < num_values; ++j)
+                {
+                    cout << setw(w) << result->phi[j][i];
+                }
+                cout << endl;
+            }
         }
         cout << endl;
-    }
-
-    if (method == "krylov_eigenvalue")
-    {
-        cout << setw(w) << "eigenvalue" << setw(w) << result->k_eigenvalue << endl;
     }
     
     return checksum;
@@ -286,69 +330,142 @@ int test_infinite(bool basis_mls,
 int main(int argc, char **argv)
 {
     int checksum = 0;
-    
+
+    // Initialize MPI
     MPI_Init(&argc, &argv);
-    
+
+    // Run for regular and SUPG options
+    vector<Weight_Function::Options> weight_options_vals(2);
+    weight_options_vals[0].output = Weight_Function::Options::Output::STANDARD;
+    weight_options_vals[1].output = Weight_Function::Options::Output::SUPG;
+    for (Weight_Function::Options &weight_options : weight_options_vals)
     {
-        string method = "krylov_eigenvalue";
-        int dimension = 1;
-        int num_dimensional_points = 21;
-        int angular_rule = dimension == 1 ? 128 : 3;
-        double norm = dimension == 1 ? 2 : 2 * M_PI;
-        double radius_num_intervals = 3.0;
-        double sigma_t = 2.0;
-        double sigma_s = 1.0;
-        double chi_nu_sigma_f = 1.1;
-        double internal_source = 0.0;
-        double boundary_source = 0 / (norm * (sigma_t - sigma_s - chi_nu_sigma_f));
-        double alpha = 1.0;
-        double length = 1;
-        bool basis_mls = true;
-        bool weight_mls = true;
-        string basis_type = "wendland11";
-        string weight_type = "wendland11";
-        Weight_Function::Options weight_options;
-        weight_options.integration_ordinates = 32;
+        weight_options.integration_ordinates = 128;
         weight_options.tau_const = 1.0;
         weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
-        weight_options.output = Weight_Function::Options::Output::STANDARD;
-        checksum += test_infinite(basis_mls,
-                                  weight_mls,
-                                  basis_type,
-                                  weight_type,
+        
+        // Test 1D eigenvalue
+        checksum += test_infinite(true, // mls basis
+                                  true, // mls weight
+                                  "wendland11", // basis type
+                                  "wendland11", // weight type
                                   weight_options,
-                                  method,
-                                  dimension,
-                                  angular_rule,
-                                  num_dimensional_points,
-                                  radius_num_intervals,
-                                  sigma_t,
-                                  sigma_s,
-                                  chi_nu_sigma_f,
-                                  internal_source,
-                                  boundary_source,
-                                  alpha,
-                                  length);
-        // weight_options.output = Weight_Function::Options::Output::SUPG;
-        // checksum += test_infinite(basis_mls,
-        //                           weight_mls,
-        //                           basis_type,
-        //                           weight_type,
-        //                           weight_options,
-        //                           method,
-        //                           dimension,
-        //                           angular_rule,
-        //                           num_dimensional_points,
-        //                           radius_num_intervals,
-        //                           sigma_t,
-        //                           sigma_s,
-        //                           chi_nu_sigma_f,
-        //                           internal_source,
-        //                           boundary_source,
-        //                           alpha,
-        //                           length);
+                                  "krylov_eigenvalue",
+                                  1, // dimension
+                                  16, // ordinates
+                                  5, // number of points
+                                  3, // number of intervals
+                                  2.0, // sigma_t
+                                  0.8, // sigma_s
+                                  1.1, // nu_sigma_f
+                                  0.0, // internal source
+                                  0.0, // boundary source
+                                  1.0, // alpha
+                                  2.0, // length
+                                  1e-4); // tolerance
+
+        // Test 1D steady state with reflecting boundaries
+        checksum += test_infinite(true, // mls basis
+                                  true, // mls weight
+                                  "wendland11", // basis type
+                                  "wendland11", // weight type
+                                  weight_options,
+                                  "krylov_steady_state",
+                                  1, // dimension
+                                  16, // ordinates
+                                  5, // number of points
+                                  3, // number of intervals
+                                  2.0, // sigma_t
+                                  0.8, // sigma_s
+                                  1.1, // nu_sigma_f
+                                  1.0, // internal source
+                                  0.0, // boundary source
+                                  1.0, // alpha
+                                  2.0, // length
+                                  1e-4); // tolerance
+
+        // Test 1D steady state with boundary source
+        checksum += test_infinite(true, // mls basis
+                                  true, // mls weight
+                                  "wendland11", // basis type
+                                  "wendland11", // weight type
+                                  weight_options,
+                                  "source_iteration",
+                                  1, // dimension
+                                  16, // ordinates
+                                  5, // number of points
+                                  3, // number of intervals
+                                  2.0, // sigma_t
+                                  0.8, // sigma_s
+                                  1.1, // nu_sigma_f
+                                  1.0, // internal source
+                                  1.0 / (2 * (2.0 - 0.8 - 1.1)), // boundary source
+                                  0.0, // alpha
+                                  2.0, // length
+                                  1e-4); // tolerance
+        
+        // Test 2D eigenvalue
+        checksum += test_infinite(true, // mls basis
+                                  true, // mls weight
+                                  "wendland11", // basis type
+                                  "wendland11", // weight type
+                                  weight_options,
+                                  "krylov_eigenvalue",
+                                  2, // dimension
+                                  3, // angular rule
+                                  5, // number of points
+                                  3, // number of intervals
+                                  2.0, // sigma_t
+                                  0.8, // sigma_s
+                                  1.1, // nu_sigma_f
+                                  0.0, // internal source
+                                  0.0, // boundary source
+                                  1.0, // alpha
+                                  2.0, // length
+                                  1e-4); // tolerance
+
+        // Test 2D steady state with reflecting boundaries
+        checksum += test_infinite(true, // mls basis
+                                  true, // mls weight
+                                  "wendland11", // basis type
+                                  "wendland11", // weight type
+                                  weight_options,
+                                  "krylov_steady_state",
+                                  2, // dimension
+                                  3, // angular rule
+                                  5, // number of points
+                                  3, // number of intervals
+                                  2.0, // sigma_t
+                                  0.8, // sigma_s
+                                  1.1, // nu_sigma_f
+                                  1.0, // internal source
+                                  0.0, // boundary source
+                                  1.0, // alpha
+                                  2.0, // length
+                                  1e-4); // tolerance
+
+        // Test 2D steady state with boundary source
+        checksum += test_infinite(true, // mls basis
+                                  true, // mls weight
+                                  "wendland11", // basis type
+                                  "wendland11", // weight type
+                                  weight_options,
+                                  "source_iteration",
+                                  1, // dimension
+                                  3, // angular rule
+                                  5, // number of points
+                                  3, // number of intervals
+                                  2.0, // sigma_t
+                                  0.8, // sigma_s
+                                  1.1, // nu_sigma_f
+                                  1.0, // internal source
+                                  1.0 / (2 * M_PI * (2.0 - 0.8 - 1.1)), // boundary source
+                                  0.0, // alpha
+                                  2.0, // length
+                                  1e-4); // tolerance
     }
-    
+
+    // Close MPI
     MPI_Finalize();
     
     return checksum;
