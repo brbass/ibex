@@ -285,7 +285,7 @@ int test_infinite(bool basis_mls,
             cout << setw(w) << "expected" << setw(w) << expected << endl;
             cout << setw(w) << "eigenvalue" << setw(w) << result->k_eigenvalue << endl;
         }
-
+        cout << endl;
     }
     // Steady state problem
     else
@@ -338,13 +338,20 @@ int main(int argc, char **argv)
     vector<Weight_Function::Options> weight_options_vals(2);
     weight_options_vals[0].output = Weight_Function::Options::Output::STANDARD;
     weight_options_vals[1].output = Weight_Function::Options::Output::SUPG;
-    for (Weight_Function::Options &weight_options : weight_options_vals)
+    
+    // Run 1D problems
+    for (Weight_Function::Options weight_options : weight_options_vals)
     {
         weight_options.integration_ordinates = 128;
         weight_options.tau_const = 1.0;
         weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
+
+        string description = (weight_options.output == Weight_Function::Options::Output::STANDARD
+                              ? "1D standard "
+                              : "1D SUPG ");
         
         // Test 1D eigenvalue
+        cout << description << "eigenvalue, krylov" << endl;
         checksum += test_infinite(true, // mls basis
                                   true, // mls weight
                                   "wendland11", // basis type
@@ -365,6 +372,7 @@ int main(int argc, char **argv)
                                   1e-4); // tolerance
 
         // Test 1D steady state with reflecting boundaries
+        cout << description << "steady state with reflecting boundaries, krylov" << endl;
         checksum += test_infinite(true, // mls basis
                                   true, // mls weight
                                   "wendland11", // basis type
@@ -385,6 +393,7 @@ int main(int argc, char **argv)
                                   1e-4); // tolerance
 
         // Test 1D steady state with boundary source
+        cout << description << "steady state with boundary source, source iteration" << endl;
         checksum += test_infinite(true, // mls basis
                                   true, // mls weight
                                   "wendland11", // basis type
@@ -403,8 +412,21 @@ int main(int argc, char **argv)
                                   0.0, // alpha
                                   2.0, // length
                                   1e-4); // tolerance
+    }
+
+    // Run 2D problems
+    for (Weight_Function::Options weight_options : weight_options_vals)
+    {
+        weight_options.integration_ordinates = 64;
+        weight_options.tau_const = 1.0;
+        weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
+
+        string description = (weight_options.output == Weight_Function::Options::Output::STANDARD
+                              ? "2D standard "
+                              : "2D SUPG ");
         
         // Test 2D eigenvalue
+        cout << description << "eigenvalue, krylov" << endl;
         checksum += test_infinite(true, // mls basis
                                   true, // mls weight
                                   "wendland11", // basis type
@@ -425,6 +447,7 @@ int main(int argc, char **argv)
                                   1e-4); // tolerance
 
         // Test 2D steady state with reflecting boundaries
+        cout << description << "steady state with reflecting boundaries, krylov" << endl;
         checksum += test_infinite(true, // mls basis
                                   true, // mls weight
                                   "wendland11", // basis type
@@ -445,21 +468,22 @@ int main(int argc, char **argv)
                                   1e-4); // tolerance
 
         // Test 2D steady state with boundary source
+        cout << description << "steady state with boundary source, source iteration" << endl;
         checksum += test_infinite(true, // mls basis
                                   true, // mls weight
                                   "wendland11", // basis type
                                   "wendland11", // weight type
                                   weight_options,
                                   "source_iteration",
-                                  1, // dimension
-                                  3, // angular rule
+                                  2, // dimension
+                                  2, // angular rule
                                   5, // number of points
                                   3, // number of intervals
                                   2.0, // sigma_t
                                   0.8, // sigma_s
                                   1.1, // nu_sigma_f
                                   1.0, // internal source
-                                  1.0 / (2 * M_PI * (2.0 - 0.8 - 1.1)), // boundary source
+                                  1.0 / (2. * M_PI * (2.0 - 0.8 - 1.1)), // boundary source
                                   0.0, // alpha
                                   2.0, // length
                                   1e-4); // tolerance
