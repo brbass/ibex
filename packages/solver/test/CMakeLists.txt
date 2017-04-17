@@ -9,3 +9,4 @@ macro(include_test test_exec test_src test_args)
 endmacro()
 
 include_test(tst_infinite_medium tst_Infinite_Medium.cc "")
+include_test(tst_pincell tst_Pincell.cc "")
