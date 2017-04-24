@@ -60,6 +60,8 @@ apply(vector<double> &x) const
         // Get weight function and data
         shared_ptr<Weight_Function> weight = spatial_->weight(i);
         int number_of_basis_functions = weight->number_of_basis_functions();
+        Weight_Function::Integrals const integrals = weight->integrals();
+        Weight_Function::Values const values = weight->values();
         vector<int> basis_indices = weight->basis_function_indices();
         Weight_Function::Options weight_options = weight->options();
         bool include_normalization;
@@ -89,11 +91,10 @@ apply(vector<double> &x) const
             include_normalization = false;
             break;
         }
-        
-        vector<double> const iv_w = weight->iv_w();
-        // vector<double> const iv_dw = weight->iv_dw();
-        vector<double> const iv_b_w = weight->iv_b_w();
-        vector<double> const iv_b_dw = weight->iv_b_dw();
+
+        vector<double> const &iv_w = integrals.iv_w;
+        vector<double> const &iv_b_w = integrals.iv_b_w;
+        vector<double> const &iv_b_dw = integrals.iv_b_dw;
         
         // Get normalization constant
         double const norm = include_normalization ? iv_w[0] : 1;

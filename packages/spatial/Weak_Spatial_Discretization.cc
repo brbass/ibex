@@ -113,7 +113,7 @@ collocation_value(int i,
     shared_ptr<Weight_Function> weight = weights_[i];
     int number_of_basis_functions = weight->number_of_basis_functions();
     vector<int> const basis_indices = weight->basis_function_indices();
-    vector<double> const v_b = weight->v_b();
+    vector<double> const &v_b = weight->values().v_b;
 
     // Sum over coefficients
     double sum = 0;
@@ -130,10 +130,11 @@ weighted_collocation_value(int i,
                            vector<double> const &coefficients) const
 {
     shared_ptr<Weight_Function> weight = weights_[i];
+    Weight_Function::Integrals const integrals = weight->integrals();
     int number_of_basis_functions = weight->number_of_basis_functions();
     vector<int> const basis_indices = weight->basis_function_indices();
-    vector<double> const iv_b_w = weight->iv_b_w();
-    double iv_w = weight->iv_w()[0];
+    vector<double> const &iv_b_w = integrals.iv_b_w;
+    double const iv_w = integrals.iv_w[0];
     
     // Sum over coefficients
     double sum = 0;

@@ -43,13 +43,15 @@ apply(vector<double> &x) const
         // Get weight function and data
         shared_ptr<Weight_Function> weight = spatial_->weight(i);
         int number_of_basis_functions = weight->number_of_basis_functions();
+        Weight_Function::Integrals const integrals = weight->integrals();
+        Weight_Function::Values const values = weight->values();
         vector<int> basis_indices = weight->basis_function_indices();
         double const iv_w = (weighted_
-                             ? weight->iv_w()[0]
+                             ? integrals.iv_w[0]
                              : 1);
-        vector<double> const iv_b_w = (weighted_
-                                       ? weight->iv_b_w()
-                                       : weight->v_b());
+        vector<double> const &iv_b_w = (weighted_
+                                        ? integrals.iv_b_w
+                                        : values.v_b);
         
         for (int j = 0; j < number_of_basis_functions; ++j)
         {

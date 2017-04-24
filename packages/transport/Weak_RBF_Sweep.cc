@@ -117,7 +117,7 @@ get_rhs(int i,
 {
     // Get data
     shared_ptr<Weight_Function> weight = spatial_discretization_->weight(i);
-    vector<double> const is_b_w = weight->is_b_w();
+    vector<double> const &is_b_w = weight->integrals().is_b_w;
     vector<double> const direction = angular_discretization_->direction(o);
     int number_of_basis_functions = weight->number_of_basis_functions();
     int number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
@@ -200,12 +200,13 @@ get_matrix_row(int i, // weight function index (row)
 {
     // Get data
     shared_ptr<Weight_Function> weight = spatial_discretization_->weight(i);
-    vector<double> const iv_w = weight->iv_w();
-    vector<double> const iv_dw = weight->iv_dw();
-    vector<double> const is_b_w = weight->is_b_w();
-    vector<double> const iv_b_w = weight->iv_b_w();
-    vector<double> const iv_b_dw = weight->iv_b_dw();
-    vector<double> const iv_db_dw = weight->iv_db_dw();
+    Weight_Function::Integrals const integrals = weight->integrals();
+    vector<double> const &iv_w = integrals.iv_w;
+    vector<double> const &iv_dw = integrals.iv_dw;
+    vector<double> const &is_b_w = integrals.is_b_w;
+    vector<double> const &iv_b_w = integrals.iv_b_w;
+    vector<double> const &iv_b_dw = integrals.iv_b_dw;
+    vector<double> const &iv_db_dw = integrals.iv_db_dw;
     vector<double> const direction = angular_discretization_->direction(o);
     vector<double> const sigma_t_data = weight->material()->sigma_t()->data();
     int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();

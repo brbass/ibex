@@ -67,8 +67,30 @@ public:
                              int /*group*/,
                              std::vector<double> const & /*position*/)> flux;
     };
+
+    struct Integrals
+    {
+        // Surface integrals
+        std::vector<double> is_w; // weight function: s
+        std::vector<double> is_b_w; // weight/basis functions: s->i
+        
+        // Volume integrals
+        std::vector<double> iv_w; // weight function: none
+        std::vector<double> iv_dw; // derivative of weight function: d
+        std::vector<double> iv_b_w; // basis function and weight function: i
+        std::vector<double> iv_b_dw; // basis function and derivative of weight function: dw->i
+        std::vector<double> iv_db_w; // weight function and derivative of basis function: db->i
+        std::vector<double> iv_db_dw; // derivative of basis and weight functions: db->dw->i
+    };
+
+    struct Values
+    {
+        // Values
+        std::vector<double> v_b; // basis function at weight center
+        std::vector<double> v_db; // derivative of basis function at weight pcenter 
+    };
     
-    // Constructor
+    // Standard Constructor
     Weight_Function(int index,
                     int dimension,
                     Options options,
@@ -76,6 +98,18 @@ public:
                     std::vector<std::shared_ptr<Basis_Function> > basis_functions,
                     std::shared_ptr<Solid_Geometry> solid_geometry,
                     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces);
+
+    // Constructor for precalculated integrals and material
+    Weight_Function(int index,
+                    int dimension,
+                    Options options,
+                    std::shared_ptr<Meshless_Function> meshless_funciton,
+                    std::vector<std::shared_ptr<Basis_Function> > basis_functions,
+                    std::shared_ptr<Solid_Geometry> solid_geometry,
+                    std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces,
+                    std::shared_ptr<Material> material,
+                    Integrals const &integrals);
+                    
     
     // Point functions
     virtual int index() const override
@@ -146,49 +180,15 @@ public:
     {
         return weighted_boundary_surfaces_[i];
     }
-    
-    // Collocation values
-    virtual std::vector<double> const &v_b()
+
+    // Get values or integrals
+    virtual Integrals const &integrals() const
     {
-        return v_b_;
-    }
-    virtual std::vector<double> const &v_db()
+        return integrals_;
+    };
+    virtual Values const &values() const
     {
-        return v_db_;
-    }
-    
-    // Integral values
-    virtual std::vector<double> const &is_w()
-    {
-        return is_w_;
-    }
-    virtual std::vector<double> const &is_b_w()
-    {
-        return is_b_w_;
-    }
-    virtual std::vector<double> const &iv_w()
-    {
-        return iv_w_;
-    }
-    virtual std::vector<double> const &iv_dw()
-    {
-        return iv_dw_;
-    }
-    virtual std::vector<double> const &iv_b_w()
-    {
-        return iv_b_w_;
-    }
-    virtual std::vector<double> const &iv_b_dw()
-    {
-        return iv_b_dw_;
-    }
-    virtual std::vector<double> const &iv_db_w()
-    {
-        return iv_db_w_;
-    }
-    virtual std::vector<double> const &iv_db_dw()
-    {
-        return iv_db_dw_;
+        return values_;
     }
     
     // Quadrature methods
@@ -264,21 +264,9 @@ private:
     std::vector<double> min_boundary_limits_;
     std::vector<double> max_boundary_limits_;
 
-    // Values
-    std::vector<double> v_b_; // basis function at weight center
-    std::vector<double> v_db_; // derivative of basis function at weight pcenter 
-    
-    // Surface integrals
-    std::vector<double> is_w_; // weight function: s
-    std::vector<double> is_b_w_; // weight/basis functions: s->i
-
-    // Volume integrals
-    std::vector<double> iv_w_; // weight function: none
-    std::vector<double> iv_dw_; // derivative of weight function: d
-    std::vector<double> iv_b_w_; // basis function and weight function: i
-    std::vector<double> iv_b_dw_; // basis function and derivative of weight function: dw->i
-    std::vector<double> iv_db_w_; // weight function and derivative of basis function: db->i
-    std::vector<double> iv_db_dw_; // derivative of basis and weight functions: db->dw->i
+    // Values and integrals of data
+    Integrals integrals_;
+    Values values_;
 };
 
 #endif

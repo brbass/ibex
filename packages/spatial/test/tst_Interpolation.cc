@@ -133,19 +133,21 @@ shared_ptr<Epetra_CrsMatrix> get_matrix(shared_ptr<Weak_Spatial_Discretization> 
     for (int i = 0; i < number_of_points; ++i)
     {
         shared_ptr<Weight_Function> weight = spatial->weight(i);
+        Weight_Function::Integrals const integrals = weight->integrals();
+        Weight_Function::Values const values = weight->values();
         vector<int> const basis_function_indices = weight->basis_function_indices();
         vector<double> vals(number_of_basis_functions[i]);
         switch (weight->options().weighting)
         {
         case Weight_Function::Options::Weighting::POINT:
         {
-            vector<double> const v_b = weight->v_b();
+            vector<double> const &v_b = values.v_b;
             mat->InsertGlobalValues(i, number_of_basis_functions[i], &v_b[0], &basis_function_indices[0]);
             break;
         }
         case Weight_Function::Options::Weighting::WEIGHT:
         {
-            vector<double> const iv_b_w = weight->iv_b_w();
+            vector<double> const &iv_b_w = integrals.iv_b_w;
             mat->InsertGlobalValues(i, number_of_basis_functions[i], &iv_b_w[0], &basis_function_indices[0]);
             break;
         }
@@ -179,7 +181,7 @@ shared_ptr<Epetra_Vector> get_rhs(shared_ptr<Weak_Spatial_Discretization> spatia
         {
         case Weight_Function::Options::Weighting::POINT:
         {
-            (*vec)[i] = data[0] / weight->iv_w()[0];
+            (*vec)[i] = data[0] / weight->integrals().iv_w[0];
             break;
         }
         case Weight_Function::Options::Weighting::WEIGHT:
@@ -429,9 +431,9 @@ int check_basis(string input_folder)
     for (int i = 0; i < number_of_points; ++i)
     {
         shared_ptr<Weight_Function> weight = spatial->weight(i);
-        
-        double const iv_w = weight->iv_w()[0];
-        vector<double> const iv_b_w = weight->iv_b_w();
+        Weight_Function::Integrals const integrals = weight->integrals();
+        double const iv_w = integrals.iv_w[0];
+        vector<double> const &iv_b_w = integrals.iv_b_w;
         
         double sum = 0.;
         for (double val : iv_b_w)

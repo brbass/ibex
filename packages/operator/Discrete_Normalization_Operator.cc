@@ -43,6 +43,7 @@ apply(vector<double> &x) const
         shared_ptr<Weight_Function> weight = spatial_->weight(i);
         int number_of_basis_functions = weight->number_of_basis_functions();
         vector<int> basis_indices = weight->basis_function_indices();
+        Weight_Function::Integrals const integrals = weight->integrals();
         Weight_Function::Options weight_options = weight->options();
         double const tau = weight_options.tau;
         bool include_normalization;
@@ -73,8 +74,8 @@ apply(vector<double> &x) const
             break;
         }
         
-        vector<double> const iv_w = weight->iv_w();
-        vector<double> const iv_dw = weight->iv_dw();
+        vector<double> const &iv_w = integrals.iv_w;
+        vector<double> const &iv_dw = integrals.iv_dw;
         
         for (int o = 0; o < number_of_ordinates; ++o)
         {

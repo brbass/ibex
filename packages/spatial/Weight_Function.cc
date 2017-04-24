@@ -40,18 +40,42 @@ Weight_Function(int index,
 {
     set_options_and_limits();
     calculate_values();
-    // if (options_.outside_integral_calculation)
-    // {
-    //     initialize_data();
-    // }
-    // else
-    // {
-        calculate_integrals();
-        calculate_material();
-        calculate_boundary_source();
-        check_class_invariants();
-    // }
+    calculate_integrals();
+    calculate_material();
+    calculate_boundary_source();
+    check_class_invariants();
 }
+
+Weight_Function::
+Weight_Function(int index,
+                int dimension,
+                Options options,
+                shared_ptr<Meshless_Function> meshless_function,
+                vector<shared_ptr<Basis_Function> > basis_functions,
+                shared_ptr<Solid_Geometry> solid_geometry,
+                vector<shared_ptr<Cartesian_Plane> > boundary_surfaces,
+                shared_ptr<Material> material,
+                Integrals const &integrals):
+    index_(index),
+    dimension_(dimension),
+    position_(meshless_function->position()),
+    material_(material),
+    number_of_basis_functions_(basis_functions.size()),
+    number_of_boundary_surfaces_(boundary_surfaces.size()),
+    radius_(meshless_function->radius()),
+    options_(options),
+    meshless_function_(meshless_function),
+    basis_functions_(basis_functions),
+    solid_geometry_(solid_geometry),
+    boundary_surfaces_(boundary_surfaces),
+    integrals_(integrals)
+{
+    set_options_and_limits();
+    calculate_values();
+    calculate_boundary_source();
+    check_class_invariants();
+}
+
 
 void Weight_Function::
 set_options_and_limits()
@@ -551,19 +575,19 @@ void Weight_Function::
 calculate_values()
 {
     // Calculate value of basis functions at weight center
-    v_b_.resize(number_of_basis_functions_);
-    v_db_.resize(number_of_basis_functions_ * dimension_);
+    values_.v_b.resize(number_of_basis_functions_);
+    values_.v_db.resize(number_of_basis_functions_ * dimension_);
     for (int i = 0; i < number_of_basis_functions_; ++i)
     {
         shared_ptr<Meshless_Function> basis = basis_functions_[i]->function();
         double b = basis->value(position_);
         vector<double> db = basis->gradient_value(position_);
 
-        v_b_[i] = b;
+        values_.v_b[i] = b;
 
         for (int d = 0; d < dimension_; ++d)
         {
-            v_db_[d + dimension_ * i] = db[d];
+            values_.v_db[d + dimension_ * i] = db[d];
         }
     }
 }
@@ -572,11 +596,11 @@ void Weight_Function::
 calculate_integrals()
 {
     // Perform basis/weight integrals
-    is_b_w_.assign(number_of_boundary_surfaces_ * number_of_basis_functions_, 0.);
-    iv_b_w_.assign(number_of_basis_functions_, 0.);
-    iv_b_dw_.assign(number_of_basis_functions_ * dimension_, 0.);
-    iv_db_w_.assign(number_of_basis_functions_ * dimension_, 0.);
-    iv_db_dw_.assign(number_of_basis_functions_ * dimension_ * dimension_, 0.);
+    integrals_.is_b_w.assign(number_of_boundary_surfaces_ * number_of_basis_functions_, 0.);
+    integrals_.iv_b_w.assign(number_of_basis_functions_, 0.);
+    integrals_.iv_b_dw.assign(number_of_basis_functions_ * dimension_, 0.);
+    integrals_.iv_db_w.assign(number_of_basis_functions_ * dimension_, 0.);
+    integrals_.iv_db_dw.assign(number_of_basis_functions_ * dimension_ * dimension_, 0.);
 
     shared_ptr<Meshless_Function> weight = meshless_function_;
 
@@ -602,7 +626,7 @@ calculate_integrals()
                 double b = basis->value(position);
                 double w = weight->value(position);
 
-                is_b_w_[s + number_of_boundary_surfaces_ * i] += integration_weights[o] * b * w;
+                integrals_.is_b_w[s + number_of_boundary_surfaces_ * i] += integration_weights[o] * b * w;
             }
         }
 
@@ -623,27 +647,27 @@ calculate_integrals()
             vector<double> db = basis->gradient_value(position);
             vector<double> dw = weight->gradient_value(position);
 
-            iv_b_w_[i] += integration_weights[o] * b * w;
+            integrals_.iv_b_w[i] += integration_weights[o] * b * w;
 
             for (int d1 = 0; d1 < dimension_; ++d1)
             {
                 int k1 = d1 + dimension_ * i;
-                iv_b_dw_[k1] += integration_weights[o] * b * dw[d1];
-                iv_db_w_[k1] += integration_weights[o] * db[d1] * w;
+                integrals_.iv_b_dw[k1] += integration_weights[o] * b * dw[d1];
+                integrals_.iv_db_w[k1] += integration_weights[o] * db[d1] * w;
                  
                 for (int d2 = 0; d2 < dimension_; ++d2)
                 {
                     int k2 = d1 + dimension_ * (d2 + dimension_ * i);
-                    iv_db_dw_[k2] += integration_weights[o] * db[d1] * dw[d2];
+                    integrals_.iv_db_dw[k2] += integration_weights[o] * db[d1] * dw[d2];
                 }
             }
         }
     }
 
     // Perform weight integrals
-    is_w_.assign(number_of_boundary_surfaces_, 0.);
-    iv_w_.assign(1, 0.);
-    iv_dw_.assign(dimension_, 0.);
+    integrals_.is_w.assign(number_of_boundary_surfaces_, 0.);
+    integrals_.iv_w.assign(1, 0.);
+    integrals_.iv_dw.assign(dimension_, 0.);
      
     // Surface integrals
     for (int s = 0; s < number_of_boundary_surfaces_; ++s)
@@ -660,7 +684,7 @@ calculate_integrals()
             vector<double> position = integration_ordinates[i];
             double w = weight->value(position);
 
-            is_w_[s] += w * integration_weights[i];
+            integrals_.is_w[s] += w * integration_weights[i];
         }
          
     }
@@ -675,11 +699,11 @@ calculate_integrals()
     {
         vector<double> position = integration_ordinates[i];
         double w = meshless_function_->value(position);
-        iv_w_[0] += w * integration_weights[i];
+        integrals_.iv_w[0] += w * integration_weights[i];
         vector<double> dw = meshless_function_->gradient_value(position);
         for (int d = 0; d < dimension_; ++d)
         {
-            iv_dw_[d] += dw[d] * integration_weights[i];
+            integrals_.iv_dw[d] += dw[d] * integration_weights[i];
         }
     }
 }
@@ -774,7 +798,7 @@ calculate_standard_point_material()
     vector<double> internal_source_v(number_of_groups, 0.);
     for (int g = 0; g < number_of_groups; ++g)
     {
-        internal_source_v[g] = iv_w_[0] * internal_source_temp[g];
+        internal_source_v[g] = integrals_.iv_w[0] * internal_source_temp[g];
     }
 
     shared_ptr<Cross_Section> internal_source
@@ -861,17 +885,17 @@ calculate_standard_weight_material()
     {
         for (int g = 0; g < number_of_groups; ++g)
         {
-            sigma_t_v[g] /= iv_w_[0];
+            sigma_t_v[g] /= integrals_.iv_w[0];
             
             for (int g2 = 0; g2 < number_of_groups; ++g2)
             {
                 int k1 = g2 + number_of_groups * g;
-                sigma_f_v[k1] /= iv_w_[0];
+                sigma_f_v[k1] /= integrals_.iv_w[0];
                 
                 for (int m = 0; m < number_of_scattering_moments; ++m)
                 {
                     int k2 = g2 + number_of_groups * (g + number_of_groups * m);
-                    sigma_s_v[k2] /= iv_w_[0];
+                    sigma_s_v[k2] /= integrals_.iv_w[0];
                 }
             }
         }
@@ -960,13 +984,13 @@ calculate_supg_point_material()
         {
             int j = 0;
             int k = j + dimensionp1 * g;
-            internal_source_v[k] = internal_source_temp[g] * iv_w_[0];
+            internal_source_v[k] = internal_source_temp[g] * integrals_.iv_w[0];
         }
         for (int j = 0; j < dimension_; ++j)
         {
              
             int k = (j + 1) + dimensionp1 * g;
-            internal_source_v[k] = internal_source_temp[g] * iv_dw_[j];
+            internal_source_v[k] = internal_source_temp[g] * integrals_.iv_dw[j];
         }
     }
 
@@ -1073,7 +1097,7 @@ calculate_supg_weight_material()
         {    
             for (int g = 0; g < number_of_groups; ++g)
             {
-                double den = j == 0 ? iv_w_[0] : iv_dw_[j-1];
+                double den = j == 0 ? integrals_.iv_w[0] : integrals_.iv_dw[j-1];
              
                 int k1 = j + dimensionp1 * g;
                 sigma_t_v[k1] /= den;
@@ -1181,7 +1205,7 @@ calculate_weight_boundary_source()
         
         for (int i = 0; i < source_size; ++i)
         {
-            new_data[i] = old_data[i] * is_w_[s];
+            new_data[i] = old_data[i] * integrals_.is_w[s];
         }
         
         Boundary_Source::Dependencies bs_dependencies = source->dependencies();
@@ -1229,16 +1253,16 @@ check_class_invariants() const
     Assert(weighted_boundary_surfaces_.size() == number_of_boundary_surfaces_);
     Assert(min_boundary_limits_.size() == dimension_);
     Assert(max_boundary_limits_.size() == dimension_);
-    Assert(v_b_.size() == number_of_basis_functions_);
-    Assert(v_db_.size() == number_of_basis_functions_ * dimension_);
-    Assert(is_w_.size() == number_of_boundary_surfaces_);
-    Assert(is_b_w_.size() == number_of_boundary_surfaces_ * number_of_basis_functions_);
-    Assert(iv_w_.size() == 1);
-    Assert(iv_dw_.size() == dimension_);
-    Assert(iv_b_w_.size() == number_of_basis_functions_);
-    Assert(iv_b_dw_.size() == number_of_basis_functions_ * dimension_);
-    Assert(iv_db_w_.size() == number_of_basis_functions_ * dimension_);
-    Assert(iv_db_dw_.size() == number_of_basis_functions_ * dimension_ * dimension_);
+    Assert(values_.v_b.size() == number_of_basis_functions_);
+    Assert(values_.v_db.size() == number_of_basis_functions_ * dimension_);
+    Assert(integrals_.is_w.size() == number_of_boundary_surfaces_);
+    Assert(integrals_.is_b_w.size() == number_of_boundary_surfaces_ * number_of_basis_functions_);
+    Assert(integrals_.iv_w.size() == 1);
+    Assert(integrals_.iv_dw.size() == dimension_);
+    Assert(integrals_.iv_b_w.size() == number_of_basis_functions_);
+    Assert(integrals_.iv_b_dw.size() == number_of_basis_functions_ * dimension_);
+    Assert(integrals_.iv_db_w.size() == number_of_basis_functions_ * dimension_);
+    Assert(integrals_.iv_db_dw.size() == number_of_basis_functions_ * dimension_ * dimension_);
 }
 
 void Weight_Function::
@@ -1273,12 +1297,12 @@ output(XML_Node output_node) const
     
     output_node.set_child_vector(min_boundary_limits_, "min_boundary_limits");
     output_node.set_child_vector(max_boundary_limits_, "max_boundary_limits");
-    output_node.set_child_vector(is_w_, "is_w", "surface");
-    output_node.set_child_vector(is_b_w_, "is_b_w", "surface-basis");
-    output_node.set_child_vector(iv_w_, "iv_w");
-    output_node.set_child_vector(iv_dw_, "iv_dw", "dimension");
-    output_node.set_child_vector(iv_b_w_, "iv_b_w", "basis");
-    output_node.set_child_vector(iv_b_dw_, "iv_b_dw", "dimension-basis");
-    output_node.set_child_vector(iv_db_w_, "iv_db_w", "dimension-basis");
-    output_node.set_child_vector(iv_db_dw_, "iv_db_dw", "dimension-dimension-basis");
+    output_node.set_child_vector(integrals_.is_w, "is_w", "surface");
+    output_node.set_child_vector(integrals_.is_b_w, "is_b_w", "surface-basis");
+    output_node.set_child_vector(integrals_.iv_w, "iv_w");
+    output_node.set_child_vector(integrals_.iv_dw, "iv_dw", "dimension");
+    output_node.set_child_vector(integrals_.iv_b_w, "iv_b_w", "basis");
+    output_node.set_child_vector(integrals_.iv_b_dw, "iv_b_dw", "dimension-basis");
+    output_node.set_child_vector(integrals_.iv_db_w, "iv_db_w", "dimension-basis");
+    output_node.set_child_vector(integrals_.iv_db_dw, "iv_db_dw", "dimension-dimension-basis");
 }

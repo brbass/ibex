@@ -133,12 +133,13 @@ int test_integrals(string input_filename)
 
         // Get weight function information
         shared_ptr<Weight_Function> weight = weight_functions[index];
+        Weight_Function::Integrals const integrals = weight->integrals();
         int number_of_basis_functions = weight->number_of_basis_functions();
         int dimension = weight->dimension();
         int number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
 
         // Check volume results
-        vector<double> const iv_w = weight->iv_w();
+        vector<double> const &iv_w = integrals.iv_w;
         vector<double> const ana_iv_w = node.get_child_vector<double>("iv_w", 1);
         checksum += check_results(iv_w,
                                   ana_iv_w,
@@ -146,7 +147,7 @@ int test_integrals(string input_filename)
                                   index,
                                   1e-7);
         
-        vector<double> const iv_dw = weight->iv_dw();
+        vector<double> const &iv_dw = integrals.iv_dw;
         vector<double> const ana_iv_dw = node.get_child_vector<double>("iv_dw", dimension);
         checksum += check_results(iv_dw,
                                   ana_iv_dw,
@@ -154,7 +155,7 @@ int test_integrals(string input_filename)
                                   index,
                                   1e-7);
 
-        vector<double> const iv_b_w = weight->iv_b_w();
+        vector<double> const &iv_b_w = integrals.iv_b_w;
         vector<double> const ana_iv_b_w = node.get_child_vector<double>("iv_b_w", number_of_basis_functions);
         checksum += check_results(iv_b_w,
                                   ana_iv_b_w,
@@ -162,7 +163,7 @@ int test_integrals(string input_filename)
                                   index,
                                   1e-7);
 
-        vector<double> const iv_b_dw = weight->iv_b_dw();
+        vector<double> const &iv_b_dw = integrals.iv_b_dw;
         vector<double> const ana_iv_b_dw = node.get_child_vector<double>("iv_b_dw", number_of_basis_functions * dimension);
         checksum += check_results(iv_b_dw,
                                   ana_iv_b_dw,
@@ -170,7 +171,7 @@ int test_integrals(string input_filename)
                                   index,
                                   1e-7);
 
-        vector<double> const iv_db_w = weight->iv_db_w();
+        vector<double> const &iv_db_w = integrals.iv_db_w;
         vector<double> const ana_iv_db_w = node.get_child_vector<double>("iv_db_w", number_of_basis_functions * dimension);
         checksum += check_results(iv_db_w,
                                   ana_iv_db_w,
@@ -178,7 +179,7 @@ int test_integrals(string input_filename)
                                   index,
                                   1e-7);
 
-        vector<double> const iv_db_dw = weight->iv_db_dw();
+        vector<double> const &iv_db_dw = integrals.iv_db_dw;
         vector<double> const ana_iv_db_dw = node.get_child_vector<double>("iv_db_dw", number_of_basis_functions * dimension * dimension);
         checksum += check_results(iv_db_dw,
                                   ana_iv_db_dw,
@@ -189,7 +190,7 @@ int test_integrals(string input_filename)
         // Check surface results
         if (number_of_boundary_surfaces > 0)
         {
-            vector<double> const is_w = weight->is_w();
+            vector<double> const &is_w = integrals.is_w;
             vector<double> const ana_is_w = node.get_child_vector<double>("is_w", number_of_boundary_surfaces);
             checksum += check_results(is_w,
                                       ana_is_w,
@@ -197,7 +198,7 @@ int test_integrals(string input_filename)
                                       index,
                                       1e-12);
             
-            vector<double> const is_b_w = weight->is_b_w();
+            vector<double> const &is_b_w = integrals.is_b_w;
             vector<double> const ana_is_b_w = node.get_child_vector<double>("is_b_w", number_of_boundary_surfaces * number_of_basis_functions);
             checksum += check_results(is_b_w,
                                       ana_is_b_w,
