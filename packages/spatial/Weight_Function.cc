@@ -40,10 +40,13 @@ Weight_Function(int index,
 {
     set_options_and_limits();
     calculate_values();
-    calculate_integrals();
-    calculate_material();
-    calculate_boundary_source();
-    check_class_invariants();
+    if (!options_.outside_integral_calculation)
+    {
+        calculate_integrals();
+        calculate_material();
+        calculate_boundary_source();
+        check_class_invariants();
+    }
 }
 
 Weight_Function::
@@ -182,9 +185,12 @@ set_options_and_limits()
     }
     
     basis_function_indices_.resize(number_of_basis_functions_);
+    basis_global_indices_.clear();
     for (int i = 0; i < number_of_basis_functions_; ++i)
     {
-        basis_function_indices_[i] = basis_functions_[i]->index();
+        int index = basis_funcitons_[i]->index();
+        basis_function_indices_[i] = index;
+        basis_global_indices_[index] = i;
     }
 }
 
@@ -1305,4 +1311,36 @@ output(XML_Node output_node) const
     output_node.set_child_vector(integrals_.iv_b_dw, "iv_b_dw", "dimension-basis");
     output_node.set_child_vector(integrals_.iv_db_w, "iv_db_w", "dimension-basis");
     output_node.set_child_vector(integrals_.iv_db_dw, "iv_db_dw", "dimension-dimension-basis");
+}
+
+void Weight_Function::
+set_integrals(Weight_Function::Integrals const &integrals,
+              shared_ptr<Material> material)
+{
+    // Set integral data
+    integrals_ = integrals;
+    material = material;
+
+    // Complete initialization
+    calculate_boundary_source();
+    check_class_invariants();
+}
+
+bool Weight_Function::
+local_includes(int global_index) const
+{
+    if (basis_global_indices_.count(global_index) > 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool Weight_Function::
+local_index(int global_index) const
+{
+    return basis_global_indices_.at(global_index);
 }

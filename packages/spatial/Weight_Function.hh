@@ -204,6 +204,14 @@ public:
                                               int s,
                                               std::vector<std::vector<double> > &ordinates,
                                               std::vector<double> &weights) const;
+
+    // Set data
+    virtual void set_integrals(Weight_Function::Integrals const &integrals,
+                               std::shared_ptr<Material> material);
+    
+    // Get local from global index
+    virtual bool local_includes(int global_index) const;
+    virtual int local_index(int global_index) const;
     
 private:
 
@@ -259,6 +267,7 @@ private:
     std::shared_ptr<Solid_Geometry> solid_geometry_;
     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces_;
     std::vector<std::shared_ptr<Cartesian_Plane> > weighted_boundary_surfaces_;
+    std::unordered_map<int> basis_global_indices_;
     
     // Calculated data
     std::vector<double> min_boundary_limits_;
