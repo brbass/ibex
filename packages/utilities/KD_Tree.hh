@@ -35,6 +35,7 @@ public:
                                 std::vector<double> const &position,
                                 std::vector<int> &indices,
                                 std::vector<double> &distances) const;
+    
     // Find all points within a radius of the position; return number of matches
     virtual int radius_search(double radius,
                               std::vector<double> const &position,

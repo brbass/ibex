@@ -47,9 +47,8 @@ public:
         void get_inclusive_radius(double radius) const;
 
         Weight_Function_Integration const &wfi_;
-        int number_of_local_nodes_;
-        int number_of_global_nodes_;
-        int number_of_global_cells_;
+        int number_of_background_nodes_;
+        int number_of_background_cells_;
         int dimension_;
         double max_interval_;
         std::vector<std::vector<double> > limits_;
