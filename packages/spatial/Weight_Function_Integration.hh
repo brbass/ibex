@@ -47,6 +47,8 @@ public:
         
     private:
 
+        friend class Weight_Function_Integration;
+        
         void initialize_mesh();
         void initialize_connectivity();
         double get_inclusive_radius(double radius) const;
@@ -63,6 +65,16 @@ public:
         std::shared_ptr<KD_Tree> kd_tree_;
         std::vector<Cell> cells_;
         std::vector<Node> nodes_;
+    };
+
+    struct Material_Data
+    {
+        std::vector<double> sigma_t;
+        std::vector<double> sigma_s;
+        std::vector<double> nu;
+        std::vector<double> sigma_f;
+        std::vector<double> chi;
+        std::vector<double> internal_source;
     };
     
     Weight_Function_Integration(int number_of_points,

@@ -35,9 +35,63 @@ Weight_Function_Integration(int number_of_points,
 }
 
 void Weight_Function_Integration::
+initialize_integrals(vector<Weight_Function::Integrals> integrals) const
+{
+    integrals.resize(number_of_points_);
+    for (int i = 0; i < number_of_points_; ++i)
+    {
+        shared_ptr<Weight_Function> weight = weights_[i];
+        int number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
+        int number_of_basis_functions = weight->number_of_basis_functions();
+        Weight_Function::Integrals &local_integrals = integrals[i];
+        local_integrals.is_w.assign(number_of_boundary_surfaces, 0.);
+        local_integrals.is_b_w.assign(number_of_boundary_surfaces * number_of_basis_functions);
+        local_integrals.iv_w.assign(1, 0.);
+        local_integrals.iv_dw.assign(dimension_, 0);
+        local_integrals.iv_b_w.assign(number_of_basis_functions, 0);
+        local_integrals.iv_b_dw.assign(number_of_basis_functions * dimension_, 0);
+        local_integrals.iv_db_w.assign(number_of_basis_functions * dimension_, 0);
+        local_integrals.iv_db_dw.assign(number_of_basis_functions * dimension_ * dimension_, 0);
+    }
+}
+
+void Weight_Function_Integration::
+initialize_materials(vector<Material_Data> materials) const
+{
+    // Get material data
+    shared_ptr<Material> test_material = solid_geometry_->material(weights_[0]->position());
+    shared_ptr<Angular_Discretization> angular_discretization = test_material->angular_discretization();
+    shared_ptr<Energy_Discretization> energy_discretization = test_material->energy_discretization();
+    int number_of_groups = energy_discretization->number_of_groups();
+    int number_of_scattering_moments = angular_discretization->number_of_scattering_moments();
+    int number_of_moments = angular_discretization->number_of_moments();
+
+    // Initialize materials
+    materials.resize(number_of_points_);
+    for (int i = 0; i < number_of_points_; ++i)
+    {
+        Material_Data &material = materials[i];
+        
+        
+    }
+    
+}
+
+void Weight_Function_Integration::
 perform_integration()
 {
+    // Initialize integrals to zero
+    vector<Weight_Function::Integrals> integrals;
+    initialize_integrals(integrals);
     
+    // Initialize materials to zero
+    vector<Material_Data> materials;
+    initialize_materials(materials);
+    
+    for (int i = 0; i < mesh_->number_of_background_cells_; ++i)
+    {
+        
+    }
 }
 
 Weight_Function_Integration::Mesh::

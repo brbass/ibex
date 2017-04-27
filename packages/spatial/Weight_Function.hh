@@ -110,7 +110,6 @@ public:
                     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces,
                     std::shared_ptr<Material> material,
                     Integrals const &integrals);
-                    
     
     // Point functions
     virtual int index() const override
