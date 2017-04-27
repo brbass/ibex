@@ -209,7 +209,7 @@ public:
     virtual void set_integrals(Weight_Function::Integrals const &integrals,
                                std::shared_ptr<Material> material);
     
-    // Get local from global index
+    // Get local from global basis function index
     virtual bool local_includes(int global_index) const;
     virtual int local_index(int global_index) const;
     

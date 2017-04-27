@@ -6,7 +6,9 @@
 #include "Basis_Function.hh"
 #include "Check.hh"
 #include "KD_Tree.hh"
+#include "Material.hh"
 #include "Solid_Geometry.hh"
+#include "Quadrature_Rule.hh"
 #include "Weight_Function.hh"
 
 using namespace std;
@@ -35,7 +37,561 @@ Weight_Function_Integration(int number_of_points,
 }
 
 void Weight_Function_Integration::
-initialize_integrals(vector<Weight_Function::Integrals> integrals) const
+perform_integration()
+{
+    // Initialize integrals to zero
+    vector<Weight_Function::Integrals> integrals;
+    initialize_integrals(integrals);
+    
+    // Initialize materials to zero
+    vector<Material_Data> materials;
+    initialize_materials(materials);
+
+    // Perform volume integration
+    perform_volume_integration(integrals,
+                               material);
+
+    // Perform surface integration
+    perform_surface_integration(integrals);
+
+    // Put results into weight functions and materials
+    put_integrals_into_weight(integrals,
+                              material);
+}
+
+void Weight_Function_Integration::
+perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
+                           vector<Material_Data> &materials) const
+{
+    // Integral values should be initialized to zero in perform_integration()
+    for (int i = 0; i < mesh_->number_of_background_cells_; ++i)
+    {
+        // Get cell data
+        Mesh::Cell &cell = mesh_->cell_[i];
+        
+        // Get quadrature
+        int number_of_ordinates;
+        vector<vector<double> > ordinates;
+        vector<double> weights;
+        get_volume_quadrature(i,
+                              number_of_ordinates,
+                              ordinates,
+                              weights);
+        
+        for (int q = 0; q < number_of_ordinates; ++q)
+        {
+            // Get position
+            vector<double> const &position = ordinates[q];
+
+            // Get material and basis/weight values at quadrature point
+            vector<double> b_val;
+            vector<vector<double> > b_grad;
+            vector<double> w_val;
+            vector<vector<double> > w_grad;
+            shared_ptr<Material> point_material;
+            get_volume_values(cell,
+                              position,
+                              b_val,
+                              b_grad,
+                              w_val,
+                              w_grad,
+                              point_material);
+            
+            // Add these values to the overall integrals
+            add_volume_weight(cell,
+                              weights[q],
+                              w_val,
+                              w_grad,
+                              integrals);
+            add_volume_basis_weight(cell,
+                                    weights[q],
+                                    b_val,
+                                    b_grad,
+                                    w_val,
+                                    w_grad,
+                                    integrals);
+            add_volume_material(cell,
+                                weights[q],
+                                w_val,
+                                w_grad,
+                                materials);
+        }
+    }
+}
+
+void Weight_Function_Integration::
+add_volume_weight(Mesh::cell const &cell,
+                  double quad_weight,
+                  vector<double> const &w_val,
+                  vector<vector<double> > const &w_grad,
+                  vector<Weight_Function::Integrals> &integrals) const
+{
+    for (int i = 0; i < cell.number_of_weight_functions; ++i)
+    {
+        // Add weight integral
+        int w_ind = cell.weight_indices[i];
+        integrals[w_ind].iv_w[0] += quad_weight * w_val[i];
+
+        // Add derivative of weight integral
+        for (int d = 0; d < mesh_->dimension_; ++d)
+        {
+            integrals[w_ind].iv_dw[d] += quad_weight * w_grad[i][d];
+        }
+    }
+}
+
+void Weight_Function_Integration::
+add_volume_basis_weight(Mesh::cell const &cell,
+                        double quad_weight,
+                        vector<double> const &b_val,
+                        vector<vector<double> > const &b_grad,
+                        vector<double> const &w_val,
+                        vector<vector<double> > const &w_grad,
+                        vector<Weight_Function::Integrals> &integrals) const
+{
+    int dimension = mesh_->dimension_;
+    for (int i = 0; i < cell.number_of_weight_functions; ++i)
+    {
+        // Add weight integral
+        int w_ind = cell.weight_indices[i];
+        shared_ptr<Weight_Function> weight = weights_[j];
+        
+        for (int j = 0; j < cell.number_of_basis_functions; ++j)
+        {
+            int b_ind = cell.basis_indices[j];
+
+            if (weight->local_includes(b_ind))
+            {
+                int w_b_ind = weight->local_index(b_ind);
+
+                // Basis-weight integral
+                integrals[w_ind].iv_b_w[w_b_ind]
+                    += quad_weight * w_val[i] * b_val[j];
+
+                // Derivative integrals
+                for (int d1 = 0; d1 < dimension; ++d1)
+                {
+                    int k1 = d1 + dimension * w_b_ind;
+                    integrals[w_ind].iv_b_dw[k1]
+                        += quad_weight * w_grad[i][d] * b_val[j];
+                    integrals[w_ind].iv_db_w[k1]
+                        += quad_weight * w_val[i] * db_val[j][d];
+
+                    for (int d2 = 0; d2 < dimension; ++d2)
+                    {
+                        int k2 = d1 + dimension * (d2 + dimension * w_b_ind);
+                        integrals[w_ind].iv_db_dw[k2]
+                            += quad_weight * w_grad[i][d2] * b_grad[j][d1];
+                    }
+                }
+            }
+            
+        }
+    }
+}
+
+void Weight_Function_Integration::
+add_volume_material(Mesh::cell const &cell,
+                    double quad_weight,
+                    vector<double> const &w_val,
+                    vector<vector<double> > const &w_grad,
+                    shared_ptr<Material> point_material,
+                    vector<Material_Data> &materials) const
+{
+    AssertMsg(false, "not yet implemented");
+}
+
+void Weight_Function_Integration::
+perform_surface_integration(vector<Weight_Function::Integrals> &integrals) const
+{
+    // Integral values should be initialized to zero in perform_integration()
+    for (int i = 0; i < mesh_->number_of_background_surfaces_; ++i)
+    {
+        // Get surface data
+        Mesh::Surface &surface = mesh_->surface_[i];
+
+        // Get quadrature
+        int number_of_ordinates;
+        vector<vector<double> > ordinates;
+        vector<double> weights;
+        get_surface_quadrature(i,
+                               number_of_ordinates,
+                               ordinates,
+                               weights);
+
+        for (int q = 0; q < number_of_ordinates; ++q)
+        {
+            // Get position
+            vector<double> const &position = ordinates[q];
+
+            // Get basis/weight values at quadrature point
+            vector<double> b_val;
+            vector<double> w_val;
+            get_surface_values(surface,
+                               position,
+                               b_val,
+                               w_val);
+            
+            
+        }
+    }
+}
+
+void Weight_Function_Integration::
+add_surface_basis_weight(Mesh::Surface const &surface,
+                         double quad_weight,
+                         vector<double> const &b_val,
+                         vector<double> const &w_val,
+                         vector<Weight_Function::Integrals> &integrals) const
+{
+    AssertMsg(false, "not yet implemented");
+}
+
+void Weight_Function_Integration::
+put_integrals_into_weight(vector<Weight_Function::Integrals> const &integrals,
+                          vector<Material_Data> const &material_data)
+{
+    for (int i = 0; i < number_of_points_; ++i)
+    {
+        // Get material from material data
+        shared_ptr<Material> material;
+        get_material(material_data[i]);
+
+        // Set the integrals to the weight functions
+        weights_[i]->set_integrals(integrals[i],
+                                   material);
+    }
+}
+
+void Weight_Function_Integration::
+get_material(Material_Data const &material_data,
+             shared_ptr<Material> &material)
+{
+    AssertMsg(false, "not yet implemented");
+}
+
+void Weight_Function_Integration::
+get_volume_values(Mesh::Cell const &cell,
+                  vector<double> const &position,
+                  vector<double> &b_val,
+                  vector<vector<double> > &b_grad,
+                  vector<double> &w_val,
+                  vector<vector<double> > &w_grad,
+                  shared_ptr<Material> &point_material) const
+{
+    // Initialize values 
+    b_val.resize(cell.number_of_basis_functions);
+    b_grad.resize(cell.number_of_basis_functions);
+    w_val.resize(cell.number_of_weight_functions);
+    w_grad.resize(cell.number_of_weight_functions);
+
+    // Get material at quadrature point
+    point_material = solid_->material(position);
+    
+    // Get values for basis functions at quadrature point
+    for (int j = 0; j < cell.number_of_basis_functions; ++j)
+    {
+        shared_ptr<Meshless_Function> func = bases_[cell.basis_indices[j]]->function();
+                
+        b_val[j] = func->value(position);
+        b_grad[j] = func->gradient_value(position);
+    }
+
+    // Get values for weight functions at quadrature point
+    for (int j = 0; j < cell.number_of_weight_functions; ++j)
+    {
+        shared_ptr<Meshless_Function> func = weights_[cell.weight_indices[j]]->function();
+
+        w_val[j] = func->value(position);
+        w_grad[j] = func->gradient_value(position);
+    }
+}
+
+void Weight_Function_Integration::
+get_surface_values(Mesh::Surface const &surface,
+                   vector<double> const &position,
+                   vector<double> &b_val,
+                   vector<double> &w_val) const
+{
+    // Initialize values
+    b_val.resize(surface.number_of_basis_functions);
+    w_val.resize(surface.number_of_weight_functions);
+
+    // Get values for basis functions at quadrature point
+    for (int j = 0; j < surface.number_of_basis_functions; ++j)
+    {
+        shared_ptr<Meshless_Function> func = bases_[surface.basis_indices[j]]->function();
+                
+        b_val[j] = func->value(position);
+    }
+
+    // Get values for weight functions at quadrature point
+    for (int j = 0; j < surface.number_of_weight_functions; ++j)
+    {
+        shared_ptr<Meshless_Function> func = weights_[surface.weight_indices[j]]->function();
+                
+        w_val[j] = func->value(position);
+    }
+}
+
+void Weight_Function_Integration::
+get_surface_quadrature(int i,
+                       int &number_of_ordinates,
+                       vector<vector<double> > &ordinates,
+                       vector<double> &weights) const
+{
+    // Get limits of integration
+    Surface const &surface = surfaces_[i];
+    Cell const &cell = cells_[surface.neighboring_cell];
+    vector<vector<double> > const &limits = cell.limits;
+    int const number_of_integration_ordinates = options_.integration_ordinates;
+    int const dx = 0;
+    int const dy = 1;
+    int const dz = 2;
+    int const min = 0;
+    int const max = 1;
+
+    // Get temporary integration data
+    Quadrature_Rule::Quadrature_Type quad_type = Quadrature_Rule::Quadrature_Type::GAUSS_LEGENDRE;
+    vector<double> ordinates_x;
+    vector<double> ordinates_y;
+    vector<double> ordinates_z;
+
+    // Get quadrature
+    switch (mesh_->dimension_)
+    {
+    case 1:
+        number_of_ordinates = 1;
+        if (normal < 0)
+        {
+            // At negative x boundary
+            ordinates.assign(1, limits[dx][min]);
+            weights.assign(1, 1.);
+        }
+        else
+        {
+            // At positive x boundary
+            ordinates.assign(1, limits[dx][max]);
+            weights.assign(1, 1.);
+        }
+        break;
+    case 2:
+        switch (surface.dimension)
+        {
+        case dx:
+            Quadrature_Rule::cartesian_1d(quad_type,
+                                          number_of_integration_ordinates,
+                                          limits[dy][min],
+                                          limits[dy][max],
+                                          ordinates_y,
+                                          weights);
+            number_of_ordinates = weights.size();
+            if (normal < 0)
+            {
+                // At negative x boundary
+                ordinates_x.assign(number_of_ordinates,
+                                   limits[dx][min]);
+            }
+            else
+            {
+                // At positive x boundary
+                ordinates_x.assign(number_of_ordinates,
+                                   limits[dx][max]);
+            }
+            break;
+        case dy:
+            Quadrature_Rule::cartesian_1d(quad_type,
+                                          number_of_integration_ordinates,
+                                          limits[dx][min],
+                                          limits[dx][max],
+                                          ordinates_x,
+                                          weights);
+            number_of_ordinates = weights.size();
+            if (normal < 0)
+            {
+                // At negative x boundary
+                ordinates_y.assign(number_of_ordinates,
+                                   limits[dy][min]);
+            }
+            else
+            {
+                // At positive x boundary
+                ordinates_y.assign(number_of_ordinates,
+                                   limits[dy][max]);
+            }
+            break;
+        }
+        Quadrature_Rule::convert_to_position_2d(ordinates_x,
+                                                ordinates_y,
+                                                ordinates);
+        break;
+    case 3:
+        switch (surface.dimension)
+        {
+        case dx:
+            Quadrature_Rule::cartesian_2d(quad_type,
+                                          quad_type,
+                                          number_of_integration_ordinates,
+                                          number_of_integration_ordinates,
+                                          limits[dy][min],
+                                          limits[dy][max],
+                                          limits[dz][min],
+                                          limits[dz][max],
+                                          ordinates_y,
+                                          ordinates_z,
+                                          weights);
+            number_of_ordinates = weights.size();
+            if (normal < 0)
+            {
+                // At negative x boundary
+                ordinates_x.assign(number_of_ordinates,
+                                   limits[dx][min]);
+            }
+            else
+            {
+                // At positive x boundary
+                ordinates_x.assign(number_of_ordinates,
+                                   limits[dx][max]);
+            }
+            break;
+        case dy:
+            Quadrature_Rule::cartesian_2d(quad_type,
+                                          quad_type,
+                                          number_of_integration_ordinates,
+                                          number_of_integration_ordinates,
+                                          limits[dx][min],
+                                          limits[dx][max],
+                                          limits[dz][min],
+                                          limits[dz][max],
+                                          ordinates_x,
+                                          ordinates_z,
+                                          weights);
+            number_of_ordinates = weights.size();
+            if (normal < 0)
+            {
+                // At negative y boundary
+                ordinates_y.assign(number_of_ordinates,
+                                   limits[dy][min]);
+            }
+            else
+            {
+                // At positive y boundary
+                ordinates_y.assign(number_of_ordinates,
+                                   limits[dx][max]);
+            }
+            break;
+        case dz:
+            Quadrature_Rule::cartesian_2d(quad_type,
+                                          quad_type,
+                                          number_of_integration_ordinates,
+                                          number_of_integration_ordinates,
+                                          limits[dx][min],
+                                          limits[dx][max],
+                                          limits[dy][min],
+                                          limits[dy][max],
+                                          ordinates_x,
+                                          ordinates_y,
+                                          weights);
+            number_of_ordinates = weights.size();
+            if (normal < 0)
+            {
+                // At negative z boundary
+                ordinates_z.assign(number_of_ordinates,
+                                   limits[dz][min]);
+            }
+            else
+            {
+                // At positive z boundary
+                ordinates_z.assign(number_of_ordinates,
+                                   limits[dz][max]);
+            }
+            break;
+        }
+        Quadrature_Rule::convert_to_position_3d(ordinates_x,
+                                                ordinates_y,
+                                                ordinates_z,
+                                                ordinates);
+        break;
+    }
+}
+
+void Weight_Function_Integration::
+get_volume_quadrature(int i,
+                      vector<vector<double> > &ordinates,
+                      vector<double> &weights) const
+{
+    // Get limits of integration
+    Cell const &cell = cells_[i];
+    vector<vector<double> > const &limits = cell.limits;
+    int const number_of_integration_ordinates = options_.integration_ordinates;
+    int const dx = 0;
+    int const dy = 1;
+    int const dz = 2;
+    int const min = 0;
+    int const max = 1;
+
+    // Initialize temporary integration data
+    Quadrature_Rule::Quadrature_Type quad_type = Quadrature_Rule::Quadrature_Type::GAUSS_LEGENDRE;
+    vector<double> ordinates_x;
+    vector<double> ordinates_y;
+    vector<double> ordinates_z;
+
+    // Get quadrature
+    switch (mesh_->dimension_)
+    {
+    case 1:
+        Quadrature_Rule::cartesian_1d(quad_type,
+                                      number_of_integration_ordinates,
+                                      limits[dx][min],
+                                      limits[dx][max],
+                                      ordinates_x,
+                                      weights);
+        Quadrature_Rule::convert_to_position_1d(ordinates_x,
+                                                ordinates);
+        break;
+    case 2:
+        Quadrature_Rule::cartesian_2d(quad_type,
+                                      quad_type,
+                                      number_of_integration_ordinates,
+                                      number_of_integration_ordinates,
+                                      limits[dx][min],
+                                      limits[dx][max],
+                                      limits[dy][min],
+                                      limits[dy][max],
+                                      ordinates_x,
+                                      ordinates_y,
+                                      weights);
+        Quadrature_Rule::convert_to_position_2d(ordinates_x,
+                                                ordinates_y,
+                                                ordinates);
+        break;
+    case 3:
+        Quadrature_Rule::cartesian_3d(quad_type,
+                                      quad_type,
+                                      quad_type,
+                                      number_of_integration_ordinates,
+                                      number_of_integration_ordinates,
+                                      number_of_integration_ordinates,
+                                      limits[dx][min],
+                                      limits[dx][max],
+                                      limits[dy][min],
+                                      limits[dy][max],
+                                      limits[dz][min],
+                                      limits[dz][max],
+                                      ordinates_x,
+                                      ordinates_y,
+                                      ordinates_z,
+                                      weights);
+        Quadrature_Rule::convert_to_position_3d(ordiantes_x,
+                                                ordinates_y,
+                                                ordinates_z,
+                                                ordinates);
+        break;
+    }
+}
+
+void Weight_Function_Integration::
+initialize_integrals(vector<Weight_Function::Integrals> &integrals) const
 {
     integrals.resize(number_of_points_);
     for (int i = 0; i < number_of_points_; ++i)
@@ -56,7 +612,7 @@ initialize_integrals(vector<Weight_Function::Integrals> integrals) const
 }
 
 void Weight_Function_Integration::
-initialize_materials(vector<Material_Data> materials) const
+initialize_materials(vector<Material_Data> &materials) const
 {
     // Get material data
     shared_ptr<Material> test_material = solid_geometry_->material(weights_[0]->position());
@@ -65,32 +621,50 @@ initialize_materials(vector<Material_Data> materials) const
     int number_of_groups = energy_discretization->number_of_groups();
     int number_of_scattering_moments = angular_discretization->number_of_scattering_moments();
     int number_of_moments = angular_discretization->number_of_moments();
-
+    
     // Initialize materials
     materials.resize(number_of_points_);
     for (int i = 0; i < number_of_points_; ++i)
     {
+        shared_ptr<Weight_Function> weight = weights_[i];
+        int number_of_dimensional_moments = weight->number_of_dimensional_moments();
         Material_Data &material = materials[i];
+        Weight_Function::Options weight_options = weight->options();
         
-        
-    }
-    
-}
+        switch (weight_options.weighting)
+        {
+        case Weight_Function::Options::Weighting::POINT:
+            AssertMsg(false, "point weighting not compatible with external integration");
+            break;
+        case Weight_Function::Options::Weighting::WEIGHT:
+            material.sigma_t.assign(number_of_dimensional_moments
+                                    * number_of_groups, 0);
+            material.sigma_s.assign(number_of_dimensional_moments
+                                    * number_of_groups
+                                    * number_of_groups
+                                    * number_of_scatteirng_moments, 0);
+            material.sigma_f.assign(number_of_dimensional_moments
+                                    * number_of_groups
+                                    * number_of_groups, 0);
+            material.norm.assign(number_of_dimensional_moments, 0);
+            break;
+        case Weight_Function::Options::Weighting::FLUX:
+            material.sigma_t.assign(number_of_dimensional_moments
+                                    * number_of_groups
+                                    * number_of_moments, 0);
+            material.sigma_s.assign(number_of_dimensional_moments
+                                    * number_of_groups
+                                    * number_of_groups
+                                    * number_of_moments, 0);
+            material.sigma_f.assign(number_of_dimensional_moments
+                                    * number_of_groups
+                                    * number_of_groups, 0);
+            material.norm.assign(number_of_dimensional_moments
+                                 * number_of_groups
+                                 * number_of_moments, 0);
+            break;
+        }
 
-void Weight_Function_Integration::
-perform_integration()
-{
-    // Initialize integrals to zero
-    vector<Weight_Function::Integrals> integrals;
-    initialize_integrals(integrals);
-    
-    // Initialize materials to zero
-    vector<Material_Data> materials;
-    initialize_materials(materials);
-    
-    for (int i = 0; i < mesh_->number_of_background_cells_; ++i)
-    {
-        
     }
 }
 
@@ -309,6 +883,161 @@ initialize_mesh()
     default:
         AssertMsg(false, "dimension (" + to_string(dimension_) + ") not found");
     }
+
+    // Initialize boundary surfaces
+    switch (dimension_)
+    {
+    case 1:
+    {
+        number_of_background_surfaces_ = 2;
+        surfaces_.resize(number_of_background_surfaces_);
+        for (int i = 0; i < number_of_background_surfaces_; ++i)
+        {
+            surfaces_[i].dimension = 0;
+        }
+        surfaces_[0].normal = -1;
+        surfaces_[1].normal = 1;
+        surfaces_[0].neighboring_cell = 0;
+        surfaces_[1].neighboring_cell = number_of_background_cells_ - 1;
+        break;
+    }
+    case 2:
+    {
+        number_of_background_surfaces_ = 2 * (dimensional_cells_[0]
+                                              + dimensional_cells_[1]);
+        surfaces_.clear();
+        surfaces_.reserve(number_of_background_surfaces_);
+        // Negative x boundary
+        for (int j = 0; j < dimensional_cells_[1]; ++j)
+        {
+            int i = 0;
+            Surface surface;
+            surface.dimension = 0;
+            surface.normal = -1;
+            surface.neighboring_cell = j + dimensional_cells_[1] * i;
+            surfaces_.push_back(surface);
+        }
+        // Positive x boundary
+        for (int j = 0; j < dimensional_cells_[1]; ++j)
+        {
+            int i = dimensional_cells_[0] - 1;
+            Surface surface;
+            surface.dimension = 0;
+            surface.normal = 1;
+            surface.neighboring_cell = j + dimensional_cells_[1] * i;
+            surfaces_.push_back(surface);
+        }
+        // Negative y boundary
+        for (int i = 0; i < dimensional_cells_[0]; ++i)
+        {
+            int j = 0;
+            Surface surface;
+            surface.dimension = 1;
+            surface.normal = -1;
+            surface.neighboring_cell = j + dimensional_cells_[1] * i;
+            surfaces_.push_back(surface);
+        }
+        // Positive y boundary
+        for (int i = 0; i < dimensional_cells_[0]; ++i)
+        {
+            int j = dimensional_cells_[1] - 1;
+            Surface surface;
+            surface.dimension = 1;
+            surface.normal = 1;
+            surface.neighboring_cell = j + dimensional_cells_[1] * i;
+            surfaces_.push_back(surface);
+        }
+        break;
+    }
+    case 3:
+    {
+        number_of_background_surfaces_ = 2 * (dimensional_cells_[0] * dimensional_cells_[1]
+                                              + dimensional_cells_[0] * dimensional_cells_[2]
+                                              + dimensional_cells_[1] * dimensional_cells_[2]);
+        surfaces_.clear();
+        surfaces_.reserve(number_of_background_surfaces_);
+        // Negative x boundary
+        for (int j = 0; j < dimensional_cells_[1]; ++j)
+        {
+            int i = 0;
+            for (int k = 0; k < dimensional_cells_[2]; ++k)
+            {
+                Surface surface;
+                surface.dimension = 0;
+                surface.normal = -1;
+                surface.neighboring_cell = k + dimensional_cells_[2] * (j + dimensional_cells_[1] * i);
+                surfaces_.push_back(surface);
+            }
+        }
+        // Positive x boundary
+        for (int j = 0; j < dimensional_cells_[1]; ++j)
+        {
+            int i = dimensional_cells_[0] - 1;
+            for (int k = 0; k < dimensional_cells_[2]; ++k)
+            {
+                Surface surface;
+                surface.dimension = 0;
+                surface.normal = 1;
+                surface.neighboring_cell = k + dimensional_cells_[2] * (j + dimensional_cells_[1] * i);
+                surfaces_.push_back(surface);
+            }
+        }
+        // Negative y boundary
+        for (int i = 0; i < dimensional_cells_[0]; ++i)
+        {
+            int j = 0;
+            for (int k = 0; k < dimensional_cells_[2]; ++k)
+            {
+                Surface surface;
+                surface.dimension = 1;
+                surface.normal = -1;
+                surface.neighboring_cell = k + dimensional_cells_[2] * (j + dimensional_cells_[1] * i);
+                surfaces_.push_back(surface);
+            }
+        }
+        // Positive y boundary
+        for (int i = 0; i < dimensional_cells_[0]; ++i)
+        {
+            int j = dimensional_cells_[1] - 1;
+            for (int k = 0; k < dimensional_cells_[2]; ++k)
+            {
+                Surface surface;
+                surface.dimension = 1;
+                surface.normal = 1;
+                surface.neighboring_cell = k + dimensional_cells_[2] * (j + dimensional_cells_[1] * i);
+                surfaces_.push_back(surface);
+            }
+        }
+        // Negative z boundary
+        for (int i = 0; i < dimensional_cells_[0]; ++i)
+        {
+            int k = 0;
+            for (int j = 0; j < dimensional_cells_[1]; ++j)
+            {
+                Surface surface;
+                surface.dimension = 2;
+                surface.normal = -1;
+                surface.neighboring_cell = k + dimensional_cells_[2] * (j + dimensional_cells_[1] * i);
+                surfaces_.push_back(surface);
+            }
+        }
+        // Positive z boundary
+        for (int i = 0; i < dimensional_cells_[0]; ++i)
+        {
+            int k = dimensional_cells_[2] - 1;
+            for (int j = 0; j < dimensional_cells_[1]; ++j)
+            {
+                Surface surface;
+                surface.dimension = 2;
+                surface.normal = 1;
+                surface.neighboring_cell = k + dimensional_cells_[2] * (j + dimensional_cells_[1] * i);
+                surfaces_.push_back(surface);
+            }
+        }
+        break;
+    }
+    }
+    Assert(surfaces_.size() == number_of_background_surfaces_);
     
     // Get KD tree
     vector<vector<double> > kd_positions(number_of_background_nodes_, vector<double>(dimension_));
@@ -316,9 +1045,9 @@ initialize_mesh()
     {
         kd_positions[i] = nodes_[i].position;
     }
-    kd_tree_ = make_shared<KD_Tree>(dimension_,
-                                    number_of_background_nodes_,
-                                    kd_positions);
+    node_tree_ = make_shared<KD_Tree>(dimension_,
+                                        number_of_background_nodes_,
+                                        kd_positions);
 
     // Get maximum interval
     max_interval_ = *max_element(intervals_.begin(), intervals_.end());
@@ -341,10 +1070,10 @@ initialize_connectivity()
         vector<int> intersecting_nodes;
         vector<double> distances;
         int number_of_intersecting_nodes
-            = kd_tree_->radius_search(radius,
-                                      position,
-                                      intersecting_nodes,
-                                      distances);
+            = node_tree_->radius_search(radius,
+                                          position,
+                                          intersecting_nodes,
+                                          distances);
         
         // Add cells for these nodes to the weight indices
         for (int j = 0; j < number_of_intersecting_nodes; ++j)
@@ -370,10 +1099,10 @@ initialize_connectivity()
         vector<int> intersecting_nodes;
         vector<double> distances;
         int number_of_intersecting_nodes
-            = kd_tree_->radius_search(radius,
-                                      position,
-                                      intersecting_nodes,
-                                      distances);
+            = node_tree_->radius_search(radius,
+                                          position,
+                                          intersecting_nodes,
+                                          distances);
         
         // Add cells for these nodes to the weight indices
         for (int j = 0; j < number_of_intersecting_nodes; ++j)
@@ -397,13 +1126,16 @@ initialize_connectivity()
         
         sort(cell.weight_indices.begin(), cell.weight_indices.end());
         cell.weight_indices.erase(unique(cell.weight_indices.begin(), cell.weight_indices.end()), cell.weight_indices.end());
+
+        cell.number_of_basis_functions = cell.basis_indices.size();
+        cell.number_of_weight_functions = cell.weight_indices.size();
     }
 }
 
 double Weight_Function_Integration::Mesh::
 get_inclusive_radius(double radius) const
 {
-    // Move radius outward to account for edges
+    // Move radius outward to account for surfaces
     switch (dimension_)
     {
     case 1:
