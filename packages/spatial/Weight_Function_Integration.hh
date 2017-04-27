@@ -1,9 +1,14 @@
 #ifndef Weight_Function_Integration_hh
 #define Weight_Function_Integration_hh
 
+#include <memory>
+#include <vector>
+
 #include "Weight_Function.hh"
 
+class Basis_Function;
 class KD_Tree;
+class Solid_Geometry;
 
 class Weight_Function_Integration
 {
@@ -13,7 +18,7 @@ public:
     {
     public:
 
-        class Cell
+        struct Cell
         {
             // Spatial information
             std::vector<std::vector<double> > limits;
@@ -26,7 +31,7 @@ public:
             std::vector<int> weight_indices;
         };
         
-        class Node
+        struct Node
         {
             // Spatial information
             std::vector<double> position;
@@ -38,18 +43,17 @@ public:
         Mesh(Weight_Function_Integration const &wfi,
              int dimension,
              std::vector<std::vector<double> > limits,
-             std::vector<int> num_intervals);
+             std::vector<int> dimensional_cells);
         
     private:
 
         void initialize_mesh();
         void initialize_connectivity();
-        void get_inclusive_radius(double radius) const;
+        double get_inclusive_radius(double radius) const;
 
         Weight_Function_Integration const &wfi_;
-        int number_of_local_nodes_;
-        int number_of_global_nodes_;
-        int number_of_global_cells_;
+        int number_of_background_nodes_;
+        int number_of_background_cells_;
         int dimension_;
         double max_interval_;
         std::vector<std::vector<double> > limits_;
@@ -57,22 +61,24 @@ public:
         std::vector<int> dimensional_nodes_;
         std::vector<double> intervals_;
         std::shared_ptr<KD_Tree> kd_tree_;
-        vector<Cell> cells_;
-        vector<Node> nodes_;
+        std::vector<Cell> cells_;
+        std::vector<Node> nodes_;
     };
     
-    Weight_Function_Integration(Weight_Function::Options options,
-                                int number_of_points,
+    Weight_Function_Integration(int number_of_points,
                                 std::vector<std::shared_ptr<Basis_Function> > const &bases,
                                 std::vector<std::shared_ptr<Weight_Function> > const &weights,
                                 std::shared_ptr<Solid_Geometry> solid_geometry,
                                 std::vector<std::vector<double> > limits,
                                 std::vector<int> num_intervals);
+
+    void perform_integration();
     
 private:
     
     Weight_Function::Options options_;
-    std::vector<std::shared_ptr<Basis_Function> > bases_
+    int number_of_points_;
+    std::vector<std::shared_ptr<Basis_Function> > bases_;
     std::vector<std::shared_ptr<Weight_Function> > weights_;
     std::shared_ptr<Solid_Geometry> solid_;
     std::shared_ptr<Mesh> mesh_;

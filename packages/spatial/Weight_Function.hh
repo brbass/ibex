@@ -4,6 +4,7 @@
 #include "Point.hh"
 
 #include <functional>
+#include <unordered_map>
 
 class Basis_Function;
 class Cartesian_Plane;
@@ -54,8 +55,8 @@ public:
         bool include_supg = false;
         bool normalized = true;
         double tau; // SUPG parameter (tau_const / shape)
-        bool outside_integral_calculation = false;
-
+        bool external_integral_calculation = false;
+        
         // Parameters for the user to set
         int integration_ordinates = 32; // Dimensional integration quadrature
         double tau_const = 1; // Constant in front of 1/shape
@@ -267,7 +268,7 @@ private:
     std::shared_ptr<Solid_Geometry> solid_geometry_;
     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces_;
     std::vector<std::shared_ptr<Cartesian_Plane> > weighted_boundary_surfaces_;
-    std::unordered_map<int> basis_global_indices_;
+    std::unordered_map<int, int> basis_global_indices_;
     
     // Calculated data
     std::vector<double> min_boundary_limits_;

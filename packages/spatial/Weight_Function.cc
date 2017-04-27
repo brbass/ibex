@@ -40,7 +40,7 @@ Weight_Function(int index,
 {
     set_options_and_limits();
     calculate_values();
-    if (!options_.outside_integral_calculation)
+    if (!options_.external_integral_calculation)
     {
         calculate_integrals();
         calculate_material();
@@ -188,7 +188,7 @@ set_options_and_limits()
     basis_global_indices_.clear();
     for (int i = 0; i < number_of_basis_functions_; ++i)
     {
-        int index = basis_funcitons_[i]->index();
+        int index = basis_functions_[i]->index();
         basis_function_indices_[i] = index;
         basis_global_indices_[index] = i;
     }
@@ -1339,7 +1339,7 @@ local_includes(int global_index) const
     }
 }
 
-bool Weight_Function::
+int Weight_Function::
 local_index(int global_index) const
 {
     return basis_global_indices_.at(global_index);

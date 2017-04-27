@@ -18,6 +18,7 @@
 #include "RBF_Function.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weight_Function.hh"
+#include "Weight_Function_Integration.hh"
 
 using namespace std;
 
@@ -232,9 +233,16 @@ get_simple_discretization(int num_dimensional_points,
     shared_ptr<Dimensional_Moments> dimensional_moments
         = make_shared<Dimensional_Moments>(supg,
                                            dimension);
+
+    // Get integration options
+    Weak_Spatial_Discretization::Options weak_options;
+    weak_options.external_integral_calculation = options.external_integral_calculation;
+    weak_options.limits = limits;
+    weak_options.dimensional_cells.assign(dimension, num_dimensional_points - 1);
     
     return make_shared<Weak_Spatial_Discretization>(bases,
                                                     weights,
                                                     dimensional_moments,
+                                                    weak_options,
                                                     kd_tree);
 }

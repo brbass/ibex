@@ -3,19 +3,22 @@
 #include <algorithm>
 #include <cmath>
 
-using std::sqrt;
-using std::shared_ptr;
-using std::vector;
+#include "Basis_Function.hh"
+#include "Check.hh"
+#include "KD_Tree.hh"
+#include "Solid_Geometry.hh"
+#include "Weight_Function.hh"
+
+using namespace std;
 
 Weight_Function_Integration::
-Weight_Function_Integration(Weight_Function::Options options,
-                            int number_of_points,
+Weight_Function_Integration(int number_of_points,
                             vector<shared_ptr<Basis_Function> > const &bases,
                             vector<shared_ptr<Weight_Function> > const &weights,
                             shared_ptr<Solid_Geometry> solid,
                             vector<vector<double> > limits,
                             vector<int> dimensional_cells):
-    options_(options),
+    options_(weights[0]->options()),
     number_of_points_(number_of_points),
     bases_(bases),
     weights_(weights),
@@ -31,7 +34,13 @@ Weight_Function_Integration(Weight_Function::Options options,
                               dimensional_cells);
 }
 
-Weight_Function_Integration::Mesh
+void Weight_Function_Integration::
+perform_integration()
+{
+    
+}
+
+Weight_Function_Integration::Mesh::
 Mesh(Weight_Function_Integration const &wfi,
      int dimension,
      vector<vector<double> > limits,
@@ -45,14 +54,14 @@ Mesh(Weight_Function_Integration const &wfi,
     initialize_connectivity();
 }
 
-void Weight_Function_Integration::Mesh
+void Weight_Function_Integration::Mesh::
 initialize_mesh()
 {
     vector<vector<double> > positions;
     
     // Check sizes
-    Assert(dimensional_cells_.size() == dimension);
-    Assert(limits_.size() == dimension);
+    Assert(dimensional_cells_.size() == dimension_);
+    Assert(limits_.size() == dimension_);
     
     // Get total number of nodes
     dimensional_nodes_.resize(dimension_);
@@ -67,8 +76,8 @@ initialize_mesh()
     }
     
     // Get intervals between cells
-    intervals_.resize(dimension);
-    for (int d = 0; d < dimension; ++d)
+    intervals_.resize(dimension_);
+    for (int d = 0; d < dimension_; ++d)
     {
         intervals_[d] = (limits_[d][1] - limits_[d][0]) / static_cast<double>(dimensional_cells_[d]);
     }
@@ -76,40 +85,40 @@ initialize_mesh()
 
     // Initialize nodes
     nodes_.resize(number_of_background_nodes_);
-    switch (dimension)
+    switch (dimension_)
     {
     case 1:
     {
-        int d_i = 0;
+        int di = 0;
         for (int i = 0; i < dimensional_nodes_[0]; ++i)
         {
             double index = i;
             Node &node = nodes_[i];
-            node.position = {limits_[d_i][0] + intervals_[d_i] * i};
+            node.position = {limits_[di][0] + intervals_[di] * i};
         }
         break;
     }
     case 2:
     {
-        int d_i = 0;
-        int d_j = 1;
+        int di = 0;
+        int dj = 1;
         for (int i = 0; i < dimensional_nodes_[0]; ++i)
         {
             for (int j = 0; j < dimensional_nodes_[1]; ++i)
             {
                 int index = j + dimensional_nodes_[1] * i;
                 Node &node = nodes_[index];
-                node.position = {limits_[d_i][0] + intervals_[d_i] * i,
-                                 limits_[d_j][0] + intervals_[d_j] * j};
+                node.position = {limits_[di][0] + intervals_[di] * i,
+                                 limits_[dj][0] + intervals_[dj] * j};
             }
         }
         break;
     }
     case 3:
     {
-        int d_i = 0;
-        int d_j = 1;
-        int d_k = 2;
+        int di = 0;
+        int dj = 1;
+        int dk = 2;
         for (int i = 0; i < dimensional_nodes_[0]; ++i)
         {
             for (int j = 0; j < dimensional_nodes_[1]; ++i)
@@ -118,16 +127,16 @@ initialize_mesh()
                 {
                     int index = k + dimensional_nodes_[2] * (j + dimensional_nodes_[1] * i);
                     Node &node = nodes_[index];
-                    node.position = {limits_[d_i][0] + intervals_[d_i] * i,
-                                     limits_[d_j][0] + intervals_[d_j] * j,
-                                     limits_[d_k][0] + intervals_[d_k] * k};
+                    node.position = {limits_[di][0] + intervals_[di] * i,
+                                     limits_[dj][0] + intervals_[dj] * j,
+                                     limits_[dk][0] + intervals_[dk] * k};
                 }
             }
             break;
         }
     }
     default:
-        AssertMsg(false, "dimension (" << dimension_ << ") not found");
+        AssertMsg(false, "dimension (" + to_string(dimension_) +  ") not found");
     }
 
     // Initialize cells
@@ -135,19 +144,44 @@ initialize_mesh()
     {
     case 1:
     {
+        int di = 0;
+        for (int i = 0; i < dimensional_cells_[di]; ++i)
+        {
+            int index = i;
+            Cell &cell = cells_[index];
+            
+            // Set upper and lower limits
+            cell.limits.resize(dimension_);
+            for (int d = 0; d < dimension_; ++d)
+            {
+                int l0 = index;
+                int l1 = l0 + 1;
+                cell.limits[d] = {limits_[d][0] + intervals_[d] * l0,
+                                  limits_[d][0] + intervals_[d] * l1};
+            }
+                
+            // Set neighboring nodes and cells
+            for (int ni = i; ni <= i + 1; ++ni)
+            {
+                int n_index = ni;
+                Node &node = nodes_[n_index];
+                node.neighboring_cells.push_back(index);
+                cell.neighboring_nodes.push_back(n_index);
+            }
+        }
         break;
     }
     case 2:
     {
-        int d_i = 0;
-        int d_j = 1;
-        for (int i = 0; i < dimensional_cells_[0]; ++i)
+        int di = 0;
+        int dj = 1;
+        for (int i = 0; i < dimensional_cells_[di]; ++i)
         {
-            for (int j = 0; j < dimensional_cells_[1]; ++j)
+            for (int j = 0; j < dimensional_cells_[dj]; ++j)
             {
-                int index = j + dimensional_cells_[1] * i;
+                int index = j + dimensional_cells_[dj] * i;
                 vector<int> indices = {i, j};
-                Cell &cell = cells[index];
+                Cell &cell = cells_[index];
                 
                 // Set upper and lower limits
                 cell.limits.resize(dimension_);
@@ -164,7 +198,7 @@ initialize_mesh()
                 {
                     for (int nj = j; nj <= j + 1; ++nj)
                     {
-                        int n_index = nj + dimensional_nodes_[1] * ni;
+                        int n_index = nj + dimensional_nodes_[dj] * ni;
                         Node &node = nodes_[n_index];
                         node.neighboring_cells.push_back(index);
                         cell.neighboring_nodes.push_back(n_index);
@@ -176,17 +210,18 @@ initialize_mesh()
     }
     case 3:
     {
-        int d_i = 0;
-        int d_j = 1;
-        for (int i = 0; i < dimensional_cells_[0]; ++i)
+        int di = 0;
+        int dj = 1;
+        int dk = 2;
+        for (int i = 0; i < dimensional_cells_[di]; ++i)
         {
-            for (int j = 0; j < dimensional_cells_[1]; ++j)
+            for (int j = 0; j < dimensional_cells_[dj]; ++j)
             {
-                for (int k = 0; k < dimensional_cells_[2]; ++k)
+                for (int k = 0; k < dimensional_cells_[dk]; ++k)
                 {
-                    int index = k + dimensional_cells_[2] * (j + dimensional_cells_[1] * i);
+                    int index = k + dimensional_cells_[dk] * (j + dimensional_cells_[dj] * i);
                     vector<int> indices = {i, j, k};
-                    Cell &cell = cells[index];
+                    Cell &cell = cells_[index];
                     
                     // Set neighboring nodes and cells
                     for (int ni = i; ni <= i + 1; ++ni)
@@ -195,30 +230,30 @@ initialize_mesh()
                         {
                             for (int nk = k; nk <= k + 1; ++nk)
                             {
-                                int n_index = nk + dimensional_nodes_[2] * (nj + dimensional_nodes_[1] * ni);
+                                int n_index = nk + dimensional_nodes_[dk] * (nj + dimensional_nodes_[dj] * ni);
                                 Node &node = nodes_[n_index];
                                 node.neighboring_cells.push_back(index);
                                 cell.neighboring_nodes.push_back(n_index);
                             }
                         }
                     }
-                }
                 
-                // Set upper and lower limits
-                cell.limits.resize(dimension_);
-                for (int d = 0; d < dimension_; ++d)
-                {
-                    int l0 = indices[d];
-                    int l1 = l0 + 1;
-                    cell.limits[d] = {limits_[d][0] + intervals_[d] * l0,
-                                      limits_[d][0] + intervals_[d] * l1};
+                    // Set upper and lower limits
+                    cell.limits.resize(dimension_);
+                    for (int d = 0; d < dimension_; ++d)
+                    {
+                        int l0 = indices[d];
+                        int l1 = l0 + 1;
+                        cell.limits[d] = {limits_[d][0] + intervals_[d] * l0,
+                                          limits_[d][0] + intervals_[d] * l1};
+                    }
                 }
             }
         }
         break;
     }
     default:
-        AssertMsg(false, "dimension (" << dimension_ << ") not found");
+        AssertMsg(false, "dimension (" + to_string(dimension_) + ") not found");
     }
     
     // Get KD tree
@@ -232,13 +267,13 @@ initialize_mesh()
                                     kd_positions);
 
     // Get maximum interval
-    max_interval_ = *std::max_element(intervals_.begin(), intervals_.end());
+    max_interval_ = *max_element(intervals_.begin(), intervals_.end());
 }
 
-void Weight_Function_Integration::Mesh
+void Weight_Function_Integration::Mesh::
 initialize_connectivity()
 {
-    int number_of_points = wfi_.number_of_points;
+    int number_of_points = wfi_.number_of_points_;
 
     // Get weight function connectivity
     for (int i = 0; i < number_of_points; ++i)
@@ -264,7 +299,7 @@ initialize_connectivity()
             
             for (int c_index : node.neighboring_cells)
             {
-                cell[c_index].weight_indices.push_back(i);
+                cells_[c_index].weight_indices.push_back(i);
             }
         }
     }
@@ -293,7 +328,7 @@ initialize_connectivity()
             
             for (int c_index : node.neighboring_cells)
             {
-                cell[c_index].basis_indices.push_back(i);
+                cells_[c_index].basis_indices.push_back(i);
             }
         }
     }
@@ -311,11 +346,11 @@ initialize_connectivity()
     }
 }
 
-void Weight_Function_Integration::Mesh
+double Weight_Function_Integration::Mesh::
 get_inclusive_radius(double radius) const
 {
     // Move radius outward to account for edges
-    switch (dimension)
+    switch (dimension_)
     {
     case 1:
         return radius;
@@ -325,3 +360,4 @@ get_inclusive_radius(double radius) const
         return sqrt(radius * radius + 0.5 * max_interval_ * max_interval_);
     }
 }
+

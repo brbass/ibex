@@ -44,9 +44,15 @@ get_weak_discretization(XML_Node input_node) const
     shared_ptr<Dimensional_Moments> dimensional_moments
         = make_shared<Dimensional_Moments>(supg,
                                            dimension);
+    Weak_Spatial_Discretization::Options options;
+    if (weight_functions[0]->options().external_integral_calculation)
+    {
+        AssertMsg(false, "not implemented for parser");
+    }
     return make_shared<Weak_Spatial_Discretization>(basis_functions,
                                                     weight_functions,
-                                                    dimensional_moments);
+                                                    dimensional_moments,
+                                                    options);
 }
 
 vector<shared_ptr<Meshless_Function> > Weak_Spatial_Discretization_Parser::

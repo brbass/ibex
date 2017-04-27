@@ -7,6 +7,7 @@
 #include "Dimensional_Moments.hh"
 #include "KD_Tree.hh"
 #include "Meshless_Function.hh"
+#include "Weight_Function_Integration.hh"
 #include "XML_Node.hh"
 
 using namespace std;
@@ -15,12 +16,14 @@ Weak_Spatial_Discretization::
 Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
                             vector<shared_ptr<Weight_Function> > &weights,
                             shared_ptr<Dimensional_Moments> dimensional_moments,
+                            Options const &options,
                             shared_ptr<KD_Tree> kd_tree):
     number_of_points_(weights.size()),
     dimension_(weights[0]->dimension()),
     number_of_nodes_(weights[0]->number_of_nodes()),
     weights_(weights),
     bases_(bases),
+    options_(options),
     dimensional_moments_(dimensional_moments),
     kd_tree_(kd_tree)
 {
@@ -87,6 +90,18 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
         kd_tree_ = make_shared<KD_Tree>(dimension_,
                                         number_of_points_,
                                         points);
+    }
+
+    // Perform external integrals, if applicable
+    if (options_.external_integral_calculation)
+    {
+        Weight_Function_Integration integrator(number_of_points_,
+                                               bases,
+                                               weights,
+                                               options_.solid,
+                                               options_.limits,
+                                               options_.dimensional_cells);
+        integrator.perform_integration();
     }
     
     check_class_invariants();

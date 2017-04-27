@@ -11,10 +11,19 @@ class Weak_Spatial_Discretization : public Spatial_Discretization
 {
 public:
 
+    struct Options
+    {
+        bool external_integral_calculation = false;
+        std::vector<std::vector<double> > limits;
+        std::shared_ptr<Solid_Geometry> solid;
+        std::vector<int> dimensional_cells;
+    };
+    
     // Constructor
     Weak_Spatial_Discretization(std::vector<std::shared_ptr<Basis_Function> > &bases,
                                 std::vector<std::shared_ptr<Weight_Function> > &weights,
                                 std::shared_ptr<Dimensional_Moments> dimensional_moments,
+                                Options const &options,
                                 std::shared_ptr<KD_Tree> kd_tree = std::shared_ptr<KD_Tree>());
 
     // Point functions
@@ -106,6 +115,7 @@ private:
     int dimension_;
     int number_of_nodes_;
     int number_of_dimensional_moments_;
+    Options options_;
     std::vector<int> number_of_basis_functions_;
     std::vector<std::shared_ptr<Weight_Function> > weights_;
     std::vector<std::shared_ptr<Weight_Function> > boundary_weights_;
@@ -113,7 +123,6 @@ private:
     std::vector<std::shared_ptr<Basis_Function> > boundary_bases_;
     std::shared_ptr<Dimensional_Moments> dimensional_moments_;
     std::shared_ptr<KD_Tree> kd_tree_;
-    
 };
 
 #endif
