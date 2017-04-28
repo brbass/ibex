@@ -899,139 +899,173 @@ initialize_mesh()
         surfaces_[1].normal = 1;
         surfaces_[0].neighboring_cell = 0;
         surfaces_[1].neighboring_cell = number_of_background_cells_ - 1;
+        nodes_[0].neigboring_surfaces.push_back(0);
+        nodes_[dimensional_nodes_[0] - 1].neighboring_surfaces.push_back(1);
         break;
     }
     case 2:
     {
-        number_of_background_surfaces_ = 2 * (dimensional_cells_[0]
-                                              + dimensional_cells_[1]);
+        int const di = 0;
+        int const dj = 1;
+        number_of_background_surfaces_ = 2 * (dimensional_cells_[di]
+                                              + dimensional_cells_[dj]);
         surfaces_.clear();
         surfaces_.reserve(number_of_background_surfaces_);
-        // Negative x boundary
-        for (int j = 0; j < dimensional_cells_[1]; ++j)
+        int index = 0;
+        
+        // Positive and negative (p = 0, 1) x boundaries
+        for (int p = 0; p < 2; ++p)
         {
-            int i = 0;
-            Surface surface;
-            surface.dimension = 0;
-            surface.normal = -1;
-            surface.neighboring_cell = j + dimensional_cells_[1] * i;
-            surfaces_.push_back(surface);
+            int i = p == 0 ? 0 : dimensional_cells_[di] - 1;
+            int ni = p == 0 ? 0 : dimensional_nodes_[di] - 1;
+            double normal = p == 0 ? -1 : 1;
+            for (int j = 0; j < dimensional_cells_[dj]; ++j)
+            {
+                Surface surface;
+                surface.dimension = 0;
+                surface.normal = normal;
+                surface.neighboring_cell = j + dimensional_cells_[dj] * i;
+                surfaces_.push_back(surface);
+                
+                for (int nj = j; nj <= j + 1; ++nj)
+                {
+                    int n_index = nj + dimensional_nodes_[dj] * ni;
+                    Node &node = nodes_[n_index];
+                    node.neighboring_surfaces.push_back(index);
+                }
+
+                index += 1;
+            }
         }
-        // Positive x boundary
-        for (int j = 0; j < dimensional_cells_[1]; ++j)
+        
+        // Positive and negative (p = 0, 1) y boundaries
+        for (int p = 0; p < 2; ++p)
         {
-            int i = dimensional_cells_[0] - 1;
-            Surface surface;
-            surface.dimension = 0;
-            surface.normal = 1;
-            surface.neighboring_cell = j + dimensional_cells_[1] * i;
-            surfaces_.push_back(surface);
-        }
-        // Negative y boundary
-        for (int i = 0; i < dimensional_cells_[0]; ++i)
-        {
-            int j = 0;
-            Surface surface;
-            surface.dimension = 1;
-            surface.normal = -1;
-            surface.neighboring_cell = j + dimensional_cells_[1] * i;
-            surfaces_.push_back(surface);
-        }
-        // Positive y boundary
-        for (int i = 0; i < dimensional_cells_[0]; ++i)
-        {
-            int j = dimensional_cells_[1] - 1;
-            Surface surface;
-            surface.dimension = 1;
-            surface.normal = 1;
-            surface.neighboring_cell = j + dimensional_cells_[1] * i;
-            surfaces_.push_back(surface);
+            int j = p == 0 ? 0 : dimensional_cells_[dj] - 1;
+            int nj = p == 0 ? 0 : dimensional_nodes_[dj] - 1;
+            double normal = p == 0 ? -1 : 1;
+            for (int i = 0; i < dimensional_cells_[di]; ++i)
+            {
+                Surface surface;
+                surface.dimension = 0;
+                surface.normal = normal;
+                surface.neighboring_cell = j + dimensional_cells_[dj] * i;
+                surfaces_.push_back(surface);
+                
+                for (int ni = i; ni <= i + 1; ++ni)
+                {
+                    int n_index = nj + dimensional_nodes_[dj] * ni;
+                    Node &node = nodes_[n_index];
+                    node.neighboring_surfaces.push_back(index);
+                }
+                
+                index += 1;
+            }
         }
         break;
     }
     case 3:
     {
+        int const di = 0;
+        int const dj = 1;
+        int const dk = 2;
         number_of_background_surfaces_ = 2 * (dimensional_cells_[0] * dimensional_cells_[1]
                                               + dimensional_cells_[0] * dimensional_cells_[2]
                                               + dimensional_cells_[1] * dimensional_cells_[2]);
         surfaces_.clear();
         surfaces_.reserve(number_of_background_surfaces_);
-        // Negative x boundary
-        for (int j = 0; j < dimensional_cells_[1]; ++j)
+        int index = 0;
+        
+        // Positive and negative (p = 0, 1) x boundaries
+        for (int p = 0; p < 2; ++p)
         {
-            int i = 0;
-            for (int k = 0; k < dimensional_cells_[2]; ++k)
+            int i = p == 0 ? 0 : dimensional_cells_[di] - 1;
+            int ni = p == 0 ? 0 : dimensional_nodes_[di] - 1;
+            double normal = p == 0 ? -1 : 1;
+            for (int j = 0; j < dimensional_cells_[dj]; ++j)
             {
-                Surface surface;
-                surface.dimension = 0;
-                surface.normal = -1;
-                surface.neighboring_cell = k + dimensional_cells_[2] * (j + dimensional_cells_[1] * i);
-                surfaces_.push_back(surface);
+                for (int k = 0; k < dimensional_cells_[dk]; ++k)
+                {
+                    Surface surface;
+                    surface.dimension = di;
+                    surface.normal = normal;
+                    surface.neighboring_cell = k + dimensional_cells_[dk] * (j + dimensional_cells_[dj]* i);
+                    surfaces_.push_back(surface);
+                    
+                    for (int nj = j; nj <= j + 1; ++nj)
+                    {
+                        for (int nk = k; nk <= k + 1; ++nk)
+                        {
+                            int n_index = nk + dimensional_nodes_[dk] * (nj + dimensional_nodes_[dj] * i);
+                            Node &node = nodes_[n_index];
+                            node.neighboring_surfaces.push_back(index);
+                        }
+                    }
+
+                    index += 1;
+                }
             }
         }
-        // Positive x boundary
-        for (int j = 0; j < dimensional_cells_[1]; ++j)
+
+        // Positive and negative (p = 0, 1) y boundaries
+        for (int p = 0; p < 2; ++p)
         {
-            int i = dimensional_cells_[0] - 1;
-            for (int k = 0; k < dimensional_cells_[2]; ++k)
+            int j = p == 0 ? 0 : dimensional_cells_[dj] - 1;
+            int nj = p == 0 ? 0 : dimensional_nodes_[dj] - 1;
+            double normal = p == 0 ? -1 : 1;
+            for (int i = 0; j < dimensional_cells_[di]; ++i)
             {
-                Surface surface;
-                surface.dimension = 0;
-                surface.normal = 1;
-                surface.neighboring_cell = k + dimensional_cells_[2] * (j + dimensional_cells_[1] * i);
-                surfaces_.push_back(surface);
+                for (int k = 0; k < dimensional_cells_[dk]; ++k)
+                {
+                    Surface surface;
+                    surface.dimension = dj;
+                    surface.normal = normal;
+                    surface.neighboring_cell = k + dimensional_cells_[dk] * (j + dimensional_cells_[dj]* i);
+                    surfaces_.push_back(surface);
+                    
+                    for (int ni = i; ni <= i + 1; ++ni)
+                    {
+                        for (int nk = k; nk <= k + 1; ++nk)
+                        {
+                            int n_index = nk + dimensional_nodes_[dk] * (nj + dimensional_nodes_[dj] * i);
+                            Node &node = nodes_[n_index];
+                            node.neighboring_surfaces.push_back(index);
+                        }
+                    }
+
+                    index += 1;
+                }
             }
         }
-        // Negative y boundary
-        for (int i = 0; i < dimensional_cells_[0]; ++i)
+
+        // Positive and negative (p = 0, 1) y boundaries
+        for (int p = 0; p < 2; ++p)
         {
-            int j = 0;
-            for (int k = 0; k < dimensional_cells_[2]; ++k)
+            int k = p == 0 ? 0 : dimensional_cells_[dk] - 1;
+            int nk = p == 0 ? 0 : dimensional_nodes_[dk] - 1;
+            double normal = p == 0 ? -1 : 1;
+            for (int i = 0; j < dimensional_cells_[di]; ++i)
             {
-                Surface surface;
-                surface.dimension = 1;
-                surface.normal = -1;
-                surface.neighboring_cell = k + dimensional_cells_[2] * (j + dimensional_cells_[1] * i);
-                surfaces_.push_back(surface);
-            }
-        }
-        // Positive y boundary
-        for (int i = 0; i < dimensional_cells_[0]; ++i)
-        {
-            int j = dimensional_cells_[1] - 1;
-            for (int k = 0; k < dimensional_cells_[2]; ++k)
-            {
-                Surface surface;
-                surface.dimension = 1;
-                surface.normal = 1;
-                surface.neighboring_cell = k + dimensional_cells_[2] * (j + dimensional_cells_[1] * i);
-                surfaces_.push_back(surface);
-            }
-        }
-        // Negative z boundary
-        for (int i = 0; i < dimensional_cells_[0]; ++i)
-        {
-            int k = 0;
-            for (int j = 0; j < dimensional_cells_[1]; ++j)
-            {
-                Surface surface;
-                surface.dimension = 2;
-                surface.normal = -1;
-                surface.neighboring_cell = k + dimensional_cells_[2] * (j + dimensional_cells_[1] * i);
-                surfaces_.push_back(surface);
-            }
-        }
-        // Positive z boundary
-        for (int i = 0; i < dimensional_cells_[0]; ++i)
-        {
-            int k = dimensional_cells_[2] - 1;
-            for (int j = 0; j < dimensional_cells_[1]; ++j)
-            {
-                Surface surface;
-                surface.dimension = 2;
-                surface.normal = 1;
-                surface.neighboring_cell = k + dimensional_cells_[2] * (j + dimensional_cells_[1] * i);
-                surfaces_.push_back(surface);
+                for (int j = 0; j < dimensional_cells_[dj]; ++j)
+                {
+                    Surface surface;
+                    surface.dimension = dk;
+                    surface.normal = normal;
+                    surface.neighboring_cell = k + dimensional_cells_[dk] * (j + dimensional_cells_[dj]* i);
+                    surfaces_.push_back(surface);
+                    
+                    for (int ni = i; ni <= i + 1; ++ni)
+                    {
+                        for (int nj = j; nj <= j + 1; ++nj)
+                        {
+                            int n_index = nk + dimensional_nodes_[dk] * (nj + dimensional_nodes_[dj] * i);
+                            Node &node = nodes_[n_index];
+                            node.neighboring_surfaces.push_back(index);
+                        }
+                    }
+                    
+                    index += 1;
+                }
             }
         }
         break;
@@ -1075,7 +1109,7 @@ initialize_connectivity()
                                           intersecting_nodes,
                                           distances);
         
-        // Add cells for these nodes to the weight indices
+        // Add weight indices to cells and surfaces
         for (int j = 0; j < number_of_intersecting_nodes; ++j)
         {
             Node &node = nodes_[intersecting_nodes[j]];
@@ -1083,6 +1117,11 @@ initialize_connectivity()
             for (int c_index : node.neighboring_cells)
             {
                 cells_[c_index].weight_indices.push_back(i);
+            }
+            
+            for (int s_index : node.neighboring_surfaces)
+            {
+                surfaces_[s_index].weight_indices.push_back(i);
             }
         }
     }
@@ -1095,7 +1134,7 @@ initialize_connectivity()
         double radius = get_inclusive_radius(basis->radius());
         vector<double> const position = basis->position();
         
-        // Find nodes that intersect with the weight function
+        // Find nodes that intersect with the basis function
         vector<int> intersecting_nodes;
         vector<double> distances;
         int number_of_intersecting_nodes
@@ -1104,7 +1143,7 @@ initialize_connectivity()
                                           intersecting_nodes,
                                           distances);
         
-        // Add cells for these nodes to the weight indices
+        // Add basis indices to cells and surfaces
         for (int j = 0; j < number_of_intersecting_nodes; ++j)
         {
             Node &node = nodes_[intersecting_nodes[j]];
@@ -1112,6 +1151,11 @@ initialize_connectivity()
             for (int c_index : node.neighboring_cells)
             {
                 cells_[c_index].basis_indices.push_back(i);
+            }
+
+            for (int s_index : node.neighboring_surfaces)
+            {
+                surfaces_[s_index].basis_indices.push_back(i);
             }
         }
     }
@@ -1129,6 +1173,19 @@ initialize_connectivity()
 
         cell.number_of_basis_functions = cell.basis_indices.size();
         cell.number_of_weight_functions = cell.weight_indices.size();
+    }
+    for (int i = 0; i < number_of_background_surfaces_; ++i)
+    {
+        Surface &surface = surfaces_[i];
+        
+        sort(surface.basis_indices.begin(), surface.basis_indices.end());
+        surface.basis_indices.erase(unique(surface.basis_indices.begin(), surface.basis_indices.end()), surface.basis_indices.end());
+        
+        sort(surface.weight_indices.begin(), surface.weight_indices.end());
+        surface.weight_indices.erase(unique(surface.weight_indices.begin(), surface.weight_indices.end()), surface.weight_indices.end());
+
+        surface.number_of_basis_functions = surface.basis_indices.size();
+        surface.number_of_weight_functions = surface.weight_indices.size();
     }
 }
 

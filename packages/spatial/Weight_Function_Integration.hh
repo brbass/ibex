@@ -54,6 +54,12 @@ public:
             
             // Connectivity
             int neighboring_cell;
+
+            // Intersections
+            int number_of_basis_functions;
+            int number_of_weight_functions;
+            std::vector<int> basis_indices;
+            std::vector<int> weight_indices;
         };
         
         Mesh(Weight_Function_Integration const &wfi,
