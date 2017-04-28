@@ -77,6 +77,11 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
                               number_of_ordinates,
                               ordinates,
                               weights);
+
+        // Get connectivity information
+        vector<vector<int> > weight_basis_indices;
+        get_cell_basis_indices(cell,
+                               weight_basis_indices);
         
         for (int q = 0; q < number_of_ordinates; ++q)
         {
@@ -109,6 +114,7 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
                                     b_grad,
                                     w_val,
                                     w_grad,
+                                    weight_basis_indices,
                                     integrals);
             add_volume_material(cell,
                                 weights[q],
@@ -147,6 +153,7 @@ add_volume_basis_weight(Mesh::cell const &cell,
                         vector<vector<double> > const &b_grad,
                         vector<double> const &w_val,
                         vector<vector<double> > const &w_grad,
+                        vector<vector<int> > weight_basis_indices,
                         vector<Weight_Function::Integrals> &integrals) const
 {
     int dimension = mesh_->dimension_;
@@ -154,16 +161,14 @@ add_volume_basis_weight(Mesh::cell const &cell,
     {
         // Add weight integral
         int w_ind = cell.weight_indices[i];
-        shared_ptr<Weight_Function> weight = weights_[j];
         
         for (int j = 0; j < cell.number_of_basis_functions; ++j)
         {
             int b_ind = cell.basis_indices[j];
-
-            if (weight->local_includes(b_ind))
+            int w_b_ind = weight_basis_indices[i][j];
+            
+            if (w_b_ind != Weight_Function::Errors::DOES_NOT_EXIST)
             {
-                int w_b_ind = weight->local_index(b_ind);
-
                 // Basis-weight integral
                 integrals[w_ind].iv_b_w[w_b_ind]
                     += quad_weight * w_val[i] * b_val[j];
@@ -198,7 +203,118 @@ add_volume_material(Mesh::cell const &cell,
                     shared_ptr<Material> point_material,
                     vector<Material_Data> &materials) const
 {
-    AssertMsg(false, "not yet implemented");
+    // Get size information
+    shared_ptr<Angular_Discretization> angular_discretization = point_material->angular_discretization();
+    shared_ptr<Energy_Discretization> energy_discretization = point_material->energy_discretization();
+    int number_of_groups = energy_discretization->number_of_groups();
+    int number_of_scattering_moments = angular_discretization->number_of_scattering_moments();
+    int number_of_moments = angular_discretization->number_of_moments();
+    vector<int> const scattering_indices = angular_discretization->scattering_indices();
+
+    // Get cross sections
+    vector<double> sigma_t = point_material->sigma_t()->data();
+    vector<double> sigma_s = point_material->sigma_s()->data();
+    vector<double> nu = point_material->nu()->data();
+    vector<double> sigma_f = point_material->sigma_f()->data();
+    vector<double> chi = point_material->chi()->data();
+    vector<double> internal_source = point_material->internal_source()->data();
+
+    // Get placeholder flux: change for flux weighting to work
+    vector<double> flux(number_of_groups * number_of_moments, 1);
+
+    // Add value to each of the weight functions
+    for (int i = 0; i < cell.number_of_weight_functions; ++i)
+    {
+        // Get weight function data
+        shared_ptr<Weight_Function> weight = weights_[cell.weight_indices[i]];
+        Weight_Function::Options options = weight->options();
+        Material_Data &material = materials[i];
+        int number_of_dimensional_moments = weight->number_of_dimensional_moments();
+        
+        switch (options.weighting)
+        {
+        case Weighting::POINT:
+            AssertMsg(false, "point weighting not compatible with external integration");
+            break;
+        case Weighting::WEIGHT:
+            for (int d = 0; d < number_of_dimensional_moments; ++d)
+            {
+                double wid = d == 0 ? w_val[i] : w_grad[i][d - 1];
+
+                // Norm 
+                norm[d] += wid * quad_weight;
+                
+                for (int g = 0; g < number_of_groups; ++g)
+                {
+                    // Total cross section and internal source
+                    int kt = d + number_of_dimensional_moments * g;
+                    
+                    material.sigma_t[kt] += sigma_t[g] * wid * quad_weight;
+                    material.internal_source[kt] += internal_source[g] * wid * quad_weight;
+                    
+                    for (int g2 = 0; g2 < number_of_groups; ++g2)
+                    {
+                        // Fission cross section
+                        int kf = d + number_of_dimensional_moments * (g2 + number_of_groups * g);
+                        material.sigma_f[kf] += chi[g] * nu[g2] * sigma_f[g2] * wid * quad_weight;
+                        
+                        for (int l = 0; l < number_of_scattering_moments; ++l)
+                        {
+                            // Scattering cross section
+                            int ks = d + number_of_dimensional_moments * (g2 + number_of_groups * (g + number_of_groups * l));
+                            int ks0 = g2 + number_of_groups * (g + number_of_groups * l);
+                            material.sigma_s[ks] += sigma_s[ks0] * wid * quad_weight;
+                        }
+                    }
+                }
+            }
+            break;
+        case Weighting::FLUX:
+            for (int d = 0; d < number_of_dimensional_moments; ++d)
+            {
+                double wid = d == 0 ? w_val[i] : w_grad[i][d - 1];
+                
+                for (int g = 0; g < number_of_groups; ++g)
+                {
+                    // Internal source
+                    int kn = d + number_of_dimensional_moments * g;
+                    material.internal_source[kt] += internal_source[g] * wid * quad_weight;
+
+                    for (int g2 = 0; g2 < number_of_groups; ++g2)
+                    {
+                        // Fission cross section
+                        int kf = d + number_of_dimensional_moments * (g2 + number_of_groups * g);
+                        int kx = g2 + number_of_groups * m;
+
+                        material.sigma_f[kf] += chi[g] * nu[g2] * sigma_f[g2] * flux[kx] * wid * quad_weight;
+                    }
+                    
+                    for (int m = 0; m < number_of_moments; ++m)
+                    {
+                        // Get scattering index
+                        int l = scattering_indices[m];
+                        
+                        // Total cross section and norm
+                        int kt = d + number_of_dimensional_moments * (g + number_of_groups * m);
+                        int kx = g + number_of_groups * m;
+                        material.sigma_t[kt] += flux[kx] * sigma_t[g] * wid * quad_weight;
+                        material.norm[kt] += flux[kx] * wid * quad_weight;
+                        
+                        for (int g2 = 0; g2 < number_of_groups; ++g2)
+                        {
+                            // Scattering cross section
+                            int ks = d + number_of_dimensional_moments * (g2 + number_of_groups * (g + number_of_groups * m));
+                            int ks0 = g2 + number_of_groups * (g + number_of_groups * l);
+                            int kxs = g2 + number_of_groups * m;
+                            
+                            material.sigma_s[ks] += sigma_s[ks0] * flux[kxs] wid * quad_weight;
+                        }
+                    }
+                }
+            }
+            break;
+        }
+    }
 }
 
 void Weight_Function_Integration::
@@ -210,6 +326,16 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals) const
         // Get surface data
         Mesh::Surface &surface = mesh_->surface_[i];
 
+        // Get local weight function indices for this surface
+        vector<int> weight_surface_indices;
+        get_weight_surface_indices(surface,
+                                   weight_surface_indices);
+
+        // Get local basis function indices for all weights
+        vector<vector<int> > weight_basis_indices;
+        get_surface_basis_indices(surface,
+                                  weight_basis_indices);
+        
         // Get quadrature
         int number_of_ordinates;
         vector<vector<double> > ordinates;
@@ -231,7 +357,15 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals) const
                                position,
                                b_val,
                                w_val);
-            
+
+            // Perform integration
+            add_surface_basis_weight(surface,
+                                     weights[q],
+                                     b_val,
+                                     w_val,
+                                     weight_surface_indices,
+                                     weight_basis_indices,
+                                     integrals)
             
         }
     }
@@ -242,9 +376,42 @@ add_surface_basis_weight(Mesh::Surface const &surface,
                          double quad_weight,
                          vector<double> const &b_val,
                          vector<double> const &w_val,
+                         vector<int> const &weight_surface_indices,
+                         vector<vector<int> > const &weight_basis_indices,
                          vector<Weight_Function::Integrals> &integrals) const
 {
-    AssertMsg(false, "not yet implemented");
+    for (int i = 0; i < surface.number_of_weight_functions; ++i)
+    {
+        int w_ind = surface.weight_indices[i];
+        int w_s_index = weight_surface_indices[i];
+        
+        if (surface_index != Weight_Function::Errors::DOES_NOT_EXIST)
+        {
+            for (int j = 0; j < surface.number_of_basis_functions; ++j)
+            {
+                int w_b_ind = weight_basis_indices[i][j];
+                
+                if (basis_index != Weight_Function::Errors::DOES_NOT_EXIST)
+                {
+                    integrals[w_ind].is_b_w[w_b_ind]
+                        += quad_weight * w_val[i] * b_val[j];
+                }
+            }
+        }
+    }
+}
+
+void Weight_Function_Integration::
+get_weight_surface_indices(Mesh::Surface const &surface,
+                           vector<int> &indices) const
+{
+    indices.assign(surface.number_of_weight_functions, Weight_Function::Errors::DOES_NOT_EXIST);
+    for (int i = 0; i < surface.number_of_weight_functions; ++i)
+    {
+        shared_ptr<Weight_Function> weight = weights_[surface.weight_indices[i]];
+        indices[i] = weight->local_surface_index(surface.dimension,
+                                                 surface.normal);
+    }
 }
 
 void Weight_Function_Integration::
@@ -255,7 +422,8 @@ put_integrals_into_weight(vector<Weight_Function::Integrals> const &integrals,
     {
         // Get material from material data
         shared_ptr<Material> material;
-        get_material(material_data[i]);
+        get_material(material_data[i],
+                     material);
 
         // Set the integrals to the weight functions
         weights_[i]->set_integrals(integrals[i],
@@ -265,7 +433,7 @@ put_integrals_into_weight(vector<Weight_Function::Integrals> const &integrals,
 
 void Weight_Function_Integration::
 get_material(Material_Data const &material_data,
-             shared_ptr<Material> &material)
+             shared_ptr<Material> &material) const
 {
     AssertMsg(false, "not yet implemented");
 }
@@ -665,6 +833,38 @@ initialize_materials(vector<Material_Data> &materials) const
             break;
         }
 
+    }
+}
+
+void Weight_Function_Integration::
+get_cell_basis_indices(Mesh::Cell const &cell,
+                       vector<vector<int> > &indices) const
+{
+    indices.assign(cell.number_of_weight_functions,
+                   vector<int>(cell.number_of_basis_functions, -1));
+    for (int i = 0; i < cell.number_of_weight_functions; ++i)
+    {
+        shared_ptr<Weight_Function> = weights_[cell.weight_indices[i]];
+        for (int j = 0; j < cell.number_of_basis_functions; ++j)
+        {
+            indices[i][j] = weight->local_basis_index(cell.basis_indices[j]);
+        }
+    }
+}
+
+void Weight_Function_Integration::
+get_surface_basis_indices(Mesh::Surface const &surface,
+                          vector<vector<int> > &indices) const
+{
+    indices.assign(surface.number_of_weight_functions,
+                   vector<int>(surface.number_of_basis_functions, -1));
+    for (int i = 0; i < surface.number_of_weight_functions; ++i)
+    {
+        shared_ptr<Weight_Function> = weights_[surface.weight_indices[i]];
+        for (int j = 0; j < surface.number_of_basis_functions; ++j)
+        {
+            indices[i][j] = weight->local_basis_index(surface.basis_indices[j]);
+        }
     }
 }
 

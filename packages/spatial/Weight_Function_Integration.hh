@@ -115,17 +115,15 @@ public:
     
 private:
 
-    // Perform all volume integrals
-    void perform_volume_integration(std::vector<Weight_Function::Integrals> &integrals,
-                                    std::vector<Material_Data> &materials) const;
-
-    // Perform all surface integrals
-    void perform_surface_integration(std::vector<Weight_Function::Integrals> &integrals) const;
-
     // Put volume, surface and material integrals into weight functions
     void put_integrals_into_weight(std::vector<Weight_Function::Integrals> const &integrals,
                                    std::vector<Material_Data> const &materials);
     
+    // Perform all volume integrals
+    void perform_volume_integration(std::vector<Weight_Function::Integrals> &integrals,
+                                    std::vector<Material_Data> &materials) const;
+
+
     // Add weight function cell values to global integrals
     void add_volume_weight(Mesh::Cell const &cell,
                            double quad_weight,
@@ -140,6 +138,7 @@ private:
                                  std::vector<std::vector<double> > const &b_grad,
                                  std::vector<double> const &w_val,
                                  std::vector<std::vector<double> > const &w_grad,
+                                 std::vector<std::vector<int> > const &weight_basis_indices,
                                  std::vector<Weight_Function::Integrals> &integrals) const;
 
     // Add material cell values to global integrals
@@ -149,20 +148,7 @@ private:
                              std::vector<std::vector<double> > const &w_grad,
                              shared_ptr<Material> point_material,
                              std::vector<Material_Data> &materials) const;
-
-    // Add basis/weight function surface values to global integrals
-    void add_surface_basis_weight(Mesh::Surface const &surface,
-                                  double quad_weight,
-                                  std::vector<double> const &b_val,
-                                  std::vector<double> const &w_val,
-                                  std::vector<Weight_Function::Integrals> &integrals) const;
     
-    // Initialize material data to zero
-    void initialize_materials(std::vector<Material_Data> &materials) const;
-
-    // Initialize integral data to zero
-    void initialize_integrals(std::vector<Weight_Function::Integrals> &integrals) const;
-
     // Get values for a single quadrature point in a cell
     void get_volume_values(Mesh::Cell const &cell,
                            std::vector<double> const &position,
@@ -172,17 +158,29 @@ private:
                            std::vector<std::vector<double> > &w_grad,
                            std::shared_ptr<Material> &point_material) const;
 
-    // Get values for a single quadrature point on a surface
-    void get_surface_values(Mesh::Surface const &surface,
-                            std::vector<double> const &position,
-                            std::vector<double> &b_val,
-                            std::vector<double> &w_val) const;
-
     // Get a Cartesian volume quadrature for the cell
     void get_volume_quadrature(int i, // cell index
                                int &number_of_ordinates,
                                std::vector<std::vector<double> > &ordinates,
                                std::vector<double> &weights) const;
+
+    // Perform all surface integrals
+    void perform_surface_integration(std::vector<Weight_Function::Integrals> &integrals) const;
+
+    // Add basis/weight function surface values to global integrals
+    void add_surface_basis_weight(Mesh::Surface const &surface,
+                                  double quad_weight,
+                                  std::vector<double> const &b_val,
+                                  std::vector<double> const &w_val,
+                                  std::vector<int> const &weight_surface_indices,
+                                  std::vector<std::vector<int> > const &weight_basis_indices,
+                                  std::vector<Weight_Function::Integrals> &integrals) const;
+    
+    // Get values for a single quadrature point on a surface
+    void get_surface_values(Mesh::Surface const &surface,
+                            std::vector<double> const &position,
+                            std::vector<double> &b_val,
+                            std::vector<double> &w_val) const;
 
     // Get a Cartesian surface quadrature for the surface
     void get_surface_quadrature(int i, // surface index
@@ -190,6 +188,28 @@ private:
                                 std::vector<std::vector<double> > &ordinates,
                                 vector<double> &weights) const;
     
+    // Get the local basis indices for the weight functions in a single cell
+    void get_cell_basis_indices(Mesh::Cell const &cell,
+                                 std::vector<std::vector<int> > &indices) const;
+    
+    // Get the local basis indices for the weight functions in a single surface
+    void get_surface_basis_indices(Mesh::Surface const &surface,
+                                   std::vector<std::vector<int> > &indices) const;
+
+    // Get the local surface indices for the weight functions intersecting with a surface
+    void get_weight_surface_indices(Mesh::Surface const &surface,
+                                    std::vector<int> &indices) const;
+
+    // Get a material from the material data
+    void get_material(Material_Data const &material_data,
+                      shared_ptr<Material> &material) const;
+    
+    // Initialize material data to zero
+    void initialize_materials(std::vector<Material_Data> &materials) const;
+
+    // Initialize integral data to zero
+    void initialize_integrals(std::vector<Weight_Function::Integrals> &integrals) const;
+
     // Data
     Weight_Function::Options options_;
     int number_of_points_;

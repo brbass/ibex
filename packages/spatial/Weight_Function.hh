@@ -14,6 +14,11 @@ class Solid_Geometry;
 class Weight_Function : public Point
 {
 public:
+
+    enum Errors
+    {
+        DOES_NOT_EXIST = -1;
+    };
     
     struct Options
     {
@@ -209,9 +214,12 @@ public:
     virtual void set_integrals(Weight_Function::Integrals const &integrals,
                                std::shared_ptr<Material> material);
     
-    // Get local from global basis function index
-    virtual bool local_includes(int global_index) const;
-    virtual int local_index(int global_index) const;
+    // Get local basis function index from from global basis function index
+    // Returns Errors::DOES_NOT_EXIST if none found
+    virtual int local_basis_index(int global_index) const;
+    
+    // Get local surface index from global surface index
+    
     
 private:
 
@@ -268,6 +276,7 @@ private:
     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces_;
     std::vector<std::shared_ptr<Cartesian_Plane> > weighted_boundary_surfaces_;
     std::unordered_map<int, int> basis_global_indices_;
+    std::vector<int> local_surface_indices_;
     
     // Calculated data
     std::vector<double> min_boundary_limits_;

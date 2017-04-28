@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <limits>
+#include <stdexcept>
 
 #include "Angular_Discretization.hh"
 #include "Basis_Function.hh"
@@ -91,8 +92,10 @@ set_options_and_limits()
     double lim = numeric_limits<double>::max();
     min_boundary_limits_.assign(dimension_, -lim);
     max_boundary_limits_.assign(dimension_, lim);
-    for (shared_ptr<Cartesian_Plane> surface : boundary_surfaces_)
+    local_surface_indices_.assign(dimension_ * 2, Errors::DOES_NOT_EXIST);
+    for (int i = 0; i < number_of_boundary_surfaces_; ++i)
     {
+        shared_ptr<Cartesian_Plane> surface = boundary_surfaces_[i];
         int dim_sur = surface->surface_dimension();
         double pos_sur = surface->position();
         double n_sur = surface->normal();
@@ -100,10 +103,12 @@ set_options_and_limits()
         if (n_sur < 0)
         {
             min_boundary_limits_[dim_sur] = max(min_boundary_limits_[dim_sur], pos_sur);
+            local_surface_indices_[0 + 2 * dim_sur] = i;
         }
         else
         {
             max_boundary_limits_[dim_sur] = min(max_boundary_limits_[dim_sur], pos_sur);
+            local_surface_indices_[1 + 2 * dim_sur] = i;
         }
     }
     
@@ -1326,21 +1331,29 @@ set_integrals(Weight_Function::Integrals const &integrals,
     check_class_invariants();
 }
 
-bool Weight_Function::
-local_includes(int global_index) const
+int Weight_Function::
+local_basis_index(int global_index) const
 {
     if (basis_global_indices_.count(global_index) > 0)
     {
-        return true;
+        return basis_global_indices_.at(global_index);
     }
     else
     {
-        return false;
+        return Errors::DOES_NOT_EXIST;
     }
 }
 
 int Weight_Function::
-local_index(int global_index) const
+local_surface_index(int surface_dimension,
+                    double normal)
 {
-    return basis_global_indices_.at(global_index);
+    if (normal < 0)
+    {
+        return local_surface_indices_[2 * surface_dimension];
+    }
+    else
+    {
+        return local_surface_indices_[1 + 2 * surface_dimension];
+    }
 }
