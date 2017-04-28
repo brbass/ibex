@@ -17,7 +17,8 @@ Material(int index,
          shared_ptr<Cross_Section> nu,
          shared_ptr<Cross_Section> sigma_f,
          shared_ptr<Cross_Section> chi,
-         shared_ptr<Cross_Section> internal_source):
+         shared_ptr<Cross_Section> internal_source,
+         shared_ptr<Cross_Section> norm):
     index_(index),
     angular_discretization_(angular_discretization),
     energy_discretization_(energy_discretization),
@@ -26,7 +27,8 @@ Material(int index,
     nu_(nu),
     sigma_f_(sigma_f),
     chi_(chi),
-    internal_source_(internal_source)
+    internal_source_(internal_source),
+    norm_(norm)
 {
     check_class_invariants();
 }

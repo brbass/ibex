@@ -3,10 +3,14 @@
 #include <algorithm>
 #include <cmath>
 
+#include "Angular_Discretization.hh"
 #include "Basis_Function.hh"
 #include "Check.hh"
+#include "Cross_Section.hh"
+#include "Energy_Discretization.hh"
 #include "KD_Tree.hh"
 #include "Material.hh"
+#include "Meshless_Function.hh"
 #include "Solid_Geometry.hh"
 #include "Quadrature_Rule.hh"
 #include "Weight_Function.hh"
@@ -49,14 +53,14 @@ perform_integration()
 
     // Perform volume integration
     perform_volume_integration(integrals,
-                               material);
+                               materials);
 
     // Perform surface integration
     perform_surface_integration(integrals);
 
     // Put results into weight functions and materials
     put_integrals_into_weight(integrals,
-                              material);
+                              materials);
 }
 
 void Weight_Function_Integration::
@@ -67,7 +71,7 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
     for (int i = 0; i < mesh_->number_of_background_cells_; ++i)
     {
         // Get cell data
-        Mesh::Cell &cell = mesh_->cell_[i];
+        Mesh::Cell &cell = mesh_->cells_[i];
         
         // Get quadrature
         int number_of_ordinates;
@@ -120,13 +124,14 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
                                 weights[q],
                                 w_val,
                                 w_grad,
+                                point_material,
                                 materials);
         }
     }
 }
 
 void Weight_Function_Integration::
-add_volume_weight(Mesh::cell const &cell,
+add_volume_weight(Mesh::Cell const &cell,
                   double quad_weight,
                   vector<double> const &w_val,
                   vector<vector<double> > const &w_grad,
@@ -147,13 +152,13 @@ add_volume_weight(Mesh::cell const &cell,
 }
 
 void Weight_Function_Integration::
-add_volume_basis_weight(Mesh::cell const &cell,
+add_volume_basis_weight(Mesh::Cell const &cell,
                         double quad_weight,
                         vector<double> const &b_val,
                         vector<vector<double> > const &b_grad,
                         vector<double> const &w_val,
                         vector<vector<double> > const &w_grad,
-                        vector<vector<int> > weight_basis_indices,
+                        vector<vector<int> > const &weight_basis_indices,
                         vector<Weight_Function::Integrals> &integrals) const
 {
     int dimension = mesh_->dimension_;
@@ -178,9 +183,9 @@ add_volume_basis_weight(Mesh::cell const &cell,
                 {
                     int k1 = d1 + dimension * w_b_ind;
                     integrals[w_ind].iv_b_dw[k1]
-                        += quad_weight * w_grad[i][d] * b_val[j];
+                        += quad_weight * w_grad[i][d1] * b_val[j];
                     integrals[w_ind].iv_db_w[k1]
-                        += quad_weight * w_val[i] * db_val[j][d];
+                        += quad_weight * w_val[i] * b_grad[j][d1];
 
                     for (int d2 = 0; d2 < dimension; ++d2)
                     {
@@ -196,7 +201,7 @@ add_volume_basis_weight(Mesh::cell const &cell,
 }
 
 void Weight_Function_Integration::
-add_volume_material(Mesh::cell const &cell,
+add_volume_material(Mesh::Cell const &cell,
                     double quad_weight,
                     vector<double> const &w_val,
                     vector<vector<double> > const &w_grad,
@@ -233,16 +238,16 @@ add_volume_material(Mesh::cell const &cell,
         
         switch (options.weighting)
         {
-        case Weighting::POINT:
+        case Weight_Function::Options::Weighting::POINT:
             AssertMsg(false, "point weighting not compatible with external integration");
             break;
-        case Weighting::WEIGHT:
+        case Weight_Function::Options::Weighting::WEIGHT:
             for (int d = 0; d < number_of_dimensional_moments; ++d)
             {
                 double wid = d == 0 ? w_val[i] : w_grad[i][d - 1];
 
                 // Norm 
-                norm[d] += wid * quad_weight;
+                material.norm[d] += wid * quad_weight;
                 
                 for (int g = 0; g < number_of_groups; ++g)
                 {
@@ -269,7 +274,7 @@ add_volume_material(Mesh::cell const &cell,
                 }
             }
             break;
-        case Weighting::FLUX:
+        case Weight_Function::Options::Weighting::FLUX:
             for (int d = 0; d < number_of_dimensional_moments; ++d)
             {
                 double wid = d == 0 ? w_val[i] : w_grad[i][d - 1];
@@ -278,13 +283,14 @@ add_volume_material(Mesh::cell const &cell,
                 {
                     // Internal source
                     int kn = d + number_of_dimensional_moments * g;
-                    material.internal_source[kt] += internal_source[g] * wid * quad_weight;
+                    material.internal_source[kn] += internal_source[g] * wid * quad_weight;
 
                     for (int g2 = 0; g2 < number_of_groups; ++g2)
                     {
                         // Fission cross section
+                        int m0 = 0;
                         int kf = d + number_of_dimensional_moments * (g2 + number_of_groups * g);
-                        int kx = g2 + number_of_groups * m;
+                        int kx = g2 + number_of_groups * m0;
 
                         material.sigma_f[kf] += chi[g] * nu[g2] * sigma_f[g2] * flux[kx] * wid * quad_weight;
                     }
@@ -307,7 +313,7 @@ add_volume_material(Mesh::cell const &cell,
                             int ks0 = g2 + number_of_groups * (g + number_of_groups * l);
                             int kxs = g2 + number_of_groups * m;
                             
-                            material.sigma_s[ks] += sigma_s[ks0] * flux[kxs] wid * quad_weight;
+                            material.sigma_s[ks] += sigma_s[ks0] * flux[kxs] * wid * quad_weight;
                         }
                     }
                 }
@@ -324,7 +330,7 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals) const
     for (int i = 0; i < mesh_->number_of_background_surfaces_; ++i)
     {
         // Get surface data
-        Mesh::Surface &surface = mesh_->surface_[i];
+        Mesh::Surface &surface = mesh_->surfaces_[i];
 
         // Get local weight function indices for this surface
         vector<int> weight_surface_indices;
@@ -365,8 +371,7 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals) const
                                      w_val,
                                      weight_surface_indices,
                                      weight_basis_indices,
-                                     integrals)
-            
+                                     integrals);
         }
     }
 }
@@ -382,18 +387,20 @@ add_surface_basis_weight(Mesh::Surface const &surface,
 {
     for (int i = 0; i < surface.number_of_weight_functions; ++i)
     {
-        int w_ind = surface.weight_indices[i];
-        int w_s_index = weight_surface_indices[i];
+        int w_ind = surface.weight_indices[i]; // global weight index
+        int w_s_ind = weight_surface_indices[i]; // local surface index for weight
+        int number_of_boundary_surfaces = weights_[w_ind]->number_of_boundary_surfaces();
         
-        if (surface_index != Weight_Function::Errors::DOES_NOT_EXIST)
+        if (w_s_ind != Weight_Function::Errors::DOES_NOT_EXIST)
         {
             for (int j = 0; j < surface.number_of_basis_functions; ++j)
             {
-                int w_b_ind = weight_basis_indices[i][j];
+                int w_b_ind = weight_basis_indices[i][j]; // local basis index for weight
                 
-                if (basis_index != Weight_Function::Errors::DOES_NOT_EXIST)
+                if (w_b_ind != Weight_Function::Errors::DOES_NOT_EXIST)
                 {
-                    integrals[w_ind].is_b_w[w_b_ind]
+                    int i_ind = w_s_ind + number_of_boundary_surfaces * w_b_ind;
+                    integrals[w_ind].is_b_w[i_ind]
                         += quad_weight * w_val[i] * b_val[j];
                 }
             }
@@ -422,9 +429,10 @@ put_integrals_into_weight(vector<Weight_Function::Integrals> const &integrals,
     {
         // Get material from material data
         shared_ptr<Material> material;
-        get_material(material_data[i],
+        get_material(i,
+                     material_data[i],
                      material);
-
+        
         // Set the integrals to the weight functions
         weights_[i]->set_integrals(integrals[i],
                                    material);
@@ -432,10 +440,107 @@ put_integrals_into_weight(vector<Weight_Function::Integrals> const &integrals,
 }
 
 void Weight_Function_Integration::
-get_material(Material_Data const &material_data,
+get_material(int index,
+             Material_Data const &material_data,
              shared_ptr<Material> &material) const
 {
-    AssertMsg(false, "not yet implemented");
+    // Get angular and energy discretizations
+    shared_ptr<Angular_Discretization> angular = material->angular_discretization();
+    shared_ptr<Energy_Discretization> energy = material->energy_discretization();
+    
+    // Get dependencies : all initialized to none
+    Cross_Section::Dependencies sigma_t_deps;
+    Cross_Section::Dependencies sigma_s_deps;
+    Cross_Section::Dependencies nu_deps;
+    Cross_Section::Dependencies sigma_f_deps;
+    Cross_Section::Dependencies chi_deps;
+    Cross_Section::Dependencies internal_source_deps;
+    Cross_Section::Dependencies norm_deps;
+
+    // Set energy dependence
+    sigma_t_deps.energy = Cross_Section::Dependencies::Energy::GROUP;
+    sigma_s_deps.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
+    sigma_f_deps.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
+    internal_source_deps.energy = Cross_Section::Dependencies::Energy::GROUP;
+
+    // Set weighting dependent dependencies
+    switch (options_.weighting)
+    {
+    case Weight_Function::Options::Weighting::POINT:
+        AssertMsg(false, "point weighting not compatible with external integration");
+        break;
+    case Weight_Function::Options::Weighting::WEIGHT:
+        break;
+    case Weight_Function::Options::Weighting::FLUX:
+        sigma_t_deps.angular = Cross_Section::Dependencies::Angular::MOMENTS;
+        sigma_s_deps.angular = Cross_Section::Dependencies::Angular::MOMENTS;
+        norm_deps.angular = Cross_Section::Dependencies::Angular::MOMENTS;
+        norm_deps.energy = Cross_Section::Dependencies::Energy::GROUP;
+        break;
+    }
+
+    // Set SUPG dependencies
+    switch (options_.output)
+    {
+    case Weight_Function::Options::Output::STANDARD:
+        break;
+    case Weight_Function::Options::Output::SUPG:
+        sigma_t_deps.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
+        sigma_s_deps.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
+        sigma_f_deps.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
+        internal_source_deps.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
+        norm_deps.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
+        break;
+    }
+    
+    // Get cross sections
+    shared_ptr<Cross_Section> sigma_t
+        = make_shared<Cross_Section>(sigma_t_deps,
+                                     angular,
+                                     energy,
+                                     material_data.sigma_t);
+    shared_ptr<Cross_Section> sigma_s
+        = make_shared<Cross_Section>(sigma_s_deps,
+                                     angular,
+                                     energy,
+                                     material_data.sigma_s);
+    shared_ptr<Cross_Section> nu
+        = make_shared<Cross_Section>(nu_deps,
+                                     angular,
+                                     energy,
+                                     material_data.nu);
+    shared_ptr<Cross_Section> sigma_f
+        = make_shared<Cross_Section>(sigma_f_deps,
+                                     angular,
+                                     energy,
+                                     material_data.sigma_f);
+    shared_ptr<Cross_Section> chi
+        = make_shared<Cross_Section>(chi_deps,
+                                     angular,
+                                     energy,
+                                     material_data.chi);
+    shared_ptr<Cross_Section> internal_source
+        = make_shared<Cross_Section>(internal_source_deps,
+                                     angular,
+                                     energy,
+                                     material_data.internal_source);
+    shared_ptr<Cross_Section> norm
+        = make_shared<Cross_Section>(norm_deps,
+                                     angular,
+                                     energy,
+                                     material_data.norm);
+
+    // Create material
+    material = make_shared<Material>(index,
+                                     angular,
+                                     energy,
+                                     sigma_t,
+                                     sigma_s,
+                                     nu,
+                                     sigma_f,
+                                     chi,
+                                     internal_source,
+                                     norm);
 }
 
 void Weight_Function_Integration::
@@ -509,8 +614,8 @@ get_surface_quadrature(int i,
                        vector<double> &weights) const
 {
     // Get limits of integration
-    Surface const &surface = surfaces_[i];
-    Cell const &cell = cells_[surface.neighboring_cell];
+    Mesh::Surface const &surface = mesh_->surfaces_[i];
+    Mesh::Cell const &cell = mesh_->cells_[surface.neighboring_cell];
     vector<vector<double> > const &limits = cell.limits;
     int const number_of_integration_ordinates = options_.integration_ordinates;
     int const dx = 0;
@@ -530,16 +635,16 @@ get_surface_quadrature(int i,
     {
     case 1:
         number_of_ordinates = 1;
-        if (normal < 0)
+        if (surface.normal < 0)
         {
             // At negative x boundary
-            ordinates.assign(1, limits[dx][min]);
+            ordinates.assign(1, vector<double>(1, limits[dx][min]));
             weights.assign(1, 1.);
         }
         else
         {
             // At positive x boundary
-            ordinates.assign(1, limits[dx][max]);
+            ordinates.assign(1, vector<double>(1, limits[dx][max]));
             weights.assign(1, 1.);
         }
         break;
@@ -554,7 +659,7 @@ get_surface_quadrature(int i,
                                           ordinates_y,
                                           weights);
             number_of_ordinates = weights.size();
-            if (normal < 0)
+            if (surface.normal < 0)
             {
                 // At negative x boundary
                 ordinates_x.assign(number_of_ordinates,
@@ -575,7 +680,7 @@ get_surface_quadrature(int i,
                                           ordinates_x,
                                           weights);
             number_of_ordinates = weights.size();
-            if (normal < 0)
+            if (surface.normal < 0)
             {
                 // At negative x boundary
                 ordinates_y.assign(number_of_ordinates,
@@ -609,7 +714,7 @@ get_surface_quadrature(int i,
                                           ordinates_z,
                                           weights);
             number_of_ordinates = weights.size();
-            if (normal < 0)
+            if (surface.normal < 0)
             {
                 // At negative x boundary
                 ordinates_x.assign(number_of_ordinates,
@@ -635,7 +740,7 @@ get_surface_quadrature(int i,
                                           ordinates_z,
                                           weights);
             number_of_ordinates = weights.size();
-            if (normal < 0)
+            if (surface.normal < 0)
             {
                 // At negative y boundary
                 ordinates_y.assign(number_of_ordinates,
@@ -661,7 +766,7 @@ get_surface_quadrature(int i,
                                           ordinates_y,
                                           weights);
             number_of_ordinates = weights.size();
-            if (normal < 0)
+            if (surface.normal < 0)
             {
                 // At negative z boundary
                 ordinates_z.assign(number_of_ordinates,
@@ -685,11 +790,12 @@ get_surface_quadrature(int i,
 
 void Weight_Function_Integration::
 get_volume_quadrature(int i,
+                      int &number_of_ordinates,
                       vector<vector<double> > &ordinates,
                       vector<double> &weights) const
 {
     // Get limits of integration
-    Cell const &cell = cells_[i];
+    Mesh::Cell const &cell = mesh_->cells_[i];
     vector<vector<double> > const &limits = cell.limits;
     int const number_of_integration_ordinates = options_.integration_ordinates;
     int const dx = 0;
@@ -750,7 +856,7 @@ get_volume_quadrature(int i,
                                       ordinates_y,
                                       ordinates_z,
                                       weights);
-        Quadrature_Rule::convert_to_position_3d(ordiantes_x,
+        Quadrature_Rule::convert_to_position_3d(ordinates_x,
                                                 ordinates_y,
                                                 ordinates_z,
                                                 ordinates);
@@ -769,13 +875,13 @@ initialize_integrals(vector<Weight_Function::Integrals> &integrals) const
         int number_of_basis_functions = weight->number_of_basis_functions();
         Weight_Function::Integrals &local_integrals = integrals[i];
         local_integrals.is_w.assign(number_of_boundary_surfaces, 0.);
-        local_integrals.is_b_w.assign(number_of_boundary_surfaces * number_of_basis_functions);
+        local_integrals.is_b_w.assign(number_of_boundary_surfaces * number_of_basis_functions, 0);
         local_integrals.iv_w.assign(1, 0.);
-        local_integrals.iv_dw.assign(dimension_, 0);
+        local_integrals.iv_dw.assign(mesh_->dimension_, 0);
         local_integrals.iv_b_w.assign(number_of_basis_functions, 0);
-        local_integrals.iv_b_dw.assign(number_of_basis_functions * dimension_, 0);
-        local_integrals.iv_db_w.assign(number_of_basis_functions * dimension_, 0);
-        local_integrals.iv_db_dw.assign(number_of_basis_functions * dimension_ * dimension_, 0);
+        local_integrals.iv_b_dw.assign(number_of_basis_functions * mesh_->dimension_, 0);
+        local_integrals.iv_db_w.assign(number_of_basis_functions * mesh_->dimension_, 0);
+        local_integrals.iv_db_dw.assign(number_of_basis_functions * mesh_->dimension_ * mesh_->dimension_, 0);
     }
 }
 
@@ -783,7 +889,7 @@ void Weight_Function_Integration::
 initialize_materials(vector<Material_Data> &materials) const
 {
     // Get material data
-    shared_ptr<Material> test_material = solid_geometry_->material(weights_[0]->position());
+    shared_ptr<Material> test_material = solid_->material(weights_[0]->position());
     shared_ptr<Angular_Discretization> angular_discretization = test_material->angular_discretization();
     shared_ptr<Energy_Discretization> energy_discretization = test_material->energy_discretization();
     int number_of_groups = energy_discretization->number_of_groups();
@@ -810,7 +916,7 @@ initialize_materials(vector<Material_Data> &materials) const
             material.sigma_s.assign(number_of_dimensional_moments
                                     * number_of_groups
                                     * number_of_groups
-                                    * number_of_scatteirng_moments, 0);
+                                    * number_of_scattering_moments, 0);
             material.sigma_f.assign(number_of_dimensional_moments
                                     * number_of_groups
                                     * number_of_groups, 0);
@@ -844,7 +950,7 @@ get_cell_basis_indices(Mesh::Cell const &cell,
                    vector<int>(cell.number_of_basis_functions, -1));
     for (int i = 0; i < cell.number_of_weight_functions; ++i)
     {
-        shared_ptr<Weight_Function> = weights_[cell.weight_indices[i]];
+        shared_ptr<Weight_Function> weight = weights_[cell.weight_indices[i]];
         for (int j = 0; j < cell.number_of_basis_functions; ++j)
         {
             indices[i][j] = weight->local_basis_index(cell.basis_indices[j]);
@@ -860,7 +966,7 @@ get_surface_basis_indices(Mesh::Surface const &surface,
                    vector<int>(surface.number_of_basis_functions, -1));
     for (int i = 0; i < surface.number_of_weight_functions; ++i)
     {
-        shared_ptr<Weight_Function> = weights_[surface.weight_indices[i]];
+        shared_ptr<Weight_Function> weight = weights_[surface.weight_indices[i]];
         for (int j = 0; j < surface.number_of_basis_functions; ++j)
         {
             indices[i][j] = weight->local_basis_index(surface.basis_indices[j]);
@@ -1099,7 +1205,7 @@ initialize_mesh()
         surfaces_[1].normal = 1;
         surfaces_[0].neighboring_cell = 0;
         surfaces_[1].neighboring_cell = number_of_background_cells_ - 1;
-        nodes_[0].neigboring_surfaces.push_back(0);
+        nodes_[0].neighboring_surfaces.push_back(0);
         nodes_[dimensional_nodes_[0] - 1].neighboring_surfaces.push_back(1);
         break;
     }
@@ -1244,7 +1350,7 @@ initialize_mesh()
             int k = p == 0 ? 0 : dimensional_cells_[dk] - 1;
             int nk = p == 0 ? 0 : dimensional_nodes_[dk] - 1;
             double normal = p == 0 ? -1 : 1;
-            for (int i = 0; j < dimensional_cells_[di]; ++i)
+            for (int i = 0; i < dimensional_cells_[di]; ++i)
             {
                 for (int j = 0; j < dimensional_cells_[dj]; ++j)
                 {

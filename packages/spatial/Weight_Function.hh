@@ -17,7 +17,7 @@ public:
 
     enum Errors
     {
-        DOES_NOT_EXIST = -1;
+        DOES_NOT_EXIST = -1
     };
     
     struct Options
@@ -219,7 +219,8 @@ public:
     virtual int local_basis_index(int global_index) const;
     
     // Get local surface index from global surface index
-    
+    virtual int local_surface_index(int surface_dimension,
+                                    double normal) const;
     
 private:
 

@@ -24,7 +24,8 @@ public:
              std::shared_ptr<Cross_Section> nu,
              std::shared_ptr<Cross_Section> sigma_f,
              std::shared_ptr<Cross_Section> chi,
-             std::shared_ptr<Cross_Section> internal_source);
+             std::shared_ptr<Cross_Section> internal_source,
+             std::shared_ptr<Cross_Section> norm = std::shared_ptr<Cross_Section>());
     
     // Material index
     virtual int index() const
@@ -68,6 +69,12 @@ public:
         return internal_source_;
     }
 
+    // Norm
+    virtual std::shared_ptr<Cross_Section> norm() const
+    {
+        return norm_;
+    }
+    
     // Angular discretization
     virtual std::shared_ptr<Angular_Discretization> angular_discretization() const
     {
@@ -99,6 +106,7 @@ protected:
     std::shared_ptr<Cross_Section> sigma_f_;
     std::shared_ptr<Cross_Section> chi_;
     std::shared_ptr<Cross_Section> internal_source_;
+    std::shared_ptr<Cross_Section> norm_;
 };
 
 #endif

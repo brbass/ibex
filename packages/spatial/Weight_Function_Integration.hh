@@ -8,6 +8,7 @@
 
 class Basis_Function;
 class KD_Tree;
+class Material;
 class Solid_Geometry;
 
 class Weight_Function_Integration
@@ -146,7 +147,7 @@ private:
                              double quad_weight,
                              std::vector<double> const &w_val,
                              std::vector<std::vector<double> > const &w_grad,
-                             shared_ptr<Material> point_material,
+                             std::shared_ptr<Material> point_material,
                              std::vector<Material_Data> &materials) const;
     
     // Get values for a single quadrature point in a cell
@@ -186,7 +187,7 @@ private:
     void get_surface_quadrature(int i, // surface index
                                 int &number_of_ordinates,
                                 std::vector<std::vector<double> > &ordinates,
-                                vector<double> &weights) const;
+                                std::vector<double> &weights) const;
     
     // Get the local basis indices for the weight functions in a single cell
     void get_cell_basis_indices(Mesh::Cell const &cell,
@@ -201,8 +202,9 @@ private:
                                     std::vector<int> &indices) const;
 
     // Get a material from the material data
-    void get_material(Material_Data const &material_data,
-                      shared_ptr<Material> &material) const;
+    void get_material(int index,
+                      Material_Data const &material_data,
+                      std::shared_ptr<Material> &material) const;
     
     // Initialize material data to zero
     void initialize_materials(std::vector<Material_Data> &materials) const;

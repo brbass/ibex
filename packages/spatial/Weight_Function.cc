@@ -1325,7 +1325,7 @@ set_integrals(Weight_Function::Integrals const &integrals,
     // Set integral data
     integrals_ = integrals;
     material = material;
-
+    
     // Complete initialization
     calculate_boundary_source();
     check_class_invariants();
@@ -1346,7 +1346,7 @@ local_basis_index(int global_index) const
 
 int Weight_Function::
 local_surface_index(int surface_dimension,
-                    double normal)
+                    double normal) const
 {
     if (normal < 0)
     {
