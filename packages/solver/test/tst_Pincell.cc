@@ -375,6 +375,7 @@ int run_tests()
     for (Weight_Function::Options weight_options : weight_options_vals)
     {
         weight_options.integration_ordinates = 128;
+        weight_options.external_integral_calculation = true;
         weight_options.tau_const = 1.0;
         weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
 
@@ -404,7 +405,8 @@ int run_tests()
     // Run 2D problems
     for (Weight_Function::Options weight_options : weight_options_vals)
     {
-        weight_options.integration_ordinates = 64;
+        weight_options.integration_ordinates = 16;
+        weight_options.external_integral_calculation = true;
         weight_options.tau_const = 1.0;
         weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
 

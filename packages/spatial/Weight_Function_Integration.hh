@@ -126,7 +126,9 @@ private:
     void perform_volume_integration(std::vector<Weight_Function::Integrals> &integrals,
                                     std::vector<Material_Data> &materials) const;
 
-
+    // Normalize the material integrals, if applicable
+    void normalize_materials(std::vector<Material_Data> &materials) const;
+    
     // Add weight function cell values to global integrals
     void add_volume_weight(Mesh::Cell const &cell,
                            double quad_weight,

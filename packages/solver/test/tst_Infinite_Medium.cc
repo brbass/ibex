@@ -506,7 +506,7 @@ int main(int argc, char **argv)
     // Run 1D problems
     for (Weight_Function::Options weight_options : weight_options_vals)
     {
-        weight_options.integration_ordinates = 128;
+        weight_options.integration_ordinates = 32;
         weight_options.tau_const = 1.0;
         weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
 

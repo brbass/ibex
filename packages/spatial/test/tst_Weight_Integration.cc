@@ -347,9 +347,9 @@ int run_tests()
                                  "wendland11",
                                  "wendland11",
                                  options,
-                                 2, // dimension
-                                 1, // angular_rule
-                                 5, // number_of_points
+                                 1, // dimension
+                                 2, // angular_rule
+                                 9, // number_of_points
                                  3., // number_of_intervals
                                  1e-8); // tolerance
     

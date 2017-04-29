@@ -59,6 +59,7 @@ perform_integration()
     // Perform volume integration
     perform_volume_integration(integrals,
                                materials);
+    normalize_materials(materials);
 
     // Perform surface integration
     perform_surface_integration(integrals);
@@ -131,6 +132,107 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
                                 w_grad,
                                 point_material,
                                 materials);
+        }
+    }
+}
+
+void Weight_Function_Integration::
+normalize_materials(vector<Material_Data> &materials) const
+{
+    // Normalize only if requested
+    if (options_.normalized)
+    {
+        int number_of_groups = energy_->number_of_groups();
+        int number_of_scattering_moments = angular_->number_of_scattering_moments();
+        int number_of_moments = angular_->number_of_moments();
+    
+        for (int i = 0; i < number_of_points_; ++i)
+        {
+            shared_ptr<Weight_Function> weight = weights_[i];
+            Weight_Function::Options options = weight->options();
+            int number_of_dimensional_moments = weight->number_of_dimensional_moments();
+            Material_Data &material = materials[i];
+            
+            switch (options.weighting)
+            {
+            case Weight_Function::Options::Weighting::POINT:
+                AssertMsg(false, "point weighting not compatible with external integration");
+                break;
+            case Weight_Function::Options::Weighting::WEIGHT:
+                for (int d = 0; d < number_of_dimensional_moments; ++d)
+                {
+                    // Total cross section
+                    for (int g = 0; g < number_of_groups; ++g)
+                    {
+                        int kt = d + number_of_dimensional_moments * g;
+                        material.sigma_t[kt] /= material.norm[d];
+                    }
+
+                    // Fission cross section
+                    for (int g1 = 0; g1 < number_of_groups; ++g1)
+                    {
+                        for (int g2 = 0; g2 < number_of_groups; ++g2)
+                        {
+                            int kf = d + number_of_dimensional_moments * (g2 + number_of_groups * g1);
+                            material.sigma_f[kf] /= material.norm[d];
+                        }
+                    }
+
+                    // Scattering cross section
+                    for (int l = 0; l < number_of_scattering_moments; ++l)
+                    {
+                        for (int g1 = 0; g1 < number_of_groups; ++g1)
+                        {
+                            for (int g2 = 0; g2 < number_of_groups; ++g2)
+                            {
+                                int ks = d + number_of_dimensional_moments * (g2 + number_of_groups * (g1 + number_of_groups * l));
+                                material.sigma_s[ks] /= material.norm[d];
+                            }
+                        }
+                    }
+                }
+                break;
+            case Weight_Function::Options::Weighting::FLUX:
+                for (int d = 0; d < number_of_dimensional_moments; ++d)
+                {
+                    // Total cross section
+                    for (int m = 0; m < number_of_moments; ++m)
+                    {
+                        for (int g = 0; g < number_of_groups; ++g)
+                        {
+                            int kt = d + number_of_dimensional_moments * (g + number_of_groups * m);
+                            int kn = d + number_of_dimensional_moments * (g + number_of_groups * m);
+                            material.sigma_t[kt] /= material.norm[kn];
+                        }
+                    }
+
+                    // Fission cross section
+                    for (int g1 = 0; g1 < number_of_groups; ++g1)
+                    {
+                        for (int g2 = 0; g2 < number_of_groups; ++g2)
+                        {
+                            int kf = d + number_of_dimensional_moments * (g2 + number_of_groups * g1);
+                            int kn = d + number_of_dimensional_moments * (g2 + number_of_groups * 0);
+                            material.sigma_f[kf] /= material.norm[d];
+                        }
+                    }
+
+                    // Scattering cross section
+                    for (int m = 0; m < number_of_scattering_moments; ++m)
+                    {
+                        for (int g1 = 0; g1 < number_of_groups; ++g1)
+                        {
+                            for (int g2 = 0; g2 < number_of_groups; ++g2)
+                            {
+                                int ks = d + number_of_dimensional_moments * (g2 + number_of_groups * (g1 + number_of_groups * m));
+                                int kn = d + number_of_dimensional_moments * (g2 + number_of_groups * m);
+                                material.sigma_s[ks] /= material.norm[kn];
+                            }
+                        }
+                    }
+                }
+                break;
+            }
         }
     }
 }
@@ -495,6 +597,7 @@ get_material(int index,
         AssertMsg(false, "point weighting not compatible with external integration");
         break;
     case Weight_Function::Options::Weighting::WEIGHT:
+        sigma_s_deps.angular = Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS;
         break;
     case Weight_Function::Options::Weighting::FLUX:
         sigma_t_deps.angular = Cross_Section::Dependencies::Angular::MOMENTS;

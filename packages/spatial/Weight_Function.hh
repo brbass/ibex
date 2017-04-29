@@ -60,10 +60,10 @@ public:
         bool include_supg = false;
         bool normalized = true;
         double tau; // SUPG parameter (tau_const / shape)
-        bool external_integral_calculation = false;
+        bool external_integral_calculation = true;
         
         // Parameters for the user to set
-        int integration_ordinates = 32; // Dimensional integration quadrature
+        int integration_ordinates = 8; // Dimensional integration quadrature
         double tau_const = 1; // Constant in front of 1/shape
         Weighting weighting = Weighting::WEIGHT; 
         Total total = Total::ISOTROPIC;
