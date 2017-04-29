@@ -395,7 +395,6 @@ add_surface_weight(Mesh::Surface const &surface,
     {
         int w_ind = surface.weight_indices[i]; // global weight index
         int w_s_ind = weight_surface_indices[i]; // local surface index for weight
-        int number_of_boundary_surfaces = weights_[w_ind]->number_of_boundary_surfaces();
         
         if (w_s_ind != Weight_Function::Errors::DOES_NOT_EXIST)
         {
@@ -1259,7 +1258,7 @@ initialize_mesh()
             for (int j = 0; j < dimensional_cells_[dj]; ++j)
             {
                 Surface surface;
-                surface.dimension = 0;
+                surface.dimension = di;
                 surface.normal = normal;
                 surface.neighboring_cell = j + dimensional_cells_[dj] * i;
                 surfaces_.push_back(surface);
@@ -1284,7 +1283,7 @@ initialize_mesh()
             for (int i = 0; i < dimensional_cells_[di]; ++i)
             {
                 Surface surface;
-                surface.dimension = 0;
+                surface.dimension = dj;
                 surface.normal = normal;
                 surface.neighboring_cell = j + dimensional_cells_[dj] * i;
                 surfaces_.push_back(surface);

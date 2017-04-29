@@ -21,6 +21,7 @@
 #include "Material_Parser.hh"
 #include "Region.hh"
 #include "Sphere_3D.hh"
+#include "Timer.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weak_Spatial_Discretization_Factory.hh"
 #include "Weak_Spatial_Discretization_Parser.hh"
@@ -267,9 +268,13 @@ int test_integration(bool basis_mls,
     shared_ptr<Energy_Discretization> energy;
     shared_ptr<Weak_Spatial_Discretization> spatial_internal;
     shared_ptr<Weak_Spatial_Discretization> spatial_external;
+
+    Timer timer;
     
     // Get problem with external integration
     weight_options.external_integral_calculation = true;
+    weight_options.integration_ordinates = 32;
+    timer.start();
     get_pincell(basis_mls,
                 weight_mls,
                 basis_type,
@@ -282,9 +287,13 @@ int test_integration(bool basis_mls,
                 spatial_external,
                 angular,
                 energy);
+    timer.stop();
+    timer.print_time();
     
     // Get problem with internal integration
+    weight_options.integration_ordinates = 32;
     weight_options.external_integral_calculation = false;
+    timer.start();
     get_pincell(basis_mls,
                 weight_mls,
                 basis_type,
@@ -297,6 +306,8 @@ int test_integration(bool basis_mls,
                 spatial_internal,
                 angular,
                 energy);
+    timer.stop();
+    timer.print_time();
 
     shared_ptr<Weight_Function> weight_external
         = spatial_external->weight(0);
@@ -307,6 +318,20 @@ int test_integration(bool basis_mls,
         = weight_external->integrals();
     Weight_Function::Integrals const integrals_internal
         = weight_internal->integrals();
+
+    int const w = 16;
+    cout << "iv_b_w" << endl;
+    cout << setw(w) << "external";
+    cout << setw(w) << "internal";
+    cout << setw(w) << "difference";
+    cout << endl;
+    for (int i = 0; i < integrals_external.iv_b_w.size(); ++i)
+    {
+        cout << setw(w) << integrals_external.iv_b_w[i];
+        cout << setw(w) << integrals_internal.iv_b_w[i];
+        cout << setw(w) << integrals_external.iv_b_w[i] - integrals_internal.iv_b_w[i];
+        cout << endl;
+    }
     
     return checksum;
 }
