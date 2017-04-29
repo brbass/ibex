@@ -38,6 +38,11 @@ Weight_Function_Integration(int number_of_points,
                               solid->dimension(),
                               limits,
                               dimensional_cells);
+
+    // Get angular and energy discretizations
+    shared_ptr<Material> test_material = solid_->material(weights_[0]->position());
+    angular_ = test_material->angular_discretization();
+    energy_ = test_material->energy_discretization();
 }
 
 void Weight_Function_Integration::
@@ -81,7 +86,7 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
                               number_of_ordinates,
                               ordinates,
                               weights);
-
+        
         // Get connectivity information
         vector<vector<int> > weight_basis_indices;
         get_cell_basis_indices(cell,
@@ -209,12 +214,10 @@ add_volume_material(Mesh::Cell const &cell,
                     vector<Material_Data> &materials) const
 {
     // Get size information
-    shared_ptr<Angular_Discretization> angular_discretization = point_material->angular_discretization();
-    shared_ptr<Energy_Discretization> energy_discretization = point_material->energy_discretization();
-    int number_of_groups = energy_discretization->number_of_groups();
-    int number_of_scattering_moments = angular_discretization->number_of_scattering_moments();
-    int number_of_moments = angular_discretization->number_of_moments();
-    vector<int> const scattering_indices = angular_discretization->scattering_indices();
+    int number_of_groups = energy_->number_of_groups();
+    int number_of_scattering_moments = angular_->number_of_scattering_moments();
+    int number_of_moments = angular_->number_of_moments();
+    vector<int> const scattering_indices = angular_->scattering_indices();
 
     // Get cross sections
     vector<double> sigma_t = point_material->sigma_t()->data();
@@ -365,6 +368,11 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals) const
                                w_val);
 
             // Perform integration
+            add_surface_weight(surface,
+                               weights[q],
+                               w_val,
+                               weight_surface_indices,
+                               integrals);
             add_surface_basis_weight(surface,
                                      weights[q],
                                      b_val,
@@ -372,6 +380,27 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals) const
                                      weight_surface_indices,
                                      weight_basis_indices,
                                      integrals);
+        }
+    }
+}
+
+void Weight_Function_Integration::
+add_surface_weight(Mesh::Surface const &surface,
+                   double quad_weight,
+                   vector<double> const &w_val,
+                   vector<int> const &weight_surface_indices,
+                   vector<Weight_Function::Integrals> &integrals) const
+{
+    for (int i = 0; i < surface.number_of_weight_functions; ++i)
+    {
+        int w_ind = surface.weight_indices[i]; // global weight index
+        int w_s_ind = weight_surface_indices[i]; // local surface index for weight
+        int number_of_boundary_surfaces = weights_[w_ind]->number_of_boundary_surfaces();
+        
+        if (w_s_ind != Weight_Function::Errors::DOES_NOT_EXIST)
+        {
+            integrals[w_ind].is_w[w_s_ind]
+                += quad_weight * w_val[i];
         }
     }
 }
@@ -444,9 +473,6 @@ get_material(int index,
              Material_Data const &material_data,
              shared_ptr<Material> &material) const
 {
-    // Get angular and energy discretizations
-    shared_ptr<Angular_Discretization> angular = material->angular_discretization();
-    shared_ptr<Energy_Discretization> energy = material->energy_discretization();
     
     // Get dependencies : all initialized to none
     Cross_Section::Dependencies sigma_t_deps;
@@ -496,44 +522,44 @@ get_material(int index,
     // Get cross sections
     shared_ptr<Cross_Section> sigma_t
         = make_shared<Cross_Section>(sigma_t_deps,
-                                     angular,
-                                     energy,
+                                     angular_,
+                                     energy_,
                                      material_data.sigma_t);
     shared_ptr<Cross_Section> sigma_s
         = make_shared<Cross_Section>(sigma_s_deps,
-                                     angular,
-                                     energy,
+                                     angular_,
+                                     energy_,
                                      material_data.sigma_s);
     shared_ptr<Cross_Section> nu
         = make_shared<Cross_Section>(nu_deps,
-                                     angular,
-                                     energy,
+                                     angular_,
+                                     energy_,
                                      material_data.nu);
     shared_ptr<Cross_Section> sigma_f
         = make_shared<Cross_Section>(sigma_f_deps,
-                                     angular,
-                                     energy,
+                                     angular_,
+                                     energy_,
                                      material_data.sigma_f);
     shared_ptr<Cross_Section> chi
         = make_shared<Cross_Section>(chi_deps,
-                                     angular,
-                                     energy,
+                                     angular_,
+                                     energy_,
                                      material_data.chi);
     shared_ptr<Cross_Section> internal_source
         = make_shared<Cross_Section>(internal_source_deps,
-                                     angular,
-                                     energy,
+                                     angular_,
+                                     energy_,
                                      material_data.internal_source);
     shared_ptr<Cross_Section> norm
         = make_shared<Cross_Section>(norm_deps,
-                                     angular,
-                                     energy,
+                                     angular_,
+                                     energy_,
                                      material_data.norm);
 
     // Create material
     material = make_shared<Material>(index,
-                                     angular,
-                                     energy,
+                                     angular_,
+                                     energy_,
                                      sigma_t,
                                      sigma_s,
                                      nu,
@@ -862,6 +888,9 @@ get_volume_quadrature(int i,
                                                 ordinates);
         break;
     }
+
+    // Set number of ordinates
+    number_of_ordinates = weights.size();
 }
 
 void Weight_Function_Integration::
@@ -889,12 +918,9 @@ void Weight_Function_Integration::
 initialize_materials(vector<Material_Data> &materials) const
 {
     // Get material data
-    shared_ptr<Material> test_material = solid_->material(weights_[0]->position());
-    shared_ptr<Angular_Discretization> angular_discretization = test_material->angular_discretization();
-    shared_ptr<Energy_Discretization> energy_discretization = test_material->energy_discretization();
-    int number_of_groups = energy_discretization->number_of_groups();
-    int number_of_scattering_moments = angular_discretization->number_of_scattering_moments();
-    int number_of_moments = angular_discretization->number_of_moments();
+    int number_of_groups = energy_->number_of_groups();
+    int number_of_scattering_moments = angular_->number_of_scattering_moments();
+    int number_of_moments = angular_->number_of_moments();
     
     // Initialize materials
     materials.resize(number_of_points_);
@@ -904,7 +930,11 @@ initialize_materials(vector<Material_Data> &materials) const
         int number_of_dimensional_moments = weight->number_of_dimensional_moments();
         Material_Data &material = materials[i];
         Weight_Function::Options weight_options = weight->options();
-        
+
+        material.nu.assign(1, 1.);
+        material.chi.assign(1, 1.);
+        material.internal_source.assign(number_of_dimensional_moments
+                                        * number_of_groups, 0);
         switch (weight_options.weighting)
         {
         case Weight_Function::Options::Weighting::POINT:
@@ -1023,7 +1053,7 @@ initialize_mesh()
     {
     case 1:
     {
-        int di = 0;
+        int const di = 0;
         for (int i = 0; i < dimensional_nodes_[0]; ++i)
         {
             double index = i;
@@ -1034,11 +1064,11 @@ initialize_mesh()
     }
     case 2:
     {
-        int di = 0;
-        int dj = 1;
+        int const di = 0;
+        int const dj = 1;
         for (int i = 0; i < dimensional_nodes_[0]; ++i)
         {
-            for (int j = 0; j < dimensional_nodes_[1]; ++i)
+            for (int j = 0; j < dimensional_nodes_[1]; ++j)
             {
                 int index = j + dimensional_nodes_[1] * i;
                 Node &node = nodes_[index];
@@ -1050,12 +1080,12 @@ initialize_mesh()
     }
     case 3:
     {
-        int di = 0;
-        int dj = 1;
-        int dk = 2;
+        int const di = 0;
+        int const dj = 1;
+        int const dk = 2;
         for (int i = 0; i < dimensional_nodes_[0]; ++i)
         {
-            for (int j = 0; j < dimensional_nodes_[1]; ++i)
+            for (int j = 0; j < dimensional_nodes_[1]; ++j)
             {
                 for (int k = 0; k < dimensional_nodes_[2]; ++k)
                 {
@@ -1074,6 +1104,7 @@ initialize_mesh()
     }
 
     // Initialize cells
+    cells_.resize(number_of_background_cells_);
     switch (dimension_)
     {
     case 1:

@@ -1324,7 +1324,7 @@ set_integrals(Weight_Function::Integrals const &integrals,
 {
     // Set integral data
     integrals_ = integrals;
-    material = material;
+    material_ = material;
     
     // Complete initialization
     calculate_boundary_source();

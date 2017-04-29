@@ -6,7 +6,9 @@
 
 #include "Weight_Function.hh"
 
+class Angular_Discretization;
 class Basis_Function;
+class Energy_Discretization;
 class KD_Tree;
 class Material;
 class Solid_Geometry;
@@ -168,6 +170,13 @@ private:
     // Perform all surface integrals
     void perform_surface_integration(std::vector<Weight_Function::Integrals> &integrals) const;
 
+    // Add weight function surface values to global integrals
+    void add_surface_weight(Mesh::Surface const &surface,
+                            double quad_weight,
+                            std::vector<double> const &w_val,
+                            std::vector<int> const &weight_surface_indices,
+                            std::vector<Weight_Function::Integrals> &integrals) const;
+    
     // Add basis/weight function surface values to global integrals
     void add_surface_basis_weight(Mesh::Surface const &surface,
                                   double quad_weight,
@@ -218,6 +227,8 @@ private:
     std::vector<std::shared_ptr<Basis_Function> > bases_;
     std::vector<std::shared_ptr<Weight_Function> > weights_;
     std::shared_ptr<Solid_Geometry> solid_;
+    std::shared_ptr<Angular_Discretization> angular_;
+    std::shared_ptr<Energy_Discretization> energy_;
     std::shared_ptr<Mesh> mesh_;
     std::vector<std::vector<double> > limits_;
 };
