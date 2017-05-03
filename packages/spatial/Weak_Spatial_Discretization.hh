@@ -63,6 +63,10 @@ public:
     virtual void check_class_invariants() const override;
 
     // Weight_Function functions
+    virtual Options options() const
+    {
+        return options_;
+    }
     virtual bool include_supg() const
     {
         return include_supg_;

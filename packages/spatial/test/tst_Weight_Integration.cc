@@ -319,6 +319,11 @@ int test_integration(bool basis_mls,
     Weight_Function::Integrals const integrals_internal
         = weight_internal->integrals();
 
+    shared_ptr<Material> material_external
+        = weight_external->material();
+    shared_ptr<Material> material_internal
+        = weight_internal->material();
+    
     int const w = 16;
     cout << "iv_b_w" << endl;
     cout << setw(w) << "external";

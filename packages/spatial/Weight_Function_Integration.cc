@@ -33,12 +33,12 @@ Weight_Function_Integration(int number_of_points,
     Assert(bases.size() == number_of_points_);
     Assert(weights.size() == number_of_points_);
     Assert(solid);
-    
+
     mesh_ = make_shared<Mesh>(*this,
                               solid->dimension(),
                               limits,
                               dimensional_cells);
-
+    
     // Get angular and energy discretizations
     shared_ptr<Material> test_material = solid_->material(weights_[0]->position());
     angular_ = test_material->angular_discretization();
@@ -55,11 +55,10 @@ perform_integration()
     // Initialize materials to zero
     vector<Material_Data> materials;
     initialize_materials(materials);
-
+    
     // Perform volume integration
     perform_volume_integration(integrals,
                                materials);
-    normalize_materials(materials);
 
     // Perform surface integration
     perform_surface_integration(integrals);
@@ -134,6 +133,9 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
                                 materials);
         }
     }
+
+    // Normalize materials
+    normalize_materials(materials);
 }
 
 void Weight_Function_Integration::
@@ -336,9 +338,10 @@ add_volume_material(Mesh::Cell const &cell,
     for (int i = 0; i < cell.number_of_weight_functions; ++i)
     {
         // Get weight function data
-        shared_ptr<Weight_Function> weight = weights_[cell.weight_indices[i]];
+        int w_ind = cell.weight_indices[i];
+        shared_ptr<Weight_Function> weight = weights_[w_ind];
         Weight_Function::Options options = weight->options();
-        Material_Data &material = materials[i];
+        Material_Data &material = materials[w_ind];
         int number_of_dimensional_moments = weight->number_of_dimensional_moments();
         
         switch (options.weighting)

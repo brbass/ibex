@@ -26,6 +26,7 @@
 #include "Region.hh"
 #include "Solver_Factory.hh"
 #include "Source_Iteration.hh"
+#include "Timer.hh"
 #include "Transport_Discretization.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weak_Spatial_Discretization_Factory.hh"
@@ -255,6 +256,7 @@ void get_pincell(bool basis_mls,
     
     // Get weak RBF sweep
     Weak_RBF_Sweep::Options options;
+    options.solver = Weak_RBF_Sweep::Options::Solver::AMESOS;
     sweeper
         = make_shared<Weak_RBF_Sweep>(options,
                                       spatial,
@@ -296,6 +298,12 @@ int test_pincell(bool basis_mls,
                  double tolerance)
 {
     int checksum = 0;
+    Timer timer1;
+    timer1.start();
+    Timer timer2;
+    timer2.start();
+    int w = 16;
+    bool print = true;
     
     // Initialize pointers
     shared_ptr<Weak_Spatial_Discretization> spatial;
@@ -330,29 +338,29 @@ int test_pincell(bool basis_mls,
                 sweeper,
                 convergence,
                 solver);
-
+    timer2.stop();
+    
     // Solve problem
     solver->solve();
     shared_ptr<Solver::Result> result
         = solver->result();
-    
-    // Print and check results
-    bool print = true;
-    int w = 16;
     
     // Eigenvalue problem
     double expected = dimension == 1 ? 1.13928374494 : 0.48246;
     double calculated = result->k_eigenvalue;
     if (!ce::approx(expected, calculated, tolerance))
     {
-        cerr << "eigenvalue incorrect" << endl;
+        cerr << setw(w) << "FAILED" << endl;
         checksum += 1;
     }
-
+    timer1.stop();
+    
     // Print results
     if (print)
     {
         cout << setprecision(10);
+        cout << setw(w) << "init time" << setw(w) << timer2.time() << endl;
+        cout << setw(w) << "total time" << setw(w) << timer1.time() << endl;
         cout << setw(w) << "expected" << setw(w) << expected << endl;
         cout << setw(w) << "eigenvalue" << setw(w) << result->k_eigenvalue << endl;
         cout << setw(w) << "pcm" << setw(w) << (expected - result->k_eigenvalue) * 1e5 << endl;
@@ -362,89 +370,137 @@ int test_pincell(bool basis_mls,
     return checksum;
 }
 
-int run_tests()
+int run_tests(bool mls_basis,
+              bool mls_weight,
+              bool supg,
+              string basis_type,
+              string weight_type,
+              double number_of_intervals)
 {
     int checksum = 0;
     
-    // Run for regular and SUPG options
-    vector<Weight_Function::Options> weight_options_vals(2);
-    weight_options_vals[0].output = Weight_Function::Options::Output::STANDARD;
-    weight_options_vals[1].output = Weight_Function::Options::Output::SUPG;
-    
-    // Run 1D problems
-    for (Weight_Function::Options weight_options : weight_options_vals)
-    {
-        weight_options.integration_ordinates = 128;
-        weight_options.external_integral_calculation = true;
-        weight_options.tau_const = 1.0;
-        weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
+    Weight_Function::Options weight_options;
+    weight_options.output = (supg 
+                             ? Weight_Function::Options::Output::SUPG
+                             : Weight_Function::Options::Output::STANDARD);
 
-        string description = (weight_options.output == Weight_Function::Options::Output::STANDARD
-                              ? "1D standard "
-                              : "1D SUPG ");
-        
-        // Test 1D eigenvalue
-        vector<int> point_vals = {4, 8, 16, 32, 64, 128, 256, 512};
-        for (int number_of_points : point_vals)
-        {
-            cout << description << "eigenvalue, krylov, n = " << number_of_points << endl;
-            checksum += test_pincell(true, // mls basis
-                                     true, // mls weight
-                                     "wendland11", // basis type
-                                     "wendland11", // weight type
-                                     weight_options,
-                                     "krylov_eigenvalue",
-                                     1, // dimension
-                                     256, // ordinates
-                                     number_of_points, // number of points
-                                     3., // number of intervals
-                                     1e-3); // tolerance
-        }
-    }
-    
-    // Run 2D problems
-    for (Weight_Function::Options weight_options : weight_options_vals)
+    // Test 1D eigenvalue
     {
         weight_options.integration_ordinates = 16;
         weight_options.external_integral_calculation = true;
         weight_options.tau_const = 1.0;
         weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
-
+    
         string description = (weight_options.output == Weight_Function::Options::Output::STANDARD
-                              ? "2D standard "
-                              : "2D SUPG ");
-        
-        // Test 2D eigenvalue
-        vector<int> point_vals = {4, 8, 16, 32};
+                              ? "1D, standard, "
+                              : "1D, SUPG, ");
+        description += basis_type + ", " + weight_type + ", ";
+        description += to_string(number_of_intervals) + ", ";
+        description += to_string(mls_basis) + ", ";
+        description += to_string(mls_weight) + ", ";
+        vector<int> point_vals = {};//4, 8, 16, 32, 64, 128, 256, 512};
         for (int number_of_points : point_vals)
         {
             cout << description << "eigenvalue, krylov, n = " << number_of_points << endl;
-            checksum += test_pincell(true, // mls basis
-                                     true, // mls weight
-                                     "wendland11", // basis type
-                                     "wendland11", // weight type
+            checksum += test_pincell(mls_basis,
+                                     mls_weight,
+                                     basis_type,
+                                     weight_type,
                                      weight_options,
                                      "krylov_eigenvalue",
-                                     2, // dimension
-                                     3, // angular rule
+                                     1, // dimension
+                                     256, // ordinates
                                      number_of_points, // number of points
-                                     3., // number of intervals
-                                     1e-4); // tolerance
+                                     number_of_intervals, // number of intervals
+                                     1e-3); // tolerance
         }
     }
     
+    // Run 2D problems
+    {
+        weight_options.integration_ordinates = 16;
+        weight_options.external_integral_calculation = true;
+        weight_options.tau_const = 1.0;
+        weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
+        
+        string description = (weight_options.output == Weight_Function::Options::Output::STANDARD
+                              ? "2D, standard, "
+                              : "2D, SUPG, ");
+        description += basis_type + ", " + weight_type + ", ";
+        description += to_string(number_of_intervals) + ", ";
+        description += to_string(mls_basis) + ", ";
+        description += to_string(mls_weight) + ", ";
+    
+        // Test 2D eigenvalue
+        vector<int> point_vals = {4, 8, 16, 32, 64, 128};
+        for (int number_of_points : point_vals)
+        {
+            cout << description << "eigenvalue, krylov, n = " << number_of_points << endl;
+            checksum += test_pincell(mls_basis,
+                                     mls_weight,
+                                     basis_type,
+                                     weight_type,
+                                     weight_options,
+                                     "krylov_eigenvalue",
+                                     2, // dimension
+                                     2, // angular rule
+                                     number_of_points, // number of points
+                                     number_of_intervals, // number of intervals
+                                     1e-4); // tolerance
+        }
+    }
     return checksum;
 }
-
 
 int main(int argc, char **argv)
 {
     int checksum = 0;
 
+    if (argc != 2)
+    {
+        cerr << "tst_pincell [test_num]" << endl;
+        return -1;
+    }
+    
     // Initialize MPI
     MPI_Init(&argc, &argv);
 
-    checksum += run_tests();
+    int test_num = atoi(argv[1]);
+    switch (test_num)
+    {
+    case 0:
+        checksum += run_tests(false,
+                              false,
+                              false,
+                              "wendland11",
+                              "wendland11",
+                              3.);
+        break;
+    case 1:
+        checksum += run_tests(false,
+                              false,
+                              true,
+                              "wendland11",
+                              "wendland11",
+                              3.);
+        break;
+    case 2:
+        checksum += run_tests(true,
+                              true,
+                              false,
+                              "wendland11",
+                              "wendland11",
+                              3.);
+        break;
+    case 3:
+        checksum += run_tests(true,
+                              true,
+                              true,
+                              "wendland11",
+                              "wendland11",
+                              3.);
+        break;
+    }
     
     // Close MPI
     MPI_Finalize();

@@ -192,6 +192,8 @@ expansion_value(int i,
                 vector<double> const &position,
                 vector<double> const &coefficients) const
 {
+    Assert(coefficients.size() == number_of_points_);
+    
     shared_ptr<Weight_Function> weight = weights_[i];
     int number_of_basis_functions = weight->number_of_basis_functions();
     vector<int> const basis_indices = weight->basis_function_indices();

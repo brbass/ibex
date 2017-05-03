@@ -338,7 +338,7 @@ int run_tests()
     // Run 1D problems
     for (Weight_Function::Options weight_options : weight_options_vals)
     {
-        weight_options.integration_ordinates = 128;
+        weight_options.integration_ordinates = 16;
         weight_options.tau_const = 1.0;
         weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
 
@@ -413,7 +413,7 @@ int run_tests()
     // Run 2D problems
     for (Weight_Function::Options weight_options : weight_options_vals)
     {
-        weight_options.integration_ordinates = 64;
+        weight_options.integration_ordinates = 32;
         weight_options.tau_const = 1.0;
         weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
 
@@ -496,7 +496,7 @@ int main(int argc, char **argv)
     MPI_Init(&argc, &argv);
 
     // Run tests
-    // checksum += run_tests();
+    checksum += run_tests();
 
     // Temporary tests
     vector<Weight_Function::Options> weight_options_vals(2);
@@ -504,37 +504,37 @@ int main(int argc, char **argv)
     weight_options_vals[1].output = Weight_Function::Options::Output::SUPG;
     
     // Run 1D problems
-    for (Weight_Function::Options weight_options : weight_options_vals)
-    {
-        weight_options.integration_ordinates = 32;
-        weight_options.tau_const = 1.0;
-        weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
+    // for (Weight_Function::Options weight_options : weight_options_vals)
+    // {
+    //     weight_options.integration_ordinates = 32;
+    //     weight_options.tau_const = 1.0;
+    //     weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
 
-        string description = (weight_options.output == Weight_Function::Options::Output::STANDARD
-                              ? "1D standard "
-                              : "1D SUPG ");
+    //     string description = (weight_options.output == Weight_Function::Options::Output::STANDARD
+    //                           ? "1D standard "
+    //                           : "1D SUPG ");
         
-        // Test 1D eigenvalue
-        cout << description << "eigenvalue, krylov" << endl;
-        checksum += test_infinite(true, // mls basis
-                                  true, // mls weight
-                                  "wendland11", // basis type
-                                  "wendland11", // weight type
-                                  weight_options,
-                                  "krylov_eigenvalue",
-                                  1, // dimension
-                                  16, // ordinates
-                                  5, // number of points
-                                  3, // number of intervals
-                                  2.0, // sigma_t
-                                  0.8, // sigma_s
-                                  1.1, // nu_sigma_f
-                                  0.0, // internal source
-                                  0.0, // boundary source
-                                  1.0, // alpha
-                                  2.0, // length
-                                  1e-4); // tolerance
-    }
+    //     // Test 1D eigenvalue
+    //     cout << description << "eigenvalue, krylov" << endl;
+    //     checksum += test_infinite(true, // mls basis
+    //                               true, // mls weight
+    //                               "wendland11", // basis type
+    //                               "wendland11", // weight type
+    //                               weight_options,
+    //                               "krylov_eigenvalue",
+    //                               1, // dimension
+    //                               16, // ordinates
+    //                               10, // number of points
+    //                               3, // number of intervals
+    //                               2.0, // sigma_t
+    //                               0.8, // sigma_s
+    //                               1.1, // nu_sigma_f
+    //                               0.0, // internal source
+    //                               0.0, // boundary source
+    //                               2.0, // alpha
+    //                               2.0, // length
+    //                               1e-4); // tolerance
+    // }
     
     // Close MPI
     MPI_Finalize();

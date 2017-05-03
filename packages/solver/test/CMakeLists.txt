@@ -10,3 +10,4 @@ endmacro()
 
 include_test(tst_infinite_medium tst_Infinite_Medium.cc "")
 include_test(tst_pincell tst_Pincell.cc "")
+include_test(tst_prospectus tst_Prospectus.cc "")
