@@ -220,6 +220,46 @@ expansion_value(vector<double> const &position,
                            coefficients);
 }
 
+vector<double> Weak_Spatial_Discretization::
+expansion_values(int i,
+                 int number_of_groups,
+                 vector<double> const &position,
+                 vector<double> const &coefficients) const
+{
+    Assert(coefficients.size() == number_of_points_ * number_of_groups);
+    
+    shared_ptr<Weight_Function> weight = weights_[i];
+    int number_of_basis_functions = weight->number_of_basis_functions();
+    vector<int> const basis_indices = weight->basis_function_indices();
+
+    // Get value of function at a specific point
+    vector<double> vals(number_of_groups, 0.);
+    for (int j = 0; j < number_of_basis_functions; ++j)
+    {
+        int basis_index = basis_indices[j];
+        double val = weight->basis_function(j)->function()->value(position);
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            int index = g + number_of_groups * basis_index;
+            vals[g] += val * coefficients[index];
+        }
+    }
+    return vals;
+}
+
+vector<double> Weak_Spatial_Discretization::
+expansion_values(int number_of_groups,
+                 vector<double> const &position,
+                 vector<double> const &coefficients) const
+{
+    int index = nearest_point(position);
+    
+    return expansion_values(index,
+                            number_of_groups,
+                            position,
+                            coefficients);
+}
+
 void Weak_Spatial_Discretization::
 check_class_invariants() const
 {

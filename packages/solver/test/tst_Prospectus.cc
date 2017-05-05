@@ -41,6 +41,214 @@
 namespace ce = Check_Equality;
 using namespace std;
 
+void get_one_region(bool basis_mls,
+                    bool weight_mls,
+                    string basis_type,
+                    string weight_type,
+                    string method,
+                    Weight_Function::Options weight_options,
+                    Weak_RBF_Sweep::Options sweep_options,
+                    int dimension,
+                    int angular_rule,
+                    int number_of_groups,
+                    int num_dimensional_points,
+                    double radius_num_intervals,
+                    shared_ptr<Weak_Spatial_Discretization> &spatial,
+                    shared_ptr<Angular_Discretization> &angular,
+                    shared_ptr<Energy_Discretization> &energy,
+                    shared_ptr<Solver> &solver)
+{
+    double length = dimension == 1 ? 2.0 : 4.0;
+    
+    // Get angular discretization
+    int number_of_moments = 1;
+    Angular_Discretization_Factory angular_factory;
+    angular = angular_factory.get_angular_discretization(dimension,
+                                                         number_of_moments,
+                                                         angular_rule);
+    
+    // Get energy discretization
+    energy = make_shared<Energy_Discretization>(number_of_groups);
+    
+    // Get material
+    vector<shared_ptr<Material> > materials;
+    materials.resize(1);
+    Material_Factory material_factory(angular,
+                                      energy);
+    if (number_of_groups == 1)
+    {
+        double sigma_t = 1.0;
+        double sigma_s = 0.84;
+        double nu = 2.4;
+        double sigma_f = 0.1;
+        double chi = 1.;
+        double internal_source = 1.0;
+        materials[0]
+            = material_factory.get_standard_material(0, // index
+                                                     {sigma_t},
+                                                     {sigma_s}, // sigma_s
+                                                     {nu}, // nu
+                                                     {sigma_f}, // sigma_f
+                                                     {chi}, // chi
+                                                     {internal_source});
+    }
+    else
+    {
+        vector<double> sigma_t = {1.0, 2.0};
+        vector<double> sigma_s = {0.84, 0.0, 0.09, 0.4};
+        vector<double> nu = {2.4, 2.4};
+        vector<double> sigma_f = {0.003, 1.10};
+        vector<double> chi = {1.0, 0.0};
+        vector<double> internal_source = {1.0, 0.0};
+        materials[0]
+            = material_factory.get_standard_material(0, // index
+                                                     sigma_t,
+                                                     sigma_s,
+                                                     nu,
+                                                     sigma_f,
+                                                     chi,
+                                                     internal_source);
+    }
+    
+    // Get boundary source
+    vector<shared_ptr<Boundary_Source> > boundary_sources;
+    Boundary_Source::Dependencies boundary_dependencies;
+    if (dimension == 1)
+    {
+        boundary_sources.resize(2);
+        boundary_sources[0]
+            = make_shared<Boundary_Source>(0, // index
+                                           boundary_dependencies,
+                                           angular,
+                                           energy,
+                                           vector<double>(number_of_groups, 0.), // boundary source
+                                           vector<double>(number_of_groups, 1.0)); // alpha
+        boundary_sources[1]
+            = make_shared<Boundary_Source>(0, // index
+                                           boundary_dependencies,
+                                           angular,
+                                           energy,
+                                           vector<double>(number_of_groups, 0.), // boundary source
+                                           vector<double>(number_of_groups, 0.)); // alpha
+    }
+    else
+    {
+        boundary_sources.resize(1);
+        boundary_sources[0]
+            = make_shared<Boundary_Source>(0, // index
+                                           boundary_dependencies,
+                                           angular,
+                                           energy,
+                                           vector<double>(number_of_groups, 0.), // boundary source
+                                           vector<double>(number_of_groups, 0.0)); // alpha
+    }
+    // Get solid geometry
+    vector<shared_ptr<Surface> > surfaces(2 * dimension);
+    vector<shared_ptr<Region> > regions(1);
+    for (int d = 0; d < dimension; ++d)
+    {
+        int index1 = 0 + 2 * d;
+        surfaces[index1]
+            = make_shared<Cartesian_Plane>(index1,
+                                           dimension,
+                                           Surface::Surface_Type::BOUNDARY,
+                                           d,
+                                           -0.5 * length,
+                                           -1);
+        int index2 = 1 + 2 * d;
+        surfaces[index2]
+            = make_shared<Cartesian_Plane>(index2,
+                                           dimension,
+                                           Surface::Surface_Type::BOUNDARY,
+                                           d,
+                                           0.5 * length,
+                                           1);
+    }
+    if (dimension == 1)
+    {
+        surfaces[0]->set_boundary_source(boundary_sources[0]);
+        surfaces[1]->set_boundary_source(boundary_sources[1]);
+    }
+    else
+    {
+        for (shared_ptr<Surface> surface : surfaces)
+        {
+            surface->set_boundary_source(boundary_sources[0]);
+        }
+    }
+    vector<Surface::Relation> surface_relations(2 * dimension,
+                                                Surface::Relation::NEGATIVE);
+    regions[0]
+        = make_shared<Region>(0, // index
+                              materials[0],
+                              surface_relations,
+                              surfaces);
+    shared_ptr<Constructive_Solid_Geometry> solid
+        = make_shared<Constructive_Solid_Geometry>(dimension,
+                                                   surfaces,
+                                                   regions,
+                                                   materials,
+                                                   boundary_sources);
+    
+    // Get spatial discretization
+    Weak_Spatial_Discretization_Factory spatial_factory(solid);
+    spatial
+        = spatial_factory.get_simple_discretization(num_dimensional_points,
+                                                    radius_num_intervals,
+                                                    basis_mls,
+                                                    weight_mls,
+                                                    basis_type,
+                                                    weight_type,
+                                                    weight_options);
+    
+    // Get transport discretization
+    shared_ptr<Transport_Discretization> transport
+        = make_shared<Transport_Discretization>(spatial,
+                                                angular,
+                                                energy);
+    
+    // Get weak RBF sweep
+    Weak_RBF_Sweep::Options options;
+    shared_ptr<Weak_RBF_Sweep> sweeper
+        = make_shared<Weak_RBF_Sweep>(options,
+                                      spatial,
+                                      angular,
+                                      energy,
+                                      transport);
+
+    // Get convergence method
+    shared_ptr<Convergence_Measure> convergence
+        = make_shared<Linf_Convergence>();
+    
+    // Get source iteration
+    Solver_Factory solver_factory(spatial,
+                                  angular,
+                                  energy,
+                                  transport);
+    
+    if (method == "krylov_steady_state")
+    {
+        solver
+            = solver_factory.get_krylov_steady_state(sweeper,
+                                                     convergence);
+    }
+    else if (method == "source_iteration")
+    {
+        solver
+            = solver_factory.get_source_iteration(sweeper,
+                                                  convergence);
+    }
+    else if (method == "krylov_eigenvalue")
+    {
+        solver
+            = solver_factory.get_krylov_eigenvalue(sweeper);
+    }
+    else
+    {
+        AssertMsg(false, "iteration method not found");
+    }
+}
+
 void get_pincell(bool basis_mls,
                  bool weight_mls,
                  string basis_type,
@@ -50,6 +258,7 @@ void get_pincell(bool basis_mls,
                  Weak_RBF_Sweep::Options sweep_options,
                  int dimension,
                  int angular_rule,
+                 int number_of_groups,
                  int num_dimensional_points,
                  double radius_num_intervals,
                  shared_ptr<Weak_Spatial_Discretization> &spatial,
@@ -68,7 +277,6 @@ void get_pincell(bool basis_mls,
                                                          angular_rule);
     
     // Get energy discretization
-    int number_of_groups = 1;
     energy = make_shared<Energy_Discretization>(number_of_groups);
     
     // Get material
@@ -76,22 +284,44 @@ void get_pincell(bool basis_mls,
     materials.resize(2);
     Material_Factory material_factory(angular,
                                       energy);
-    materials[0]
-        = material_factory.get_standard_material(0, // index
-                                                 {1.0}, // sigma_t
-                                                 {0.84}, // sigma_s
-                                                 {2.4}, // nu
-                                                 {0.1}, // sigma_f
-                                                 {1}, // chi
-                                                 {1.0}); // internal source
-    materials[1]
-        = material_factory.get_standard_material(1, // index
-                                                 {2.0}, // sigma_t
-                                                 {1.9}, // sigma_s
-                                                 {0.0}, // nu
-                                                 {0.0}, // sigma_f
-                                                 {0.0}, // chi
-                                                 {0.0}); // internal source
+    if (number_of_groups == 1)
+    {
+        materials[0]
+            = material_factory.get_standard_material(0, // index
+                                                     {1.0}, // sigma_t
+                                                     {0.84}, // sigma_s
+                                                     {2.4}, // nu
+                                                     {0.1}, // sigma_f
+                                                     {1}, // chi
+                                                     {1.0}); // internal source
+        materials[1]
+            = material_factory.get_standard_material(1, // index
+                                                     {2.0}, // sigma_t
+                                                     {1.9}, // sigma_s
+                                                     {0.0}, // nu
+                                                     {0.0}, // sigma_f
+                                                     {0.0}, // chi
+                                                     {0.0}); // internal source
+    }
+    else
+    {
+        materials[0]
+            = material_factory.get_standard_material(0, // index
+                                                     {1.0, 2.0}, // sigma_t
+                                                     {0.84, 0.0, 0.09, 0.4}, // sigma_s
+                                                     {2.4, 2.4}, // nu
+                                                     {0.003, 1.10}, // sigma_f
+                                                     {1.0, 0.0}, // chi
+                                                     {1.0, 0.0}); // internal source
+        materials[1]
+            = material_factory.get_standard_material(1, // index
+                                                     {1.0, 2.0}, // sigma_t
+                                                     {0.2, 0.0, 0.8, 1.9}, // sigma_s
+                                                     {0.0, 0.0}, // nu
+                                                     {0.0, 0.0}, // sigma_f
+                                                     {0.0, 0.0}, // chi
+                                                     {0.0, 0.0}); // internal source
+    }
     
     // Get boundary source
     vector<shared_ptr<Boundary_Source> > boundary_sources;
@@ -297,196 +527,10 @@ void get_pincell(bool basis_mls,
     }
 }
 
-void get_one_region(bool basis_mls,
-                    bool weight_mls,
-                    string basis_type,
-                    string weight_type,
-                    string method,
-                    Weight_Function::Options weight_options,
-                    Weak_RBF_Sweep::Options sweep_options,
-                    int dimension,
-                    int angular_rule,
-                    int num_dimensional_points,
-                    double radius_num_intervals,
-                    shared_ptr<Weak_Spatial_Discretization> &spatial,
-                    shared_ptr<Angular_Discretization> &angular,
-                    shared_ptr<Energy_Discretization> &energy,
-                    shared_ptr<Solver> &solver)
-{
-    double length = dimension == 1 ? 2.0 : 4.0;
-    
-    // Get angular discretization
-    int number_of_moments = 1;
-    Angular_Discretization_Factory angular_factory;
-    angular = angular_factory.get_angular_discretization(dimension,
-                                                         number_of_moments,
-                                                         angular_rule);
-    
-    // Get energy discretization
-    int number_of_groups = 1;
-    energy = make_shared<Energy_Discretization>(number_of_groups);
-    
-    // Get material
-    vector<shared_ptr<Material> > materials;
-    materials.resize(1);
-    Material_Factory material_factory(angular,
-                                      energy);
-    double sigma_t = 1.0;
-    double sigma_s = 0.84;
-    double nu = 2.4;
-    double sigma_f = 0.1;
-    double chi = 1.;
-    double internal_source = 1.0;
-    materials[0]
-        = material_factory.get_standard_material(0, // index
-                                                 {sigma_t},
-                                                 {sigma_s}, // sigma_s
-                                                 {nu}, // nu
-                                                 {sigma_f}, // sigma_f
-                                                 {chi}, // chi
-                                                 {internal_source});
-    
-    // Get boundary source
-    vector<shared_ptr<Boundary_Source> > boundary_sources;
-    Boundary_Source::Dependencies boundary_dependencies;
-    if (dimension == 1)
-    {
-        boundary_sources.resize(2);
-        boundary_sources[0]
-            = make_shared<Boundary_Source>(0, // index
-                                           boundary_dependencies,
-                                           angular,
-                                           energy,
-                                           vector<double>(number_of_groups, 0.), // boundary source
-                                           vector<double>(number_of_groups, 1.0)); // alpha
-        boundary_sources[1]
-            = make_shared<Boundary_Source>(0, // index
-                                           boundary_dependencies,
-                                           angular,
-                                           energy,
-                                           vector<double>(number_of_groups, 0.), // boundary source
-                                           vector<double>(number_of_groups, 0.)); // alpha
-    }
-    else
-    {
-        boundary_sources.resize(1);
-        boundary_sources[0]
-            = make_shared<Boundary_Source>(0, // index
-                                           boundary_dependencies,
-                                           angular,
-                                           energy,
-                                           vector<double>(number_of_groups, 0.), // boundary source
-                                           vector<double>(number_of_groups, 0.0)); // alpha
-    }
-    // Get solid geometry
-    vector<shared_ptr<Surface> > surfaces(2 * dimension);
-    vector<shared_ptr<Region> > regions(1);
-    for (int d = 0; d < dimension; ++d)
-    {
-        int index1 = 0 + 2 * d;
-        surfaces[index1]
-            = make_shared<Cartesian_Plane>(index1,
-                                           dimension,
-                                           Surface::Surface_Type::BOUNDARY,
-                                           d,
-                                           -0.5 * length,
-                                           -1);
-        int index2 = 1 + 2 * d;
-        surfaces[index2]
-            = make_shared<Cartesian_Plane>(index2,
-                                           dimension,
-                                           Surface::Surface_Type::BOUNDARY,
-                                           d,
-                                           0.5 * length,
-                                           1);
-    }
-    if (dimension == 1)
-    {
-        surfaces[0]->set_boundary_source(boundary_sources[0]);
-        surfaces[1]->set_boundary_source(boundary_sources[1]);
-    }
-    else
-    {
-        for (shared_ptr<Surface> surface : surfaces)
-        {
-            surface->set_boundary_source(boundary_sources[0]);
-        }
-    }
-    vector<Surface::Relation> surface_relations(2 * dimension,
-                                                Surface::Relation::NEGATIVE);
-    regions[0]
-        = make_shared<Region>(0, // index
-                              materials[0],
-                              surface_relations,
-                              surfaces);
-    shared_ptr<Constructive_Solid_Geometry> solid
-        = make_shared<Constructive_Solid_Geometry>(dimension,
-                                                   surfaces,
-                                                   regions,
-                                                   materials,
-                                                   boundary_sources);
-    
-    // Get spatial discretization
-    Weak_Spatial_Discretization_Factory spatial_factory(solid);
-    spatial
-        = spatial_factory.get_simple_discretization(num_dimensional_points,
-                                                    radius_num_intervals,
-                                                    basis_mls,
-                                                    weight_mls,
-                                                    basis_type,
-                                                    weight_type,
-                                                    weight_options);
-    
-    // Get transport discretization
-    shared_ptr<Transport_Discretization> transport
-        = make_shared<Transport_Discretization>(spatial,
-                                                angular,
-                                                energy);
-    
-    // Get weak RBF sweep
-    Weak_RBF_Sweep::Options options;
-    shared_ptr<Weak_RBF_Sweep> sweeper
-        = make_shared<Weak_RBF_Sweep>(options,
-                                      spatial,
-                                      angular,
-                                      energy,
-                                      transport);
-
-    // Get convergence method
-    shared_ptr<Convergence_Measure> convergence
-        = make_shared<Linf_Convergence>();
-    
-    // Get source iteration
-    Solver_Factory solver_factory(spatial,
-                                  angular,
-                                  energy,
-                                  transport);
-    
-    if (method == "krylov_steady_state")
-    {
-        solver
-            = solver_factory.get_krylov_steady_state(sweeper,
-                                                     convergence);
-    }
-    else if (method == "source_iteration")
-    {
-        solver
-            = solver_factory.get_source_iteration(sweeper,
-                                                  convergence);
-    }
-    else if (method == "krylov_eigenvalue")
-    {
-        solver
-            = solver_factory.get_krylov_eigenvalue(sweeper);
-    }
-    else
-    {
-        AssertMsg(false, "iteration method not found");
-    }
-}
 
 void output_results(shared_ptr<Solver::Result> result,
                     shared_ptr<Weak_Spatial_Discretization> spatial,
+                    shared_ptr<Energy_Discretization> energy,
                     double setup_time,
                     double solve_time,
                     string output_path)
@@ -500,6 +544,8 @@ void output_results(shared_ptr<Solver::Result> result,
     output_node.set_child_value(result->total_iterations, "total_iterations");
     output_node.set_child_value(result->source_iterations, "source_iterations");
     output_node.set_child_value(spatial->dimension(), "dimension");
+    output_node.set_child_value(spatial->number_of_points(), "number_of_points");
+    output_node.set_child_value(energy->number_of_groups(), "number_of_groups");
     output_node.set_child_value(setup_time, "setup_time");
     output_node.set_child_value(solve_time, "solve_time");
     output_node.set_child_value(setup_time + solve_time, "total_time");
@@ -518,14 +564,20 @@ void output_results(shared_ptr<Solver::Result> result,
                                  points);
 
     // Get values for flux at each point
-    vector<double> scalar_flux(number_of_result_points);
+    int number_of_groups = energy->number_of_groups();
+    vector<double> scalar_flux(number_of_result_points * number_of_groups);
     for (int i = 0; i < number_of_result_points; ++i)
     {
         vector<double> position = points[i];
-        scalar_flux[i] = spatial->expansion_value(position,
-                                                  result->coefficients);
+        vector<double> temp_flux = spatial->expansion_values(number_of_groups,
+                                                             position,
+                                                             result->coefficients);
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            scalar_flux[g + number_of_groups * i] = temp_flux[g];
+        }
     }
-
+    
     // Flatten point array
     vector<double> flat_points(dimension * number_of_result_points);
     for (int i = 0; i < number_of_result_points; ++i)
@@ -537,6 +589,7 @@ void output_results(shared_ptr<Solver::Result> result,
     }
     
     // Store values
+    output_node.set_child_value(number_of_result_points, "number_of_result_points");
     output_node.set_child_vector(flat_points, "points");
     output_node.set_child_vector(scalar_flux, "flux");
     
@@ -555,9 +608,12 @@ void run_problem(int test_num,
                  string output_path,
                  int dimension,
                  int angular_rule,
+                 int number_of_groups,
                  int num_dimensional_points,
                  double radius_num_intervals)
 {
+    Assert(number_of_groups == 1 || number_of_groups == 2);
+    
     // Initialize timing
     Timer timer;
     
@@ -578,6 +634,7 @@ void run_problem(int test_num,
                        sweep_options,
                        dimension,
                        angular_rule,
+                       number_of_groups,
                        num_dimensional_points,
                        radius_num_intervals,
                        spatial,
@@ -596,6 +653,7 @@ void run_problem(int test_num,
                     sweep_options,
                     dimension,
                     angular_rule,
+                    number_of_groups,
                     num_dimensional_points,
                     radius_num_intervals,
                     spatial,
@@ -621,6 +679,7 @@ void run_problem(int test_num,
     // Output results
     output_results(result,
                    spatial,
+                   energy,
                    setup_time,
                    solve_time,
                    output_path);
@@ -644,6 +703,7 @@ void run_test(string input_path)
     int dimension = input_node.get_child_value<int>("dimension");
     int angular_rule = input_node.get_child_value<int>("angular_rule");
     int num_dimensional_points = input_node.get_child_value<int>("num_dimensional_points");
+    int number_of_groups = input_node.get_child_value<int>("num_groups");
     double radius_num_intervals = input_node.get_child_value<double>("radius_num_intervals");
 
     // Set options
@@ -680,6 +740,7 @@ void run_test(string input_path)
                 output_path,
                 dimension,
                 angular_rule,
+                number_of_groups,
                 num_dimensional_points,
                 radius_num_intervals);
 }    

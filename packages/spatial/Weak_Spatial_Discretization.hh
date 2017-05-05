@@ -95,22 +95,44 @@ public:
     {
         return boundary_bases_[boundary_index];
     }
+
+    // Functions to get values given expansion coefficients
+    
+    // Get the nearest weight function to a point: this can be used to find the basis functions applicable to a point
     virtual int nearest_point(std::vector<double> const &position) const;
+    
+    // Get the basis expansion values at the centers of the weight functions
     virtual double collocation_value(int i,
                                      std::vector<double> const &coefficients) const;
-    virtual double weighted_collocation_value(int i,
-                                              std::vector<double> const &coefficients) const;
     virtual void collocation_values(std::vector<double> const &coefficients,
                                     std::vector<double> &values) const;
+    
+    // Get the weighted basis expansion values for each weight function
+    virtual double weighted_collocation_value(int i,
+                                              std::vector<double> const &coefficients) const;
     virtual void weighted_collocation_values(std::vector<double> const &coefficients,
                                              std::vector<double> &values) const;
+    
+    // Get expansion values at arbitrary points given the coefficients
     virtual double expansion_value(int i,
                                    std::vector<double> const &position,
                                    std::vector<double> const &coefficients) const;
     virtual double expansion_value(std::vector<double> const &position,
                                    std::vector<double> const &coefficients) const;
+    
+    // Get expansion values at arbitrary points given the group-dependent coefficients
+    // Note that since the point is the last index, the groups could refer to energy groups plus moments
+    virtual std::vector<double> expansion_values(int i,
+                                                 int number_of_groups,
+                                                 std::vector<double> const &position,
+                                                 std::vector<double> const &coefficients) const;
+    virtual std::vector<double> expansion_values(int number_of_groups,
+                                                 std::vector<double> const &position,
+                                                 std::vector<double> const &coefficients) const;
+
 private:
 
+    // Data
     bool has_reflection_;
     bool include_supg_;
     int number_of_points_;
