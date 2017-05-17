@@ -125,7 +125,21 @@ solve()
 void Krylov_Steady_State::
 output(XML_Node output_node) const
 {
+    // Output options
+    output_node.set_attribute(options_.max_source_iterations,
+                              "max_source_iterations");
+    output_node.set_attribute(options_.max_iterations,
+                               "max_iterations");
+    output_node.set_attribute(options_.kspace,
+                              "kspace");
+    output_node.set_attribute(options_.solver_print,
+                              "solver_print");
+    output_node.set_attribute(options_.tolerance,
+                              "tolerance");
     
+    // Output results
+    output_result(output_node,
+                  result_);
 }
 
 void Krylov_Steady_State::

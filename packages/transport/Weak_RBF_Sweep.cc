@@ -316,7 +316,15 @@ get_matrix_row(int i, // weight function index (row)
 void Weak_RBF_Sweep::
 output(XML_Node output_node) const
 {
-    
+    switch (options_.solver)
+    {
+    case Weak_RBF_Sweep::Options::Solver::AMESOS:
+        output_node.set_attribute("solver", "type");
+        break;
+    case Weak_RBF_Sweep::Options::Solver::AZTEC:
+        output_node.set_attribute("solver", "type");
+        break;
+    }
 }
 
 Weak_RBF_Sweep::Sweep_Solver::

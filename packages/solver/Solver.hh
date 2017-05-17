@@ -45,7 +45,9 @@ public:
     
     // Ouput data to XML file
     virtual void output(XML_Node output_node) const = 0;
-
+    virtual void output_result(XML_Node output_node,
+                               std::shared_ptr<Result> result) const;
+    
     // Check class values
     virtual void check_class_invariants() const = 0;
 

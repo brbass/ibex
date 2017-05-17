@@ -2,45 +2,43 @@
 #define Transport_Problem_hh
 
 #include <memory>
-#include <vector>
 
-#include "pugixml.hh"
+#include "XML_Node.hh"
 
-class Solver;
+class Angular_Discretization;
+class Energy_Discretization;
+class Solid_Geometry;
+class Transport_Discretization;
+class Weak_RBF_Sweep;
+class Weak_Spatial_Discretization;
 
 /*
-  High-level class to run a transport problem
+  Represents some main problem to be solved
+  Lets parser pick between categories
 */
 class Transport_Problem
 {
 public:
-
-    // Type of solution
-    enum class Problem_Type
-    {
-        STEADY_STATE,
-        K_EIGENVALUE,
-        TIME_DEPENDENT
-    };
-
-    // Creator
-    Transport_Problem(Problem_Type problem_type,
-                      std::shared_ptr<Solver> solver);
-
-    // Solve transport problem
-    void solve();
-
-    // Output data to XML file
-    void output(pugi::xml_node &output_node) const;
-
-private:
     
-    Problem_Type problem_type_;
-    shared_ptr<Solver> solver_;
+    Transport_Problem(XML_Node input_node,
+                      XML_Node output_node);
 
-    double k_eigenvalue_;
-    std::vector<double> phi_;
-    std::vector<double> psi_;
+    void solve();
+    
+private:
+
+    void get_weak_data(std::shared_ptr<Energy_Discretization> &energy,
+                       std::shared_ptr<Angular_Discretization> &angular,
+                       std::shared_ptr<Solid_Geometry> &solid,
+                       std::shared_ptr<Weak_Spatial_Discretization> &spatial,
+                       std::shared_ptr<Transport_Discretization> &transport,
+                       std::shared_ptr<Weak_RBF_Sweep> &sweep);
+    
+    void solve_eigenvalue();
+    void solve_steady_state();
+
+    XML_Node input_node_;
+    XML_Node output_node_;
 };
 
 #endif

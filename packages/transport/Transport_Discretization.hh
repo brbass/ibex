@@ -6,6 +6,7 @@
 class Angular_Discretization;
 class Energy_Discretization;
 class Spatial_Discretization;
+class XML_Node;
 
 class Transport_Discretization
 {
@@ -31,6 +32,8 @@ public:
     {
         return number_of_augments_;
     }
+
+    void output(XML_Node output_node) const;
     
 private:
 

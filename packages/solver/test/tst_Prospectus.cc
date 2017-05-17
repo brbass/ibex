@@ -705,6 +705,7 @@ void run_test(string input_path)
     int num_dimensional_points = input_node.get_child_value<int>("num_dimensional_points");
     int number_of_groups = input_node.get_child_value<int>("num_groups");
     double radius_num_intervals = input_node.get_child_value<double>("radius_num_intervals");
+    int num_integration_ordinates = input_node.get_child_value<int>("num_integration_ordinates");
 
     // Set options
     Weight_Function::Options weight_options;
@@ -716,14 +717,8 @@ void run_test(string input_path)
     {
         weight_options.output = Weight_Function::Options::Output::STANDARD;
     }
-    if (dimension == 1)
-    {
-        weight_options.integration_ordinates = 32;
-    }
-    else
-    {
-        weight_options.integration_ordinates = 16;
-    }
+    weight_options.integration_ordinates = num_integration_ordinates;
+    weight_options.integration_ordinates = num_integration_ordinates;
     
     Weak_RBF_Sweep::Options sweep_options;
     sweep_options.solver = Weak_RBF_Sweep::Options::Solver::AMESOS;

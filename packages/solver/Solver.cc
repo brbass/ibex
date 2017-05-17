@@ -5,6 +5,7 @@
 #include <string>
 
 #include "Check.hh"
+#include "XML_Node.hh"
 
 using namespace std;
 
@@ -95,5 +96,32 @@ print_eigenvalue(double eigenvalue) const
         cout << setprecision(10);
         cout << eigenvalue;
         cout << endl;
+    }
+}
+
+void Solver::
+output_result(XML_Node output_node,
+              shared_ptr<Result> result) const
+{
+    output_node.set_child_value(result->total_iterations,
+                                "total_iterations");
+    output_node.set_child_vector(result->coefficients,
+                                 "coefficients",
+                                 "node-group-moment-point");
+    XML_Node phi_node = output_node.append_child("values");
+    for (vector<double> const &phi : result->phi)
+    {
+        phi_node.set_child_vector(phi, "phi", "node-group-moment-point");
+    }
+
+    if (result->source_iterations != -1)
+    {
+        output_node.set_child_value(result->source_iterations,
+                                    "source_iterations");
+    }
+    if (result->k_eigenvalue != -1)
+    {
+        output_node.set_child_value(result->k_eigenvalue,
+                                    "k_eigenvalue");
     }
 }
