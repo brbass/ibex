@@ -6,6 +6,7 @@
 
 #include "Meshless_Function.hh"
 
+class Linear_MLS_External;
 class XML_Node;
 
 /*
@@ -59,6 +60,10 @@ public:
                                  std::vector<int> &indices,
                                  std::vector<double> &vals,
                                  std::vector<std::vector<double> > &grad_vals) const override;
+    virtual std::shared_ptr<Meshless_Function> base_function() override
+    {
+        return function_;
+    }
     virtual void output(XML_Node output_node) const override;
     virtual void check_class_invariants() const override;
 
@@ -92,6 +97,7 @@ private:
     std::vector<double> position_;
     std::shared_ptr<Meshless_Function> function_;
     std::vector<std::shared_ptr<Meshless_Function> > neighbor_functions_;
+    std::shared_ptr<Linear_MLS_External> mls_external_;
 };
 
 #endif

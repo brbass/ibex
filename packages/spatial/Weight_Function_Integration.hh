@@ -225,6 +225,7 @@ private:
 
     // Data
     Weight_Function::Options options_;
+    bool apply_mls_;
     int number_of_points_;
     std::vector<std::shared_ptr<Basis_Function> > bases_;
     std::vector<std::shared_ptr<Weight_Function> > weights_;

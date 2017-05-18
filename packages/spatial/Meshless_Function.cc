@@ -35,3 +35,4 @@ gradient_values(vector<double> const &r,
 {
     AssertMsg(false, "not implemented for this meshless function");
 }
+

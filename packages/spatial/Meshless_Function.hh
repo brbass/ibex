@@ -1,11 +1,12 @@
 #ifndef Meshless_Function_hh
 #define Meshless_Function_hh
 
+#include <memory>
 #include <vector>
 
 class XML_Node;
 
-class Meshless_Function
+class Meshless_Function : public std::enable_shared_from_this<Meshless_Function>
 {
 public:
     
@@ -46,6 +47,12 @@ public:
                                  std::vector<int> &indices,
                                  std::vector<double> &vals,
                                  std::vector<std::vector<double> > &grad_vals) const;
+    
+    // Get base function (for normalized meshless methods): otherwise returns same function
+    virtual std::shared_ptr<Meshless_Function> base_function()
+    {
+        return shared_from_this();
+    }
     
     // Input checking and output methods
     virtual void output(XML_Node output_node) const = 0;
