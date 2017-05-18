@@ -209,7 +209,7 @@
   
   <weight_functions>
     <meshless_function type='rbf' function='compact_gaussian'/>
-    <material_options weighting='weight' output='standard'/>
+    <material_options weighting='weight' output='standard' external="false"/>
     <integration_ordinates>32</integration_ordinates>
     
     <number_of_weight_functions>3</number_of_weight_functions>

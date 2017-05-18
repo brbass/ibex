@@ -11,6 +11,7 @@
 #include "KD_Tree.hh"
 #include "Material.hh"
 #include "Meshless_Function.hh"
+#include "Meshless_Normalization.hh"
 #include "Solid_Geometry.hh"
 #include "Quadrature_Rule.hh"
 #include "Weight_Function.hh"
@@ -34,10 +35,27 @@ Weight_Function_Integration(int number_of_points,
     Assert(weights.size() == number_of_points_);
     Assert(solid);
 
+    // Create mesh
     mesh_ = make_shared<Mesh>(*this,
                               solid->dimension(),
                               limits,
                               dimensional_cells);
+
+    // Get normalization information
+    apply_basis_normalization_ = bases[0]->function()->depends_on_neighbors();
+    apply_weight_normalization_ = weights[0]->function()->depends_on_neighbors();
+    
+    if (apply_basis_normalization_)
+    {
+        basis_normalization_ = bases[0]->function()->normalization();
+    }
+    if (apply_weight_normalization_)
+    {
+        weight_normalization_ = weights[0]->function()->normalization();
+    }
+
+    // Get information on Galerkin vs Petrov-Galerkin discretization
+    identical_basis_functions_ = weights[0]->options().identical_basis_functions == Weight_Function::Options::Identical_Basis_Functions::TRUE;
     
     // Get angular and energy discretizations
     shared_ptr<Material> test_material = solid_->material(weights_[0]->position());
@@ -91,6 +109,21 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
         vector<vector<int> > weight_basis_indices;
         get_cell_basis_indices(cell,
                                weight_basis_indices);
+
+        // Get center positions
+        vector<vector<double> > weight_centers;
+        vector<vector<double> > basis_centers;
+        get_weight_centers(cell.weight_indices,
+                           weight_centers);
+        if (identical_basis_functions_)
+        {
+            basis_centers = weight_centers;
+        }
+        else
+        {
+            get_basis_centers(cell.basis_indices,
+                              basis_centers);
+        }                  
         
         for (int q = 0; q < number_of_ordinates; ++q)
         {
@@ -105,6 +138,8 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
             shared_ptr<Material> point_material;
             get_volume_values(cell,
                               position,
+                              basis_centers,
+                              weight_centers,
                               b_val,
                               b_grad,
                               w_val,
@@ -459,6 +494,21 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals) const
                                ordinates,
                                weights);
 
+        // Get centers
+        vector<vector<double> > weight_centers;
+        vector<vector<double> > basis_centers;
+        get_weight_centers(surface.weight_indices,
+                           weight_centers);
+        if (identical_basis_functions_)
+        {
+            basis_centers = weight_centers;
+        }
+        else
+        {
+            get_basis_centers(surface.basis_indices,
+                              basis_centers);
+        }                  
+        
         for (int q = 0; q < number_of_ordinates; ++q)
         {
             // Get position
@@ -469,6 +519,8 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals) const
             vector<double> w_val;
             get_surface_values(surface,
                                position,
+                               basis_centers,
+                               weight_centers,
                                b_val,
                                w_val);
 
@@ -677,6 +729,8 @@ get_material(int index,
 void Weight_Function_Integration::
 get_volume_values(Mesh::Cell const &cell,
                   vector<double> const &position,
+                  vector<vector<double> > const &basis_centers,
+                  vector<vector<double> > const &weight_centers,
                   vector<double> &b_val,
                   vector<vector<double> > &b_grad,
                   vector<double> &w_val,
@@ -692,51 +746,106 @@ get_volume_values(Mesh::Cell const &cell,
     // Get material at quadrature point
     point_material = solid_->material(position);
     
-    // Get values for basis functions at quadrature point
-    for (int j = 0; j < cell.number_of_basis_functions; ++j)
-    {
-        shared_ptr<Meshless_Function> func = bases_[cell.basis_indices[j]]->function();
-                
-        b_val[j] = func->value(position);
-        b_grad[j] = func->gradient_value(position);
-    }
-
     // Get values for weight functions at quadrature point
     for (int j = 0; j < cell.number_of_weight_functions; ++j)
     {
-        shared_ptr<Meshless_Function> func = weights_[cell.weight_indices[j]]->function();
+        shared_ptr<Meshless_Function> func = weights_[cell.weight_indices[j]]->function()->base_function();
 
         w_val[j] = func->value(position);
         w_grad[j] = func->gradient_value(position);
     }
-}
+    
+    // Normalize weight functions
+    if (apply_weight_normalization_)
+    {
+        weight_normalization_->get_gradient_values(position,
+                                                   weight_centers,
+                                                   w_val,
+                                                   w_grad,
+                                                   w_val,
+                                                   w_grad);
+    }
+    
+    if (identical_basis_functions_)
+    {
+        b_val = w_val;
+        b_grad = w_grad;
+    }
+    else
+    {
+        // Get values for basis functions at quadrature point
+        for (int j = 0; j < cell.number_of_basis_functions; ++j)
+        {
+            shared_ptr<Meshless_Function> func = bases_[cell.basis_indices[j]]->function()->base_function();
+                
+            b_val[j] = func->value(position);
+            b_grad[j] = func->gradient_value(position);
+        }
+
+        // Normalize basis functions
+        if (apply_basis_normalization_)
+        {
+            basis_normalization_->get_gradient_values(position,
+                                                      basis_centers,
+                                                      b_val,
+                                                      b_grad,
+                                                      b_val,
+                                                      b_grad);
+        }
+    }
+ }
 
 void Weight_Function_Integration::
 get_surface_values(Mesh::Surface const &surface,
                    vector<double> const &position,
+                   vector<vector<double> > const &basis_centers,
+                   vector<vector<double> > const &weight_centers,
                    vector<double> &b_val,
                    vector<double> &w_val) const
 {
     // Initialize values
     b_val.resize(surface.number_of_basis_functions);
     w_val.resize(surface.number_of_weight_functions);
-
-    // Get values for basis functions at quadrature point
-    for (int j = 0; j < surface.number_of_basis_functions; ++j)
-    {
-        shared_ptr<Meshless_Function> func = bases_[surface.basis_indices[j]]->function();
-                
-        b_val[j] = func->value(position);
-    }
-
+    
     // Get values for weight functions at quadrature point
     for (int j = 0; j < surface.number_of_weight_functions; ++j)
     {
-        shared_ptr<Meshless_Function> func = weights_[surface.weight_indices[j]]->function();
+        shared_ptr<Meshless_Function> func = weights_[surface.weight_indices[j]]->function()->base_function();
                 
         w_val[j] = func->value(position);
     }
-}
+    
+    // Normalize weight functions
+    if (apply_weight_normalization_)
+    {
+        weight_normalization_->get_values(position,
+                                          weight_centers,
+                                          w_val,
+                                          w_val);
+    }
+
+    if (identical_basis_functions_)
+    {
+        b_val = w_val;
+    }
+    else
+    {
+        // Get values for basis functions at quadrature point
+        for (int j = 0; j < surface.number_of_basis_functions; ++j)
+        {
+            shared_ptr<Meshless_Function> func = bases_[surface.basis_indices[j]]->function()->base_function();
+                
+            b_val[j] = func->value(position);
+        }
+        if (apply_basis_normalization_)
+        {
+            basis_normalization_->get_values(position,
+                                             basis_centers,
+                                             b_val,
+                                             b_val);
+        }
+    }
+ }
 
 void Weight_Function_Integration::
 get_surface_quadrature(int i,
@@ -1108,6 +1217,31 @@ get_surface_basis_indices(Mesh::Surface const &surface,
         }
     }
 }
+
+void Weight_Function_Integration::
+get_basis_centers(vector<int> const &basis_indices,
+                  vector<vector<double> > &center_positions) const
+{
+    int number_of_basis_functions = basis_indices.size();
+    center_positions.resize(number_of_basis_functions);
+    for (int i = 0; i < number_of_basis_functions; ++i)
+    {
+        center_positions[i] = bases_[basis_indices[i]]->position();
+    }
+}
+
+void Weight_Function_Integration::
+get_weight_centers(vector<int> const &weight_indices,
+                   vector<vector<double> > &center_positions) const
+{
+    int number_of_weight_functions = weight_indices.size();
+    center_positions.resize(number_of_weight_functions);
+    for (int i = 0; i < number_of_weight_functions; ++i)
+    {
+        center_positions[i] = weights_[weight_indices[i]]->position();
+    }
+}
+
 
 Weight_Function_Integration::Mesh::
 Mesh(Weight_Function_Integration const &wfi,
@@ -1569,65 +1703,88 @@ initialize_connectivity()
     }
     
     // Get basis function connectivity
-    for (int i = 0; i < number_of_points; ++i)
+    if (!wfi_.identical_basis_functions_)
     {
-        // Get basis function data
-        shared_ptr<Basis_Function> basis = wfi_.bases_[i];
-        double radius = get_inclusive_radius(basis->radius());
-        vector<double> const position = basis->position();
-        
-        // Find nodes that intersect with the basis function
-        vector<int> intersecting_nodes;
-        vector<double> distances;
-        int number_of_intersecting_nodes
-            = node_tree_->radius_search(radius,
-                                          position,
-                                          intersecting_nodes,
-                                          distances);
-        
-        // Add basis indices to cells and surfaces
-        for (int j = 0; j < number_of_intersecting_nodes; ++j)
+        for (int i = 0; i < number_of_points; ++i)
         {
-            Node &node = nodes_[intersecting_nodes[j]];
-            
-            for (int c_index : node.neighboring_cells)
-            {
-                cells_[c_index].basis_indices.push_back(i);
-            }
+            // Get basis function data
+            shared_ptr<Basis_Function> basis = wfi_.bases_[i];
+            double radius = get_inclusive_radius(basis->radius());
+            vector<double> const position = basis->position();
 
-            for (int s_index : node.neighboring_surfaces)
+            // Find nodes that intersect with the basis function
+            vector<int> intersecting_nodes;
+            vector<double> distances;
+            int number_of_intersecting_nodes
+                = node_tree_->radius_search(radius,
+                                            position,
+                                            intersecting_nodes,
+                                            distances);
+        
+            // Add basis indices to cells and surfaces
+            for (int j = 0; j < number_of_intersecting_nodes; ++j)
             {
-                surfaces_[s_index].basis_indices.push_back(i);
+                Node &node = nodes_[intersecting_nodes[j]];
+            
+                for (int c_index : node.neighboring_cells)
+                {
+                    cells_[c_index].basis_indices.push_back(i);
+                }
+
+                for (int s_index : node.neighboring_surfaces)
+                {
+                    surfaces_[s_index].basis_indices.push_back(i);
+                }
             }
         }
     }
-
-    // Remove duplicate basis/weight indices
+    
+    // Remove duplicate volume indices
     for (int i = 0; i < number_of_background_cells_; ++i)
     {
         Cell &cell = cells_[i];
-        
-        sort(cell.basis_indices.begin(), cell.basis_indices.end());
-        cell.basis_indices.erase(unique(cell.basis_indices.begin(), cell.basis_indices.end()), cell.basis_indices.end());
-        
+
+        // Remove duplicate weight indices
         sort(cell.weight_indices.begin(), cell.weight_indices.end());
         cell.weight_indices.erase(unique(cell.weight_indices.begin(), cell.weight_indices.end()), cell.weight_indices.end());
-
-        cell.number_of_basis_functions = cell.basis_indices.size();
         cell.number_of_weight_functions = cell.weight_indices.size();
+
+        // Remove duplicate basis indices
+        if (wfi_.identical_basis_functions_)
+        {
+            cell.basis_indices = cell.weight_indices;
+            cell.number_of_basis_functions = cell.number_of_weight_functions;
+        }
+        else
+        {
+            sort(cell.basis_indices.begin(), cell.basis_indices.end());
+            cell.basis_indices.erase(unique(cell.basis_indices.begin(), cell.basis_indices.end()), cell.basis_indices.end());
+            cell.number_of_basis_functions = cell.basis_indices.size();
+        }
     }
+    
+    // Remove duplicate surface indices
     for (int i = 0; i < number_of_background_surfaces_; ++i)
     {
         Surface &surface = surfaces_[i];
-        
-        sort(surface.basis_indices.begin(), surface.basis_indices.end());
-        surface.basis_indices.erase(unique(surface.basis_indices.begin(), surface.basis_indices.end()), surface.basis_indices.end());
-        
+
+        // Remove duplicate weight indices
         sort(surface.weight_indices.begin(), surface.weight_indices.end());
         surface.weight_indices.erase(unique(surface.weight_indices.begin(), surface.weight_indices.end()), surface.weight_indices.end());
-
-        surface.number_of_basis_functions = surface.basis_indices.size();
         surface.number_of_weight_functions = surface.weight_indices.size();
+
+        // Remove duplicate basis indices
+        if (wfi_.identical_basis_functions_)
+        {
+            surface.basis_indices = surface.weight_indices;
+            surface.number_of_basis_functions = surface.number_of_weight_functions;
+        }
+        else
+        {
+            sort(surface.basis_indices.begin(), surface.basis_indices.end());
+            surface.basis_indices.erase(unique(surface.basis_indices.begin(), surface.basis_indices.end()), surface.basis_indices.end());
+            surface.number_of_basis_functions = surface.basis_indices.size();
+        }
     }
 }
 

@@ -343,6 +343,7 @@ int run_interpolation(string input_folder)
     
     for (string input_filename : input_filenames)
     {
+        cout << "running " << input_filename << endl;
         // Get XML document
         XML_Document input_file = get_xml_document(input_filename);
         XML_Node input_node = input_file.get_child("input");
@@ -408,13 +409,15 @@ int check_basis(string input_folder)
 {
     int checksum = 0;
 
+    cout << "checking MLS basis" << endl;
+    
     // Get initial information
     int dimension = 2;
     string input_filename = input_folder + "/mls_weak_interpolation.xml";
     XML_Document input_file = get_xml_document(input_filename);
     XML_Node input_node = input_file.get_child("input");
     double tolerance = input_node.get_child_value<double>("tolerance");
-
+    
     // Get constant source
     function<double(vector<double>)> source
         = [](vector<double> const &/*position*/)
@@ -469,9 +472,13 @@ int main(int argc, char **argv)
     
     string input_folder = argv[1];
     input_folder += "/";
+
+    cout << "this test will fail because point weighting in the internal integration needs to be checked before it's activated" << endl;
+    cout << "interpolation tests disabled for now" << endl;
     
     checksum += check_basis(input_folder);
-    checksum += run_interpolation(input_folder);
+    // checksum += run_interpolation(input_folder);
+    checksum += 1;
     
     MPI_Finalize();
     

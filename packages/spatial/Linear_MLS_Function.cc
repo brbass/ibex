@@ -1,7 +1,7 @@
 #include "Linear_MLS_Function.hh"
 
 #include "Linear_Algebra.hh"
-#include "Linear_MLS_External.hh"
+#include "Linear_MLS_Normalization.hh"
 #include "Matrix_Functions.hh"
 #include "Vector_Functions.hh"
 #include "XML_Node.hh"
@@ -25,7 +25,7 @@ Linear_MLS_Function(vector<shared_ptr<Meshless_Function> > neighbor_functions):
 {
     number_of_polynomials_ = dimension_ + 1;
     radius_ = function_->radius();
-    mls_external_ = make_shared<Linear_MLS_External>(dimension_);
+    normalization_ = make_shared<Linear_MLS_Normalization>(dimension_);
     
     check_class_invariants();
 }
@@ -197,10 +197,10 @@ values(vector<double> const &position,
     }
 
     // Get values
-    mls_external_->get_values(position,
-                              center_positions,
-                              base_values,
-                              vals);
+    normalization_->get_values(position,
+                               center_positions,
+                               base_values,
+                               vals);
 }
 
 void Linear_MLS_Function::
@@ -227,7 +227,7 @@ gradient_values(vector<double> const &position,
     // Get meshless function values
     vector<double> base_values(number_of_functions_);
     vector<vector<double> > grad_base_values(number_of_functions_,
-                                           vector<double>(dimension_));
+                                             vector<double>(dimension_));
     for (int i = 0; i < number_of_functions_; ++i)
     {
         base_values[i] = neighbor_functions_[i]->value(position);
@@ -242,12 +242,12 @@ gradient_values(vector<double> const &position,
     }
     
     // Get values
-    mls_external_->get_gradient_values(position,
-                                       center_positions,
-                                       base_values,
-                                       grad_base_values,
-                                       vals,
-                                       grad_vals);
+    normalization_->get_gradient_values(position,
+                                        center_positions,
+                                        base_values,
+                                        grad_base_values,
+                                        vals,
+                                        grad_vals);
 }
 
 void Linear_MLS_Function::
@@ -392,3 +392,8 @@ get_d_b(int dim,
     }
 }
 
+shared_ptr<Meshless_Normalization> Linear_MLS_Function::
+normalization() const
+{
+    return normalization_;
+}

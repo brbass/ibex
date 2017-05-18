@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+class Meshless_Normalization;
 class XML_Node;
 
 class Meshless_Function : public std::enable_shared_from_this<Meshless_Function>
@@ -53,6 +54,9 @@ public:
     {
         return shared_from_this();
     }
+
+    // Get normalization method for basis functions: disabled when !depends_on_neighbors
+    virtual std::shared_ptr<Meshless_Normalization> normalization() const;
     
     // Input checking and output methods
     virtual void output(XML_Node output_node) const = 0;

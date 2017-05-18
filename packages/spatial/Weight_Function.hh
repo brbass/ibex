@@ -47,12 +47,21 @@ public:
             MOMENT
         };
 
+        // Tau scaling according to distance from boundary
         enum class Tau_Scaling
         {
             NONE,
             FUNCTIONAL, // 1 - b(boundary) - b(center)
             LINEAR, // pos_boundary / radius
             ABSOLUTE // 0 if on boundary
+        };
+
+        // Galerkin: should be set to true or false by time options are passed to Weight_Function
+        enum class Identical_Basis_Functions
+        {
+            AUTO, // Set in creation methods
+            TRUE,
+            FALSE
         };
         
         // Parameters that are automatically set
@@ -63,6 +72,7 @@ public:
         bool external_integral_calculation = true;
         
         // Parameters for the user to set
+        Identical_Basis_Functions identical_basis_functions = Identical_Basis_Functions::FALSE;
         int integration_ordinates = 8; // Dimensional integration quadrature
         double tau_const = 1; // Constant in front of 1/shape
         Weighting weighting = Weighting::WEIGHT; 

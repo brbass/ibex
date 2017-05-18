@@ -6,7 +6,7 @@
 
 #include "Meshless_Function.hh"
 
-class Linear_MLS_External;
+class Linear_MLS_Normalization;
 class XML_Node;
 
 /*
@@ -64,6 +64,7 @@ public:
     {
         return function_;
     }
+    virtual std::shared_ptr<Meshless_Normalization> normalization() const override;
     virtual void output(XML_Node output_node) const override;
     virtual void check_class_invariants() const override;
 
@@ -97,7 +98,7 @@ private:
     std::vector<double> position_;
     std::shared_ptr<Meshless_Function> function_;
     std::vector<std::shared_ptr<Meshless_Function> > neighbor_functions_;
-    std::shared_ptr<Linear_MLS_External> mls_external_;
+    std::shared_ptr<Linear_MLS_Normalization> normalization_;
 };
 
 #endif

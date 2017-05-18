@@ -1,4 +1,4 @@
-#include "Linear_MLS_External.hh"
+#include "Linear_MLS_Normalization.hh"
 
 #include "Linear_Algebra.hh"
 #include "Matrix_Functions.hh"
@@ -9,14 +9,14 @@ namespace mf = Matrix_Functions;
 namespace vf = Vector_Functions;
 using std::vector;
 
-Linear_MLS_External::
-Linear_MLS_External(int dimension):
+Linear_MLS_Normalization::
+Linear_MLS_Normalization(int dimension):
     dimension_(dimension),
     number_of_polynomials_(dimension + 1)
 {
 }
 
-void Linear_MLS_External::
+void Linear_MLS_Normalization::
 get_polynomial(vector<double> const &position,
                vector<double> &poly) const
 {
@@ -29,7 +29,7 @@ get_polynomial(vector<double> const &position,
     }
 }
 
-void Linear_MLS_External::
+void Linear_MLS_Normalization::
 get_grad_polynomial(vector<double> const &position,
                     vector<vector<double> > &grad_poly) const
 {
@@ -41,7 +41,7 @@ get_grad_polynomial(vector<double> const &position,
     }
 }
 
-void Linear_MLS_External::
+void Linear_MLS_Normalization::
 get_values(vector<double> const &position,
            vector<vector<double> > const &center_positions,
            vector<double> const &base_values,
@@ -49,6 +49,10 @@ get_values(vector<double> const &position,
 {
     // Get size information
     int number_of_functions = base_values.size();
+    Check(position.size() == dimension_);
+    Check(center_positions.size() == number_of_functions);
+
+    // Resize but don't assign in case base_values and values are the same
     values.resize(number_of_functions);
     
     // Get polynomial value at evaluation position
@@ -109,7 +113,7 @@ get_values(vector<double> const &position,
 }
            
 
-void Linear_MLS_External::
+void Linear_MLS_Normalization::
 get_gradient_values(vector<double> const &position,
                     vector<vector<double> > const &center_positions,
                     vector<double> const &base_values,
@@ -119,8 +123,17 @@ get_gradient_values(vector<double> const &position,
 {
     // Get size information
     int number_of_functions = base_values.size();
+    Check(position.size() == dimension_);
+    Check(center_positions.size() == number_of_functions);
+    Check(grad_base_values.size() == number_of_functions);
+
+    // Resize but don't assign in case values and base values are the same
     values.resize(number_of_functions);
-    gradient_values.assign(number_of_functions, vector<double>(dimension_, 0));
+    gradient_values.resize(number_of_functions);
+    for (int i = 0; i < number_of_functions; ++i)
+    {
+        gradient_values[i].resize(dimension_);
+    }
 
     // Get polynomial value at evaluation position
     vector<double> p_position(number_of_polynomials_);

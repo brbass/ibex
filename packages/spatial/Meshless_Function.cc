@@ -4,6 +4,7 @@
 #include "Vector_Functions.hh"
 
 namespace vf = Vector_Functions;
+using std::shared_ptr;
 using std::vector;
 
 Meshless_Function::
@@ -36,3 +37,9 @@ gradient_values(vector<double> const &r,
     AssertMsg(false, "not implemented for this meshless function");
 }
 
+shared_ptr<Meshless_Normalization> Meshless_Function::
+normalization() const
+{
+    AssertMsg(false, "not implemented for this meshless function");
+    return shared_ptr<Meshless_Normalization>();
+}

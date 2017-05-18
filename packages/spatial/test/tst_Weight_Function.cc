@@ -107,7 +107,6 @@ vector<shared_ptr<Weight_Function> > get_weight_functions(XML_Node input_node)
                                                number_of_weights,
                                                dimension,
                                                basis_functions);
-
 }
 
 int test_integrals(string input_filename)

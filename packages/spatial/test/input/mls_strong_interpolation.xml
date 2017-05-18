@@ -22,12 +22,13 @@
   </boundary_sources>
 
   <spatial_discretization file='square_2.0_10_60_60.xml'>
+    <integration external="false"/>
     <basis_functions>
       <meshless_function type='linear_mls' function='compact_gaussian'/>
     </basis_functions>
     <weight_functions>
       <meshless_function type='linear_mls' function='compact_gaussian'/>
-      <material_options weighting='point' output='standard'/>
+      <material_options weighting='point' output='standard' external="false"/>
       <integration_ordinates>1</integration_ordinates>
     </weight_functions>
   </spatial_discretization>

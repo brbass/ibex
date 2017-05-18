@@ -111,7 +111,11 @@ set_options_and_limits()
             local_surface_indices_[1 + 2 * dim_sur] = i;
         }
     }
+
+    // Check that Galerkin option is set
+    Assert(options_.identical_basis_functions != Options::Identical_Basis_Functions::AUTO);
     
+    // Set SUPG options
     switch (options_.output)
     {
     case Options::Output::STANDARD:

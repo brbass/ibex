@@ -273,7 +273,7 @@ int test_integration(bool basis_mls,
     
     // Get problem with external integration
     weight_options.external_integral_calculation = true;
-    weight_options.integration_ordinates = 32;
+    weight_options.integration_ordinates = 8;
     timer.start();
     get_pincell(basis_mls,
                 weight_mls,
@@ -288,7 +288,7 @@ int test_integration(bool basis_mls,
                 angular,
                 energy);
     timer.stop();
-    timer.print_time();
+    cout << "external time: " << timer.time() << endl;
     
     // Get problem with internal integration
     weight_options.integration_ordinates = 32;
@@ -307,7 +307,7 @@ int test_integration(bool basis_mls,
                 angular,
                 energy);
     timer.stop();
-    timer.print_time();
+    cout << "internal time: " << timer.time() << endl;
 
     shared_ptr<Weight_Function> weight_external
         = spatial_external->weight(0);
@@ -323,7 +323,7 @@ int test_integration(bool basis_mls,
         = weight_external->material();
     shared_ptr<Material> material_internal
         = weight_internal->material();
-    
+
     int const w = 16;
     cout << "iv_b_w" << endl;
     cout << setw(w) << "external";
@@ -345,8 +345,22 @@ int run_tests()
 {
     int checksum = 0;
 
+    double tolerance = 1e-7;
     Weight_Function::Options options;
+    options.identical_basis_functions
+        = Weight_Function::Options::Identical_Basis_Functions::TRUE;
 
+    checksum += test_integration(false, // basis_mls
+                                 false, // weight_mls
+                                 "wendland11",
+                                 "wendland11",
+                                 options,
+                                 1, // dimension
+                                 2, // angular_rule
+                                 25, // number_of_points
+                                 4., // number_of_intervals
+                                 tolerance); // tolerance
+    
     checksum += test_integration(true, // basis_mls
                                  true, // weight_mls
                                  "wendland11",
@@ -354,10 +368,32 @@ int run_tests()
                                  options,
                                  1, // dimension
                                  2, // angular_rule
-                                 9, // number_of_points
-                                 3., // number_of_intervals
-                                 1e-8); // tolerance
+                                 25, // number_of_points
+                                 4., // number_of_intervals
+                                 tolerance); // tolerance
+
+    checksum += test_integration(false, // basis_mls
+                                 false, // weight_mls
+                                 "wendland11",
+                                 "wendland11",
+                                 options,
+                                 2, // dimension
+                                 1, // angular_rule
+                                 5, // number_of_points
+                                 4., // number_of_intervals
+                                 tolerance); // tolerance
     
+    checksum += test_integration(true, // basis_mls
+                                 true, // weight_mls
+                                 "wendland11",
+                                 "wendland11",
+                                 options,
+                                 2, // dimension
+                                 1, // angular_rule
+                                 5, // number_of_points
+                                 4., // number_of_intervals
+                                 tolerance); // tolerance
+     
     return checksum;
 }
 

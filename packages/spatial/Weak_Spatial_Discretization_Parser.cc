@@ -7,6 +7,7 @@
 #include "Dimensional_Moments.hh"
 #include "Linear_MLS_Function.hh"
 #include "Meshless_Function.hh"
+#include "Meshless_Function_Factory.hh"
 #include "RBF_Function.hh"
 #include "RBF_Parser.hh"
 #include "Solid_Geometry.hh"
@@ -44,11 +45,25 @@ get_weak_discretization(XML_Node input_node) const
     shared_ptr<Dimensional_Moments> dimensional_moments
         = make_shared<Dimensional_Moments>(supg,
                                            dimension);
+
+    // Get integration options
+    XML_Node integration_node = input_node.get_child("integration");
     Weak_Spatial_Discretization::Options options;
-    if (weight_functions[0]->options().external_integral_calculation)
+    options.external_integral_calculation = integration_node.get_attribute<bool>("external");
+    if (options.external_integral_calculation)
     {
-        AssertMsg(false, "not implemented for parser");
+        Assert(weight_functions[0]->options().external_integral_calculation);
+        
+        // Set external integration data
+        options.solid = solid_geometry_;
+        options.dimensional_cells = integration_node.get_child_vector<int>("dimensional_cells", dimension);
+        Meshless_Function_Factory factory;
+        factory.get_boundary_limits(dimension,
+                                    boundary_surfaces_,
+                                    options.limits);
     }
+
+    // Create spatial discretization
     return make_shared<Weak_Spatial_Discretization>(basis_functions,
                                                     weight_functions,
                                                     dimensional_moments,
@@ -238,6 +253,8 @@ get_weight_functions(XML_Node input_node,
         }
 
         material_options.tau_const = material_node.get_attribute<double>("tau", 1.0);
+
+        material_options.external_integral_calculation = material_node.get_attribute<bool>("external");
     }
     
     // Get meshless functions

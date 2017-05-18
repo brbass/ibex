@@ -11,6 +11,7 @@ class Basis_Function;
 class Energy_Discretization;
 class KD_Tree;
 class Material;
+class Meshless_Normalization;
 class Solid_Geometry;
 
 class Weight_Function_Integration
@@ -157,6 +158,8 @@ private:
     // Get values for a single quadrature point in a cell
     void get_volume_values(Mesh::Cell const &cell,
                            std::vector<double> const &position,
+                           std::vector<std::vector<double> > const &basis_centers,
+                           std::vector<std::vector<double> > const &weight_centers,
                            std::vector<double> &b_val,
                            std::vector<std::vector<double> > &b_grad,
                            std::vector<double> &w_val,
@@ -191,6 +194,8 @@ private:
     // Get values for a single quadrature point on a surface
     void get_surface_values(Mesh::Surface const &surface,
                             std::vector<double> const &position,
+                           std::vector<std::vector<double> > const &basis_centers,
+                           std::vector<std::vector<double> > const &weight_centers,
                             std::vector<double> &b_val,
                             std::vector<double> &w_val) const;
 
@@ -216,6 +221,13 @@ private:
     void get_material(int index,
                       Material_Data const &material_data,
                       std::shared_ptr<Material> &material) const;
+
+    // Get the positions of the centers for a cell
+    void get_basis_centers(std::vector<int> const &basis_indices,
+                           std::vector<std::vector<double> > &center_positions) const;
+    void get_weight_centers(std::vector<int> const &weight_indices,
+                            std::vector<std::vector<double> > &center_positions) const;
+                     
     
     // Initialize material data to zero
     void initialize_materials(std::vector<Material_Data> &materials) const;
@@ -225,7 +237,9 @@ private:
 
     // Data
     Weight_Function::Options options_;
-    bool apply_mls_;
+    bool identical_basis_functions_;
+    bool apply_basis_normalization_;
+    bool apply_weight_normalization_;
     int number_of_points_;
     std::vector<std::shared_ptr<Basis_Function> > bases_;
     std::vector<std::shared_ptr<Weight_Function> > weights_;
@@ -234,6 +248,8 @@ private:
     std::shared_ptr<Energy_Discretization> energy_;
     std::shared_ptr<Mesh> mesh_;
     std::vector<std::vector<double> > limits_;
+    std::shared_ptr<Meshless_Normalization> basis_normalization_;
+    std::shared_ptr<Meshless_Normalization> weight_normalization_;
 };
 
 #endif

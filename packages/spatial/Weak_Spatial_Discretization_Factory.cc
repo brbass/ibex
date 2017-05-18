@@ -113,9 +113,27 @@ get_simple_discretization(int num_dimensional_points,
                           string weight_type,
                           Weight_Function::Options options) const
 {
+    // Get boundaries
     int dimension = solid_geometry_->dimension();
     vector<shared_ptr<Cartesian_Plane> > boundaries
         = solid_geometry_->cartesian_boundary_surfaces();
+
+    // Set Galerkin option
+    switch (options.identical_basis_functions)
+    {
+    case Weight_Function::Options::Identical_Basis_Functions::AUTO:
+        if (basis_mls == weight_mls && basis_type == weight_type)
+        {
+            options.identical_basis_functions = Weight_Function::Options::Identical_Basis_Functions::TRUE;
+        }
+        else
+        {
+            options.identical_basis_functions = Weight_Function::Options::Identical_Basis_Functions::FALSE;
+        }
+        break;
+    default:
+        break;
+    }
     
     // Get points
     int number_of_points;
