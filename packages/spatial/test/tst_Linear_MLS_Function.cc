@@ -4,11 +4,13 @@
 #include <vector>
 
 #include "Cartesian_Distance.hh"
+#include "Check.hh"
 #include "Check_Equality.hh"
 #include "Compact_Gaussian_RBF.hh"
 #include "Linear_MLS_Function.hh"
 #include "Random_Number_Generator.hh"
 #include "RBF_Function.hh"
+#include "Timer.hh"
 #include "Weak_Spatial_Discretization_Factory.hh"
 
 using namespace std;
@@ -182,11 +184,106 @@ int test_values()
     return checksum;
 }
 
+int test_all_values(int dimension)
+{
+    int checksum = 0;
+
+    // Set preliminary data
+    double tolerance = 1e-10;
+    double radius_num_intervals = 4;
+    string rbf_type = "wendland11";
+    
+    // Set limits and number of points
+    vector<vector<double> > limits(dimension, vector<double>(2));
+    for (int d = 0; d < dimension; ++d)
+    {
+        limits[d][0] = -1;
+        limits[d][1] = 1;
+    }
+    vector<int> dimensional_points(dimension, 20);
+    
+    // Get MLS functions
+    vector<shared_ptr<Meshless_Function> > functions;
+    Meshless_Function_Factory factory;
+    factory.get_cartesian_mls_functions(dimension,
+                                        radius_num_intervals,
+                                        dimensional_points,
+                                        limits,
+                                        rbf_type,
+                                        functions);
+    
+    // Test values of two methods
+    Random_Number_Generator<double> position_rng(-1, 1, 295 /*seed*/);
+    Random_Number_Generator<int> function_rng(0, functions.size() - 1, 104 /*seed*/);
+    int num_tests = 1000;
+    int num_inside = 0;
+    Timer timer;
+    double new_time = 0;
+    double old_time = 0;
+    for (int t = 0; t < num_tests; ++t)
+    {
+        // Get random point and function
+        shared_ptr<Meshless_Function> func = functions[function_rng.scalar()];
+        vector<double> position = position_rng.vector(dimension);
+        
+        if (func->inside_radius(position))
+        {
+            num_inside += 1;
+
+            // Get vector of values
+            vector<int> indices;
+            vector<double> vals;
+            vector<vector<double> > grad_vals;
+            timer.start();
+            func->gradient_values(position,
+                                  indices,
+                                  vals,
+                                  grad_vals);
+            timer.stop();
+            new_time += timer.time();
+            
+            // Test against individual values
+            for (int i = 0; i < indices.size(); ++i)
+            {
+                timer.start();
+                int j = indices[i];
+                double val = functions[j]->value(position);
+                vector<double> grad_val = functions[j]->gradient_value(position);
+                timer.stop();
+                old_time += timer.time();
+                
+                if (!ce::approx(val, vals[i], tolerance))
+                {
+                    cout << "MLS value failed for test " << t << " and value " << i << endl;
+                    cout << "error: " << val - vals[i] << endl;
+                    checksum += 1;
+                }
+                if (!ce::approx(grad_val, grad_vals[i], tolerance))
+                {
+                    cout << "MLS grad value failed for test " << t << " and value " << i << endl;
+                    cout << "error in dx: " << grad_val[0] - grad_vals[i][0] << endl;
+                    checksum += 1;
+                }
+            }
+        }
+    }
+    Assert(num_inside > 10);
+
+    cout << "dimension: " << dimension << endl;
+    cout << "\told method time: " << old_time << endl;
+    cout << "\tnew method time: " << new_time << endl;
+    
+    return checksum;
+}
+
 int main()
 {
     int checksum = 0;
 
-    checksum += test_1d();
+    // checksum += test_1d();
+    checksum += test_all_values(1);
+    checksum += test_all_values(2);
+    checksum += test_all_values(3);
     
     return checksum;
 }
