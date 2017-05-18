@@ -160,7 +160,8 @@ int main()
             = make_shared<Cartesian_Distance>(dimension);
         
         shared_ptr<Meshless_Function> meshless_function
-            = make_shared<RBF_Function>(shape,
+            = make_shared<RBF_Function>(0,
+                                        shape,
                                         r0,
                                         rbf,
                                         distance);

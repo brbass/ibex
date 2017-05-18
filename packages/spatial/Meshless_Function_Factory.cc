@@ -188,7 +188,8 @@ get_rbf_functions(int number_of_points,
         
         // Create function
         functions[i]
-            = make_shared<RBF_Function>(shape,
+            = make_shared<RBF_Function>(i,
+                                        shape,
                                         position,
                                         rbf,
                                         distance);

@@ -7,10 +7,12 @@
 using namespace std;
 
 RBF_Function::
-RBF_Function(double shape,
+RBF_Function(int index,
+             double shape,
              vector<double> const &position,
              shared_ptr<RBF> rbf,
              shared_ptr<Distance> distance):
+    index_(index),
     shape_(shape),
     position_(position),
     rbf_(rbf),

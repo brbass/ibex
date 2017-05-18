@@ -14,6 +14,7 @@ using std::vector;
 
 Linear_MLS_Function::
 Linear_MLS_Function(vector<shared_ptr<Meshless_Function> > neighbor_functions):
+    index_(neighbor_functions[0]->index()),
     dimension_(neighbor_functions[0]->dimension()),
     number_of_functions_(neighbor_functions.size()),
     position_(neighbor_functions[0]->position()),
@@ -161,6 +162,241 @@ laplacian_value(vector<double> const &r) const
 }
 
 void Linear_MLS_Function::
+values(vector<double> const &position,
+       vector<int> &indices,
+       vector<double> &vals) const
+{
+    // Check if position is inside weight function radius
+    Assert(function_->inside_radius(position));
+    
+    // Resize indices and values
+    indices.resize(number_of_functions_);
+    vals.resize(number_of_functions_);
+    
+    // Get meshless function values
+    vector<double> weighting(number_of_functions_);
+    for (int i = 0; i < number_of_functions_; ++i)
+    {
+        weighting[i] = neighbor_functions_[i]->value(position);
+    }
+    
+    // Get polynomial value at evaluation position
+    vector<double> p_position(number_of_polynomials_);
+    get_polynomial(position,
+                   p_position);
+
+    // Get polynomial values at centers
+    vector<vector<double> > p_center(number_of_functions_, vector<double>(number_of_polynomials_));
+    for (int i = 0; i < number_of_functions_; ++i)
+    {
+        get_polynomial(neighbor_functions_[i]->position(),
+                       p_center[i]);
+    }
+    
+    // Get A matrix
+    vector<double> a_mat(number_of_polynomials_ * number_of_polynomials_);
+    for (int i = 0; i < number_of_functions_; ++i)
+    {
+        double const weight = weighting[i];
+        vector<double> const &poly = p_center[i];
+        for (int j = 0; j < number_of_polynomials_; ++j)
+        {
+            for (int k = 0; k < number_of_polynomials_; ++k)
+            {
+                int l = j + number_of_polynomials_ * k;
+                a_mat[l] += weight * poly[j] * poly[k];
+            }
+        }
+    }
+    
+    // Get inverse of A
+    vector<double> a_inv_mat(number_of_polynomials_ * number_of_polynomials_);
+    la::direct_inverse(a_mat,
+                       a_inv_mat);
+    
+    // Get values of basis function
+    for (int i = 0; i < number_of_functions_; ++i)
+    {
+        // Get B vector
+        vector<double> b_vec(number_of_polynomials_);
+        {
+            double const weight = weighting[i];
+            vector<double> const &poly = p_center[i];
+            for (int j = 0; j < number_of_polynomials_; ++j)
+            {
+                b_vec[j] = weight * poly[j];
+            }
+        }
+
+        // Get value of function
+        vals[i] = vf::dot(p_position,
+                          mf::square_matrix_vector_product(number_of_polynomials_,
+                                                           a_inv_mat,
+                                                           b_vec));
+    }
+
+    // Get indices of basis functions
+    for (int i = 0; i < number_of_functions_; ++i)
+    {
+        indices[i] = neighbor_functions_[i]->index();
+    }
+    
+    return;
+}
+
+void Linear_MLS_Function::
+gradient_values(vector<double> const &position,
+                vector<int> &indices,
+                vector<double> &vals,
+                vector<vector<double> > &grad_vals) const
+{
+    // Check if position is inside weight function radius
+    Assert(function_->inside_radius(position));
+    
+    // Resize indices and values
+    indices.resize(number_of_functions_);
+    vals.resize(number_of_functions_);
+    grad_vals.assign(number_of_functions_,
+                     vector<double>(dimension_));
+    
+    // Get meshless function values
+    vector<double> weighting(number_of_functions_);
+    vector<vector<double> > grad_weighting(number_of_functions_,
+                                           vector<double>(dimension_));
+    for (int i = 0; i < number_of_functions_; ++i)
+    {
+        weighting[i] = neighbor_functions_[i]->value(position);
+        grad_weighting[i] = neighbor_functions_[i]->gradient_value(position);
+    }
+    
+    // Get polynomial value at evaluation position
+    vector<double> p_position(number_of_polynomials_);
+    get_polynomial(position,
+                   p_position);
+    vector<vector<double> > grad_p_position(dimension_,
+                                            vector<double>(number_of_polynomials_));
+    for (int d = 0; d < dimension_; ++d)
+    {
+        get_d_polynomial(d,
+                         position,
+                         grad_p_position[d]);
+    }
+    
+    // Get polynomial values at centers
+    vector<vector<double> > p_center(number_of_functions_, vector<double>(number_of_polynomials_));
+    for (int i = 0; i < number_of_functions_; ++i)
+    {
+        get_polynomial(neighbor_functions_[i]->position(),
+                       p_center[i]);
+    }
+    
+    // Get A matrix
+    vector<double> a_mat(number_of_polynomials_ * number_of_polynomials_);
+    vector<vector<double> > grad_a_mat(dimension_,
+                                       vector<double>(number_of_polynomials_ * number_of_polynomials_));
+    for (int i = 0; i < number_of_functions_; ++i)
+    {
+        double const weight = weighting[i];
+        vector<double> const &poly = p_center[i];
+        for (int j = 0; j < number_of_polynomials_; ++j)
+        {
+            for (int k = 0; k < number_of_polynomials_; ++k)
+            {
+                int l = j + number_of_polynomials_ * k;
+                a_mat[l] += weight * poly[j] * poly[k];
+            }
+        }
+
+        for (int d = 0; d < dimension_; ++d)
+        {
+            double const d_weight = grad_weighting[i][d];
+            for (int j = 0; j < number_of_polynomials_; ++j)
+            {
+                for (int k = 0; k < number_of_polynomials_; ++k)
+                {
+                    int l = j + number_of_polynomials_ * k;
+                    grad_a_mat[d][l] += d_weight * poly[j] * poly[k];
+                }
+            }
+        }
+    }
+    
+    // Get inverse of A
+    vector<double> a_inv_mat(number_of_polynomials_ * number_of_polynomials_);
+    la::direct_inverse(a_mat,
+                       a_inv_mat);
+    vector<vector<double> > grad_a_inv_mat(dimension_,
+                                           vector<double>(number_of_polynomials_ * number_of_polynomials_));
+    for (int d = 0; d < dimension_; ++d)
+    {
+        vector<double> &mat = grad_a_inv_mat[d];
+        mat = mf::square_matrix_matrix_product(number_of_polynomials_,
+                                               grad_a_mat[d],
+                                               a_inv_mat);
+        mat = mf::square_matrix_matrix_product(number_of_polynomials_,
+                                               a_inv_mat,
+                                               mat);
+        mat = vf::multiply(mat,
+                           -1.);
+    }
+    
+    // Get values of basis function
+    for (int i = 0; i < number_of_functions_; ++i)
+    {
+        // Get B vector
+        vector<double> b_vec(number_of_polynomials_);
+        double const weight = weighting[i];
+        vector<double> const &poly = p_center[i];
+        for (int j = 0; j < number_of_polynomials_; ++j)
+        {
+            b_vec[j] = weight * poly[j];
+        }
+        
+        // Get value of function
+        vals[i] = vf::dot(p_position,
+                          mf::square_matrix_vector_product(number_of_polynomials_,
+                                                           a_inv_mat,
+                                                           b_vec));
+
+        for (int d = 0; d < dimension_; ++d)
+        {
+            // Get d_B vector
+            vector<double> d_b_vec(number_of_polynomials_);
+            double const d_weight = grad_weighting[i][d];
+
+            for (int j = 0; j < number_of_polynomials_; ++j)
+            {
+                d_b_vec[j] = d_weight * poly[j];
+            }
+            
+            // Get gradient values of function
+
+            double t1 = vf::dot(grad_p_position[d],
+                                mf::square_matrix_vector_product(number_of_polynomials_,
+                                                                 a_inv_mat,
+                                                                 b_vec));
+            double t2 = vf::dot(p_position,
+                                mf::square_matrix_vector_product(number_of_polynomials_,
+                                                                 grad_a_inv_mat[d],
+                                                                 b_vec));
+            double t3 = vf::dot(p_position,
+                                mf::square_matrix_vector_product(number_of_polynomials_,
+                                                                 a_inv_mat,
+                                                                 d_b_vec));
+            grad_vals[i][d] = t1 + t2 + t3;
+        }
+    }
+    
+    // Get indices of basis functions
+    for (int i = 0; i < number_of_functions_; ++i)
+    {
+        indices[i] = neighbor_functions_[i]->index();
+    }
+    
+    return;
+}
+
+void Linear_MLS_Function::
 output(XML_Node output_node) const
 {
     
@@ -205,7 +441,7 @@ void Linear_MLS_Function::
 get_a(vector<double> const &position,
       vector<double> &a) const
 {
-    a.assign(number_of_polynomials_ * number_of_polynomials_, 0);
+    a .assign(number_of_polynomials_ * number_of_polynomials_, 0);
     for (shared_ptr<Meshless_Function> func : neighbor_functions_)
     {
         if (func->inside_radius(position))

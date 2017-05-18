@@ -78,7 +78,8 @@ get_rbf_functions(XML_Node input_node,
         vector<double> position = node.get_child_vector<double>("position",
                                                                 dimension);
         double shape = rbf->radius() / radius;
-        functions[index] = make_shared<RBF_Function>(shape,
+        functions[index] = make_shared<RBF_Function>(index,
+                                                     shape,
                                                      position,
                                                      rbf,
                                                      distance);

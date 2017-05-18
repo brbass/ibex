@@ -14,11 +14,20 @@ class RBF_Function : public Meshless_Function
 {
 public:
 
-    RBF_Function(double shape,
+    RBF_Function(int index,
+                 double shape,
                  std::vector<double> const &position,
                  std::shared_ptr<RBF> rbf,
                  std::shared_ptr<Distance> distance);
-    
+
+    virtual bool depends_on_neighbors() const override
+    {
+        return false;
+    }
+    virtual int index() const override
+    {
+        return index_;
+    }
     virtual int dimension() const override;
     virtual double radius() const override;
     virtual double shape() const override
@@ -42,6 +51,7 @@ public:
     
 protected:
 
+    int index_;
     double shape_;
     std::vector<double> position_;
     std::shared_ptr<RBF> rbf_;

@@ -43,7 +43,8 @@ int test_1d()
         vector<double> position(1, dx * i);
         
         rbf_functions[i]
-            = make_shared<RBF_Function>(shape,
+            = make_shared<RBF_Function>(i,
+                                        shape,
                                         position,
                                         rbf,
                                         distance);

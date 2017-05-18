@@ -21,6 +21,14 @@ public:
     Linear_MLS_Function(std::vector<std::shared_ptr<Meshless_Function> > neighbor_functions);
 
     // Meshless_Function methods
+    virtual bool depends_on_neighbors() const override
+    {
+        return true;
+    }
+    virtual int index() const override
+    {
+        return index_;
+    }
     virtual int dimension() const override
     {
         return dimension_;
@@ -44,6 +52,13 @@ public:
                             std::vector<double> const &r) const override;
     virtual std::vector<double> gradient_value(std::vector<double> const &r) const override;
     virtual double laplacian_value(std::vector<double> const &r) const override;
+    virtual void values(std::vector<double> const &r,
+                        std::vector<int> &indices,
+                        std::vector<double> &values) const override;
+    virtual void gradient_values(std::vector<double> const &r,
+                                 std::vector<int> &indices,
+                                 std::vector<double> &vals,
+                                 std::vector<std::vector<double> > &grad_vals) const override;
     virtual void output(XML_Node output_node) const override;
     virtual void check_class_invariants() const override;
 
@@ -69,6 +84,7 @@ private:
                          std::vector<double> &d_b) const;
     
     // Data
+    int index_;
     int dimension_;
     int number_of_polynomials_;
     int number_of_functions_;
