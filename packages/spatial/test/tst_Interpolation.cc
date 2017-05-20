@@ -473,12 +473,8 @@ int main(int argc, char **argv)
     string input_folder = argv[1];
     input_folder += "/";
 
-    cout << "this test will fail because point weighting in the internal integration needs to be checked before it's activated" << endl;
-    cout << "interpolation tests disabled for now" << endl;
-    
     checksum += check_basis(input_folder);
-    // checksum += run_interpolation(input_folder);
-    checksum += 1;
+    checksum += run_interpolation(input_folder);
     
     MPI_Finalize();
     

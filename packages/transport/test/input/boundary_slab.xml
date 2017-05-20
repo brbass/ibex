@@ -33,6 +33,9 @@
   </materials>
   
   <spatial_discretization file='slab_2.0_11_10_10.xml'>
+    <integration external="true">
+      <dimensional_cells>10</dimensional_cells>
+    </integration>
     <basis_functions>
       <meshless_function type='rbf' function='compact_gaussian'/>
     </basis_functions>
