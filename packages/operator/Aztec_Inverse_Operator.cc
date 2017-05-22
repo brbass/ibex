@@ -64,7 +64,7 @@ initialize_trilinos(bool initialize_comm)
     }
     else
     {
-        solver_->SetAztecOption(AZ_output, AZ_none);
+        solver_->SetAztecOption(AZ_output, AZ_warnings);
     }
 }
 

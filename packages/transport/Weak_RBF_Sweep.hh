@@ -22,7 +22,8 @@ public:
         enum class Solver
         {
             AMESOS,
-            AZTEC
+            AZTEC,
+            AZTEC_ILUT
         };
         
         Solver solver = Solver::AMESOS;
@@ -54,6 +55,12 @@ public:
     {
         return "Weak_RBF_Sweep";
     }
+
+    // Save matrix to specified XML output file
+    void save_matrix_as_xml(int o,
+                            int g,
+                            XML_Node output_node) const;
+    
 private:
 
     // Vector_Operator function
@@ -153,6 +160,32 @@ private:
 
     protected:
         Options options_;
+    };
+    
+    // Aztec solver: iterative, does not store matrices
+    class Aztec_ILUT_Solver : public Trilinos_Solver
+    {
+    public:
+        // Solver options
+        struct Options
+        {
+            int max_iterations = 1000;
+            int kspace = 100;
+            double tolerance = 1e-8;
+        };
+        
+        // Constructor
+        Aztec_ILUT_Solver(Weak_RBF_Sweep const &wrs,
+                          Options options);
+        
+        // Solve problem
+        virtual void solve(std::vector<double> &x) const override;
+
+    protected:
+        Options options_;
+        std::vector<std::shared_ptr<Epetra_CrsMatrix> > mat_;
+        std::vector<std::shared_ptr<Epetra_LinearProblem> > problem_;
+        std::vector<std::shared_ptr<AztecOO> > solver_;
     };
     
     // Data

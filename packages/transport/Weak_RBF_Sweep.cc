@@ -50,11 +50,21 @@ Weak_RBF_Sweep(Options options,
         solver_ = make_shared<Amesos_Solver>(*this);
         break;
     case Options::Solver::AZTEC:
+    {
         Aztec_Solver::Options aztec_options;
         solver_ = make_shared<Aztec_Solver>(*this,
                                             aztec_options);
+        break;
     }
-
+    case Options::Solver::AZTEC_ILUT:
+    {
+        Aztec_ILUT_Solver::Options aztec_options;
+        solver_ = make_shared<Aztec_ILUT_Solver>(*this,
+                                                 aztec_options);
+        break;
+    }
+    }
+    
     check_class_invariants();
 }
 
@@ -346,6 +356,40 @@ Trilinos_Solver(Weak_RBF_Sweep const &wrs):
     rhs_->PutScalar(1.0);
 }
 
+void Weak_RBF_Sweep::
+save_matrix_as_xml(int o,
+                   int g,
+                   XML_Node output_node) const
+{
+    // Create matrix node
+    int number_of_points = spatial_discretization_->number_of_points();
+    XML_Node matrix_node = output_node.append_child("matrix");
+    matrix_node.set_attribute(o, "o");
+    matrix_node.set_attribute(g, "g");
+    matrix_node.set_attribute(number_of_points, "number_of_points");
+    matrix_node.set_child_vector(spatial_discretization_->number_of_basis_functions(), "number_of_entries");
+    
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        // Get row of matrix
+        vector<int> indices;
+        vector<double> values;
+        get_matrix_row(i,
+                       o,
+                       g,
+                       indices,
+                       values);
+
+        // Store row of matrix
+        XML_Node row_node = matrix_node.append_child("row");
+        row_node.set_attribute(i, "row_index");
+        row_node.set_child_vector(indices,
+                                  "column_indices");
+        row_node.set_child_vector(values,
+                                  "values");
+    }
+}
+
 shared_ptr<Epetra_CrsMatrix> Weak_RBF_Sweep::Trilinos_Solver::
 get_matrix(int o,
            int g) const
@@ -505,12 +549,90 @@ solve(vector<double> &x) const
             solver->SetAztecOption(AZ_solver, AZ_gmres);
             solver->SetAztecOption(AZ_kspace, options_.kspace);
             solver->SetAztecOption(AZ_precond, AZ_none);
-            solver->SetAztecOption(AZ_output, AZ_none);
+            solver->SetAztecOption(AZ_output, AZ_warnings);
             
             // Solve, putting result into LHS
             solver->Iterate(options_.max_iterations,
                             options_.tolerance);
             
+            // Update solution value (overwrite x for this o and g)
+            for (int i = 0; i < number_of_points; ++i)
+            {
+                int k_x = g + number_of_groups * (o + number_of_ordinates * i);
+                x[k_x] = (*lhs_)[i];
+            }
+        }
+    }
+}
+
+Weak_RBF_Sweep::Aztec_ILUT_Solver::
+Aztec_ILUT_Solver(Weak_RBF_Sweep const &wrs,
+                  Options options):
+    Trilinos_Solver(wrs),
+    options_(options)
+{
+    // Initialize matrices
+    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
+    int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
+    mat_.resize(number_of_groups * number_of_ordinates);
+    problem_.resize(number_of_groups * number_of_ordinates);
+    solver_.resize(number_of_groups * number_of_ordinates);
+    for (int o = 0; o < number_of_ordinates; ++o)
+    {
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            int k = g + number_of_groups * o;
+
+            // Get matrix and problem
+            mat_[k] = get_matrix(o,
+                                 g);
+            problem_[k]
+                = make_shared<Epetra_LinearProblem>(mat_[k].get(),
+                                                    lhs_.get(),
+                                                    rhs_.get());
+
+            // Create solver
+            solver_[k]
+                = make_shared<AztecOO>(*problem_[k]);
+            
+            // Set solver options
+            solver_[k]->SetAztecOption(AZ_kspace, options_.kspace);
+            solver_[k]->SetAztecOption(AZ_precond, AZ_dom_decomp);
+            solver_[k]->SetAztecOption(AZ_subdomain_solve, AZ_ilut);
+            solver_[k]->SetAztecOption(AZ_output, AZ_warnings);
+            solver_[k]->SetAztecOption(AZ_keep_info, 1); // Keeps info for multiple solves
+            double condest;
+            solver_[k]->ConstructPreconditioner(condest);
+            if (condest > 1e14)
+            {
+                std::cout << "preconditioner condition number too large" << std::endl;
+            }
+            solver_[k]->SetAztecOption(AZ_pre_calc, AZ_reuse); // Prevents recomputation of preconditioner
+        }
+    }
+}
+
+void Weak_RBF_Sweep::Aztec_ILUT_Solver::
+solve(vector<double> &x) const
+{
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
+    int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
+
+    // Solve independently for each ordinate and group
+    for (int o = 0; o < number_of_ordinates; ++o)
+    {
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            // Set current RHS value
+            set_rhs(o,
+                    g,
+                    x);
+            
+            // Solve, putting result into LHS
+            int k = g + number_of_groups * o;
+            solver_[k]->Iterate(options_.max_iterations,
+                                options_.tolerance);
             // Update solution value (overwrite x for this o and g)
             for (int i = 0; i < number_of_points; ++i)
             {

@@ -18,3 +18,18 @@ include_test(tst_quadrature tst_Quadrature.cc "")
 include_test(tst_xml tst_XML.cc ${CMAKE_CURRENT_SOURCE_DIR}/input)
 
 add_subdirectory(input)
+
+# Add temporary test for matrix solvers
+macro(include_trilinos_test test_exec test_src test_args)
+    include_directories(${global_include_directories})
+    include_directories(${global_trilinos_include_directories})
+    set(test_dependencies utilities)
+    
+    add_executable(${test_exec} ${test_src})
+    target_link_libraries(${test_exec} ${test_dependencies})
+    target_link_libraries(${test_exec} ${global_trilinos_link_libraries})
+    add_test(${test_exec} ${test_exec} ${test_args})
+    install(TARGETS ${test_exec} DESTINATION ${CMAKE_INSTALL_PREFIX}/test)
+endmacro()
+
+include_trilinos_test(tst_trilinos tst_Trilinos.cc ${CMAKE_CURRENT_SOURCE_DIR}/input)

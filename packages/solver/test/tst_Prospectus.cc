@@ -494,6 +494,19 @@ void get_pincell(bool basis_mls,
                                       energy,
                                       transport);
 
+    // Output matrix
+    // cout << "temporary method added to output matrix" << endl;
+    // XML_Document matrix_doc;
+    // XML_Node matrix_node = matrix_doc.append_child("output");
+    // for (int i = 0; i < angular->number_of_ordinates(); ++i)
+    // {
+    //     sweeper->save_matrix_as_xml(i, // o
+    //                                 0, // g
+    //                                 matrix_node);
+    // }
+    // matrix_doc.save("matrix.xml");
+    // cout << "done saving" << endl;
+    
     // Get convergence method
     shared_ptr<Convergence_Measure> convergence
         = make_shared<Linf_Convergence>();
@@ -721,7 +734,7 @@ void run_test(string input_path)
     weight_options.integration_ordinates = num_integration_ordinates;
     
     Weak_RBF_Sweep::Options sweep_options;
-    sweep_options.solver = Weak_RBF_Sweep::Options::Solver::AMESOS;
+    sweep_options.solver = Weak_RBF_Sweep::Options::Solver::AZTEC_ILUT;
 
     // Run problem
     run_problem(test_num,
