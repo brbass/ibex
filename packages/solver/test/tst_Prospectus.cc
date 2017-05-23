@@ -734,7 +734,7 @@ void run_test(string input_path)
     weight_options.integration_ordinates = num_integration_ordinates;
     
     Weak_RBF_Sweep::Options sweep_options;
-    sweep_options.solver = Weak_RBF_Sweep::Options::Solver::AZTEC_ILUT;
+    sweep_options.solver = Weak_RBF_Sweep::Options::Solver::AZTEC_IFPACK;
 
     // Run problem
     run_problem(test_num,

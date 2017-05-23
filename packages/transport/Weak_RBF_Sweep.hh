@@ -11,6 +11,7 @@ class Epetra_Comm;
 class Epetra_LinearProblem;
 class Epetra_Map;
 class Epetra_Vector;
+class Ifpack_Preconditioner;
 
 class Weak_RBF_Sweep : public Sweep_Operator
 {
@@ -23,7 +24,8 @@ public:
         {
             AMESOS,
             AZTEC,
-            AZTEC_ILUT
+            AZTEC_ILUT,
+            AZTEC_IFPACK
         };
         
         Solver solver = Solver::AMESOS;
@@ -136,7 +138,7 @@ private:
         // Data
         std::vector<std::shared_ptr<Epetra_CrsMatrix> > mat_;
         std::vector<std::shared_ptr<Epetra_LinearProblem> > problem_;
-        std::vector<std::shared_ptr<Amesos_BaseSolver*> > solver_;
+        std::vector<std::shared_ptr<Amesos_BaseSolver> > solver_;
     };
     
     // Aztec solver: iterative, does not store matrices
@@ -147,7 +149,7 @@ private:
         struct Options
         {
             int max_iterations = 1000;
-            int kspace = 100;
+            int kspace = 20;
             double tolerance = 1e-8;
         };
         
@@ -162,15 +164,16 @@ private:
         Options options_;
     };
     
-    // Aztec solver: iterative, does not store matrices
+    // Aztec solver: iterative, stores partial LU decompositions
+    // Not working: does not find past preconditioner
     class Aztec_ILUT_Solver : public Trilinos_Solver
     {
     public:
         // Solver options
         struct Options
         {
-            int max_iterations = 1000;
-            int kspace = 100;
+            int max_iterations = 100;
+            int kspace = 20;
             double tolerance = 1e-8;
         };
         
@@ -185,6 +188,34 @@ private:
         Options options_;
         std::vector<std::shared_ptr<Epetra_CrsMatrix> > mat_;
         std::vector<std::shared_ptr<Epetra_LinearProblem> > problem_;
+        std::vector<std::shared_ptr<AztecOO> > solver_;
+    };
+
+    class Aztec_Ifpack_Solver : public Trilinos_Solver
+    {
+    public:
+        // Solver options
+        struct Options
+        {
+            int max_iterations = 100;
+            int kspace = 20;
+            int level_of_fill = 2;
+            double tolerance = 1e-8;
+            // double drop_tolerance = 1e-10;
+        };
+        
+        // Constructor
+        Aztec_Ifpack_Solver(Weak_RBF_Sweep const &wrs,
+                            Options options);
+        
+        // Solve problem
+        virtual void solve(std::vector<double> &x) const override;
+
+    protected:
+        Options options_;
+        std::vector<std::shared_ptr<Epetra_CrsMatrix> > mat_;
+        std::vector<std::shared_ptr<Epetra_LinearProblem> > problem_;
+        std::vector<std::shared_ptr<Ifpack_Preconditioner> > prec_;
         std::vector<std::shared_ptr<AztecOO> > solver_;
     };
     

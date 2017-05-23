@@ -40,6 +40,10 @@ get_weak_rbf_sweep(XML_Node input_node) const
     {
         options.solver = Weak_RBF_Sweep::Options::Solver::AZTEC_ILUT;
     }
+    else if (solver == "aztec_ifpack")
+    {
+        options.solver = Weak_RBF_Sweep::Options::Solver::AZTEC_IFPACK;
+    }
     else
     {
         AssertMsg(false, "solver (" + solver + ") not found");

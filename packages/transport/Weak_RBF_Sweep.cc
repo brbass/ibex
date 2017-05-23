@@ -13,7 +13,7 @@
 // #include <Epetra_SerialDenseMatrix.h>
 // #include <Epetra_SerialDenseSolver.h>
 // #include <Epetra_SerialDenseVector.h>
-// #include <Ifpack.h>
+#include <Ifpack.h>
 // #include <Ifpack_Preconditioner.h>
 
 #include "Angular_Discretization.hh"
@@ -61,6 +61,13 @@ Weak_RBF_Sweep(Options options,
         Aztec_ILUT_Solver::Options aztec_options;
         solver_ = make_shared<Aztec_ILUT_Solver>(*this,
                                                  aztec_options);
+        break;
+    }
+    case Options::Solver::AZTEC_IFPACK:
+    {
+        Aztec_Ifpack_Solver::Options aztec_options;
+        solver_ = make_shared<Aztec_Ifpack_Solver>(*this,
+                                                   aztec_options);
         break;
     }
     }
@@ -466,10 +473,10 @@ Amesos_Solver(Weak_RBF_Sweep const &wrs):
                                                     lhs_.get(),
                                                     rhs_.get());
             solver_[k]
-                = make_shared<Amesos_BaseSolver*>(factory.Create("Klu",
-                                                                 *problem_[k]));
-            (*solver_[k])->SymbolicFactorization();
-            (*solver_[k])->NumericFactorization();
+                = shared_ptr<Amesos_BaseSolver>(factory.Create("Klu",
+                                                               *problem_[k]));
+            solver_[k]->SymbolicFactorization();
+            solver_[k]->NumericFactorization();
         }
     }
 }
@@ -495,7 +502,7 @@ solve(vector<double> &x) const
             int k = g + number_of_groups * o;
             // std::cout << *mat_[k] << std::endl;
             // std::cout << *rhs_ << std::endl;
-            (*solver_[k])->Solve();
+            solver_[k]->Solve();
             // std::cout << *lhs_ << std::endl;
             
             // Update solution value (overwrite x for this o and g)
@@ -613,6 +620,90 @@ Aztec_ILUT_Solver(Weak_RBF_Sweep const &wrs,
 }
 
 void Weak_RBF_Sweep::Aztec_ILUT_Solver::
+solve(vector<double> &x) const
+{
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
+    int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
+
+    // Solve independently for each ordinate and group
+    for (int o = 0; o < number_of_ordinates; ++o)
+    {
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            // Set current RHS value
+            set_rhs(o,
+                    g,
+                    x);
+            
+            // Solve, putting result into LHS
+            int k = g + number_of_groups * o;
+            solver_[k]->Iterate(options_.max_iterations,
+                                options_.tolerance);
+            // Update solution value (overwrite x for this o and g)
+            for (int i = 0; i < number_of_points; ++i)
+            {
+                int k_x = g + number_of_groups * (o + number_of_ordinates * i);
+                x[k_x] = (*lhs_)[i];
+            }
+        }
+    }
+}
+
+Weak_RBF_Sweep::Aztec_Ifpack_Solver::
+Aztec_Ifpack_Solver(Weak_RBF_Sweep const &wrs,
+                    Options options):
+    Trilinos_Solver(wrs),
+    options_(options)
+{
+    Ifpack ifp_factory;
+    
+    // Initialize matrices
+    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
+    int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
+    mat_.resize(number_of_groups * number_of_ordinates);
+    problem_.resize(number_of_groups * number_of_ordinates);
+    prec_.resize(number_of_groups * number_of_ordinates);
+    solver_.resize(number_of_groups * number_of_ordinates);
+    for (int o = 0; o < number_of_ordinates; ++o)
+    {
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            int k = g + number_of_groups * o;
+
+            // Get matrix and problem
+            mat_[k] = get_matrix(o,
+                                 g);
+            problem_[k]
+                = make_shared<Epetra_LinearProblem>(mat_[k].get(),
+                                                    lhs_.get(),
+                                                    rhs_.get());
+
+            // Create preconditioner
+            prec_[k]
+                = shared_ptr<Ifpack_Preconditioner>(ifp_factory.Create("ILU",
+                                                                       mat_[k].get()));
+            Teuchos::ParameterList prec_list;
+            // prec_list.set("fact: drop tolerance", options_.drop_tolerance);
+            prec_list.set("fact: level-of-fill", options_.level_of_fill);
+            prec_[k]->SetParameters(prec_list);
+            prec_[k]->Initialize();
+            prec_[k]->Compute();
+            
+            // Create solver
+            solver_[k]
+                = make_shared<AztecOO>(*problem_[k]);
+            
+            // Set solver options
+            solver_[k]->SetAztecOption(AZ_solver, AZ_gmres);
+            solver_[k]->SetAztecOption(AZ_kspace, options_.kspace);
+            solver_[k]->SetPrecOperator(prec_[k].get());
+            solver_[k]->SetAztecOption(AZ_output, AZ_warnings);
+        }
+    }
+}
+
+void Weak_RBF_Sweep::Aztec_Ifpack_Solver::
 solve(vector<double> &x) const
 {
     int number_of_points = wrs_.spatial_discretization_->number_of_points();

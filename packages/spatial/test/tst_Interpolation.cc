@@ -208,10 +208,10 @@ shared_ptr<Epetra_LinearProblem> get_problem(shared_ptr<Epetra_CrsMatrix> mat,
 }
 
 // Get solver
-shared_ptr<Amesos_BaseSolver*> get_solver(shared_ptr<Epetra_LinearProblem> problem)
+shared_ptr<Amesos_BaseSolver> get_solver(shared_ptr<Epetra_LinearProblem> problem)
 {
     Amesos factory;
-    return make_shared<Amesos_BaseSolver*>(factory.Create("Klu", *problem));
+    return shared_ptr<Amesos_BaseSolver>(factory.Create("Klu", *problem));
 }
 
 // Convert from Epetra_Vector to vector
@@ -263,10 +263,10 @@ int test_interpolation(int dimension,
     shared_ptr<Epetra_LinearProblem> problem = get_problem(mat,
                                                            lhs,
                                                            rhs);
-    shared_ptr<Amesos_BaseSolver*> solver = get_solver(problem);
-    (*solver)->SymbolicFactorization();
-    (*solver)->NumericFactorization();
-    (*solver)->Solve();
+    shared_ptr<Amesos_BaseSolver> solver = get_solver(problem);
+    solver->SymbolicFactorization();
+    solver->NumericFactorization();
+    solver->Solve();
 
     int number_of_points = spatial->number_of_points();
     vector<double> coefficients = convert_to_vector(lhs);

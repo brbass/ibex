@@ -142,11 +142,11 @@ void test_lu_decomposition(shared_ptr<Epetra_CrsMatrix> mat,
     Timer timer;
     timer.start();
     Amesos factory;
-    shared_ptr<Amesos_BaseSolver*> solver
-        = make_shared<Amesos_BaseSolver*>(factory.Create("Klu",
-                                                         *problem));
-    (*solver)->SymbolicFactorization();
-    (*solver)->NumericFactorization();
+    shared_ptr<Amesos_BaseSolver> solver
+        = shared_ptr<Amesos_BaseSolver>(factory.Create("Klu",
+                                                       *problem));
+    solver->SymbolicFactorization();
+    solver->NumericFactorization();
     timer.stop();
     setup_time = timer.time();
     
@@ -156,7 +156,7 @@ void test_lu_decomposition(shared_ptr<Epetra_CrsMatrix> mat,
     for (int i = 0; i < num_solves; ++i)
     {
         (*lhs)[0] = i;
-        (*solver)->Solve();
+        solver->Solve();
     }
     timer.stop();
     solve_time = timer.time() / num_solves;
@@ -239,21 +239,21 @@ void test_ifpack(shared_ptr<Epetra_CrsMatrix> mat,
     Timer timer;
     timer.start();
     Ifpack factory;
-    shared_ptr<Ifpack_Preconditioner*> prec
-        = make_shared<Ifpack_Preconditioner*>(factory.Create("ILU",
-                                                             mat.get()));
+    shared_ptr<Ifpack_Preconditioner> prec(factory.Create("ILU",
+                                                          mat.get()));
     Teuchos::ParameterList list;
+
     // list.set("fact: drop tolerance", 1e-10);
     list.set("fact: level-of-fill", 2);
-    (*prec)->SetParameters(list);
-    (*prec)->Initialize();
-    (*prec)->Compute();
+    prec->SetParameters(list);
+    prec->Initialize();
+    prec->Compute();
     int kspace = 10;
     shared_ptr<AztecOO> solver
         = make_shared<AztecOO>(*problem);
     solver->SetAztecOption(AZ_solver, AZ_gmres);
     solver->SetAztecOption(AZ_kspace, kspace);
-    solver->SetPrecOperator(*prec);
+    solver->SetPrecOperator(prec.get());
     solver->SetAztecOption(AZ_output, AZ_warnings);
     timer.stop();
     setup_time = timer.time();
