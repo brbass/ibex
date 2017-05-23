@@ -11,6 +11,7 @@
 #include <Epetra_CrsMatrix.h>
 #include <Epetra_Vector.h>
 #include <Epetra_LinearProblem.h>
+#include <Ifpack.h>
 
 #include "Random_Number_Generator.hh"
 #include "Timer.hh"
@@ -185,7 +186,7 @@ void test_ilut(shared_ptr<Epetra_CrsMatrix> mat,
     int kspace = 20;
     shared_ptr<AztecOO> solver
         = make_shared<AztecOO>(*problem);
-    // solver->SetAztecOption(AZ_solver, AZ_gmres);
+    solver->SetAztecOption(AZ_solver, AZ_gmres);
     solver->SetAztecOption(AZ_kspace, kspace);
     solver->SetAztecOption(AZ_precond, AZ_dom_decomp);
     solver->SetAztecOption(AZ_subdomain_solve, AZ_ilut);
@@ -219,6 +220,62 @@ void test_ilut(shared_ptr<Epetra_CrsMatrix> mat,
     checksum = get_checksum(lhs);
 }
 
+void test_ifpack(shared_ptr<Epetra_CrsMatrix> mat,
+                 shared_ptr<Epetra_Vector> rhs,
+                 double &checksum,
+                 double &setup_time,
+                 double &solve_time)
+{
+    // Get data
+    int number_of_points = mat->NumGlobalRows();
+    shared_ptr<Epetra_Vector> lhs
+        = make_shared<Epetra_Vector>(mat->RowMap());
+    shared_ptr<Epetra_LinearProblem> problem
+        = make_shared<Epetra_LinearProblem>(mat.get(),
+                                            lhs.get(),
+                                            rhs.get());
+
+    // Setup problem
+    Timer timer;
+    timer.start();
+    Ifpack factory;
+    shared_ptr<Ifpack_Preconditioner*> prec
+        = make_shared<Ifpack_Preconditioner*>(factory.Create("ILU",
+                                                             mat.get()));
+    Teuchos::ParameterList list;
+    // list.set("fact: drop tolerance", 1e-10);
+    list.set("fact: level-of-fill", 2);
+    (*prec)->SetParameters(list);
+    (*prec)->Initialize();
+    (*prec)->Compute();
+    int kspace = 10;
+    shared_ptr<AztecOO> solver
+        = make_shared<AztecOO>(*problem);
+    solver->SetAztecOption(AZ_solver, AZ_gmres);
+    solver->SetAztecOption(AZ_kspace, kspace);
+    solver->SetPrecOperator(*prec);
+    solver->SetAztecOption(AZ_output, AZ_warnings);
+    timer.stop();
+    setup_time = timer.time();
+    
+    // Solve problem
+    int max_iterations = 100;
+    double tolerance = 1e-8;
+    int num_solves = 10;
+    timer.start();
+    for (int i = 0; i < num_solves; ++i)
+    {
+        (*lhs)[0] = i;
+        solver->Iterate(max_iterations,
+                        tolerance);
+    }
+    timer.stop();
+    solve_time = timer.time() / num_solves;
+    
+    // Get checksum
+    checksum = get_checksum(lhs);
+}
+
 void run_test(shared_ptr<Epetra_CrsMatrix> mat)
 {
     // Get RHS vector
@@ -227,17 +284,19 @@ void run_test(shared_ptr<Epetra_CrsMatrix> mat)
         = get_random_vector(mat);
 
     // Get lists for methods
-    int num_methods = 2;
+    int num_methods = 3;
     vector<string> descriptions
         = {"full lu",
-           "ilut"};
+           "ilut",
+           "ifpack"};
     vector<function<void(shared_ptr<Epetra_CrsMatrix>,
                          shared_ptr<Epetra_Vector>,
                          double &,
                          double &,
                          double &)> > methods
         = {test_lu_decomposition,
-           test_ilut};
+           test_ilut,
+           test_ifpack};
 
     // Run methods
     int w = 16;
