@@ -8,6 +8,7 @@
 
 class Angular_Discretization;
 class Energy_Discretization;
+template<class T1, class T2> class Conversion;
 class Weak_Spatial_Discretization;
 
 class Weighting_Operator : public Vector_Operator
@@ -32,6 +33,9 @@ public:
         
         Normalization normalization = Normalization::AUTO;
         Include_SUPG include_supg = Include_SUPG::AUTO;
+        
+        std::shared_ptr<Conversion<Normalization, std::string> > normalization_conversion() const;
+        std::shared_ptr<Conversion<Include_SUPG, std::string> > include_supg_conversion() const;
     };
     
     Weighting_Operator(std::shared_ptr<Weak_Spatial_Discretization> spatial,

@@ -1,6 +1,7 @@
 #include "Region.hh"
 
 #include "Check.hh"
+#include "Conversion.hh"
 #include "Material.hh"
 #include "XML_Node.hh"
 
@@ -83,4 +84,13 @@ output(XML_Node output_node) const
             break;
         }
     }
+}
+
+shared_ptr<Conversion<Region::Relation, string> > Region::
+relation_conversion() const
+{
+    vector<pair<Relation, string> > conversions
+        = {{Relation::INSIDE, "inside"},
+           {Relation::OUTSIDE, "outside"}};
+    return make_shared<Conversion<Relation, string> >(conversions);
 }

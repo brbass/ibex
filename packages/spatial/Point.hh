@@ -6,6 +6,7 @@
 #include <vector>
 
 class Boundary_Source;
+template<class T1, class T2> class Conversion;
 class Material;
 class XML_Node;
 
@@ -18,6 +19,7 @@ public:
         INTERNAL,
         BOUNDARY
     };
+    std::shared_ptr<Conversion<Point_Type, std::string> > point_type_conversion() const;
 
     // Constructor
     Point();
@@ -33,11 +35,6 @@ public:
     // Data output and checking
     virtual void output(XML_Node output_node) const = 0;
     virtual void check_class_invariants() const = 0;
-    
-protected:
-
-    // Convert Point_Type to string
-    virtual std::string point_type_string() const;
 };
 
 #endif

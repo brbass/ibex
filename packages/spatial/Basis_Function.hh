@@ -5,6 +5,7 @@
 #include <vector>
 
 class Cartesian_Plane;
+template<class T1, class T2> class Conversion;
 class Meshless_Function;
 class XML_Node;
 
@@ -17,7 +18,8 @@ public:
         INTERNAL,
         BOUNDARY
     };
-
+    std::shared_ptr<Conversion<Point_Type, std::string> > point_type_conversion() const;
+    
     // Constructor
     Basis_Function(int index,
                    int dimension,

@@ -1,21 +1,23 @@
 #include "Point.hh"
 
+#include "Conversion.hh"
+
+using std::make_shared;
+using std::pair;
+using std::shared_ptr;
 using std::string;
+using std::vector;
 
 Point::
 Point()
 {
 }
 
-string Point::
-point_type_string() const
+shared_ptr<Conversion<Point::Point_Type, string> > Point::
+point_type_conversion() const
 {
-    switch(point_type())
-    {
-    case Point_Type::INTERNAL:
-        return "internal";
-    case Point_Type::BOUNDARY:
-        return "boundary";
-    }
+    vector<pair<Point_Type, string> > conversions
+        = {{Point_Type::BOUNDARY, "boundary"},
+           {Point_Type::INTERNAL, "internal"}};
+    return make_shared<Conversion<Point_Type, string> >(conversions);
 }
-

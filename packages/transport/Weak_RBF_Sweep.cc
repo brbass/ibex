@@ -21,6 +21,7 @@
 #include "Boundary_Source.hh"
 #include "Cartesian_Plane.hh"
 #include "Check.hh"
+#include "Conversion.hh"
 #include "Cross_Section.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
@@ -28,7 +29,9 @@
 #include "XML_Node.hh"
 
 using std::make_shared;
+using std::pair;
 using std::shared_ptr;
+using std::string;
 using std::vector;
 
 Weak_RBF_Sweep::
@@ -732,4 +735,15 @@ solve(vector<double> &x) const
             }
         }
     }
+}
+
+shared_ptr<Conversion<Weak_RBF_Sweep::Options::Solver, string> > Weak_RBF_Sweep::Options::
+solver_conversion() const
+{
+    vector<pair<Solver, string> > conversions
+        = {{Solver::AMESOS, "none"},
+           {Solver::AZTEC, "functional"},
+           {Solver::AZTEC_ILUT, "linear"},
+           {Solver::AZTEC_IFPACK, "absolute"}};
+    return make_shared<Conversion<Solver, string> >(conversions);
 }

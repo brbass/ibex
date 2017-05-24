@@ -1,6 +1,7 @@
 #include "Basis_Function.hh"
 
 #include "Cartesian_Plane.hh"
+#include "Conversion.hh"
 #include "Meshless_Function.hh"
 #include "XML_Node.hh"
 
@@ -54,4 +55,13 @@ output(XML_Node output_node) const
         boundary_surfaces[i] = boundary_surfaces_[i]->index();
     }
     output_node.set_child_vector(boundary_surfaces, "boundary_surfaces");
+}
+
+shared_ptr<Conversion<Basis_Function::Point_Type, string> > Basis_Function::
+point_type_conversion() const
+{
+    vector<pair<Point_Type, string> > conversions
+        = {{Point_Type::BOUNDARY, "boundary"},
+           {Point_Type::INTERNAL, "internal"}};
+    return make_shared<Conversion<Point_Type, string> >(conversions);
 }

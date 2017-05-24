@@ -6,6 +6,7 @@
 
 class Angular_Discretization;
 class Energy_Discretization;
+template<class T1, class T2> class Conversion;
 class XML_Node;
 
 class Boundary_Source
@@ -20,8 +21,10 @@ public:
             MOMENTS,
             ORDINATES
         };
-
+        
         Angular angular = Angular::ISOTROPIC;
+
+        std::shared_ptr<Conversion<Angular, std::string> > angular_conversion() const;
     };
     
     Boundary_Source(int index,

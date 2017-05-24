@@ -3,6 +3,7 @@
 #include <limits>
 
 #include "Boundary_Source.hh"
+#include "Conversion.hh"
 #include "Vector_Functions_2D.hh"
 #include "Vector_Functions_3D.hh"
 
@@ -67,3 +68,23 @@ reflected_direction(vector<double> const &position,
     }
 }
 
+shared_ptr<Conversion<Surface::Relation, string> > Surface::
+relation_conversion() const
+{
+    vector<pair<Relation, string> > conversions
+        = {{Relation::INSIDE, "inside"},
+           {Relation::OUTSIDE, "outside"},
+           {Relation::POSITIVE, "positive"},
+           {Relation::EQUAL, "equal"},
+           {Relation::NEGATIVE, "negative"}};
+    return make_shared<Conversion<Relation, string> >(conversions);
+}
+
+shared_ptr<Conversion<Surface::Surface_Type, string> > Surface::
+surface_type_conversion() const
+{
+    vector<pair<Surface_Type, string> > conversions
+        = {{Surface_Type::BOUNDARY, "boundary"},
+           {Surface_Type::INTERNAL, "internal"}};
+    return make_shared<Conversion<Surface_Type, string> >(conversions);
+}

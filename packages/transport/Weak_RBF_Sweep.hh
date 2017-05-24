@@ -6,6 +6,7 @@
 
 class Amesos_BaseSolver;
 class AztecOO;
+template<class T1, class T2> class Conversion;
 class Epetra_CrsMatrix;
 class Epetra_Comm;
 class Epetra_LinearProblem;
@@ -27,6 +28,7 @@ public:
             AZTEC_ILUT,
             AZTEC_IFPACK
         };
+        std::shared_ptr<Conversion<Solver, std::string> > solver_conversion() const;
         
         Solver solver = Solver::AMESOS;
     };

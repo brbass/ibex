@@ -6,6 +6,7 @@
 
 #include "Surface.hh"
 
+template<class T1, class T2> class Conversion;
 class Material;
 class XML_Node;
 
@@ -28,6 +29,8 @@ public:
         OUTSIDE
     };
 
+    std::shared_ptr<Conversion<Relation, std::string> > relation_conversion() const;
+    
     // Constructor
     Region(int index,
            std::shared_ptr<Material> material,

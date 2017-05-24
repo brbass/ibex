@@ -2,6 +2,7 @@
 
 #include "Angular_Discretization.hh"
 #include "Check.hh"
+#include "Conversion.hh"
 #include "Energy_Discretization.hh"
 #include "XML_Node.hh"
 
@@ -88,4 +89,12 @@ output(XML_Node output_node) const
     output_node.set_child_vector(boundary_source_, "boundary_source", "group-ordinate");
 }
 
-
+std::shared_ptr<Conversion<Boundary_Source::Dependencies::Angular, string> > Boundary_Source::Dependencies::
+angular_conversion() const
+{
+    vector<pair<Angular, string> > conversions
+        = {{Angular::ISOTROPIC, "isotropic"},
+           {Angular::MOMENTS, "moments"},
+           {Angular::ORDINATES, "ordinates"}};
+    return make_shared<Conversion<Angular, string> >(conversions);
+}

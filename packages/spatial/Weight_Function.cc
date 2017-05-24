@@ -8,6 +8,7 @@
 #include "Basis_Function.hh"
 #include "Boundary_Source.hh"
 #include "Cartesian_Plane.hh"
+#include "Conversion.hh"
 #include "Cross_Section.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
@@ -1331,7 +1332,7 @@ void Weight_Function::
 output(XML_Node output_node) const
 {
     output_node.set_attribute(index_, "index");
-    output_node.set_attribute(point_type_string(), "point_type");
+    output_node.set_attribute((*point_type_conversion())(point_type_), "point_type");
     output_node.set_child_value(dimension_, "dimension");
     output_node.set_child_vector(position_, "position");
     material_->output(output_node.append_child("material"));
@@ -1408,3 +1409,53 @@ local_surface_index(int surface_dimension,
         return local_surface_indices_[1 + 2 * surface_dimension];
     }
 }
+
+shared_ptr<Conversion<Weight_Function::Options::Weighting, string> > Weight_Function::Options::
+weighting_conversion() const
+{
+    vector<pair<Weighting, string> > conversions
+        = {{Weighting::POINT, "point"},
+           {Weighting::WEIGHT, "weight"},
+           {Weighting::FLUX, "flux"}};
+    return make_shared<Conversion<Weighting, string> >(conversions);
+}
+
+shared_ptr<Conversion<Weight_Function::Options::Output, string> > Weight_Function::Options::
+output_conversion() const
+{
+    vector<pair<Output, string> > conversions
+        = {{Output::STANDARD, "standard"},
+           {Output::SUPG, "supg"}};
+    return make_shared<Conversion<Output, string> >(conversions);
+}
+
+shared_ptr<Conversion<Weight_Function::Options::Total, string> > Weight_Function::Options::
+total_conversion() const
+{
+    vector<pair<Total, string> > conversions
+        = {{Total::ISOTROPIC, "isotropic"},
+           {Total::MOMENT, "moment"}};
+    return make_shared<Conversion<Total, string> >(conversions);
+}
+
+shared_ptr<Conversion<Weight_Function::Options::Tau_Scaling, string> > Weight_Function::Options::
+tau_scaling_conversion() const
+{
+    vector<pair<Tau_Scaling, string> > conversions
+        = {{Tau_Scaling::NONE, "none"},
+           {Tau_Scaling::FUNCTIONAL, "functional"},
+           {Tau_Scaling::LINEAR, "linear"},
+           {Tau_Scaling::ABSOLUTE, "absolute"}};
+    return make_shared<Conversion<Tau_Scaling, string> >(conversions);
+}
+
+shared_ptr<Conversion<Weight_Function::Options::Identical_Basis_Functions, string> > Weight_Function::Options::
+identical_basis_functions_conversion() const
+{
+    vector<pair<Identical_Basis_Functions, string> > conversions
+        = {{Identical_Basis_Functions::AUTO, "auto"},
+           {Identical_Basis_Functions::TRUE, "true"},
+           {Identical_Basis_Functions::FALSE, "false"}};
+    return make_shared<Conversion<Identical_Basis_Functions, string> >(conversions);
+}
+

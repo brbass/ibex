@@ -8,6 +8,7 @@
 
 class Angular_Discretization;
 class Energy_Discretization;
+template<class T1, class T2> class Conversion;
 class Spatial_Discretization;
 
 /*
@@ -28,6 +29,8 @@ public:
         };
         
         Scattering_Type scattering_type = Scattering_Type::FULL;
+        
+        std::shared_ptr<Conversion<Scattering_Type, std::string> > scattering_type_conversion() const;
     };
 
     // Constructor

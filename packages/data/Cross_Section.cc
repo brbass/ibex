@@ -3,8 +3,11 @@
 #include "Angular_Discretization.hh"
 #include "Check.hh"
 #include "Energy_Discretization.hh"
+#include "Conversion.hh"
 #include "XML_Node.hh"
 
+using std::make_shared;
+using std::pair;
 using std::shared_ptr;
 using std::string;
 using std::vector;
@@ -132,3 +135,34 @@ output(XML_Node output_node) const
     
     output_node.set_child_vector(data_, "data", description);
 }
+
+std::shared_ptr<Conversion<Cross_Section::Dependencies::Angular, string> > Cross_Section::Dependencies::
+angular_conversion() const
+{
+    vector<pair<Angular, string> > conversions
+        = {{Angular::NONE, "none"},
+           {Angular::SCATTERING_MOMENTS, "scattering_moments"},
+           {Angular::MOMENTS, "moments"},
+           {Angular::ORDINATES, "ordinates"}};
+    return make_shared<Conversion<Angular, string> >(conversions);
+}
+
+std::shared_ptr<Conversion<Cross_Section::Dependencies::Energy, string> > Cross_Section::Dependencies::
+energy_conversion() const
+{
+    vector<pair<Energy, string> > conversions
+        = {{Energy::NONE, "none"},
+           {Energy::GROUP, "group"},
+           {Energy::GROUP_TO_GROUP, "group_to_group"}};
+    return make_shared<Conversion<Energy, string> >(conversions);
+}
+
+std::shared_ptr<Conversion<Cross_Section::Dependencies::Dimensional, string> > Cross_Section::Dependencies::
+dimensional_conversion() const
+{
+    vector<pair<Dimensional, string> > conversions
+        = {{Dimensional::NONE, "none"},
+           {Dimensional::SUPG, "supg"}};
+    return make_shared<Conversion<Dimensional, string> >(conversions);
+}
+

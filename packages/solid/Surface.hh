@@ -8,6 +8,7 @@
 #include "Check.hh"
 
 class Boundary_Source;
+template<class T1, class T2> class Conversion;
 class XML_Node;
 
 /*
@@ -26,6 +27,9 @@ public:
         CYLINDER    
     };
 
+    std::shared_ptr<Conversion<Surface_Class, std::string> > surface_class_conversion() const;
+
+    
     /* Relationship of point to surface */
     enum class Relation
     {
@@ -35,6 +39,7 @@ public:
         OUTSIDE = POSITIVE,
         INSIDE = NEGATIVE
     };
+    std::shared_ptr<Conversion<Relation, std::string> > relation_conversion() const;
     
     /* Classification of surface */
     enum class Surface_Type
@@ -42,7 +47,8 @@ public:
         BOUNDARY,
         INTERNAL
     };
-
+    std::shared_ptr<Conversion<Surface_Type, std::string> > surface_type_conversion() const;
+    
     struct Normal
     {
         bool exists = true;

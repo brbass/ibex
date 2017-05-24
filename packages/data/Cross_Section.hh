@@ -7,6 +7,7 @@
 
 class Angular_Discretization;
 class Energy_Discretization;
+template<class T1, class T2> class Conversion;
 class XML_Node;
 
 class Cross_Section
@@ -39,6 +40,10 @@ public:
         Angular angular = Angular::NONE;
         Energy energy = Energy::NONE;
         Dimensional dimensional = Dimensional::NONE;
+
+        std::shared_ptr<Conversion<Angular, std::string> > angular_conversion() const;
+        std::shared_ptr<Conversion<Energy, std::string> > energy_conversion() const;
+        std::shared_ptr<Conversion<Dimensional, std::string> > dimensional_conversion() const;
     };
     
     Cross_Section(Dependencies dependencies,

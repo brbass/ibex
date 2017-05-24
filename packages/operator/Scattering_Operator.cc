@@ -6,6 +6,7 @@
 #include "Angular_Discretization.hh"
 #include "Check.hh"
 #include "Energy_Discretization.hh"
+#include "Conversion.hh"
 #include "Spatial_Discretization.hh"
 
 using namespace std;
@@ -61,3 +62,12 @@ apply_incoherent(vector<double> &x) const
     }
 }
 
+std::shared_ptr<Conversion<Scattering_Operator::Options::Scattering_Type, string> > Scattering_Operator::Options::
+scattering_type_conversion() const
+{
+    vector<pair<Scattering_Type, string> > conversions
+        = {{Scattering_Type::COHERENT, "coherent"},
+           {Scattering_Type::INCOHERENT, "incoherent"},
+           {Scattering_Type::FULL, "full"}};
+    return make_shared<Conversion<Scattering_Type, string> >(conversions);
+}

@@ -8,6 +8,7 @@
 
 class Basis_Function;
 class Cartesian_Plane;
+template<class T1, class T2> class Conversion;
 class Meshless_Function;
 class Solid_Geometry;
 
@@ -31,6 +32,7 @@ public:
             WEIGHT,
             FLUX
         };
+        std::shared_ptr<Conversion<Weighting, std::string> > weighting_conversion() const;
         
         // Determines whether to add the dimensional material moments
         enum class Output
@@ -38,6 +40,7 @@ public:
             STANDARD,
             SUPG
         };
+        std::shared_ptr<Conversion<Output, std::string> > output_conversion() const;
         
         // Total cross section method: changed to ISOTROPIC
         // unless Weighting::FLUX is used
@@ -46,6 +49,7 @@ public:
             ISOTROPIC,
             MOMENT
         };
+        std::shared_ptr<Conversion<Total, std::string> > total_conversion() const;
 
         // Tau scaling according to distance from boundary
         enum class Tau_Scaling
@@ -55,6 +59,7 @@ public:
             LINEAR, // pos_boundary / radius
             ABSOLUTE // 0 if on boundary
         };
+        std::shared_ptr<Conversion<Tau_Scaling, std::string> > tau_scaling_conversion() const;
 
         // Galerkin: should be set to true or false by time options are passed to Weight_Function
         enum class Identical_Basis_Functions
@@ -63,6 +68,7 @@ public:
             TRUE,
             FALSE
         };
+        std::shared_ptr<Conversion<Identical_Basis_Functions, std::string> > identical_basis_functions_conversion() const;
         
         // Parameters that are automatically set
         // Don't use before Weight_Function is created
