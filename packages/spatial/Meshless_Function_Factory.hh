@@ -28,6 +28,26 @@ public:
                               std::vector<std::vector<double> > const &limits,
                               int &number_of_points,
                               std::vector<std::vector<double> > &points) const;
+
+    // Find "number_of_neighbors" nearest points
+    // Radius for each point is the distance to the furthest
+    // neighbor times the multiplier
+    void get_radii_nearest(std::shared_ptr<KD_Tree> kd_tree,
+                           int dimension,
+                           int number_of_points,
+                           int number_of_neighbors,
+                           double radius_multiplier,
+                           std::vector<double> &radii) const;
+
+    // Find "number_of_neighbors" nearest points
+    // Ensure that radius of each of the neighbors is no
+    // larger than the distance to the current point
+    void get_radii_coverage(std::shared_ptr<KD_Tree> kd_tree,
+                            int dimension,
+                            int number_of_points,
+                            int number_of_neighbors,
+                            double radius_multiplier,
+                            std::vector<double> &radii) const;
     
     // Get neighbors for each point, given a radius
     // Assumes points for the main set and the neighbor set
@@ -47,7 +67,7 @@ public:
                            std::shared_ptr<RBF> rbf,
                            std::shared_ptr<Distance> distance,
                            std::vector<std::shared_ptr<Meshless_Function> > &functions) const;
-
+    
     // Get MLS functions, given meshless functions and neighbors
     void get_mls_functions(int number_of_points,
                            std::vector<std::shared_ptr<Meshless_Function> > const &functions,

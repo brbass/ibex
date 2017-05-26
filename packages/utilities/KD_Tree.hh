@@ -41,6 +41,12 @@ public:
                               std::vector<double> const &position,
                               std::vector<int> &indices,
                               std::vector<double> &distances) const;
+
+    // Get point
+    virtual std::vector<double> const &point(int i) const
+    {
+        return points_[i];
+    }
     
 private:
     

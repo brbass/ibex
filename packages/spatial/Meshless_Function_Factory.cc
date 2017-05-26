@@ -94,6 +94,62 @@ get_cartesian_points(int dimension,
 }
 
 void Meshless_Function_Factory::
+get_radii_nearest(shared_ptr<KD_Tree> kd_tree,
+                  int dimension,
+                  int number_of_points,
+                  int number_of_neighbors,
+                  double radius_multiplier,
+                  vector<double> &radii) const
+{
+    radii.resize(number_of_points);
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        // Get nearest points
+        vector<int> indices;
+        vector<double> distances;
+        vector<double> const position = kd_tree->point(i);
+        kd_tree->find_neighbors(number_of_neighbors,
+                                position,
+                                indices,
+                                distances);
+
+        // Calculate radii
+        radii[i] = distances[number_of_neighbors - 1] * radius_multiplier;
+    }
+}
+
+void Meshless_Function_Factory::
+get_radii_coverage(shared_ptr<KD_Tree> kd_tree,
+                   int dimension,
+                   int number_of_points,
+                   int number_of_neighbors,
+                   double radius_multiplier,
+                   vector<double> &radii) const
+{
+    radii.assign(number_of_points, 0);
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        // Get nearest points
+        vector<int> indices;
+        vector<double> distances;
+        vector<double> const position = kd_tree->point(i);
+        kd_tree->find_neighbors(number_of_neighbors,
+                                position,
+                                indices,
+                                distances);
+        
+        for (int j = 0; j < number_of_neighbors; ++j)
+        {
+            int k = indices[j];
+            if (radii[k] < distances[j])
+            {
+                radii[k] = distances[j];
+            }
+        }
+    }
+}
+
+void Meshless_Function_Factory::
 get_neighbors(shared_ptr<KD_Tree> kd_tree,
               int dimension,
               int number_of_points,
