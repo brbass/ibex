@@ -36,54 +36,56 @@ apply(vector<double> &x) const
     int number_of_ordinates = angular_->number_of_ordinates();
     int dimension = spatial_->dimension();
     int number_of_dimensional_moments = spatial_->number_of_dimensional_moments();
+    shared_ptr<Weak_Spatial_Discretization_Options> const weak_options
+        = spatial_->weak_options();
     
-    for (int i = 0; i < number_of_points; ++i)
+    bool include_normalization;
+    switch (options_.normalization)
     {
-        // Get weight function and data
-        shared_ptr<Weight_Function> weight = spatial_->weight(i);
-        int number_of_basis_functions = weight->number_of_basis_functions();
-        vector<int> basis_indices = weight->basis_function_indices();
-        Weight_Function::Integrals const integrals = weight->integrals();
-        Weight_Function::Options weight_options = weight->options();
-        double const tau = weight_options.tau;
-        bool include_normalization;
-        switch (options_.normalization)
-        {
-        case Options::Normalization::AUTO:
-            include_normalization = !weight_options.normalized;
-            break;
-        case Options::Normalization::TRUE:
-            include_normalization = true;
-            break;
-        case Options::Normalization::FALSE:
-            include_normalization = false;
-            break;
-        }
+    case Options::Normalization::AUTO:
+        include_normalization = !weak_options->normalized;
+        break;
+    case Options::Normalization::TRUE:
+        include_normalization = true;
+        break;
+    case Options::Normalization::FALSE:
+        include_normalization = false;
+        break;
+    }
         
-        bool include_supg;
-        switch (options_.include_supg)
-        {
-        case Options::Include_SUPG::AUTO:
-            include_supg = weight_options.include_supg;
-            break;
-        case Options::Include_SUPG::TRUE:
-            include_supg = true;
-            break;
-        case Options::Include_SUPG::FALSE:
-            include_supg = false;
-            break;
-        }
+    bool include_supg;
+    switch (options_.include_supg)
+    {
+    case Options::Include_SUPG::AUTO:
+        include_supg = weak_options->include_supg;
+        break;
+    case Options::Include_SUPG::TRUE:
+        include_supg = true;
+        break;
+    case Options::Include_SUPG::FALSE:
+        include_supg = false;
+        break;
+    }
         
-        vector<double> const &iv_w = integrals.iv_w;
-        vector<double> const &iv_dw = integrals.iv_dw;
-        
-        for (int o = 0; o < number_of_ordinates; ++o)
+    if (include_normalization)
+    {
+        for (int i = 0; i < number_of_points; ++i)
         {
-            // Get normalization constant
-            vector<double> const direction = angular_->direction(o);
-            double norm = 1;
-            if (include_normalization)
+            // Get weight function and data
+            shared_ptr<Weight_Function> weight = spatial_->weight(i);
+            int number_of_basis_functions = weight->number_of_basis_functions();
+            vector<int> basis_indices = weight->basis_function_indices();
+            Weight_Function::Integrals const integrals = weight->integrals();
+            shared_ptr<Weight_Function_Options> const weight_options = weight->options();
+            double const tau = weight_options->tau;
+            vector<double> const &iv_w = integrals.iv_w;
+            vector<double> const &iv_dw = integrals.iv_dw;
+        
+            for (int o = 0; o < number_of_ordinates; ++o)
             {
+                // Get normalization constant
+                vector<double> const direction = angular_->direction(o);
+                double norm = 1;
                 norm = iv_w[0];
                 if (include_supg)
                 {
@@ -92,17 +94,16 @@ apply(vector<double> &x) const
                         norm += tau * direction[d] * iv_dw[d];
                     }
                 }
-            }
-            double invnorm = 1. / norm;
-            
-            // Apply normalization constant
-            for (int g = 0; g < number_of_groups; ++g)
-            {
-                for (int n = 0; n < number_of_nodes; ++n)
+                double invnorm = 1. / norm;
+                // Apply normalization constant
+                for (int g = 0; g < number_of_groups; ++g)
                 {
-                    int k = n + number_of_nodes * (g + number_of_groups * (o + number_of_ordinates * i));
+                    for (int n = 0; n < number_of_nodes; ++n)
+                    {
+                        int k = n + number_of_nodes * (g + number_of_groups * (o + number_of_ordinates * i));
                     
-                    x[k] *= invnorm;
+                        x[k] *= invnorm;
+                    }
                 }
             }
         }

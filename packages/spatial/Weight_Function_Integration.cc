@@ -20,12 +20,13 @@ using namespace std;
 
 Weight_Function_Integration::
 Weight_Function_Integration(int number_of_points,
+                            shared_ptr<Weak_Spatial_Discretization_Options> options,
                             vector<shared_ptr<Basis_Function> > const &bases,
                             vector<shared_ptr<Weight_Function> > const &weights,
                             shared_ptr<Solid_Geometry> solid,
                             vector<vector<double> > limits,
                             vector<int> dimensional_cells):
-    options_(weights[0]->options()),
+    options_(options),
     number_of_points_(number_of_points),
     bases_(bases),
     weights_(weights),
@@ -40,7 +41,7 @@ Weight_Function_Integration(int number_of_points,
                               solid->dimension(),
                               limits,
                               dimensional_cells);
-
+    
     // Get normalization information
     apply_basis_normalization_ = bases[0]->function()->depends_on_neighbors();
     apply_weight_normalization_ = weights[0]->function()->depends_on_neighbors();

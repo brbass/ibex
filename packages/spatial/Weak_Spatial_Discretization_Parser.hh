@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 
+#include "Weight_Function.hh"
+
 class Basis_Function;
 class Cartesian_Plane;
 class Distance;
@@ -13,7 +15,6 @@ class RBF;
 class RBF_Function;
 class Solid_Geometry;
 class Weak_Spatial_Discretization;
-class Weight_Function;
 class XML_Node;
 
 class Weak_Spatial_Discretization_Parser
@@ -26,6 +27,9 @@ public:
 
     // Parse from XML node
     std::shared_ptr<Weak_Spatial_Discretization> get_weak_discretization(XML_Node input_node) const;
+    std::shared_ptr<Weak_Spatial_Discretization> get_full_discretization(XML_Node input_node) const;
+    std::shared_ptr<Weak_Spatial_Discretization> get_galerkin_points_discretization(XML_Node input_node) const;
+    Weight_Function::Options get_weight_function_options(XML_Node input_node) const;
     std::vector<std::shared_ptr<Meshless_Function> > get_rbf_functions(XML_Node input_node,
                                                                        int number_of_points,
                                                                        int dimension,

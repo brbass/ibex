@@ -54,7 +54,36 @@ apply(vector<double> &x) const
     int dimension = spatial_->dimension();
     
     vector<double> result(number_of_points * number_of_nodes * number_of_groups * number_of_moments * local_number_of_dimensional_moments_, 0);
-    
+
+    shared_ptr<Weak_Spatial_Discretization_Options> const weak_options
+        = spatial_->options();
+    bool include_normalization;
+    switch (options_.normalization)
+    {
+    case Options::Normalization::AUTO:
+        if (weak_options->normalized)
+        {
+            include_normalization = false;
+        }
+        else
+        {
+            if (weak_options->include_supg)
+            {
+                include_normalization = false;
+            }
+            else
+            {
+                include_normalization = true;
+            }
+        }
+        break;
+    case Options::Normalization::TRUE:
+        include_normalization = true;
+        break;
+    case Options::Normalization::FALSE:
+        include_normalization = false;
+        break;
+    }
     for (int i = 0; i < number_of_points; ++i)
     {
         // Get weight function and data
@@ -64,33 +93,6 @@ apply(vector<double> &x) const
         Weight_Function::Values const values = weight->values();
         vector<int> basis_indices = weight->basis_function_indices();
         Weight_Function::Options weight_options = weight->options();
-        bool include_normalization;
-        switch (options_.normalization)
-        {
-        case Options::Normalization::AUTO:
-            if (weight_options.normalized)
-            {
-                include_normalization = false;
-            }
-            else
-            {
-                if (weight_options.include_supg)
-                {
-                    include_normalization = false;
-                }
-                else
-                {
-                    include_normalization = true;
-                }
-            }
-            break;
-        case Options::Normalization::TRUE:
-            include_normalization = true;
-            break;
-        case Options::Normalization::FALSE:
-            include_normalization = false;
-            break;
-        }
 
         vector<double> const &iv_w = integrals.iv_w;
         vector<double> const &iv_b_w = integrals.iv_b_w;

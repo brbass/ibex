@@ -13,6 +13,7 @@
 #include "Solid_Geometry.hh"
 #include "Truncated_Gaussian_RBF.hh"
 #include "Weak_Spatial_Discretization.hh"
+#include "Weak_Spatial_Discretization_Factory.hh"
 #include "Weight_Function.hh"
 #include "XML_Node.hh"
 
@@ -29,19 +30,48 @@ Weak_Spatial_Discretization_Parser(shared_ptr<Solid_Geometry> solid_geometry,
 shared_ptr<Weak_Spatial_Discretization> Weak_Spatial_Discretization_Parser::
 get_weak_discretization(XML_Node input_node) const
 {
-    // Get data
+    // Initialize data
+    string input_format = input_node.get_attribute<string>("input_format");
+    
+    // Get basis and weight functions that include all pertinant connectivity
+    if (input_format == "full")
+    {
+        return get_full_discretization(input_node);
+    }
+    // Get basis and weight functions only given points
+    else if (input_format == "galerkin_points")
+    {
+        return get_galerkin_points_discretization(input_node);
+    }
+    else
+    {
+        AssertMsg(false, "input format (" + input_format + ") not found");
+    }
+    return shared_ptr<Weak_Spatial_Discretization>();
+}
+
+shared_ptr<Weak_Spatial_Discretization> Weak_Spatial_Discretization_Parser::
+get_full_discretization(XML_Node input_node) const
+{
+    Meshless_Function_Factory meshless_factory;
+    
+    // Initialize data
     int dimension = solid_geometry_->dimension();
     int number_of_points = input_node.get_child_value<int>("number_of_points");
+    
+    // Get basis and weight functions that include all pertinant connectivity
     vector<shared_ptr<Basis_Function> > basis_functions
-        = get_basis_functions(input_node.get_child("basis_functions"),
-                              number_of_points,
-                              dimension);
+            = get_basis_functions(input_node.get_child("basis_functions"),
+                                  number_of_points,
+                                  dimension);
     vector<shared_ptr<Weight_Function> > weight_functions
-        = get_weight_functions(input_node.get_child("weight_functions"),
-                               number_of_points,
-                               dimension,
-                               basis_functions);
+            = get_weight_functions(input_node.get_child("weight_functions"),
+                                   number_of_points,
+                                   dimension,
+                                   basis_functions);
     bool supg = weight_functions[0]->options().include_supg;
+    
+    // Get dimensional moments
     shared_ptr<Dimensional_Moments> dimensional_moments
         = make_shared<Dimensional_Moments>(supg,
                                            dimension);
@@ -57,10 +87,98 @@ get_weak_discretization(XML_Node input_node) const
         // Set external integration data
         options.solid = solid_geometry_;
         options.dimensional_cells = integration_node.get_child_vector<int>("dimensional_cells", dimension);
-        Meshless_Function_Factory factory;
-        factory.get_boundary_limits(dimension,
-                                    boundary_surfaces_,
-                                    options.limits);
+        meshless_factory.get_boundary_limits(dimension,
+                                             boundary_surfaces_,
+                                             options.limits);
+    }
+
+    // Create spatial discretization
+    return make_shared<Weak_Spatial_Discretization>(basis_functions,
+                                                    weight_functions,
+                                                    dimensional_moments,
+                                                    options);
+}
+
+shared_ptr<Weak_Spatial_Discretization> Weak_Spatial_Discretization_Parser::
+get_galerkin_points_discretization(XML_Node input_node) const
+{
+    Meshless_Function_Factory meshless_factory;
+    Weak_Spatial_Discretization_Factory weak_factory(solid_geometry_);
+    
+    // Initialize data
+    int dimension = solid_geometry_->dimension();
+    int number_of_points = input_node.get_child_value<int>("number_of_points");
+    string input_format = input_node.get_attribute<string>("input_format");
+    
+    // Get basis and weight functions only given points
+    vector<double> points_input = input_node.get_child_vector<double>("points", number_of_points * dimension);
+    vector<vector<double> > points(number_of_points, vector<double>(dimension));
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        for (int d = 0; d < dimension; ++d)
+        {
+            int k = d + dimension * i;
+            points[i][d] = points_input[k];
+        }
+    }
+    
+    // Make KD tree
+    shared_ptr<KD_Tree> kd_tree
+        = make_shared<KD_Tree>(dimension,
+                               number_of_points,
+                               points);
+
+    // Find radii 
+    int number_of_neighbors = input_node.get_child_value<int>("number_of_neighbors");
+    double radius_multiplier = input_node.get_child_value<double>("radius_multiplier");
+    string radii_method = input_node.get_child_value<string>("radii_method");
+    vector<double> radii;
+    if (radii_method == "nearest")
+    {
+        meshless_factory.get_radii_nearest(kd_tree,
+                                           dimension,
+                                           number_of_points,
+                                           number_of_neighbors,
+                                           radius_multiplier,
+                                           radii);
+    }
+    else if (radii_method == "coverage")
+    {
+        meshless_factory.get_radii_coverage(kd_tree,
+                                            dimension,
+                                            number_of_points,
+                                            number_of_neighbors,
+                                            radius_multiplier,
+                                            radii);
+    }
+    else
+    {
+        AssertMsg("radii method (" + radii_method + ") not found");
+    }
+    
+    shared_ptr<Dimensional_Moments> dimensional_moments
+        = make_shared<Dimensional_Moments>(supg,
+                                           dimension);
+
+    vector<shared_ptr<Basis_Function> > basis_functions;
+    vector<shared_ptr<Weight_Function> > weight_functions;
+    bool supg;
+
+    
+    // Get integration options
+    XML_Node integration_node = input_node.get_child("integration");
+    Weak_Spatial_Discretization::Options options;
+    options.external_integral_calculation = integration_node.get_attribute<bool>("external");
+    if (options.external_integral_calculation)
+    {
+        Assert(weight_functions[0]->options().external_integral_calculation);
+        
+        // Set external integration data
+        options.solid = solid_geometry_;
+        options.dimensional_cells = integration_node.get_child_vector<int>("dimensional_cells", dimension);
+        meshless_factory.get_boundary_limits(dimension,
+                                             boundary_surfaces_,
+                                             options.limits);
     }
 
     // Create spatial discretization
@@ -208,6 +326,50 @@ get_basis_functions(XML_Node input_node,
     return basis_functions;
 }
 
+Weight_Function::Options Weak_Spatial_Discretization_Parser::
+get_weight_function_options(XML_Node input_node) const
+{
+    Weight_Function::Options material_options;
+    int integration_ordinates = input_node.get_child_value<int>("integration_ordinates");
+    material_options.integration_ordinates = integration_ordinates;
+    XML_Node material_node = input_node.get_child("material_options");
+    string weighting = material_node.get_attribute<string>("weighting");
+    if (weighting == "point")
+    {
+        material_options.weighting = Weight_Function::Options::Weighting::POINT;
+    }
+    else if (weighting == "weight")
+    {
+        material_options.weighting = Weight_Function::Options::Weighting::WEIGHT;
+    }
+    else if (weighting == "flux")
+    {
+        material_options.weighting = Weight_Function::Options::Weighting::FLUX;
+    }
+    else
+    {
+        AssertMsg(false, "weighting option (" + weighting + ") not found");
+    }
+        
+    string output = material_node.get_attribute<string>("output");
+    if (output == "standard")
+    {
+        material_options.output = Weight_Function::Options::Output::STANDARD;
+    }
+    else if (output == "supg")
+    {
+        material_options.output = Weight_Function::Options::Output::SUPG;
+    }
+    else
+    {
+        AssertMsg(false, "output option (" + output + ") not found");
+    }
+
+    material_options.tau_const = material_node.get_attribute<double>("tau", 1.0);
+
+    material_options.external_integral_calculation = material_node.get_attribute<bool>("external");
+}
+
 vector<shared_ptr<Weight_Function> > Weak_Spatial_Discretization_Parser::
 get_weight_functions(XML_Node input_node,
                      int number_of_points,
@@ -215,47 +377,7 @@ get_weight_functions(XML_Node input_node,
                      vector<shared_ptr<Basis_Function> > const &basis_functions) const
 {
     // Get global weight function information
-    Weight_Function::Options material_options;
-    {
-        int integration_ordinates = input_node.get_child_value<int>("integration_ordinates");
-        material_options.integration_ordinates = integration_ordinates;
-        XML_Node material_node = input_node.get_child("material_options");
-        string weighting = material_node.get_attribute<string>("weighting");
-        if (weighting == "point")
-        {
-            material_options.weighting = Weight_Function::Options::Weighting::POINT;
-        }
-        else if (weighting == "weight")
-        {
-            material_options.weighting = Weight_Function::Options::Weighting::WEIGHT;
-        }
-        else if (weighting == "flux")
-        {
-            material_options.weighting = Weight_Function::Options::Weighting::FLUX;
-        }
-        else
-        {
-            AssertMsg(false, "weighting option (" + weighting + ") not found");
-        }
-        
-        string output = material_node.get_attribute<string>("output");
-        if (output == "standard")
-        {
-            material_options.output = Weight_Function::Options::Output::STANDARD;
-        }
-        else if (output == "supg")
-        {
-            material_options.output = Weight_Function::Options::Output::SUPG;
-        }
-        else
-        {
-            AssertMsg(false, "output option (" + output + ") not found");
-        }
-
-        material_options.tau_const = material_node.get_attribute<double>("tau", 1.0);
-
-        material_options.external_integral_calculation = material_node.get_attribute<bool>("external");
-    }
+    Weight_Function::Options material_options = get_weight_function_options(input_node);
     
     // Get meshless functions
     vector<shared_ptr<Meshless_Function> > meshless_functions

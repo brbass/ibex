@@ -4,6 +4,7 @@
 #include "Boundary_Source.hh"
 #include "Cartesian_Plane.hh"
 #include "Check.hh"
+#include "Conversion.hh"
 #include "Dimensional_Moments.hh"
 #include "KD_Tree.hh"
 #include "Meshless_Function.hh"
@@ -16,7 +17,7 @@ Weak_Spatial_Discretization::
 Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
                             vector<shared_ptr<Weight_Function> > &weights,
                             shared_ptr<Dimensional_Moments> dimensional_moments,
-                            Options const &options,
+                            shared_ptr<Weak_Spatial_Discretization_Options> options,
                             shared_ptr<KD_Tree> kd_tree):
     number_of_points_(weights.size()),
     dimension_(weights[0]->dimension()),
@@ -92,19 +93,15 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
                                         points);
     }
 
-    // Check that integration options are consistent
-    Assert(options_.external_integral_calculation
-           == weights[0]->options().external_integral_calculation);
-    
     // Perform external integrals, if applicable
-    if (options_.external_integral_calculation)
+    if (options_->external_integral_calculation)
     {
         Weight_Function_Integration integrator(number_of_points_,
                                                bases,
                                                weights,
-                                               options_.solid,
-                                               options_.limits,
-                                               options_.dimensional_cells);
+                                               options_->solid,
+                                               options_->limits,
+                                               options_->dimensional_cells);
         integrator.perform_integration();
     }
     
@@ -307,5 +304,67 @@ output(XML_Node output_node) const
     for (int i = 0; i < number_of_points_; ++i)
     {
         bases_[i]->output(weights_node.append_child("basis"));
+    }
+}
+
+shared_ptr<Conversion<Weak_Spatial_Discretization_Options::Weighting, string> > Weak_Spatial_Discretization_Options::
+weighting_conversion() const
+{
+    vector<pair<Weighting, string> > conversions
+        = {{Weighting::POINT, "point"},
+           {Weighting::WEIGHT, "weight"},
+           {Weighting::FLUX, "flux"}};
+    return make_shared<Conversion<Weighting, string> >(conversions);
+}
+
+shared_ptr<Conversion<Weak_Spatial_Discretization_Options::Output, string> > Weak_Spatial_Discretization_Options::
+output_conversion() const
+{
+    vector<pair<Output, string> > conversions
+        = {{Output::STANDARD, "standard"},
+           {Output::SUPG, "supg"}};
+    return make_shared<Conversion<Output, string> >(conversions);
+}
+
+shared_ptr<Conversion<Weak_Spatial_Discretization_Options::Total, string> > Weak_Spatial_Discretization_Options::
+total_conversion() const
+{
+    vector<pair<Total, string> > conversions
+        = {{Total::ISOTROPIC, "isotropic"},
+           {Total::MOMENT, "moment"}};
+    return make_shared<Conversion<Total, string> >(conversions);
+}
+
+shared_ptr<Conversion<Weak_Spatial_Discretization_Options::Tau_Scaling, string> > Weak_Spatial_Discretization_Options::
+tau_scaling_conversion() const
+{
+    vector<pair<Tau_Scaling, string> > conversions
+        = {{Tau_Scaling::NONE, "none"},
+           {Tau_Scaling::FUNCTIONAL, "functional"},
+           {Tau_Scaling::LINEAR, "linear"},
+           {Tau_Scaling::ABSOLUTE, "absolute"}};
+    return make_shared<Conversion<Tau_Scaling, string> >(conversions);
+}
+
+shared_ptr<Conversion<Weak_Spatial_Discretization_Options::Identical_Basis_Functions, string> > Weak_Spatial_Discretization_Options::
+identical_basis_functions_conversion() const
+{
+    vector<pair<Identical_Basis_Functions, string> > conversions
+        = {{Identical_Basis_Functions::AUTO, "auto"},
+           {Identical_Basis_Functions::TRUE, "true"},
+           {Identical_Basis_Functions::FALSE, "false"}};
+    return make_shared<Conversion<Identical_Basis_Functions, string> >(conversions);
+}
+
+void Weak_Spatial_Discretization_Options::
+finalize_input()
+{
+    if (options_->include_supg)
+    {
+        options_->normalized = false;
+    }
+    else
+    {
+        options_->normalized = true;
     }
 }

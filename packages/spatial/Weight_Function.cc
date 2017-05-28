@@ -8,7 +8,6 @@
 #include "Basis_Function.hh"
 #include "Boundary_Source.hh"
 #include "Cartesian_Plane.hh"
-#include "Conversion.hh"
 #include "Cross_Section.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
@@ -16,6 +15,7 @@
 #include "Quadrature_Rule.hh"
 #include "Solid_Geometry.hh"
 #include "XML_Node.hh"
+#include "Weak_Spatial_Discretization.hh"
 
 using namespace std;
 namespace qr = Quadrature_Rule;
@@ -23,7 +23,8 @@ namespace qr = Quadrature_Rule;
 Weight_Function::
 Weight_Function(int index,
                 int dimension,
-                Options options,
+                shared_ptr<Weight_Function_Options> options,
+                shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                 shared_ptr<Meshless_Function> meshless_function,
                 vector<shared_ptr<Basis_Function> > basis_functions,
                 shared_ptr<Solid_Geometry> solid_geometry,
@@ -35,6 +36,7 @@ Weight_Function(int index,
     number_of_boundary_surfaces_(boundary_surfaces.size()),
     radius_(meshless_function->radius()),
     options_(options),
+    weak_options_(weak_options),
     meshless_function_(meshless_function),
     basis_functions_(basis_functions),
     solid_geometry_(solid_geometry),
@@ -42,7 +44,7 @@ Weight_Function(int index,
 {
     set_options_and_limits();
     calculate_values();
-    if (!options_.external_integral_calculation)
+    if (!options_->external_integral_calculation)
     {
         calculate_integrals();
         calculate_material();
@@ -54,7 +56,8 @@ Weight_Function(int index,
 Weight_Function::
 Weight_Function(int index,
                 int dimension,
-                Options options,
+                shared_ptr<Weight_Function_Options> options,
+                shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                 shared_ptr<Meshless_Function> meshless_function,
                 vector<shared_ptr<Basis_Function> > basis_functions,
                 shared_ptr<Solid_Geometry> solid_geometry,
@@ -69,6 +72,7 @@ Weight_Function(int index,
     number_of_boundary_surfaces_(boundary_surfaces.size()),
     radius_(meshless_function->radius()),
     options_(options),
+    weak_options_(weak_options),
     meshless_function_(meshless_function),
     basis_functions_(basis_functions),
     solid_geometry_(solid_geometry),
@@ -80,7 +84,6 @@ Weight_Function(int index,
     calculate_boundary_source();
     check_class_invariants();
 }
-
 
 void Weight_Function::
 set_options_and_limits()
@@ -114,17 +117,11 @@ set_options_and_limits()
     }
 
     // Check that Galerkin option is set
-    Assert(options_.identical_basis_functions != Options::Identical_Basis_Functions::AUTO);
+    Assert(weak_options_->identical_basis_functions != Options::Identical_Basis_Functions::AUTO);
     
     // Set SUPG options
-    switch (options_.output)
+    if (weak_options_->include_supg)
     {
-    case Options::Output::STANDARD:
-        number_of_dimensional_moments_ = 1;
-        options_.include_supg = false;
-        options_.normalized = true;
-        break;
-    case Options::Output::SUPG:
         // Scale tau appropriately to boundary
         if (number_of_boundary_surfaces_ > 0)
         {
@@ -151,21 +148,21 @@ set_options_and_limits()
 
             // Get ratio of old to new tau
             double ratio = 1;
-            switch (options_.tau_scaling)
+            switch (weak_options_->tau_scaling)
             {
-            case Options::Tau_Scaling::NONE:
+            case Weak_Spatial_Discretization_Options::Tau_Scaling::NONE:
                 ratio = 1;
                 break;
-            case Options::Tau_Scaling::ABSOLUTE:
+            case Weak_Spatial_Discretization_Options::Tau_Scaling::ABSOLUTE:
                 ratio = 0;
                 break;
-            case Options::Tau_Scaling::LINEAR:
+            case Weak_Spatial_Discretization_Options::Tau_Scaling::LINEAR:
             {
                 double dist = abs(closest_surface->position() - position_[closest_surface->surface_dimension()]);
                 ratio = dist / radius_;
                 break;
             }
-            case Options::Tau_Scaling::FUNCTIONAL:
+            case Weak_Spatial_Discretization_Options::Tau_Scaling::FUNCTIONAL:
             {
                 double val_rad = meshless_function_->value(b_position);
                 double val_center = meshless_function_->value(position_);
@@ -185,13 +182,12 @@ set_options_and_limits()
             }
 
             // Set new tau
-            options_.tau_const *= ratio;
+            options_->tau_const *= ratio;
         }
-        number_of_dimensional_moments_ = 1 + dimension_;
-        options_.include_supg = true;
-        options_.normalized = false;
-        options_.tau = options_.tau_const / meshless_function_->shape();
-        break;
+        options_->tau = options_->tau_const / meshless_function_->shape();
+    }
+    else
+    {
     }
     
     basis_function_indices_.resize(number_of_basis_functions_);
@@ -237,7 +233,7 @@ get_full_quadrature_1d(vector<vector<double> > &integration_ordinates,
     // Get quadrature
     vector<double> ordinates_x;
     bool success =  qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                     options_.integration_ordinates,
+                                     options_->integration_ordinates,
                                      x1,
                                      x2,
                                      ordinates_x,
@@ -259,8 +255,8 @@ get_full_quadrature_2d(vector<vector<double> > &integration_ordinates,
     {
         success = qr::cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
                                      qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                     options_.integration_ordinates,
-                                     options_.integration_ordinates,
+                                     options_->integration_ordinates,
+                                     options_->integration_ordinates,
                                      position_[0],
                                      position_[1],
                                      0.,
@@ -275,8 +271,8 @@ get_full_quadrature_2d(vector<vector<double> > &integration_ordinates,
     {
         success = qr::cartesian_bounded_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
                                                        qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                                       options_.integration_ordinates,
-                                                       options_.integration_ordinates,
+                                                       options_->integration_ordinates,
+                                                       options_->integration_ordinates,
                                                        position_[0],
                                                        position_[1],
                                                        radius_,
@@ -344,7 +340,7 @@ get_basis_quadrature_1d(int i,
     // Get quadrature
     vector<double> ordinates_x;
     bool success = qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                    options_.integration_ordinates,
+                                    options_->integration_ordinates,
                                     x1,
                                     x2,
                                     ordinates_x,
@@ -373,8 +369,8 @@ get_basis_quadrature_2d(int i,
     {
         success = qr::double_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
                                             qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                            options_.integration_ordinates,
-                                            options_.integration_ordinates,
+                                            options_->integration_ordinates,
+                                            options_->integration_ordinates,
                                             position_[0],
                                             position_[1],
                                             radius_,
@@ -389,8 +385,8 @@ get_basis_quadrature_2d(int i,
     {
         success = qr::cartesian_bounded_double_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
                                                               qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                                              options_.integration_ordinates,
-                                                              options_.integration_ordinates,
+                                                              options_->integration_ordinates,
+                                                              options_->integration_ordinates,
                                                               position_[0],
                                                               position_[1],
                                                               radius_,
@@ -463,7 +459,7 @@ get_full_surface_quadrature_2d(int s,
     // Get ordinates for integration dimension
     vector<double> ordinates_main;
     bool success = qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                    options_.integration_ordinates,
+                                    options_->integration_ordinates,
                                     smin,
                                     smax,
                                     ordinates_main,
@@ -567,7 +563,7 @@ get_basis_surface_quadrature_2d(int i,
                                     smax,
                                     ordinates_main,
                                     integration_weights);
-
+    
     vector<double> ordinates_other(ordinates_main.size(), pos_sur);
 
     switch (dim_sur)
@@ -728,62 +724,57 @@ void Weight_Function::
 calculate_material()
 {
     // Make sure options for material weighting are cohesive
-    switch (options_.weighting)
+    switch (weak_options_->weighting)
     {
-    case Options::Weighting::POINT:
-        options_.total = Options::Total::ISOTROPIC;
+    case Weak_Spatial_Discretization_Options::Weighting::POINT:
+        options_.total = Weak_Spatial_Discretization_Options::Total::ISOTROPIC;
         break; // POINT
-    case Options::Weighting::WEIGHT:
-        options_.total = Options::Total::ISOTROPIC;
+    case Weak_Spatial_Discretization_Options::Weighting::WEIGHT:
+        options_.total = Weak_Spatial_Discretization_Options::Total::ISOTROPIC;
         break; // WEIGHT
-    case Options::Weighting::FLUX:
+    case Weak_Spatial_Discretization_Options::Weighting::FLUX:
         AssertMsg(false, "not yet implemented");
         break; // FLUX
     }
 
-    switch (options_.output)
+    if (weak_options_->include_supg)
     {
-    case Options::Output::STANDARD:
-    {
-        switch(options_.weighting)
+        switch(weak_options_->weighting)
         {
-        case Options::Weighting::POINT:
-        {
-            return calculate_standard_point_material();
-        } // POINT
-        case Options::Weighting::WEIGHT:
-        {
-            return calculate_standard_weight_material();
-        } // WEIGHT
-        case Options::Weighting::FLUX:
-        {
-            AssertMsg(false, "Weight_Function flux weighting not yet implemented");
-            return;
-        } // FLUX
-        } // Weighting
-        break;
-    } // STANDARD
-    case Options::Output::SUPG:
-    {
-        switch(options_.weighting)
-        {
-        case Options::Weighting::POINT:
+        case Weak_Spatial_Discretization_Options::Weighting::POINT:
         {
             return calculate_supg_point_material();
         } // POINT
-        case Options::Weighting::WEIGHT:
+        case Weak_Spatial_Discretization_Options::Weighting::WEIGHT:
         {
             return calculate_supg_weight_material();
         } // WEIGHT
-        case Options::Weighting::FLUX:
+        case Weak_Spatial_Discretization_Options::Weighting::FLUX:
         {
             AssertMsg(false, "Weight_Function flux weighting not yet implemented");
             return;
         } // FLUX
         } // Weighting
-        break;
-    } // SUPG
-    } // Output
+    }
+    else
+    {
+        switch(weak_options_->weighting)
+        {
+        case Weak_Spatial_Discretization_Options::Weighting::POINT:
+        {
+            return calculate_standard_point_material();
+        } // POINT
+        case Weak_Spatial_Discretization_Options::Weighting::WEIGHT:
+        {
+            return calculate_standard_weight_material();
+        } // WEIGHT
+        case Weak_Spatial_Discretization_Options::Weighting::FLUX:
+        {
+            AssertMsg(false, "Weight_Function flux weighting not yet implemented");
+            return;
+        } // FLUX
+        } // Weighting
+    }
 }
 
 void Weight_Function::
@@ -1243,12 +1234,12 @@ calculate_boundary_source()
 {
     switch(options_.weighting)
     {
-    case Options::Weighting::POINT:
+    case Weak_Spatial_Discretization_Options::Weighting::POINT:
         // Point weighting doesn't make sense for boundary
         return calculate_weight_boundary_source(); 
-    case Options::Weighting::WEIGHT:
+    case Weak_Spatial_Discretization_Options::Weighting::WEIGHT:
         return calculate_weight_boundary_source();
-    case Options::Weighting::FLUX:
+    case Weak_Spatial_Discretization_Options::Weighting::FLUX:
         AssertMsg(false, "Weight_Function flux weighting not yet implemented");
         return;
     }
@@ -1408,54 +1399,5 @@ local_surface_index(int surface_dimension,
     {
         return local_surface_indices_[1 + 2 * surface_dimension];
     }
-}
-
-shared_ptr<Conversion<Weight_Function::Options::Weighting, string> > Weight_Function::Options::
-weighting_conversion() const
-{
-    vector<pair<Weighting, string> > conversions
-        = {{Weighting::POINT, "point"},
-           {Weighting::WEIGHT, "weight"},
-           {Weighting::FLUX, "flux"}};
-    return make_shared<Conversion<Weighting, string> >(conversions);
-}
-
-shared_ptr<Conversion<Weight_Function::Options::Output, string> > Weight_Function::Options::
-output_conversion() const
-{
-    vector<pair<Output, string> > conversions
-        = {{Output::STANDARD, "standard"},
-           {Output::SUPG, "supg"}};
-    return make_shared<Conversion<Output, string> >(conversions);
-}
-
-shared_ptr<Conversion<Weight_Function::Options::Total, string> > Weight_Function::Options::
-total_conversion() const
-{
-    vector<pair<Total, string> > conversions
-        = {{Total::ISOTROPIC, "isotropic"},
-           {Total::MOMENT, "moment"}};
-    return make_shared<Conversion<Total, string> >(conversions);
-}
-
-shared_ptr<Conversion<Weight_Function::Options::Tau_Scaling, string> > Weight_Function::Options::
-tau_scaling_conversion() const
-{
-    vector<pair<Tau_Scaling, string> > conversions
-        = {{Tau_Scaling::NONE, "none"},
-           {Tau_Scaling::FUNCTIONAL, "functional"},
-           {Tau_Scaling::LINEAR, "linear"},
-           {Tau_Scaling::ABSOLUTE, "absolute"}};
-    return make_shared<Conversion<Tau_Scaling, string> >(conversions);
-}
-
-shared_ptr<Conversion<Weight_Function::Options::Identical_Basis_Functions, string> > Weight_Function::Options::
-identical_basis_functions_conversion() const
-{
-    vector<pair<Identical_Basis_Functions, string> > conversions
-        = {{Identical_Basis_Functions::AUTO, "auto"},
-           {Identical_Basis_Functions::TRUE, "true"},
-           {Identical_Basis_Functions::FALSE, "false"}};
-    return make_shared<Conversion<Identical_Basis_Functions, string> >(conversions);
 }
 

@@ -11,6 +11,7 @@ class Cartesian_Plane;
 template<class T1, class T2> class Conversion;
 class Meshless_Function;
 class Solid_Geometry;
+struct Weak_Spatial_Discretization_Options;
 
 class Weight_Function : public Point
 {
@@ -21,75 +22,6 @@ public:
         DOES_NOT_EXIST = -1
     };
     
-    struct Options
-    {
-    public:
-
-        // Main value to set: method of weighting
-        enum class Weighting
-        {
-            POINT,
-            WEIGHT,
-            FLUX
-        };
-        std::shared_ptr<Conversion<Weighting, std::string> > weighting_conversion() const;
-        
-        // Determines whether to add the dimensional material moments
-        enum class Output
-        {
-            STANDARD,
-            SUPG
-        };
-        std::shared_ptr<Conversion<Output, std::string> > output_conversion() const;
-        
-        // Total cross section method: changed to ISOTROPIC
-        // unless Weighting::FLUX is used
-        enum class Total
-        {
-            ISOTROPIC,
-            MOMENT
-        };
-        std::shared_ptr<Conversion<Total, std::string> > total_conversion() const;
-
-        // Tau scaling according to distance from boundary
-        enum class Tau_Scaling
-        {
-            NONE,
-            FUNCTIONAL, // 1 - b(boundary) - b(center)
-            LINEAR, // pos_boundary / radius
-            ABSOLUTE // 0 if on boundary
-        };
-        std::shared_ptr<Conversion<Tau_Scaling, std::string> > tau_scaling_conversion() const;
-
-        // Galerkin: should be set to true or false by time options are passed to Weight_Function
-        enum class Identical_Basis_Functions
-        {
-            AUTO, // Set in creation methods
-            TRUE,
-            FALSE
-        };
-        std::shared_ptr<Conversion<Identical_Basis_Functions, std::string> > identical_basis_functions_conversion() const;
-        
-        // Parameters that are automatically set
-        // Don't use before Weight_Function is created
-        bool include_supg = false;
-        bool normalized = true;
-        double tau; // SUPG parameter (tau_const / shape)
-        bool external_integral_calculation = true;
-        
-        // Parameters for the user to set
-        Identical_Basis_Functions identical_basis_functions = Identical_Basis_Functions::FALSE;
-        int integration_ordinates = 8; // Dimensional integration quadrature
-        double tau_const = 1; // Constant in front of 1/shape
-        Weighting weighting = Weighting::WEIGHT; 
-        Total total = Total::ISOTROPIC;
-        Output output = Output::STANDARD;
-        Tau_Scaling tau_scaling = Tau_Scaling::LINEAR;
-        std::function<double(int /*moment*/,
-                             int /*group*/,
-                             std::vector<double> const & /*position*/)> flux;
-    };
-
     struct Integrals
     {
         // Surface integrals
@@ -115,16 +47,17 @@ public:
     // Standard Constructor
     Weight_Function(int index,
                     int dimension,
-                    Options options,
+                    std::shared_ptr<Weight_Function_Options> options,
+                    std::shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                     std::shared_ptr<Meshless_Function> meshless_function,
                     std::vector<std::shared_ptr<Basis_Function> > basis_functions,
                     std::shared_ptr<Solid_Geometry> solid_geometry,
                     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces);
-
+    
     // Constructor for precalculated integrals and material
     Weight_Function(int index,
                     int dimension,
-                    Options options,
+                    Weight_Function_Options options,
                     std::shared_ptr<Meshless_Function> meshless_funciton,
                     std::vector<std::shared_ptr<Basis_Function> > basis_functions,
                     std::shared_ptr<Solid_Geometry> solid_geometry,
@@ -177,9 +110,13 @@ public:
     {
         return radius_;
     }
-    virtual Options options() const
+    virtual std::shared_ptr<Weight_Function_Options> options() const
     {
         return options_;
+    }
+    virtual std::shared_ptr<Weak_Spatial_Discretization_Options> weak_options() const
+    {
+        return weak_options_;
     }
     virtual std::vector<int> const &basis_function_indices() const
     {
@@ -285,7 +222,8 @@ private:
     int number_of_boundary_surfaces_;
     int number_of_dimensional_moments_;
     double radius_;
-    Options options_;
+    shared_ptr<Weight_Function_Options> options_;
+    shared_ptr<Weak_Spatial_Discretization_Options> weak_options_;
     std::vector<int> basis_function_indices_;
     std::shared_ptr<Meshless_Function> meshless_function_;
     std::vector<std::shared_ptr<Basis_Function> > basis_functions_;
@@ -302,6 +240,19 @@ private:
     // Values and integrals of data
     Integrals integrals_;
     Values values_;
+};
+
+struct Weight_Function_Options
+{
+    // Parameters that are automatically set
+    // Don't use before Weight_Function is created
+    double tau; // SUPG parameter (tau_const / shape)
+    
+    // Parameters for the user to set
+    double tau_const = 1; // Constant in front of 1/shape
+
+    // Internal integration parameters
+    int integration_ordinates = 8; // Dimensional integration quadrature
 };
 
 #endif
