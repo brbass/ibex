@@ -9,9 +9,9 @@
 
 class Basis_Function;
 class Cartesian_Plane;
-class Constructive_Solid_Geometry;
 class KD_Tree;
 class Meshless_Function;
+class Solid_Geometry;
 class Weak_Spatial_Discretization;
 class Weak_Spatial_Discretization_Options;
 class Weight_Function;
@@ -22,7 +22,8 @@ class Weak_Spatial_Discretization_Factory
 public:
     
     // Constructor
-    Weak_Spatial_Discretization_Factory(std::shared_ptr<Constructive_Solid_Geometry> solid_geometry);
+    Weak_Spatial_Discretization_Factory(std::shared_ptr<Solid_Geometry> solid_geometry,
+                                        std::vector<std::shared_ptr<Cartesian_Plane> > const &boundary_surfaces);
     
     // Get basis functions
     void get_basis_functions(int number_of_points,
@@ -50,7 +51,8 @@ public:
     
 private:
 
-    std::shared_ptr<Constructive_Solid_Geometry> solid_geometry_;
+    std::shared_ptr<Solid_Geometry> solid_geometry_;
+    std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces_;
     Meshless_Function_Factory meshless_factory_;
 };
 

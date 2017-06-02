@@ -11,7 +11,6 @@
 #include "Random_Number_Generator.hh"
 #include "RBF_Function.hh"
 #include "Timer.hh"
-#include "Weak_Spatial_Discretization_Factory.hh"
 
 using namespace std;
 namespace ce = Check_Equality;

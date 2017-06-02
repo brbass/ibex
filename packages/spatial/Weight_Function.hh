@@ -13,6 +13,16 @@ class Meshless_Function;
 class Solid_Geometry;
 struct Weak_Spatial_Discretization_Options;
 
+struct Weight_Function_Options
+{
+    // Parameters that are automatically set
+    // Don't use before Weight_Function is created
+    double tau; // SUPG parameter (tau_const / shape)
+    
+    // Parameters for the user to set
+    double tau_const = 1; // Constant in front of 1/shape
+};
+
 class Weight_Function : public Point
 {
 public:
@@ -57,7 +67,8 @@ public:
     // Constructor for precalculated integrals and material
     Weight_Function(int index,
                     int dimension,
-                    Weight_Function_Options options,
+                    std::shared_ptr<Weight_Function_Options> options,
+                    std::shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                     std::shared_ptr<Meshless_Function> meshless_funciton,
                     std::vector<std::shared_ptr<Basis_Function> > basis_functions,
                     std::shared_ptr<Solid_Geometry> solid_geometry,
@@ -101,10 +112,6 @@ public:
     virtual int number_of_boundary_surfaces() const
     {
         return number_of_boundary_surfaces_;
-    }
-    virtual int number_of_dimensional_moments() const
-    {
-        return number_of_dimensional_moments_;
     }
     virtual double radius() const
     {
@@ -220,10 +227,9 @@ private:
     // Weight_Function data
     int number_of_basis_functions_;
     int number_of_boundary_surfaces_;
-    int number_of_dimensional_moments_;
     double radius_;
-    shared_ptr<Weight_Function_Options> options_;
-    shared_ptr<Weak_Spatial_Discretization_Options> weak_options_;
+    std::shared_ptr<Weight_Function_Options> options_;
+    std::shared_ptr<Weak_Spatial_Discretization_Options> weak_options_;
     std::vector<int> basis_function_indices_;
     std::shared_ptr<Meshless_Function> meshless_function_;
     std::vector<std::shared_ptr<Basis_Function> > basis_functions_;
@@ -240,16 +246,6 @@ private:
     // Values and integrals of data
     Integrals integrals_;
     Values values_;
-};
-
-struct Weight_Function_Options
-{
-    // Parameters that are automatically set
-    // Don't use before Weight_Function is created
-    double tau; // SUPG parameter (tau_const / shape)
-    
-    // Parameters for the user to set
-    double tau_const = 1; // Constant in front of 1/shape
 };
 
 #endif

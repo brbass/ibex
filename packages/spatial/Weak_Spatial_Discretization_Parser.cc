@@ -85,7 +85,7 @@ get_full_discretization(XML_Node input_node) const
     return make_shared<Weak_Spatial_Discretization>(basis_functions,
                                                     weight_functions,
                                                     dimensional_moments,
-                                                    options);
+                                                    weak_options);
 }
 
 shared_ptr<Weak_Spatial_Discretization> Weak_Spatial_Discretization_Parser::
@@ -93,7 +93,8 @@ get_galerkin_points_discretization(XML_Node input_node) const
 {
     RBF_Parser rbf_parser;
     Meshless_Function_Factory meshless_factory;
-    Weak_Spatial_Discretization_Factory weak_factory(solid_geometry_);
+    Weak_Spatial_Discretization_Factory weak_factory(solid_geometry_,
+                                                     boundary_surfaces_);
     
     // Get options
     shared_ptr<Weight_Function_Options> weight_options
@@ -112,7 +113,7 @@ get_galerkin_points_discretization(XML_Node input_node) const
     
     // Get dimensional moments
     shared_ptr<Dimensional_Moments> dimensional_moments
-        = make_shared<Dimensional_Moments>(options->supg,
+        = make_shared<Dimensional_Moments>(options->include_supg,
                                            dimension);
     
     // Get points
@@ -159,7 +160,7 @@ get_galerkin_points_discretization(XML_Node input_node) const
     }
     else
     {
-        AssertMsg("radii method (" + radii_method + ") not found");
+        AssertMsg(false, "radii method (" + radii_method + ") not found");
     }
     
     // Find neighbors

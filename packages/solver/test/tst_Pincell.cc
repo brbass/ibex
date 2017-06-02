@@ -239,16 +239,16 @@ void get_pincell(bool basis_mls,
                                                    boundary_sources);
     
     // Get spatial discretization
-    Weak_Spatial_Discretization_Factory spatial_factory(solid);
-    spatial
-        = spatial_factory.get_simple_discretization(num_dimensional_points,
-                                                    radius_num_intervals,
-                                                    basis_mls,
-                                                    weight_mls,
-                                                    basis_type,
-                                                    weight_type,
-                                                    weight_options,
-                                                    weak_options);
+    Weak_Spatial_Discretization_Factory spatial_factory(solid,
+                                                        solid->cartesian_boundary_surfaces());
+    spatial = spatial_factory.get_simple_discretization(num_dimensional_points,
+                                                        radius_num_intervals,
+                                                        basis_mls,
+                                                        weight_mls,
+                                                        basis_type,
+                                                        weight_type,
+                                                        weight_options,
+                                                        weak_options);
     
     // Get transport discretization
     transport
@@ -387,10 +387,8 @@ int run_tests(bool mls_basis,
         = make_shared<Weight_Function_Options>();
     shared_ptr<Weak_Spatial_Discretization_Options> weak_options
         = make_shared<Weak_Spatial_Discretization_Options>();
-    weak_options->output = (supg 
-                            ? Weak_Spatial_Discretization_Options::Output::SUPG
-                            : Weak_Spatial_Discretization_Options::Output::STANDARD);
-
+    weak_options->include_supg = supg;
+    
     // Test 1D eigenvalue
     {
         weak_options->integration_ordinates = 16;

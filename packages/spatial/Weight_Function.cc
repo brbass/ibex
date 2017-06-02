@@ -117,7 +117,7 @@ set_options_and_limits()
     }
 
     // Check that Galerkin option is set
-    Assert(weak_options_->identical_basis_functions != Options::Identical_Basis_Functions::AUTO);
+    Assert(weak_options_->identical_basis_functions != Weak_Spatial_Discretization_Options::Identical_Basis_Functions::AUTO);
     
     // Set SUPG options
     if (weak_options_->include_supg)
@@ -1329,7 +1329,6 @@ output(XML_Node output_node) const
     material_->output(output_node.append_child("material"));
     output_node.set_child_value(options_.integration_ordinates, "number_of_integration_ordinates");
     output_node.set_child_value(number_of_basis_functions_, "number_of_basis_functions");
-    output_node.set_child_value(number_of_dimensional_moments_, "number_of_dimensional_moments");
     output_node.set_child_value(radius_, "radius");
     meshless_function_->output(output_node.append_child("function"));
     

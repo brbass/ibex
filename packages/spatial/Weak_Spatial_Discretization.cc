@@ -35,10 +35,6 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
         number_of_basis_functions_[i] = weights_[i]->number_of_basis_functions();
     }
 
-    // Get number of dimensional moments
-    number_of_dimensional_moments_ = weights_[0]->number_of_dimensional_moments();
-    include_supg_ = weights_[0]->options().include_supg;
-    
     // Get boundary weights
     int j = 0;
     boundary_weights_.resize(number_of_points_);
@@ -97,6 +93,7 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
     if (options_->external_integral_calculation)
     {
         Weight_Function_Integration integrator(number_of_points_,
+                                               options_,
                                                bases,
                                                weights,
                                                options_->solid,
@@ -264,7 +261,6 @@ expansion_values(int number_of_groups,
 void Weak_Spatial_Discretization::
 check_class_invariants() const
 {
-    Assert(number_of_dimensional_moments_ == dimensional_moments_->number_of_dimensional_moments());
     Assert(weights_.size() == number_of_points_);
     Assert(boundary_weights_.size() == number_of_boundary_weights_);
     Assert(bases_.size() == number_of_points_);
@@ -274,7 +270,6 @@ check_class_invariants() const
     {
         Assert(weights_[i]);
         Assert(bases_[i]);
-        Assert(weights_[i]->number_of_dimensional_moments() == number_of_dimensional_moments_);
     }
     for (int i = 0; i < number_of_boundary_weights_; ++i)
     {
@@ -317,15 +312,6 @@ weighting_conversion() const
     return make_shared<Conversion<Weighting, string> >(conversions);
 }
 
-shared_ptr<Conversion<Weak_Spatial_Discretization_Options::Output, string> > Weak_Spatial_Discretization_Options::
-output_conversion() const
-{
-    vector<pair<Output, string> > conversions
-        = {{Output::STANDARD, "standard"},
-           {Output::SUPG, "supg"}};
-    return make_shared<Conversion<Output, string> >(conversions);
-}
-
 shared_ptr<Conversion<Weak_Spatial_Discretization_Options::Total, string> > Weak_Spatial_Discretization_Options::
 total_conversion() const
 {
@@ -359,12 +345,12 @@ identical_basis_functions_conversion() const
 void Weak_Spatial_Discretization_Options::
 finalize_input()
 {
-    if (options_->include_supg)
+    if (include_supg)
     {
-        options_->normalized = false;
+        normalized = false;
     }
     else
     {
-        options_->normalized = true;
+        normalized = true;
     }
 }

@@ -4,6 +4,8 @@
 #include <memory>
 #include <vector>
 
+#include "Weight_Function.hh"
+
 class Angular_Discretization;
 class Basis_Function;
 class Energy_Discretization;
@@ -12,7 +14,6 @@ class Material;
 class Meshless_Normalization;
 class Solid_Geometry;
 class Weak_Spatial_Discretization_Options;
-class Weight_Function;
 
 class Weight_Function_Integration
 {
@@ -108,6 +109,7 @@ public:
 
     // Constructor
     Weight_Function_Integration(int number_of_points,
+                                std::shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                                 std::vector<std::shared_ptr<Basis_Function> > const &bases,
                                 std::vector<std::shared_ptr<Weight_Function> > const &weights,
                                 std::shared_ptr<Solid_Geometry> solid_geometry,

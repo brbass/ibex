@@ -23,10 +23,11 @@
 using namespace std;
 
 Weak_Spatial_Discretization_Factory::
-Weak_Spatial_Discretization_Factory(shared_ptr<Constructive_Solid_Geometry> solid_geometry):
-    solid_geometry_(solid_geometry)
+Weak_Spatial_Discretization_Factory(shared_ptr<Solid_Geometry> solid_geometry,
+                                    vector<shared_ptr<Cartesian_Plane> > const &boundary_surfaces):
+    solid_geometry_(solid_geometry),
+    boundary_surfaces_(boundary_surfaces)
 {
-    Assert(solid_geometry_->cartesian_boundaries());
 }
 
 void Weak_Spatial_Discretization_Factory::
@@ -37,8 +38,6 @@ get_basis_functions(int number_of_points,
     Assert(functions.size() == number_of_points);
     
     int dimension = solid_geometry_->dimension();
-    vector<shared_ptr<Cartesian_Plane> > boundaries
-        = solid_geometry_->cartesian_boundary_surfaces();
     
     // Get basis functions
     bases.resize(number_of_points);
@@ -48,7 +47,7 @@ get_basis_functions(int number_of_points,
         shared_ptr<Meshless_Function> function = functions[i];
         vector<shared_ptr<Cartesian_Plane> > local_boundaries;
         meshless_factory_.get_boundary_surfaces(function,
-                                                boundaries,
+                                                boundary_surfaces_,
                                                 local_boundaries);
         bases[i]
             = make_shared<Basis_Function>(i,
@@ -71,8 +70,6 @@ get_weight_functions(int number_of_points,
     Assert(bases.size() == number_of_points);
     
     int dimension = solid_geometry_->dimension();
-    vector<shared_ptr<Cartesian_Plane> > boundaries
-        = solid_geometry_->cartesian_boundary_surfaces();
 
     // Get basis functions
     weights.resize(number_of_points);
@@ -82,7 +79,7 @@ get_weight_functions(int number_of_points,
         shared_ptr<Meshless_Function> function = functions[i];
         vector<shared_ptr<Cartesian_Plane> > local_boundaries;
         meshless_factory_.get_boundary_surfaces(function,
-                                                boundaries,
+                                                boundary_surfaces_,
                                                 local_boundaries);
 
         // Get local basis functions
@@ -116,10 +113,7 @@ get_simple_discretization(int num_dimensional_points,
                           shared_ptr<Weight_Function_Options> weight_options,
                           shared_ptr<Weak_Spatial_Discretization_Options> weak_options) const
 {
-    // Get boundaries
     int dimension = solid_geometry_->dimension();
-    vector<shared_ptr<Cartesian_Plane> > boundaries
-        = solid_geometry_->cartesian_boundary_surfaces();
 
     // Set Galerkin option
     switch (weak_options->identical_basis_functions)
@@ -144,7 +138,7 @@ get_simple_discretization(int num_dimensional_points,
     vector<int> dimensional_points(dimension, num_dimensional_points);
     vector<vector<double> > limits;
     meshless_factory_.get_boundary_limits(dimension,
-                                          boundaries,
+                                          boundary_surfaces_,
                                           limits);
     meshless_factory_.get_cartesian_points(dimension,
                                            dimensional_points,

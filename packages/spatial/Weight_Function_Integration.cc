@@ -14,6 +14,7 @@
 #include "Meshless_Normalization.hh"
 #include "Solid_Geometry.hh"
 #include "Quadrature_Rule.hh"
+#include "Weak_Spatial_Discretization.hh"
 #include "Weight_Function.hh"
 
 using namespace std;
@@ -56,9 +57,7 @@ Weight_Function_Integration(int number_of_points,
     }
 
     // Get information on Galerkin vs Petrov-Galerkin discretization
-    shared_ptr<Weak_Spatial_Discretization_Options> const weak_options
-        = spatial_->options();
-    identical_basis_functions_ = weak_options->identical_basis_functions == Weak_Spatial_Discretization_Options::Identical_Basis_Functions::TRUE;
+    identical_basis_functions_ = options_->identical_basis_functions == Weak_Spatial_Discretization_Options::Identical_Basis_Functions::TRUE;
     
     // Get angular and energy discretizations
     shared_ptr<Material> test_material = solid_->material(weights_[0]->position());
@@ -185,8 +184,6 @@ normalize_materials(vector<Material_Data> &materials) const
         int number_of_groups = energy_->number_of_groups();
         int number_of_scattering_moments = angular_->number_of_scattering_moments();
         int number_of_moments = angular_->number_of_moments();
-        shared_ptr<Weak_Spatial_Discretization_Options> const weak_options
-            = spatial_->options();
         
         for (int i = 0; i < number_of_points_; ++i)
         {
@@ -194,7 +191,7 @@ normalize_materials(vector<Material_Data> &materials) const
             int number_of_dimensional_moments = weight->number_of_dimensional_moments();
             Material_Data &material = materials[i];
             
-            switch (weak_options->weighting)
+            switch (options_->weighting)
             {
             case Weak_Spatial_Discretization_Options::Weighting::POINT:
                 AssertMsg(false, "point weighting not compatible with external integration");
@@ -361,8 +358,6 @@ add_volume_material(Mesh::Cell const &cell,
     int number_of_scattering_moments = angular_->number_of_scattering_moments();
     int number_of_moments = angular_->number_of_moments();
     vector<int> const scattering_indices = angular_->scattering_indices();
-    shared_ptr<Weak_Spatial_Discretization_Options> const weak_options
-        = spatial_->options();
     
     // Get cross sections
     vector<double> sigma_t = point_material->sigma_t()->data();
@@ -384,7 +379,7 @@ add_volume_material(Mesh::Cell const &cell,
         Material_Data &material = materials[w_ind];
         int number_of_dimensional_moments = weight->number_of_dimensional_moments();
         
-        switch (weak_options->weighting)
+        switch (options_->weighting)
         {
         case Weak_Spatial_Discretization_Options::Weighting::POINT:
             AssertMsg(false, "point weighting not compatible with external integration");
@@ -668,17 +663,13 @@ get_material(int index,
     }
 
     // Set SUPG dependencies
-    switch (options_->output)
+    if (options_->include_supg)
     {
-    case Weak_Spatial_Discretization_Options::Output::STANDARD:
-        break;
-    case Weak_Spatial_Discretization_Options::Output::SUPG:
         sigma_t_deps.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
         sigma_s_deps.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
         sigma_f_deps.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
         internal_source_deps.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
         norm_deps.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
-        break;
     }
     
     // Get cross sections
@@ -1140,8 +1131,6 @@ initialize_materials(vector<Material_Data> &materials) const
     int number_of_groups = energy_->number_of_groups();
     int number_of_scattering_moments = angular_->number_of_scattering_moments();
     int number_of_moments = angular_->number_of_moments();
-    shared_ptr<Weak_Spatial_Discretization_Options> const weak_options
-        = spatial_->options();
     
     // Initialize materials
     materials.resize(number_of_points_);
@@ -1155,7 +1144,7 @@ initialize_materials(vector<Material_Data> &materials) const
         material.chi.assign(1, 1.);
         material.internal_source.assign(number_of_dimensional_moments
                                         * number_of_groups, 0);
-        switch (weak_options->weighting)
+        switch (options_->weighting)
         {
         case Weak_Spatial_Discretization_Options::Weighting::POINT:
             AssertMsg(false, "point weighting not compatible with external integration");

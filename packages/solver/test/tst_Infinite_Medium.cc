@@ -139,7 +139,8 @@ void get_one_region(bool basis_mls,
                                                    boundary_sources);
     
     // Get spatial discretization
-    Weak_Spatial_Discretization_Factory spatial_factory(solid);
+    Weak_Spatial_Discretization_Factory spatial_factory(solid,
+                                                        solid->cartesian_boundary_surfaces());
     spatial
         = spatial_factory.get_simple_discretization(num_dimensional_points,
                                                     radius_num_intervals,

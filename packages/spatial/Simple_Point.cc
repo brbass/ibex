@@ -25,7 +25,7 @@ void Simple_Point::
 output(XML_Node output_node) const
 {
     output_node.set_attribute(index_, "index");
-    output_node.set_attribute((*point_type_conversion())(point_type_), "point_type");
+    output_node.set_attribute(point_type_conversion()->convert(point_type_), "point_type");
     output_node.set_child_value(dimension_, "dimension");
     output_node.set_child_vector(position_, "position");
     output_node.set_child_value(material_->index(), "material_index");
