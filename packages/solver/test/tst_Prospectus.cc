@@ -46,7 +46,8 @@ void get_one_region(bool basis_mls,
                     string basis_type,
                     string weight_type,
                     string method,
-                    Weight_Function::Options weight_options,
+                    shared_ptr<Weight_Function_Options> weight_options,
+                    shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                     Weak_RBF_Sweep::Options sweep_options,
                     int dimension,
                     int angular_rule,
@@ -199,7 +200,8 @@ void get_one_region(bool basis_mls,
                                                     weight_mls,
                                                     basis_type,
                                                     weight_type,
-                                                    weight_options);
+                                                    weight_options,
+                                                    weak_options);
     
     // Get transport discretization
     shared_ptr<Transport_Discretization> transport
@@ -254,7 +256,8 @@ void get_pincell(bool basis_mls,
                  string basis_type,
                  string weight_type,
                  string method,
-                 Weight_Function::Options weight_options,
+                 shared_ptr<Weight_Function_Options> weight_options,
+                 shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                  Weak_RBF_Sweep::Options sweep_options,
                  int dimension,
                  int angular_rule,
@@ -478,7 +481,8 @@ void get_pincell(bool basis_mls,
                                                     weight_mls,
                                                     basis_type,
                                                     weight_type,
-                                                    weight_options);
+                                                    weight_options,
+                                                    weak_options);
     
     // Get transport discretization
     shared_ptr<Transport_Discretization> transport
@@ -566,7 +570,7 @@ void output_results(shared_ptr<Solver::Result> result,
     // Get grid of points to calculate scalar flux
     int dimension = spatial->dimension();
     vector<int> dimensional_points(dimension, 100);
-    vector<vector<double> > limits = spatial->options().limits;
+    vector<vector<double> > limits = spatial->options()->limits;
     Meshless_Function_Factory factory;
     int number_of_result_points;
     vector<vector<double> > points;
@@ -616,7 +620,8 @@ void run_problem(int test_num,
                  string basis_type,
                  string weight_type,
                  string method,
-                 Weight_Function::Options weight_options,
+                 shared_ptr<Weight_Function_Options> weight_options,
+                 shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                  Weak_RBF_Sweep::Options sweep_options,
                  string output_path,
                  int dimension,
@@ -644,6 +649,7 @@ void run_problem(int test_num,
                        weight_type,
                        method,
                        weight_options,
+                       weak_options,
                        sweep_options,
                        dimension,
                        angular_rule,
@@ -663,6 +669,7 @@ void run_problem(int test_num,
                     weight_type,
                     method,
                     weight_options,
+                    weak_options,
                     sweep_options,
                     dimension,
                     angular_rule,
@@ -721,17 +728,20 @@ void run_test(string input_path)
     int num_integration_ordinates = input_node.get_child_value<int>("num_integration_ordinates");
 
     // Set options
-    Weight_Function::Options weight_options;
+    shared_ptr<Weight_Function_Options> weight_options
+        = make_shared<Weight_Function_Options>();
+    shared_ptr<Weak_Spatial_Discretization_Options> weak_options
+        = make_shared<Weak_Spatial_Discretization_Options>();
     if (supg)
     {
-        weight_options.output = Weight_Function::Options::Output::SUPG;
+        weak_options->output = Weak_Spatial_Discretization_Options::Output::SUPG;
     }
     else
     {
-        weight_options.output = Weight_Function::Options::Output::STANDARD;
+        weak_options->output = Weak_Spatial_Discretization_Options::Output::STANDARD;
     }
-    weight_options.integration_ordinates = num_integration_ordinates;
-    weight_options.integration_ordinates = num_integration_ordinates;
+    weak_options->integration_ordinates = num_integration_ordinates;
+    weak_options->integration_ordinates = num_integration_ordinates;
     
     Weak_RBF_Sweep::Options sweep_options;
     sweep_options.solver = Weak_RBF_Sweep::Options::Solver::AZTEC_IFPACK;

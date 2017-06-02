@@ -28,7 +28,7 @@ public:
                               std::vector<std::vector<double> > const &limits,
                               int &number_of_points,
                               std::vector<std::vector<double> > &points) const;
-
+    
     // Find "number_of_neighbors" nearest points
     // Radius for each point is the distance to the furthest
     // neighbor times the multiplier
@@ -69,6 +69,7 @@ public:
                            std::vector<std::shared_ptr<Meshless_Function> > &functions) const;
     
     // Get MLS functions, given meshless functions and neighbors
+    // Input and output vector of functions cannot be the same
     void get_mls_functions(int number_of_points,
                            std::vector<std::shared_ptr<Meshless_Function> > const &functions,
                            std::vector<std::vector<int> > const &neighbors,

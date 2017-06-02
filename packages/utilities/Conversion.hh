@@ -17,7 +17,7 @@ public:
     {
     }
 
-    T1 operator()(T2 value) const
+    T1 convert(T2 value) const
     {
         for (std::pair<T1, T2> const &conversion : conversions_)
         {
@@ -30,7 +30,7 @@ public:
         AssertMsg(false, "enum value (" + value + ") not found");
         return conversions_[0].first;
     }
-    T2 operator()(T1 value)
+    T2 convert(T1 value)
     {
         for (std::pair<T1, T2> const &conversion : conversions_)
         {
@@ -43,8 +43,8 @@ public:
         AssertMsg(false, "enum value not found");
         return conversions_[0].second;
     }
-    T1 operator()(T2 value,
-                  T1 default_value) const
+    T1 convert(T2 value,
+               T1 default_value) const
     {
         for (std::pair<T1, T2> const &conversion : conversions_)
         {
@@ -56,8 +56,8 @@ public:
         
         return default_value;
     }
-    T2 operator()(T1 value,
-                  T2 default_value)
+    T2 convert(T1 value,
+               T2 default_value)
     {
         for (std::pair<T1, T2> const &conversion : conversions_)
         {

@@ -183,13 +183,12 @@ struct Weak_Spatial_Discretization_Options
     std::vector<std::vector<double> > limits;
     std::shared_ptr<Solid_Geometry> solid;
     std::vector<int> dimensional_cells;
-
+    
     // Parameters for the user to set
     bool include_supg = false;
     Identical_Basis_Functions identical_basis_functions = Identical_Basis_Functions::FALSE;
     Weighting weighting = Weighting::WEIGHT; 
     Total total = Total::ISOTROPIC;
-    Output output = Output::STANDARD;
     Tau_Scaling tau_scaling = Tau_Scaling::LINEAR;
     std::function<double(int /*moment*/,
                          int /*group*/,

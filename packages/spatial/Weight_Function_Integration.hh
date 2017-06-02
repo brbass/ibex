@@ -4,8 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include "Weight_Function.hh"
-
 class Angular_Discretization;
 class Basis_Function;
 class Energy_Discretization;
@@ -13,6 +11,8 @@ class KD_Tree;
 class Material;
 class Meshless_Normalization;
 class Solid_Geometry;
+class Weak_Spatial_Discretization_Options;
+class Weight_Function;
 
 class Weight_Function_Integration
 {
@@ -236,7 +236,7 @@ private:
     void initialize_integrals(std::vector<Weight_Function::Integrals> &integrals) const;
 
     // Data
-    Weight_Function::Options options_;
+    std::shared_ptr<Weak_Spatial_Discretization_Options> options_;
     bool identical_basis_functions_;
     bool apply_basis_normalization_;
     bool apply_weight_normalization_;

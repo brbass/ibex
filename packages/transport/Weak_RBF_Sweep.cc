@@ -233,10 +233,13 @@ get_matrix_row(int i, // weight function index (row)
     int number_of_basis_functions = weight->number_of_basis_functions();
     int number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
     int dimension = spatial_discretization_->dimension();
-    Weight_Function::Options weight_options = weight->options();
-    bool include_supg = weight_options.include_supg;
-    double tau = weight_options.tau;
-    Assert(weight_options.total == Weight_Function::Options::Total::ISOTROPIC); // moment method not yet implemented
+    shared_ptr<Weak_Spatial_Discretization_Options> const weak_options
+        = spatial_discretization_->options();
+    shared_ptr<Weight_Function_Options> const weight_options
+        = weight->options();
+    bool include_supg = weak_options->include_supg;
+    double tau = weight_options->tau;
+    Assert(weak_options->total == Weak_Spatial_Discretization_Options::Total::ISOTROPIC); // moment method not yet implemented
 
     // Get total cross section: already normalized if not SUPG
     double sigma_t = sigma_t_data[0 + number_of_dimensional_moments * g];

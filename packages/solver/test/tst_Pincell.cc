@@ -40,7 +40,8 @@ void get_pincell(bool basis_mls,
                  bool weight_mls,
                  string basis_type,
                  string weight_type,
-                 Weight_Function::Options weight_options,
+                 shared_ptr<Weight_Function_Options> weight_options,
+                 shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                  string method,
                  int dimension,
                  int angular_rule,
@@ -246,7 +247,8 @@ void get_pincell(bool basis_mls,
                                                     weight_mls,
                                                     basis_type,
                                                     weight_type,
-                                                    weight_options);
+                                                    weight_options,
+                                                    weak_options);
     
     // Get transport discretization
     transport
@@ -289,7 +291,8 @@ int test_pincell(bool basis_mls,
                  bool weight_mls,
                  string basis_type,
                  string weight_type,
-                 Weight_Function::Options weight_options,
+                 shared_ptr<Weight_Function_Options> weight_options,
+                 shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                  string method,
                  int dimension,
                  int angular_rule,
@@ -323,6 +326,7 @@ int test_pincell(bool basis_mls,
                 basis_type,
                 weight_type,
                 weight_options,
+                weak_options,
                 method,
                 dimension,
                 angular_rule,
@@ -378,20 +382,23 @@ int run_tests(bool mls_basis,
               double number_of_intervals)
 {
     int checksum = 0;
-    
-    Weight_Function::Options weight_options;
-    weight_options.output = (supg 
-                             ? Weight_Function::Options::Output::SUPG
-                             : Weight_Function::Options::Output::STANDARD);
+
+    shared_ptr<Weight_Function_Options> weight_options
+        = make_shared<Weight_Function_Options>();
+    shared_ptr<Weak_Spatial_Discretization_Options> weak_options
+        = make_shared<Weak_Spatial_Discretization_Options>();
+    weak_options->output = (supg 
+                            ? Weak_Spatial_Discretization_Options::Output::SUPG
+                            : Weak_Spatial_Discretization_Options::Output::STANDARD);
 
     // Test 1D eigenvalue
     {
-        weight_options.integration_ordinates = 16;
-        weight_options.external_integral_calculation = true;
-        weight_options.tau_const = 1.0;
-        weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
+        weak_options->integration_ordinates = 16;
+        weak_options->external_integral_calculation = true;
+        weight_options->tau_const = 1.0;
+        weak_options->tau_scaling = Weak_Spatial_Discretization_Options::Tau_Scaling::NONE;
     
-        string description = (weight_options.output == Weight_Function::Options::Output::STANDARD
+        string description = (weak_options->output == Weak_Spatial_Discretization_Options::Output::STANDARD
                               ? "1D, standard, "
                               : "1D, SUPG, ");
         description += basis_type + ", " + weight_type + ", ";
@@ -407,6 +414,7 @@ int run_tests(bool mls_basis,
                                      basis_type,
                                      weight_type,
                                      weight_options,
+                                     weak_options,
                                      "krylov_eigenvalue",
                                      1, // dimension
                                      256, // ordinates
@@ -418,12 +426,12 @@ int run_tests(bool mls_basis,
     
     // Run 2D problems
     {
-        weight_options.integration_ordinates = 16;
-        weight_options.external_integral_calculation = true;
-        weight_options.tau_const = 1.0;
-        weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
+        weak_options->integration_ordinates = 16;
+        weak_options->external_integral_calculation = true;
+        weight_options->tau_const = 1.0;
+        weak_options->tau_scaling = Weak_Spatial_Discretization_Options::Tau_Scaling::NONE;
         
-        string description = (weight_options.output == Weight_Function::Options::Output::STANDARD
+        string description = (weak_options->output == Weak_Spatial_Discretization_Options::Output::STANDARD
                               ? "2D, standard, "
                               : "2D, SUPG, ");
         description += basis_type + ", " + weight_type + ", ";
@@ -441,6 +449,7 @@ int run_tests(bool mls_basis,
                                      basis_type,
                                      weight_type,
                                      weight_options,
+                                     weak_options,
                                      "krylov_eigenvalue",
                                      2, // dimension
                                      2, // angular rule

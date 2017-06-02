@@ -35,7 +35,7 @@ Weight_Function(int index,
     number_of_basis_functions_(basis_functions.size()),
     number_of_boundary_surfaces_(boundary_surfaces.size()),
     radius_(meshless_function->radius()),
-    options_(options),
+    options_(make_shared<Weight_Function_Options>(*options)), // copy to edit
     weak_options_(weak_options),
     meshless_function_(meshless_function),
     basis_functions_(basis_functions),
@@ -44,7 +44,7 @@ Weight_Function(int index,
 {
     set_options_and_limits();
     calculate_values();
-    if (!options_->external_integral_calculation)
+    if (!weak_options_->external_integral_calculation)
     {
         calculate_integrals();
         calculate_material();
@@ -233,7 +233,7 @@ get_full_quadrature_1d(vector<vector<double> > &integration_ordinates,
     // Get quadrature
     vector<double> ordinates_x;
     bool success =  qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                     options_->integration_ordinates,
+                                     weak_options_->integration_ordinates,
                                      x1,
                                      x2,
                                      ordinates_x,
@@ -255,8 +255,8 @@ get_full_quadrature_2d(vector<vector<double> > &integration_ordinates,
     {
         success = qr::cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
                                      qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                     options_->integration_ordinates,
-                                     options_->integration_ordinates,
+                                     weak_options_->integration_ordinates,
+                                     weak_options_->integration_ordinates,
                                      position_[0],
                                      position_[1],
                                      0.,
@@ -271,8 +271,8 @@ get_full_quadrature_2d(vector<vector<double> > &integration_ordinates,
     {
         success = qr::cartesian_bounded_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
                                                        qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                                       options_->integration_ordinates,
-                                                       options_->integration_ordinates,
+                                                       weak_options_->integration_ordinates,
+                                                       weak_options_->integration_ordinates,
                                                        position_[0],
                                                        position_[1],
                                                        radius_,
@@ -340,7 +340,7 @@ get_basis_quadrature_1d(int i,
     // Get quadrature
     vector<double> ordinates_x;
     bool success = qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                    options_->integration_ordinates,
+                                    weak_options_->integration_ordinates,
                                     x1,
                                     x2,
                                     ordinates_x,
@@ -369,8 +369,8 @@ get_basis_quadrature_2d(int i,
     {
         success = qr::double_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
                                             qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                            options_->integration_ordinates,
-                                            options_->integration_ordinates,
+                                            weak_options_->integration_ordinates,
+                                            weak_options_->integration_ordinates,
                                             position_[0],
                                             position_[1],
                                             radius_,
@@ -385,8 +385,8 @@ get_basis_quadrature_2d(int i,
     {
         success = qr::cartesian_bounded_double_cylindrical_2d(qr::Quadrature_Type::GAUSS_LEGENDRE,
                                                               qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                                              options_->integration_ordinates,
-                                                              options_->integration_ordinates,
+                                                              weak_options_->integration_ordinates,
+                                                              weak_options_->integration_ordinates,
                                                               position_[0],
                                                               position_[1],
                                                               radius_,
@@ -459,7 +459,7 @@ get_full_surface_quadrature_2d(int s,
     // Get ordinates for integration dimension
     vector<double> ordinates_main;
     bool success = qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                    options_->integration_ordinates,
+                                    weak_options_->integration_ordinates,
                                     smin,
                                     smax,
                                     ordinates_main,

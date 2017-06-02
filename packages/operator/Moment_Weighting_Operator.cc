@@ -92,7 +92,6 @@ apply(vector<double> &x) const
         Weight_Function::Integrals const integrals = weight->integrals();
         Weight_Function::Values const values = weight->values();
         vector<int> basis_indices = weight->basis_function_indices();
-        Weight_Function::Options weight_options = weight->options();
 
         vector<double> const &iv_w = integrals.iv_w;
         vector<double> const &iv_b_w = integrals.iv_b_w;

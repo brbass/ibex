@@ -250,9 +250,6 @@ struct Weight_Function_Options
     
     // Parameters for the user to set
     double tau_const = 1; // Constant in front of 1/shape
-
-    // Internal integration parameters
-    int integration_ordinates = 8; // Dimensional integration quadrature
 };
 
 #endif

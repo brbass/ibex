@@ -60,7 +60,8 @@ get_basis_functions(int number_of_points,
 
 void Weak_Spatial_Discretization_Factory::
 get_weight_functions(int number_of_points,
-                     Weight_Function::Options options,
+                     shared_ptr<Weight_Function_Options> weight_options,
+                     shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                      vector<vector<int> > const &neighbors,
                      vector<shared_ptr<Meshless_Function> > const &functions,
                      vector<shared_ptr<Basis_Function> > const &bases,
@@ -96,7 +97,8 @@ get_weight_functions(int number_of_points,
         weights[i]
             = make_shared<Weight_Function>(i,
                                            dimension,
-                                           options,
+                                           weight_options,
+                                           weak_options,
                                            function,
                                            local_bases,
                                            solid_geometry_,
@@ -111,7 +113,8 @@ get_simple_discretization(int num_dimensional_points,
                           bool weight_mls,
                           string basis_type,
                           string weight_type,
-                          Weight_Function::Options options) const
+                          shared_ptr<Weight_Function_Options> weight_options,
+                          shared_ptr<Weak_Spatial_Discretization_Options> weak_options) const
 {
     // Get boundaries
     int dimension = solid_geometry_->dimension();
@@ -119,16 +122,16 @@ get_simple_discretization(int num_dimensional_points,
         = solid_geometry_->cartesian_boundary_surfaces();
 
     // Set Galerkin option
-    switch (options.identical_basis_functions)
+    switch (weak_options->identical_basis_functions)
     {
-    case Weight_Function::Options::Identical_Basis_Functions::AUTO:
+    case Weak_Spatial_Discretization_Options::Identical_Basis_Functions::AUTO:
         if (basis_mls == weight_mls && basis_type == weight_type)
         {
-            options.identical_basis_functions = Weight_Function::Options::Identical_Basis_Functions::TRUE;
+            options.identical_basis_functions = Weak_Spatial_Discretization_Options::Identical_Basis_Functions::TRUE;
         }
         else
         {
-            options.identical_basis_functions = Weight_Function::Options::Identical_Basis_Functions::FALSE;
+            options.identical_basis_functions = Weak_Spatial_Discretization_Options::Identical_Basis_Functions::FALSE;
         }
         break;
     default:
@@ -240,24 +243,24 @@ get_simple_discretization(int num_dimensional_points,
     // Get weight functions
     vector<shared_ptr<Weight_Function> > weights;
     get_weight_functions(number_of_points,
-                         options,
+                         weight_options,
+                         weak_options,
                          neighbors,
                          meshless_weight,
                          bases,
                          weights);
 
     // Get dimensional moments
-    bool supg = (options.output == Weight_Function::Options::Output::SUPG);
+    bool supg = (weak_options->output == Weak_Spatial_Discretization_Options::Output::SUPG);
     shared_ptr<Dimensional_Moments> dimensional_moments
         = make_shared<Dimensional_Moments>(supg,
                                            dimension);
 
     // Get integration options
-    Weak_Spatial_Discretization::Options weak_options;
-    weak_options.external_integral_calculation = options.external_integral_calculation;
-    weak_options.limits = limits;
-    weak_options.solid = solid_geometry_;
-    weak_options.dimensional_cells.assign(dimension, num_dimensional_points - 1);
+
+    weak_options->limits = limits;
+    weak_options->solid = solid_geometry_;
+    weak_options->dimensional_cells.assign(dimension, num_dimensional_points - 1);
     
     return make_shared<Weak_Spatial_Discretization>(bases,
                                                     weights,

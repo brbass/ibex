@@ -4,8 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include "Weight_Function.hh"
-
 class Basis_Function;
 class Cartesian_Plane;
 class Distance;
@@ -15,6 +13,9 @@ class RBF;
 class RBF_Function;
 class Solid_Geometry;
 class Weak_Spatial_Discretization;
+class Weak_Spatial_Discretization_Options;
+class Weight_Function;
+class Weight_Function_Options;
 class XML_Node;
 
 class Weak_Spatial_Discretization_Parser
@@ -29,7 +30,8 @@ public:
     std::shared_ptr<Weak_Spatial_Discretization> get_weak_discretization(XML_Node input_node) const;
     std::shared_ptr<Weak_Spatial_Discretization> get_full_discretization(XML_Node input_node) const;
     std::shared_ptr<Weak_Spatial_Discretization> get_galerkin_points_discretization(XML_Node input_node) const;
-    Weight_Function::Options get_weight_function_options(XML_Node input_node) const;
+    std::shared_ptr<Weight_Function_Options> get_weight_options(XML_Node input_node) const;
+    std::shared_ptr<Weak_Spatial_Discretization_Options> get_weak_options(XML_Node input_node) const;
     std::vector<std::shared_ptr<Meshless_Function> > get_rbf_functions(XML_Node input_node,
                                                                        int number_of_points,
                                                                        int dimension,
@@ -48,6 +50,7 @@ public:
     std::vector<std::shared_ptr<Weight_Function> > get_weight_functions(XML_Node input_node,
                                                                         int number_of_points,
                                                                         int dimension,
+                                                                        std::shared_ptr<Weak_Spatial_Discretization_Options> options,
                                                                         std::vector<std::shared_ptr<Basis_Function> > const &basis_functions) const;
     std::vector<std::shared_ptr<Cartesian_Plane> > get_boundary_surfaces(std::shared_ptr<Meshless_Function> function) const;
     

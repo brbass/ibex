@@ -38,7 +38,8 @@ void get_one_region(bool basis_mls,
                     bool weight_mls,
                     string basis_type,
                     string weight_type,
-                    Weight_Function::Options weight_options,
+                    shared_ptr<Weight_Function_Options> weight_options,
+                    shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                     string method,
                     int dimension,
                     int angular_rule,
@@ -146,7 +147,8 @@ void get_one_region(bool basis_mls,
                                                     weight_mls,
                                                     basis_type,
                                                     weight_type,
-                                                    weight_options);
+                                                    weight_options,
+                                                    weak_options);
     
     // Get transport discretization
     transport
@@ -155,9 +157,9 @@ void get_one_region(bool basis_mls,
                                                 energy);
     
     // Get weak RBF sweep
-    Weak_RBF_Sweep::Options options;
+    Weak_RBF_Sweep::Options sweep_options;
     sweeper
-        = make_shared<Weak_RBF_Sweep>(options,
+        = make_shared<Weak_RBF_Sweep>(sweep_options,
                                       spatial,
                                       angular,
                                       energy,
@@ -200,7 +202,8 @@ int test_infinite(bool basis_mls,
                   bool weight_mls,
                   string basis_type,
                   string weight_type,
-                  Weight_Function::Options weight_options,
+                  shared_ptr<Weight_Function_Options> weight_options,
+                  shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                   string method,
                   int dimension,
                   int angular_rule,
@@ -235,6 +238,7 @@ int test_infinite(bool basis_mls,
                    basis_type,
                    weight_type,
                    weight_options,
+                   weak_options,
                    method,
                    dimension,
                    angular_rule,
@@ -330,19 +334,22 @@ int run_tests()
 {
     int checksum = 0;
     
-    // Run for regular and SUPG options
-    vector<Weight_Function::Options> weight_options_vals(2);
-    weight_options_vals[0].output = Weight_Function::Options::Output::STANDARD;
-    weight_options_vals[1].output = Weight_Function::Options::Output::SUPG;
-
-    // Run 1D problems
-    for (Weight_Function::Options weight_options : weight_options_vals)
+    // Run 1D problems for regular and SUPG options
+    for (int i = 0; i < 2; ++i)
     {
-        weight_options.integration_ordinates = 16;
-        weight_options.tau_const = 1.0;
-        weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
-
-        string description = (weight_options.output == Weight_Function::Options::Output::STANDARD
+        shared_ptr<Weight_Function_Options> weight_options
+            = make_shared<Weight_Function_Options>();
+        shared_ptr<Weak_Spatial_Discretization_Options> weak_options
+            = make_shared<Weak_Spatial_Discretization_Options>();
+        weak_options->tau_scaling
+            = (i == 0
+               ? Weak_Spatial_Discretization_Options::Output::STANDARD
+               : Weak_Spatial_Discretization_Options::Output::SUPG);
+        weak_options->integration_ordinates = 16;
+        weight_options->tau_const = 1.0;
+        weak_options->tau_scaling = Weak_Spatial_Discretization_Options::Tau_Scaling::NONE;
+        
+        string description = (weak_options->output == Weak_Spatial_Discretization_Options::Output::STANDARD
                               ? "1D standard "
                               : "1D SUPG ");
         
@@ -353,6 +360,7 @@ int run_tests()
                                   "wendland11", // basis type
                                   "wendland11", // weight type
                                   weight_options,
+                                  weak_options
                                   "krylov_eigenvalue",
                                   1, // dimension
                                   16, // ordinates
@@ -374,6 +382,7 @@ int run_tests()
                                   "wendland11", // basis type
                                   "wendland11", // weight type
                                   weight_options,
+                                  weak_options,
                                   "krylov_steady_state",
                                   1, // dimension
                                   16, // ordinates
@@ -395,6 +404,7 @@ int run_tests()
                                   "wendland11", // basis type
                                   "wendland11", // weight type
                                   weight_options,
+                                  weak_options,
                                   "source_iteration",
                                   1, // dimension
                                   16, // ordinates
@@ -411,13 +421,21 @@ int run_tests()
     }
 
     // Run 2D problems
-    for (Weight_Function::Options weight_options : weight_options_vals)
+    for (int i = 0; i < 2; ++i)
     {
-        weight_options.integration_ordinates = 32;
-        weight_options.tau_const = 1.0;
-        weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
-
-        string description = (weight_options.output == Weight_Function::Options::Output::STANDARD
+        shared_ptr<Weight_Function_Options> weight_options
+            = make_shared<Weight_Function_Options>();
+        shared_ptr<Weak_Spatial_Discretization_Options> weak_options
+            = make_shared<Weak_Spatial_Discretization_Options>();
+        weak_options->tau_scaling
+            = (i == 0
+               ? Weak_Spatial_Discretization_Options::Output::STANDARD
+               : Weak_Spatial_Discretization_Options::Output::SUPG);
+        weak_options->integration_ordinates = 32;
+        weight_options->tau_const = 1.0;
+        weak_options->tau_scaling = Weak_Spatial_Discretization_Options::Tau_Scaling::NONE;
+        
+        string description = (weak_options->output == Weak_Spatial_Discretization_Options::Output::STANDARD
                               ? "2D standard "
                               : "2D SUPG ");
         
@@ -497,44 +515,6 @@ int main(int argc, char **argv)
 
     // Run tests
     checksum += run_tests();
-
-    // Temporary tests
-    vector<Weight_Function::Options> weight_options_vals(2);
-    weight_options_vals[0].output = Weight_Function::Options::Output::STANDARD;
-    weight_options_vals[1].output = Weight_Function::Options::Output::SUPG;
-    
-    // Run 1D problems
-    // for (Weight_Function::Options weight_options : weight_options_vals)
-    // {
-    //     weight_options.integration_ordinates = 32;
-    //     weight_options.tau_const = 1.0;
-    //     weight_options.tau_scaling = Weight_Function::Options::Tau_Scaling::NONE;
-
-    //     string description = (weight_options.output == Weight_Function::Options::Output::STANDARD
-    //                           ? "1D standard "
-    //                           : "1D SUPG ");
-        
-    //     // Test 1D eigenvalue
-    //     cout << description << "eigenvalue, krylov" << endl;
-    //     checksum += test_infinite(true, // mls basis
-    //                               true, // mls weight
-    //                               "wendland11", // basis type
-    //                               "wendland11", // weight type
-    //                               weight_options,
-    //                               "krylov_eigenvalue",
-    //                               1, // dimension
-    //                               16, // ordinates
-    //                               10, // number of points
-    //                               3, // number of intervals
-    //                               2.0, // sigma_t
-    //                               0.8, // sigma_s
-    //                               1.1, // nu_sigma_f
-    //                               0.0, // internal source
-    //                               0.0, // boundary source
-    //                               2.0, // alpha
-    //                               2.0, // length
-    //                               1e-4); // tolerance
-    // }
     
     // Close MPI
     MPI_Finalize();

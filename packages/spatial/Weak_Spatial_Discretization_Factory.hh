@@ -6,7 +6,6 @@
 #include <vector>
 
 #include "Meshless_Function_Factory.hh"
-#include "Weight_Function.hh"
 
 class Basis_Function;
 class Cartesian_Plane;
@@ -14,6 +13,9 @@ class Constructive_Solid_Geometry;
 class KD_Tree;
 class Meshless_Function;
 class Weak_Spatial_Discretization;
+class Weak_Spatial_Discretization_Options;
+class Weight_Function;
+class Weight_Function_Options;
 
 class Weak_Spatial_Discretization_Factory
 {
@@ -29,7 +31,8 @@ public:
 
     // Get weight functions
     void get_weight_functions(int number_of_points,
-                              Weight_Function::Options options,
+                              std::shared_ptr<Weight_Function_Options> weight_options,
+                              std::shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                               std::vector<std::vector<int> > const &neighbors,
                               std::vector<std::shared_ptr<Meshless_Function> > const &functions,
                               std::vector<std::shared_ptr<Basis_Function> > const &bases,
@@ -42,7 +45,8 @@ public:
                                                                            bool weight_mls,
                                                                            std::string basis_type,
                                                                            std::string weight_type,
-                                                                           Weight_Function::Options options) const;
+                                                                           std::shared_ptr<Weight_Function_Options> weight_options,
+                                                                           std::shared_ptr<Weak_Spatial_Discretization_Options> weak_options) const;
     
 private:
 
