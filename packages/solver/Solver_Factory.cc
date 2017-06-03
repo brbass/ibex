@@ -3,6 +3,7 @@
 #include "Angular_Discretization.hh"
 #include "Augmented_Operator.hh"
 #include "Boundary_Source_Toggle.hh"
+#include "Dimensional_Moments.hh"
 #include "Discrete_To_Moment.hh"
 #include "Discrete_Normalization_Operator.hh"
 #include "Energy_Discretization.hh"
@@ -47,7 +48,7 @@ get_source_operators(shared_ptr<Sweep_Operator> Linv,
                      shared_ptr<Vector_Operator> &flux_operator) const
 {
     // Check if problem includes SUPG terms
-    bool include_supg = spatial_->include_supg();
+    bool include_supg = spatial_->options()->include_supg;
     if (include_supg)
     {
         return get_supg_source_operators(Linv,
@@ -141,11 +142,11 @@ get_supg_source_operators(shared_ptr<Sweep_Operator> Linv,
                           shared_ptr<Vector_Operator> &flux_operator) const
 {
     // Check that this problem is SUPG
-    bool include_supg = spatial_->include_supg();
+    bool include_supg = spatial_->options()->include_supg;
     Assert(include_supg);
 
     // Get size data
-    int number_of_dimensional_moments = spatial_->number_of_dimensional_moments();
+    int number_of_dimensional_moments = spatial_->dimensional_moments()->number_of_dimensional_moments();
     int phi_size = transport_->phi_size();
     int number_of_augments = transport_->number_of_augments();
     
@@ -247,7 +248,7 @@ get_eigenvalue_operators(shared_ptr<Sweep_Operator> Linv,
                          shared_ptr<Vector_Operator> &flux_operator) const
 {
     // Check if problem includes SUPG terms
-    bool include_supg = spatial_->include_supg();
+    bool include_supg = spatial_->options()->include_supg;
     if (include_supg)
     {
         return get_supg_eigenvalue_operators(Linv,
@@ -329,11 +330,11 @@ get_supg_eigenvalue_operators(shared_ptr<Sweep_Operator> Linv,
                               shared_ptr<Vector_Operator> &flux_operator) const
 {
     // Check that this problem is SUPG
-    bool include_supg = spatial_->include_supg();
+    bool include_supg = spatial_->options()->include_supg;
     Assert(include_supg);
 
     // Get size data
-    int number_of_dimensional_moments = spatial_->number_of_dimensional_moments();
+    int number_of_dimensional_moments = spatial_->dimensional_moments()->number_of_dimensional_moments();
     int phi_size = transport_->phi_size();
     int number_of_augments = transport_->number_of_augments();
     

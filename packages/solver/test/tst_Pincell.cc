@@ -396,7 +396,7 @@ int run_tests(bool mls_basis,
         weight_options->tau_const = 1.0;
         weak_options->tau_scaling = Weak_Spatial_Discretization_Options::Tau_Scaling::NONE;
     
-        string description = (weak_options->output == Weak_Spatial_Discretization_Options::Output::STANDARD
+        string description = (!weak_options->include_supg
                               ? "1D, standard, "
                               : "1D, SUPG, ");
         description += basis_type + ", " + weight_type + ", ";
@@ -429,7 +429,7 @@ int run_tests(bool mls_basis,
         weight_options->tau_const = 1.0;
         weak_options->tau_scaling = Weak_Spatial_Discretization_Options::Tau_Scaling::NONE;
         
-        string description = (weak_options->output == Weak_Spatial_Discretization_Options::Output::STANDARD
+        string description = (!weak_options->include_supg
                               ? "2D, standard, "
                               : "2D, SUPG, ");
         description += basis_type + ", " + weight_type + ", ";

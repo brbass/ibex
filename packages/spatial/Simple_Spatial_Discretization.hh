@@ -31,10 +31,6 @@ public:
     {
         return 1;
     }
-    virtual int number_of_dimensional_moments() const override
-    {
-        return 1;
-    }
     virtual std::shared_ptr<Dimensional_Moments> dimensional_moments() const override
     {
         return dimensional_moments_;

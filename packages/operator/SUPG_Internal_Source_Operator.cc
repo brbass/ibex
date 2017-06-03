@@ -3,6 +3,7 @@
 #include "Angular_Discretization.hh"
 #include "Check.hh"
 #include "Cross_Section.hh"
+#include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
 #include "Point.hh"
@@ -21,7 +22,7 @@ SUPG_Internal_Source_Operator(shared_ptr<Spatial_Discretization> spatial,
     int number_of_points = spatial_->number_of_points();
     int number_of_moments = angular_->number_of_moments();
     int number_of_groups = energy_->number_of_groups();
-    int number_of_dimensional_moments = spatial_->number_of_dimensional_moments();
+    int number_of_dimensional_moments = spatial_->dimensional_moments()->number_of_dimensional_moments();
     int number_of_nodes = spatial_->number_of_nodes();
 
     int phi_size = number_of_points * number_of_moments * number_of_groups * number_of_nodes;
@@ -46,7 +47,7 @@ apply(vector<double> &x) const
     int number_of_nodes = spatial_->number_of_nodes();
     int number_of_moments = angular_->number_of_moments();
     int number_of_groups = energy_->number_of_groups();
-    int number_of_dimensional_moments = spatial_->number_of_dimensional_moments();
+    int number_of_dimensional_moments = spatial_->dimensional_moments()->number_of_dimensional_moments();
     
     x.assign(number_of_points * number_of_nodes * number_of_moments * number_of_groups * number_of_dimensional_moments, 0);
     for (int i = 0; i < number_of_points; ++i)

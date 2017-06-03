@@ -1,6 +1,7 @@
 #include "Discrete_Normalization_Operator.hh"
 
 #include "Angular_Discretization.hh"
+#include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weight_Function.hh"
@@ -35,9 +36,9 @@ apply(vector<double> &x) const
     int number_of_groups = energy_->number_of_groups();
     int number_of_ordinates = angular_->number_of_ordinates();
     int dimension = spatial_->dimension();
-    int number_of_dimensional_moments = spatial_->number_of_dimensional_moments();
+    int number_of_dimensional_moments = spatial_->dimensional_moments()->number_of_dimensional_moments();
     shared_ptr<Weak_Spatial_Discretization_Options> const weak_options
-        = spatial_->weak_options();
+        = spatial_->options();
     
     bool include_normalization;
     switch (options_.normalization)

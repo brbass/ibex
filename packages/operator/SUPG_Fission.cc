@@ -175,7 +175,7 @@ group_full(vector<double> &x) const
 {
     int number_of_points = spatial_discretization_->number_of_points();
     int number_of_nodes = spatial_discretization_->number_of_nodes();
-    int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
+    int number_of_dimensional_moments = spatial_discretization_->dimensional_moments()->number_of_dimensional_moments();
     int number_of_groups = energy_discretization_->number_of_groups();
     int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_ordinates = angular_discretization_->number_of_ordinates();

@@ -7,6 +7,7 @@
 #include "Angular_Discretization.hh"
 #include "Check.hh"
 #include "Cross_Section.hh"
+#include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
 #include "Point.hh"
@@ -55,7 +56,7 @@ apply_full(vector<double> &x) const
     int number_of_groups = energy_discretization_->number_of_groups();
     int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_scattering_moments = angular_discretization_->number_of_scattering_moments();
-    int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
+    int number_of_dimensional_moments = spatial_discretization_->dimensional_moments()->number_of_dimensional_moments();
     vector<int> const scattering_indices = angular_discretization_->scattering_indices();
 
     // Copy source flux
@@ -141,7 +142,7 @@ apply_coherent(vector<double> &x) const
     int number_of_groups = energy_discretization_->number_of_groups();
     int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_scattering_moments = angular_discretization_->number_of_scattering_moments();
-    int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
+    int number_of_dimensional_moments = spatial_discretization_->dimensional_moments()->number_of_dimensional_moments();
     vector<int> const scattering_indices = angular_discretization_->scattering_indices();
     
     for (int i = 0; i < number_of_points; ++i)

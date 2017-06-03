@@ -56,7 +56,7 @@ apply(vector<double> &x) const
     
     for (int i = 0; i < number_of_points; ++i)
     {
-        double tau = spatial_discretization_->weight(i)->options().tau;
+        double tau = spatial_discretization_->weight(i)->options()->tau;
         for (int g = 0; g < number_of_groups; ++g)
         {
             for (int n = 0; n < number_of_nodes; ++n)

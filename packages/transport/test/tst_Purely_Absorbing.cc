@@ -9,6 +9,7 @@
 #include "Constructive_Solid_Geometry.hh"
 #include "Constructive_Solid_Geometry_Parser.hh"
 #include "Cross_Section.hh"
+#include "Dimensional_Moments.hh"
 #include "Discrete_Value_Operator.hh"
 #include "Energy_Discretization.hh"
 #include "Energy_Discretization_Parser.hh"
@@ -57,7 +58,8 @@ void get_one_region(bool basis_mls,
                     bool weight_mls,
                     string basis_type,
                     string weight_type,
-                    Weight_Function::Options weight_options,
+                    shared_ptr<Weight_Function_Options> weight_options,
+                    shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                     int dimension,
                     int angular_rule,
                     int num_dimensional_points,
@@ -160,7 +162,8 @@ void get_one_region(bool basis_mls,
                                                     weight_mls,
                                                     basis_type,
                                                     weight_type,
-                                                    weight_options);
+                                                    weight_options,
+                                                    weak_options);
     
     // Get transport discretization
     transport
@@ -275,7 +278,7 @@ int run_test(shared_ptr<Weak_Spatial_Discretization> spatial,
     int number_of_points = spatial->number_of_points();
     int number_of_groups = energy->number_of_groups();
     int number_of_ordinates = angular->number_of_ordinates();
-    int number_of_dimensional_moments = spatial->number_of_dimensional_moments();
+    int number_of_dimensional_moments = spatial->dimensional_moments()->number_of_dimensional_moments();
     double angular_normalization = 1;//angular->angular_normalization();
     
     // Get RHS
@@ -284,7 +287,7 @@ int run_test(shared_ptr<Weak_Spatial_Discretization> spatial,
     {
         shared_ptr<Weight_Function> weight = spatial->weight(i);
         vector<double> const internal_source = weight->material()->internal_source()->data();
-        double tau = weight->options().tau;
+        double tau = weight->options()->tau;
         for (int g = 0; g < number_of_groups; ++g)
         {
             for (int o = 0; o < number_of_ordinates; ++o)
@@ -442,15 +445,19 @@ int main(int argc, char **argv)
         bool weight_mls = true;
         string basis_type = "compact_gaussian";
         string weight_type = "compact_gaussian";
-        Weight_Function::Options weight_options;
-        weight_options.integration_ordinates = 64;
-        weight_options.tau_const = 0.5;
-        weight_options.output = Weight_Function::Options::Output::SUPG;
+        shared_ptr<Weight_Function_Options> weight_options
+            = make_shared<Weight_Function_Options>();
+        shared_ptr<Weak_Spatial_Discretization_Options> weak_options
+            = make_shared<Weak_Spatial_Discretization_Options>();
+        weak_options->integration_ordinates = 64;
+        weight_options->tau_const = 0.5;
+        weak_options->include_supg = true;
         get_one_region(basis_mls,
                        weight_mls,
                        basis_type,
                        weight_type,
                        weight_options,
+                       weak_options,
                        dimension,
                        angular_rule,
                        num_dimensional_points,

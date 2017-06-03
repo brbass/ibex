@@ -33,7 +33,8 @@ void get_pincell(bool basis_mls,
                  bool weight_mls,
                  string basis_type,
                  string weight_type,
-                 Weight_Function::Options weight_options,
+                 shared_ptr<Weight_Function_Options> weight_options,
+                 shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                  int dimension,
                  int angular_rule,
                  int num_dimensional_points,
@@ -248,14 +249,16 @@ void get_pincell(bool basis_mls,
                                                     weight_mls,
                                                     basis_type,
                                                     weight_type,
-                                                    weight_options);
+                                                    weight_options,
+                                                    weak_options);
 }
 
 int test_integration(bool basis_mls,
                      bool weight_mls,
                      string basis_type,
                      string weight_type,
-                     Weight_Function::Options weight_options,
+                     shared_ptr<Weight_Function_Options> weight_options,
+                     shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                      int dimension,
                      int angular_rule,
                      int num_dimensional_points,
@@ -273,14 +276,15 @@ int test_integration(bool basis_mls,
     Timer timer;
     
     // Get problem with external integration
-    weight_options.external_integral_calculation = true;
-    weight_options.integration_ordinates = 8;
+    weak_options->external_integral_calculation = true;
+    weak_options->integration_ordinates = 8;
     timer.start();
     get_pincell(basis_mls,
                 weight_mls,
                 basis_type,
                 weight_type,
                 weight_options,
+                weak_options,
                 dimension,
                 angular_rule,
                 num_dimensional_points,
@@ -292,14 +296,15 @@ int test_integration(bool basis_mls,
     cout << "external time: " << timer.time() << endl;
     
     // Get problem with internal integration
-    weight_options.integration_ordinates = 32;
-    weight_options.external_integral_calculation = false;
+    weak_options->external_integral_calculation = false;
+    weak_options->integration_ordinates = 32;
     timer.start();
     get_pincell(basis_mls,
                 weight_mls,
                 basis_type,
                 weight_type,
                 weight_options,
+                weak_options,
                 dimension,
                 angular_rule,
                 num_dimensional_points,
@@ -347,15 +352,17 @@ int run_tests()
     int checksum = 0;
 
     double tolerance = 1e-7;
-    Weight_Function::Options options;
-    options.identical_basis_functions
-        = Weight_Function::Options::Identical_Basis_Functions::TRUE;
-
+    shared_ptr<Weight_Function_Options> weight_options
+        = make_shared<Weight_Function_Options>();
+    shared_ptr<Weak_Spatial_Discretization_Options> weak_options
+        = make_shared<Weak_Spatial_Discretization_Options>();
+    
     checksum += test_integration(false, // basis_mls
                                  false, // weight_mls
                                  "wendland11",
                                  "wendland11",
-                                 options,
+                                 weight_options,
+                                 weak_options,
                                  1, // dimension
                                  2, // angular_rule
                                  25, // number_of_points
@@ -366,7 +373,8 @@ int run_tests()
                                  true, // weight_mls
                                  "wendland11",
                                  "wendland11",
-                                 options,
+                                 weight_options,
+                                 weak_options,
                                  1, // dimension
                                  2, // angular_rule
                                  25, // number_of_points
@@ -377,7 +385,8 @@ int run_tests()
                                  false, // weight_mls
                                  "wendland11",
                                  "wendland11",
-                                 options,
+                                 weight_options,
+                                 weak_options,
                                  2, // dimension
                                  1, // angular_rule
                                  5, // number_of_points
@@ -388,7 +397,8 @@ int run_tests()
                                  true, // weight_mls
                                  "wendland11",
                                  "wendland11",
-                                 options,
+                                 weight_options,
+                                 weak_options,
                                  2, // dimension
                                  1, // angular_rule
                                  5, // number_of_points

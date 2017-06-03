@@ -1,6 +1,7 @@
 #include "Moment_Weighting_Operator.hh"
 
 #include "Angular_Discretization.hh"
+#include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weight_Function.hh"
@@ -23,7 +24,7 @@ Moment_Weighting_Operator(shared_ptr<Weak_Spatial_Discretization> spatial,
                     * angular->number_of_moments()
                     * energy->number_of_groups());
     int number_of_dimensional_moments
-        = spatial->number_of_dimensional_moments();
+        = spatial->dimensional_moments()->number_of_dimensional_moments();
     
     switch (options.include_supg)
     {

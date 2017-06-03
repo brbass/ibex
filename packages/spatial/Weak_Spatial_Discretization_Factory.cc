@@ -61,6 +61,7 @@ void Weak_Spatial_Discretization_Factory::
 get_weight_functions(int number_of_points,
                      shared_ptr<Weight_Function_Options> weight_options,
                      shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
+                     shared_ptr<Dimensional_Moments> dimensional_moments,
                      vector<vector<int> > const &neighbors,
                      vector<shared_ptr<Meshless_Function> > const &functions,
                      vector<shared_ptr<Basis_Function> > const &bases,
@@ -70,7 +71,7 @@ get_weight_functions(int number_of_points,
     Assert(bases.size() == number_of_points);
     
     int dimension = solid_geometry_->dimension();
-
+    
     // Get basis functions
     weights.resize(number_of_points);
     for (int i = 0; i < number_of_points; ++i)
@@ -98,6 +99,7 @@ get_weight_functions(int number_of_points,
                                            weak_options,
                                            function,
                                            local_bases,
+                                           dimensional_moments,
                                            solid_geometry_,
                                            local_boundaries);
     }
@@ -121,16 +123,21 @@ get_simple_discretization(int num_dimensional_points,
     case Weak_Spatial_Discretization_Options::Identical_Basis_Functions::AUTO:
         if (basis_mls == weight_mls && basis_type == weight_type)
         {
-            options.identical_basis_functions = Weak_Spatial_Discretization_Options::Identical_Basis_Functions::TRUE;
+            weak_options->identical_basis_functions = Weak_Spatial_Discretization_Options::Identical_Basis_Functions::TRUE;
         }
         else
         {
-            options.identical_basis_functions = Weak_Spatial_Discretization_Options::Identical_Basis_Functions::FALSE;
+            weak_options->identical_basis_functions = Weak_Spatial_Discretization_Options::Identical_Basis_Functions::FALSE;
         }
         break;
     default:
         break;
     }
+    
+    // Get dimensional moments
+    shared_ptr<Dimensional_Moments> dimensional_moments
+        = make_shared<Dimensional_Moments>(weak_options->include_supg,
+                                           dimension);
     
     // Get points
     int number_of_points;
@@ -239,16 +246,11 @@ get_simple_discretization(int num_dimensional_points,
     get_weight_functions(number_of_points,
                          weight_options,
                          weak_options,
+                         dimensional_moments,
                          neighbors,
                          meshless_weight,
                          bases,
                          weights);
-
-    // Get dimensional moments
-    bool supg = (weak_options->output == Weak_Spatial_Discretization_Options::Output::SUPG);
-    shared_ptr<Dimensional_Moments> dimensional_moments
-        = make_shared<Dimensional_Moments>(supg,
-                                           dimension);
 
     // Get integration options
 

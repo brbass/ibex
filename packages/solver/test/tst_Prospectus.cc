@@ -734,15 +734,7 @@ void run_test(string input_path)
         = make_shared<Weight_Function_Options>();
     shared_ptr<Weak_Spatial_Discretization_Options> weak_options
         = make_shared<Weak_Spatial_Discretization_Options>();
-    if (supg)
-    {
-        weak_options->output = Weak_Spatial_Discretization_Options::Output::SUPG;
-    }
-    else
-    {
-        weak_options->output = Weak_Spatial_Discretization_Options::Output::STANDARD;
-    }
-    weak_options->integration_ordinates = num_integration_ordinates;
+    weak_options->include_supg = supg;
     weak_options->integration_ordinates = num_integration_ordinates;
     
     Weak_RBF_Sweep::Options sweep_options;
@@ -756,6 +748,7 @@ void run_test(string input_path)
                 weight_type,
                 method,
                 weight_options,
+                weak_options,
                 sweep_options,
                 output_path,
                 dimension,

@@ -9,6 +9,7 @@
 class Basis_Function;
 class Cartesian_Plane;
 template<class T1, class T2> class Conversion;
+class Dimensional_Moments;
 class Meshless_Function;
 class Solid_Geometry;
 struct Weak_Spatial_Discretization_Options;
@@ -61,6 +62,7 @@ public:
                     std::shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                     std::shared_ptr<Meshless_Function> meshless_function,
                     std::vector<std::shared_ptr<Basis_Function> > basis_functions,
+                    std::shared_ptr<Dimensional_Moments> dimensional_moments,
                     std::shared_ptr<Solid_Geometry> solid_geometry,
                     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces);
     
@@ -69,8 +71,9 @@ public:
                     int dimension,
                     std::shared_ptr<Weight_Function_Options> options,
                     std::shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
-                    std::shared_ptr<Meshless_Function> meshless_funciton,
+                    std::shared_ptr<Meshless_Function> meshless_function,
                     std::vector<std::shared_ptr<Basis_Function> > basis_functions,
+                    std::shared_ptr<Dimensional_Moments> dimensional_moments,
                     std::shared_ptr<Solid_Geometry> solid_geometry,
                     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces,
                     std::shared_ptr<Material> material,
@@ -124,6 +127,10 @@ public:
     virtual std::shared_ptr<Weak_Spatial_Discretization_Options> weak_options() const
     {
         return weak_options_;
+    }
+    std::shared_ptr<Dimensional_Moments> dimensional_moments() const
+    {
+        return dimensional_moments_;
     }
     virtual std::vector<int> const &basis_function_indices() const
     {
@@ -234,6 +241,7 @@ private:
     std::shared_ptr<Meshless_Function> meshless_function_;
     std::vector<std::shared_ptr<Basis_Function> > basis_functions_;
     std::shared_ptr<Solid_Geometry> solid_geometry_;
+    std::shared_ptr<Dimensional_Moments> dimensional_moments_;
     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces_;
     std::vector<std::shared_ptr<Cartesian_Plane> > weighted_boundary_surfaces_;
     std::unordered_map<int, int> basis_global_indices_;

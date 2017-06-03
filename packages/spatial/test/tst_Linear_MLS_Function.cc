@@ -8,6 +8,7 @@
 #include "Check_Equality.hh"
 #include "Compact_Gaussian_RBF.hh"
 #include "Linear_MLS_Function.hh"
+#include "Meshless_Function_Factory.hh"
 #include "Random_Number_Generator.hh"
 #include "RBF_Function.hh"
 #include "Timer.hh"

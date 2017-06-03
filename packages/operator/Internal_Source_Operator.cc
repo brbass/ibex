@@ -3,6 +3,7 @@
 #include "Angular_Discretization.hh"
 #include "Check.hh"
 #include "Cross_Section.hh"
+#include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
 #include "Point.hh"
@@ -43,7 +44,7 @@ apply(vector<double> &x) const
     int number_of_nodes = spatial_->number_of_nodes();
     int number_of_moments = angular_->number_of_moments();
     int number_of_groups = energy_->number_of_groups();
-    int number_of_dimensional_moments = spatial_->number_of_dimensional_moments();
+    int number_of_dimensional_moments = spatial_->dimensional_moments()->number_of_dimensional_moments();
     double normalization = angular_->angular_normalization();
     
     for (int i = 0; i < number_of_points; ++i)

@@ -23,6 +23,7 @@
 #include "Check.hh"
 #include "Conversion.hh"
 #include "Cross_Section.hh"
+#include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
 #include "Transport_Discretization.hh"
@@ -229,7 +230,7 @@ get_matrix_row(int i, // weight function index (row)
     vector<double> const &iv_db_dw = integrals.iv_db_dw;
     vector<double> const direction = angular_discretization_->direction(o);
     vector<double> const sigma_t_data = weight->material()->sigma_t()->data();
-    int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
+    int number_of_dimensional_moments = spatial_discretization_->dimensional_moments()->number_of_dimensional_moments();
     int number_of_basis_functions = weight->number_of_basis_functions();
     int number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
     int dimension = spatial_discretization_->dimension();

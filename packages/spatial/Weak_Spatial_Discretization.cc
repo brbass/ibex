@@ -28,6 +28,12 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
     dimensional_moments_(dimensional_moments),
     kd_tree_(kd_tree)
 {
+    // Check whether weak parameter options are finalized
+    if (!options_->input_finalized)
+    {
+        options_->finalize_input();
+    }
+    
     // Get number of basis functions
     number_of_basis_functions_.resize(number_of_points_);
     for (int i = 0; i < number_of_points_; ++i)

@@ -6,6 +6,7 @@
 #include "Angular_Discretization.hh"
 #include "Check.hh"
 #include "Cross_Section.hh"
+#include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
 #include "Point.hh"
@@ -100,7 +101,7 @@ group_to_group_full(vector<double> &x) const
     int number_of_nodes = spatial_discretization_->number_of_nodes();
     int number_of_groups = energy_discretization_->number_of_groups();
     int number_of_moments = angular_discretization_->number_of_moments();
-    int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
+    int number_of_dimensional_moments = spatial_discretization_->dimensional_moments()->number_of_dimensional_moments();
     
     for (int i = 0; i < number_of_points; ++i)
     {
@@ -159,7 +160,7 @@ group_full(vector<double> &x) const
 {
     int number_of_points = spatial_discretization_->number_of_points();
     int number_of_nodes = spatial_discretization_->number_of_nodes();
-    int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
+    int number_of_dimensional_moments = spatial_discretization_->dimensional_moments()->number_of_dimensional_moments();
     int number_of_groups = energy_discretization_->number_of_groups();
     int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_ordinates = angular_discretization_->number_of_ordinates();
@@ -223,7 +224,7 @@ group_coherent(vector<double> &x) const
 {
     int number_of_points = spatial_discretization_->number_of_points();
     int number_of_nodes = spatial_discretization_->number_of_nodes();
-    int number_of_dimensional_moments = spatial_discretization_->number_of_dimensional_moments();
+    int number_of_dimensional_moments = spatial_discretization_->dimensional_moments()->number_of_dimensional_moments();
     int number_of_groups = energy_discretization_->number_of_groups();
     int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_ordinates = angular_discretization_->number_of_ordinates();

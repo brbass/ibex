@@ -342,17 +342,17 @@ int run_tests()
             = make_shared<Weight_Function_Options>();
         shared_ptr<Weak_Spatial_Discretization_Options> weak_options
             = make_shared<Weak_Spatial_Discretization_Options>();
-        weak_options->tau_scaling
+        weak_options->include_supg
             = (i == 0
-               ? Weak_Spatial_Discretization_Options::Output::STANDARD
-               : Weak_Spatial_Discretization_Options::Output::SUPG);
+               ? true
+               : false);
         weak_options->integration_ordinates = 16;
         weight_options->tau_const = 1.0;
         weak_options->tau_scaling = Weak_Spatial_Discretization_Options::Tau_Scaling::NONE;
         
-        string description = (weak_options->output == Weak_Spatial_Discretization_Options::Output::STANDARD
-                              ? "1D standard "
-                              : "1D SUPG ");
+        string description = (weak_options->include_supg
+                              ? "1D SUPG "
+                              : "1D standard ");
         
         // Test 1D eigenvalue
         cout << description << "eigenvalue, krylov" << endl;
@@ -361,7 +361,7 @@ int run_tests()
                                   "wendland11", // basis type
                                   "wendland11", // weight type
                                   weight_options,
-                                  weak_options
+                                  weak_options,
                                   "krylov_eigenvalue",
                                   1, // dimension
                                   16, // ordinates
@@ -428,17 +428,17 @@ int run_tests()
             = make_shared<Weight_Function_Options>();
         shared_ptr<Weak_Spatial_Discretization_Options> weak_options
             = make_shared<Weak_Spatial_Discretization_Options>();
-        weak_options->tau_scaling
+        weak_options->include_supg
             = (i == 0
-               ? Weak_Spatial_Discretization_Options::Output::STANDARD
-               : Weak_Spatial_Discretization_Options::Output::SUPG);
+               ? false
+               : true);
         weak_options->integration_ordinates = 32;
         weight_options->tau_const = 1.0;
         weak_options->tau_scaling = Weak_Spatial_Discretization_Options::Tau_Scaling::NONE;
         
-        string description = (weak_options->output == Weak_Spatial_Discretization_Options::Output::STANDARD
-                              ? "2D standard "
-                              : "2D SUPG ");
+        string description = (weak_options->include_supg
+                              ? "2D SUPG "
+                              : "2D standard ");
         
         // Test 2D eigenvalue
         cout << description << "eigenvalue, krylov" << endl;
@@ -447,6 +447,7 @@ int run_tests()
                                   "wendland11", // basis type
                                   "wendland11", // weight type
                                   weight_options,
+                                  weak_options,
                                   "krylov_eigenvalue",
                                   2, // dimension
                                   3, // angular rule
@@ -468,6 +469,7 @@ int run_tests()
                                   "wendland11", // basis type
                                   "wendland11", // weight type
                                   weight_options,
+                                  weak_options,
                                   "krylov_steady_state",
                                   2, // dimension
                                   3, // angular rule
@@ -489,6 +491,7 @@ int run_tests()
                                   "wendland11", // basis type
                                   "wendland11", // weight type
                                   weight_options,
+                                  weak_options,
                                   "source_iteration",
                                   2, // dimension
                                   2, // angular rule

@@ -7,6 +7,7 @@
 #include "Basis_Function.hh"
 #include "Check.hh"
 #include "Cross_Section.hh"
+#include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
 #include "KD_Tree.hh"
 #include "Material.hh"
@@ -188,7 +189,7 @@ normalize_materials(vector<Material_Data> &materials) const
         for (int i = 0; i < number_of_points_; ++i)
         {
             shared_ptr<Weight_Function> weight = weights_[i];
-            int number_of_dimensional_moments = weight->number_of_dimensional_moments();
+            int number_of_dimensional_moments = weight->dimensional_moments()->number_of_dimensional_moments();
             Material_Data &material = materials[i];
             
             switch (options_->weighting)
@@ -377,7 +378,7 @@ add_volume_material(Mesh::Cell const &cell,
         int w_ind = cell.weight_indices[i];
         shared_ptr<Weight_Function> weight = weights_[w_ind];
         Material_Data &material = materials[w_ind];
-        int number_of_dimensional_moments = weight->number_of_dimensional_moments();
+        int number_of_dimensional_moments = weight->dimensional_moments()->number_of_dimensional_moments();
         
         switch (options_->weighting)
         {
@@ -1137,7 +1138,7 @@ initialize_materials(vector<Material_Data> &materials) const
     for (int i = 0; i < number_of_points_; ++i)
     {
         shared_ptr<Weight_Function> weight = weights_[i];
-        int number_of_dimensional_moments = weight->number_of_dimensional_moments();
+        int number_of_dimensional_moments = weight->dimensional_moments()->number_of_dimensional_moments();
         Material_Data &material = materials[i];
 
         material.nu.assign(1, 1.);

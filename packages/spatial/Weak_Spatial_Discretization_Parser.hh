@@ -6,6 +6,7 @@
 
 class Basis_Function;
 class Cartesian_Plane;
+class Dimensional_Moments;
 class Distance;
 class Linear_MLS_Function;
 class Meshless_Function;
@@ -51,6 +52,7 @@ public:
                                                                         int number_of_points,
                                                                         int dimension,
                                                                         std::shared_ptr<Weak_Spatial_Discretization_Options> options,
+                                                                        std::shared_ptr<Dimensional_Moments> dimensional_moments,
                                                                         std::vector<std::shared_ptr<Basis_Function> > const &basis_functions) const;
     std::vector<std::shared_ptr<Cartesian_Plane> > get_boundary_surfaces(std::shared_ptr<Meshless_Function> function) const;
     

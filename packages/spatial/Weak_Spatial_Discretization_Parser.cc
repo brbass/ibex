@@ -7,6 +7,7 @@
 #include "Conversion.hh"
 #include "Dimensional_Moments.hh"
 #include "Linear_MLS_Function.hh"
+#include "KD_Tree.hh"
 #include "Meshless_Function.hh"
 #include "Meshless_Function_Factory.hh"
 #include "RBF_Function.hh"
@@ -64,6 +65,11 @@ get_full_discretization(XML_Node input_node) const
     shared_ptr<Weak_Spatial_Discretization_Options> weak_options
         = get_weak_options(input_node.get_child("options"));
     
+    // Get dimensional moments
+    shared_ptr<Dimensional_Moments> dimensional_moments
+        = make_shared<Dimensional_Moments>(weak_options->include_supg,
+                                           dimension);
+
     // Get basis and weight functions that include all pertinant connectivity
     vector<shared_ptr<Basis_Function> > basis_functions
         = get_basis_functions(input_node.get_child("basis_functions"),
@@ -74,13 +80,9 @@ get_full_discretization(XML_Node input_node) const
                                number_of_points,
                                dimension,
                                weak_options,
+                               dimensional_moments,
                                basis_functions);
     
-    // Get dimensional moments
-    shared_ptr<Dimensional_Moments> dimensional_moments
-        = make_shared<Dimensional_Moments>(weak_options->include_supg,
-                                           dimension);
-
     // Create spatial discretization
     return make_shared<Weak_Spatial_Discretization>(basis_functions,
                                                     weight_functions,
@@ -99,11 +101,11 @@ get_galerkin_points_discretization(XML_Node input_node) const
     // Get options
     shared_ptr<Weight_Function_Options> weight_options
         = get_weight_options(input_node.get_child("options"));
-    shared_ptr<Weak_Spatial_Discretization_Options> options
+    shared_ptr<Weak_Spatial_Discretization_Options> weak_options
         = get_weak_options(input_node.get_child("options"));
-    Assert(options->identical_basis_functions
+    Assert(weak_options->identical_basis_functions
            != Weak_Spatial_Discretization_Options::Identical_Basis_Functions::FALSE);
-    options->identical_basis_functions
+    weak_options->identical_basis_functions
         = Weak_Spatial_Discretization_Options::Identical_Basis_Functions::TRUE;
     
     // Initialize data
@@ -113,7 +115,7 @@ get_galerkin_points_discretization(XML_Node input_node) const
     
     // Get dimensional moments
     shared_ptr<Dimensional_Moments> dimensional_moments
-        = make_shared<Dimensional_Moments>(options->include_supg,
+        = make_shared<Dimensional_Moments>(weak_options->include_supg,
                                            dimension);
     
     // Get points
@@ -181,7 +183,6 @@ get_galerkin_points_discretization(XML_Node input_node) const
     vector<shared_ptr<Meshless_Function> > meshless_functions;
     meshless_factory.get_rbf_functions(number_of_points,
                                        radii,
-                                       radii,
                                        points,
                                        rbf,
                                        distance,
@@ -205,7 +206,6 @@ get_galerkin_points_discretization(XML_Node input_node) const
     else
     {
         AssertMsg(false, "meshless type (" + meshless_type + ") not found");
-        return vector<shared_ptr<Meshless_Function> >();
     }
 
     // Get basis functions
@@ -219,6 +219,7 @@ get_galerkin_points_discretization(XML_Node input_node) const
     weak_factory.get_weight_functions(number_of_points,
                                       weight_options,
                                       weak_options,
+                                      dimensional_moments,
                                       neighbors,
                                       meshless_functions,
                                       basis_functions,
@@ -384,8 +385,10 @@ get_weight_options(XML_Node input_node) const
 shared_ptr<Weak_Spatial_Discretization_Options> Weak_Spatial_Discretization_Parser::
 get_weak_options(XML_Node input_node) const
 {
+    int dimension = solid_geometry_->dimension();
     shared_ptr<Weak_Spatial_Discretization_Options> options
         = make_shared<Weak_Spatial_Discretization_Options>();
+    Meshless_Function_Factory meshless_factory;
     
     // Get weighting method
     string weighting_string = input_node.get_attribute<string>("weighting");
@@ -400,7 +403,7 @@ get_weak_options(XML_Node input_node) const
         options->dimensional_cells = input_node.get_child_vector<int>("dimensional_cells", dimension);
         meshless_factory.get_boundary_limits(dimension,
                                              boundary_surfaces_,
-                                             options.limits);
+                                             options->limits);
     }
 
     // Get Galerkin option
@@ -422,10 +425,11 @@ get_weight_functions(XML_Node input_node,
                      int number_of_points,
                      int dimension,
                      shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
+                     shared_ptr<Dimensional_Moments> dimensional_moments,
                      vector<shared_ptr<Basis_Function> > const &basis_functions) const
 {
     // Get global weight function information
-    shared_ptr<Weight_Function_Options> weight_options = get_weight_function_options(input_node);
+    shared_ptr<Weight_Function_Options> weight_options = get_weight_options(input_node);
     
     // Get meshless functions
     vector<shared_ptr<Meshless_Function> > meshless_functions
@@ -467,6 +471,7 @@ get_weight_functions(XML_Node input_node,
                                            weak_options,
                                            meshless_functions[index],
                                            local_basis_functions,
+                                           dimensional_moments,
                                            solid_geometry_,
                                            boundary_surfaces);
     }

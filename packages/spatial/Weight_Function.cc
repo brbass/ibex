@@ -8,7 +8,9 @@
 #include "Basis_Function.hh"
 #include "Boundary_Source.hh"
 #include "Cartesian_Plane.hh"
+#include "Conversion.hh"
 #include "Cross_Section.hh"
+#include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
 #include "Meshless_Function.hh"
@@ -27,6 +29,7 @@ Weight_Function(int index,
                 shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                 shared_ptr<Meshless_Function> meshless_function,
                 vector<shared_ptr<Basis_Function> > basis_functions,
+                shared_ptr<Dimensional_Moments> dimensional_moments,
                 shared_ptr<Solid_Geometry> solid_geometry,
                 vector<shared_ptr<Cartesian_Plane> > boundary_surfaces):
     index_(index),
@@ -40,6 +43,7 @@ Weight_Function(int index,
     meshless_function_(meshless_function),
     basis_functions_(basis_functions),
     solid_geometry_(solid_geometry),
+    dimensional_moments_(dimensional_moments),
     boundary_surfaces_(boundary_surfaces)
 {
     set_options_and_limits();
@@ -60,6 +64,7 @@ Weight_Function(int index,
                 shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
                 shared_ptr<Meshless_Function> meshless_function,
                 vector<shared_ptr<Basis_Function> > basis_functions,
+                shared_ptr<Dimensional_Moments> dimensional_moments,
                 shared_ptr<Solid_Geometry> solid_geometry,
                 vector<shared_ptr<Cartesian_Plane> > boundary_surfaces,
                 shared_ptr<Material> material,
@@ -76,6 +81,7 @@ Weight_Function(int index,
     meshless_function_(meshless_function),
     basis_functions_(basis_functions),
     solid_geometry_(solid_geometry),
+    dimensional_moments_(dimensional_moments),
     boundary_surfaces_(boundary_surfaces),
     integrals_(integrals)
 {
@@ -91,6 +97,12 @@ set_options_and_limits()
     point_type_ = (number_of_boundary_surfaces_ > 0 ?
                    Weight_Function::Point_Type::BOUNDARY :
                    Weight_Function::Point_Type::INTERNAL);
+
+    // Check whether weak parameter options are finalized
+    if (!weak_options_->input_finalized)
+    {
+        weak_options_->finalize_input();
+    }
     
     // Calculate boundary limits
     double lim = numeric_limits<double>::max();
@@ -558,7 +570,7 @@ get_basis_surface_quadrature_2d(int i,
 
     vector<double> ordinates_main;
     bool success = qr::cartesian_1d(qr::Quadrature_Type::GAUSS_LEGENDRE,
-                                    options_.integration_ordinates,
+                                    weak_options_->integration_ordinates,
                                     smin,
                                     smax,
                                     ordinates_main,
@@ -724,18 +736,18 @@ void Weight_Function::
 calculate_material()
 {
     // Make sure options for material weighting are cohesive
-    switch (weak_options_->weighting)
-    {
-    case Weak_Spatial_Discretization_Options::Weighting::POINT:
-        options_.total = Weak_Spatial_Discretization_Options::Total::ISOTROPIC;
-        break; // POINT
-    case Weak_Spatial_Discretization_Options::Weighting::WEIGHT:
-        options_.total = Weak_Spatial_Discretization_Options::Total::ISOTROPIC;
-        break; // WEIGHT
-    case Weak_Spatial_Discretization_Options::Weighting::FLUX:
-        AssertMsg(false, "not yet implemented");
-        break; // FLUX
-    }
+    // switch (weak_options_->weighting)
+    // {
+    // case Weak_Spatial_Discretization_Options::Weighting::POINT:
+    //     options_.total = Weak_Spatial_Discretization_Options::Total::ISOTROPIC;
+    //     break; // POINT
+    // case Weak_Spatial_Discretization_Options::Weighting::WEIGHT:
+    //     options_.total = Weak_Spatial_Discretization_Options::Total::ISOTROPIC;
+    //     break; // WEIGHT
+    // case Weak_Spatial_Discretization_Options::Weighting::FLUX:
+    //     AssertMsg(false, "not yet implemented");
+    //     break; // FLUX
+    // }
 
     if (weak_options_->include_supg)
     {
@@ -878,7 +890,7 @@ calculate_standard_weight_material()
     } // integration ordinates
 
     // Divide numerator by denominator for cross sections
-    if (options_.normalized)
+    if (weak_options_->normalized)
     {
         for (int g = 0; g < number_of_groups; ++g)
         {
@@ -1145,7 +1157,7 @@ calculate_supg_weight_material()
     }
 
     // Divide numerator by denominator for cross sections
-    if (options_.normalized)
+    if (weak_options_->normalized)
     {
         for (int j = 0; j < dimension_ + 1; ++j)
         {    
@@ -1232,7 +1244,7 @@ calculate_supg_weight_material()
 void Weight_Function::
 calculate_boundary_source()
 {
-    switch(options_.weighting)
+    switch(weak_options_->weighting)
     {
     case Weak_Spatial_Discretization_Options::Weighting::POINT:
         // Point weighting doesn't make sense for boundary
@@ -1323,11 +1335,11 @@ void Weight_Function::
 output(XML_Node output_node) const
 {
     output_node.set_attribute(index_, "index");
-    output_node.set_attribute((*point_type_conversion())(point_type_), "point_type");
+    output_node.set_attribute(point_type_conversion()->convert(point_type_), "point_type");
     output_node.set_child_value(dimension_, "dimension");
     output_node.set_child_vector(position_, "position");
     material_->output(output_node.append_child("material"));
-    output_node.set_child_value(options_.integration_ordinates, "number_of_integration_ordinates");
+    output_node.set_child_value(weak_options_->integration_ordinates, "number_of_integration_ordinates");
     output_node.set_child_value(number_of_basis_functions_, "number_of_basis_functions");
     output_node.set_child_value(radius_, "radius");
     meshless_function_->output(output_node.append_child("function"));

@@ -11,11 +11,13 @@
 #include "Check_Equality.hh"
 #include "Constructive_Solid_Geometry.hh"
 #include "Constructive_Solid_Geometry_Parser.hh"
+#include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
 #include "Energy_Discretization_Parser.hh"
 #include "Material.hh"
 #include "Material_Parser.hh"
 #include "Solid_Geometry.hh"
+#include "Weak_Spatial_Discretization.hh"
 #include "Weak_Spatial_Discretization_Parser.hh"
 #include "Weight_Function.hh"
 #include "XML_Document.hh"
@@ -91,6 +93,15 @@ vector<shared_ptr<Weight_Function> > get_weight_functions(XML_Node input_node)
         = solid_geometry->cartesian_boundary_surfaces();
     Weak_Spatial_Discretization_Parser spatial_parser(solid_geometry,
                                                       boundary_surfaces);
+
+    // Get options
+    shared_ptr<Weak_Spatial_Discretization_Options> weak_options
+        = spatial_parser.get_weak_options(input_node);
+    
+    // Get dimensional moments
+    shared_ptr<Dimensional_Moments> dimensional_moments
+        = make_shared<Dimensional_Moments>(weak_options->include_supg,
+                                           dimension);
     
     // Get basis functions
     XML_Node bases_node = input_node.get_child("basis_functions");
@@ -99,13 +110,15 @@ vector<shared_ptr<Weight_Function> > get_weight_functions(XML_Node input_node)
         = spatial_parser.get_basis_functions(bases_node,
                                              number_of_bases,
                                              dimension);
-
+    
     // Get weight functions
     XML_Node weights_node = input_node.get_child("weight_functions");
     int number_of_weights = weights_node.get_child_value<int>("number_of_weight_functions");
     return spatial_parser.get_weight_functions(weights_node,
                                                number_of_weights,
                                                dimension,
+                                               weak_options,
+                                               dimensional_moments,
                                                basis_functions);
 }
 

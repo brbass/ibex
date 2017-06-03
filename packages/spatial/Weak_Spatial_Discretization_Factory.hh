@@ -9,6 +9,7 @@
 
 class Basis_Function;
 class Cartesian_Plane;
+class Dimensional_Moments;
 class KD_Tree;
 class Meshless_Function;
 class Solid_Geometry;
@@ -34,6 +35,7 @@ public:
     void get_weight_functions(int number_of_points,
                               std::shared_ptr<Weight_Function_Options> weight_options,
                               std::shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
+                              std::shared_ptr<Dimensional_Moments> dimensional_moments,
                               std::vector<std::vector<int> > const &neighbors,
                               std::vector<std::shared_ptr<Meshless_Function> > const &functions,
                               std::vector<std::shared_ptr<Basis_Function> > const &bases,
