@@ -55,12 +55,22 @@ def get_cartesian_points(length, # Length of a single side
 # Get a cylindrical mesh
 def get_cylindrical_points(radius, # Radius of mesh
                            num_points_r, # Number of points in radial direction
-                           radius_endpoint = False): # Include the outer edge of the circle
-    # Get radius values
-    radius_vals = np.linspace(0, radius, num_points_r, endpoint=radius_endpoint)
-    dr = radius_vals[1] - radius_vals[0]
-    max_points = 2*int(np.power(2 * radius / dr, 2))
+                           include_endpoint = False): # Include the outer edge of the circle
+    return get_annular_points(0,
+                              radius,
+                              num_points_r,
+                              include_endpoint)
 
+# Get annular points
+def get_annular_points(r1, # inside radius
+                       r2, # outside radius
+                       num_points_r,
+                       include_endpoint = True):
+    # Get radius values
+    radius_vals = np.linspace(r1, r2, num_points_r, endpoint=include_endpoint)
+    dr = radius_vals[1] - radius_vals[0]
+    max_points = 2*int(np.power(2 * r2 / dr, 2))
+    
     # Get points
     points = np.zeros((max_points, 2))
     point = 0
@@ -82,7 +92,8 @@ def get_cylindrical_points(radius, # Radius of mesh
     points = points[0:point]
 
     return points
-
+    
+    
 # Combine cylindrical and Cartesian meshes
 def get_pincell_points(radius,
                        length,
@@ -208,7 +219,8 @@ def get_connectivity(num_points,
 
 # Convert data to text
 def numpy_to_text(data):
-    a = np.array2string(data, separator=" ", precision=16, max_line_width=1e5)
+    np.set_printoptions(threshold=np.inf)
+    a = np.array2string(data, separator=" ", precision=16, max_line_width=1e8)
     if a[0] == "[":
         return a[1:-1]
     else:
@@ -256,3 +268,16 @@ def xml_discretization(output_path,
         # et.SubElement(weight, "weight_neighbor_distances").text = numpy_to_text(w_neighbor_distances[i])
     return node
 
+def xml_points(dimension,
+               num_points,
+               points):
+    flat_points = points.flatten()
+    
+    node = et.Element("input")
+    spatial_node = et.SubElement(node, "spatial_discretization")
+    et.SubElement(spatial_node, "dimension").text = str(dimension)
+    et.SubElement(spatial_node, "number_of_points").text = str(num_points)
+    et.SubElement(spatial_node, "points").text = numpy_to_text(flat_points)
+    
+    return node
+    

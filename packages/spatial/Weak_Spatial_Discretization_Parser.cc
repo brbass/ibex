@@ -110,7 +110,6 @@ get_galerkin_points_discretization(XML_Node input_node) const
     
     // Initialize data
     int dimension = solid_geometry_->dimension();
-    int number_of_points = input_node.get_child_value<int>("number_of_points");
     XML_Node weights_node = input_node.get_child("weight_functions");
     
     // Get dimensional moments
@@ -119,7 +118,11 @@ get_galerkin_points_discretization(XML_Node input_node) const
                                            dimension);
     
     // Get points
-    vector<double> points_input = weights_node.get_child_vector<double>("points", number_of_points * dimension);
+    string points_filename = input_node.get_child_value<string>("points_file");
+    XML_Document points_doc(points_filename);
+    XML_Node points_node = points_doc.get_child("input").get_child("spatial_discretization");
+    int number_of_points = points_node.get_child_value<int>("number_of_points");
+    vector<double> points_input = points_node.get_child_vector<double>("points", number_of_points * dimension);
     vector<vector<double> > points(number_of_points, vector<double>(dimension));
     for (int i = 0; i < number_of_points; ++i)
     {
