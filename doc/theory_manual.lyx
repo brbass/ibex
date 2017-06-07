@@ -1,7 +1,9 @@
-#LyX 2.1 created this file. For more info see http://www.lyx.org/
-\lyxformat 474
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
 \begin_document
 \begin_header
+\save_transient_properties true
+\origin unavailable
 \textclass article
 \begin_preamble
 \usepackage{multicol}
@@ -19,16 +21,16 @@
 \language_package default
 \inputencoding auto
 \fontencoding global
-\font_roman default
-\font_sans default
-\font_typewriter default
-\font_math auto
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
-\font_sf_scale 100
-\font_tt_scale 100
+\font_sf_scale 100 100
+\font_tt_scale 100 100
 \graphics default
 \default_output_format default
 \output_sync 0
@@ -129,7 +131,7 @@ status open
 \align center
 \begin_inset Tabular
 <lyxtabular version="3" rows="14" columns="3">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="center" valignment="middle" width="20text%">
 <column alignment="center" valignment="top" width="60text%">
 <column alignment="center" valignment="middle" width="20text%">
@@ -5105,6 +5107,10 @@ The integration test tests for exact integration of the polynomials over
 
 \begin_layout Itemize
 Cartesian 1D:
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5147,6 +5153,10 @@ Quartic integration with random coefficients
 \end_deeper
 \begin_layout Itemize
 Cartesian 2D:
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5189,6 +5199,10 @@ Quadratic integration with random coefficients
 \end_deeper
 \begin_layout Itemize
 Cylindrical 2D:
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5239,6 +5253,10 @@ Cartesian quadratic functions with random coefficients
 \end_deeper
 \begin_layout Itemize
 Cartesian 3D:
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper
@@ -5289,6 +5307,10 @@ Quadratic functions with random coefficients
 \end_deeper
 \begin_layout Itemize
 Spherical 3D:
+\begin_inset Separator latexpar
+\end_inset
+
+
 \end_layout
 
 \begin_deeper

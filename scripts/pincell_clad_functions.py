@@ -58,7 +58,8 @@ def output_pincell_clad(r_fuel,
 
     if True:
         plt.figure()
-        plt.scatter(points[:,0], points[:,1])
+        plt.scatter(points[:,0], points[:,1], s=2)
+        plt.axes().set_aspect('equal')
         plt.show()
         
     return
