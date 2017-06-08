@@ -290,11 +290,13 @@ check_class_invariants() const
 void Weak_Spatial_Discretization::
 output(XML_Node output_node) const
 {
+    output_node.set_child_value(has_reflection_, "has_reflection");
     output_node.set_child_value(number_of_points_, "number_of_points");
     output_node.set_child_value(number_of_boundary_weights_, "number_of_boundary_weights");
     output_node.set_child_value(number_of_boundary_bases_, "number_of_boundary_bases");
     output_node.set_child_value(dimension_, "dimension");
     output_node.set_child_value(number_of_nodes_, "number_of_nodes");
+    options_->output(output_node.append_child("options"));
     
     XML_Node weights_node = output_node.append_child("weights");
     
@@ -306,6 +308,18 @@ output(XML_Node output_node) const
     {
         bases_[i]->output(weights_node.append_child("basis"));
     }
+}
+
+void Weak_Spatial_Discretization_Options::
+output(XML_Node output_node) const
+{
+    output_node.set_child_value(external_integral_calculation, "external_integral_calculation");
+    output_node.set_child_value(integration_ordinates, "integration_ordinates");
+    output_node.set_child_value(include_supg, "include_supg");
+    output_node.set_child_value(identical_basis_functions_conversion()->convert(identical_basis_functions), "identical_basis_functions");
+    output_node.set_child_value(weighting_conversion()->convert(weighting), "weighting");
+    output_node.set_child_value(tau_scaling_conversion()->convert(tau_scaling), "tau_scaling");
+    output_node.set_child_value(total_conversion()->convert(total), "total");
 }
 
 shared_ptr<Conversion<Weak_Spatial_Discretization_Options::Weighting, string> > Weak_Spatial_Discretization_Options::

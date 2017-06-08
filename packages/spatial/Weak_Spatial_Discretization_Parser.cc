@@ -17,6 +17,7 @@
 #include "Weak_Spatial_Discretization.hh"
 #include "Weak_Spatial_Discretization_Factory.hh"
 #include "Weight_Function.hh"
+#include "XML_Document.hh"
 #include "XML_Node.hh"
 
 using namespace std;
@@ -48,8 +49,8 @@ get_weak_discretization(XML_Node input_node) const
     else
     {
         AssertMsg(false, "input format (" + input_format + ") not found");
+        return shared_ptr<Weak_Spatial_Discretization>();
     }
-    return shared_ptr<Weak_Spatial_Discretization>();
 }
 
 shared_ptr<Weak_Spatial_Discretization> Weak_Spatial_Discretization_Parser::
@@ -118,7 +119,7 @@ get_galerkin_points_discretization(XML_Node input_node) const
                                            dimension);
     
     // Get points
-    string points_filename = input_node.get_child_value<string>("points_file");
+    string points_filename = input_node.get_attribute<string>("points_file");
     XML_Document points_doc(points_filename);
     XML_Node points_node = points_doc.get_child("input").get_child("spatial_discretization");
     int number_of_points = points_node.get_child_value<int>("number_of_points");

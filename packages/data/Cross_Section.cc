@@ -133,7 +133,7 @@ output(XML_Node output_node) const
 {
     string description = angular_string() + energy_string() + dimensional_string();
     
-    output_node.set_child_vector(data_, "data", description);
+    output_node.set_vector(data_, description);
 }
 
 std::shared_ptr<Conversion<Cross_Section::Dependencies::Angular, string> > Cross_Section::Dependencies::

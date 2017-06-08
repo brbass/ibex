@@ -122,7 +122,6 @@ output(XML_Node output_node) const
     output_node.set_child_vector(mu_, "mu", "ordinate");
     output_node.set_child_vector(eta_, "eta", "ordinate");
     output_node.set_child_vector(xi_, "xi", "ordinate");
-    output_node.set_child_vector(weights_, "weights", "ordinate");
 }
 
 int LDFE_Quadrature::

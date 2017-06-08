@@ -1350,9 +1350,7 @@ output(XML_Node output_node) const
         basis_functions[i] = basis_functions_[i]->index();
     }
     output_node.set_child_vector(basis_functions, "basis_functions");
-
-    solid_geometry_->output(output_node.append_child("solid_geometry"));
-
+    
     vector<int> boundary_surfaces(number_of_boundary_surfaces_);
     for (int i = 0; i < number_of_boundary_surfaces_; ++i)
     {

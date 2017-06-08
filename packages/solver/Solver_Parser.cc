@@ -22,7 +22,11 @@ Solver_Parser(shared_ptr<Weak_Spatial_Discretization> spatial,
     spatial_(spatial),
     angular_(angular),
     energy_(energy),
-    transport_(transport)
+    transport_(transport),
+    factory_(make_shared<Solver_Factory>(spatial,
+                                         angular,
+                                         energy,
+                                         transport))
 {
 }
 

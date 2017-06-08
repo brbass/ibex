@@ -69,6 +69,9 @@ struct Weak_Spatial_Discretization_Options
 
     // Check input and set automatic parameters
     void finalize_input();
+
+    // Output data
+    void output(XML_Node input_node) const;
 };
 
 class Weak_Spatial_Discretization : public Spatial_Discretization

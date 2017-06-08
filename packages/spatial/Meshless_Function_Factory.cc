@@ -106,15 +106,15 @@ get_radii_nearest(shared_ptr<KD_Tree> kd_tree,
     {
         // Get nearest points
         vector<int> indices;
-        vector<double> distances;
+        vector<double> squared_distances;
         vector<double> const position = kd_tree->point(i);
         kd_tree->find_neighbors(number_of_neighbors,
                                 position,
                                 indices,
-                                distances);
+                                squared_distances);
 
         // Calculate radii
-        radii[i] = distances[number_of_neighbors - 1] * radius_multiplier;
+        radii[i] = sqrt(squared_distances[number_of_neighbors - 1]) * radius_multiplier;
     }
 }
 
@@ -131,21 +131,26 @@ get_radii_coverage(shared_ptr<KD_Tree> kd_tree,
     {
         // Get nearest points
         vector<int> indices;
-        vector<double> distances;
+        vector<double> squared_distances;
         vector<double> const position = kd_tree->point(i);
         kd_tree->find_neighbors(number_of_neighbors,
                                 position,
                                 indices,
-                                distances);
+                                squared_distances);
         
         for (int j = 0; j < number_of_neighbors; ++j)
         {
             int k = indices[j];
-            if (radii[k] < distances[j])
+            if (radii[k] < squared_distances[j])
             {
-                radii[k] = distances[j];
+                radii[k] = squared_distances[j];
             }
         }
+    }
+
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        radii[i] = radius_multiplier * sqrt(radii[i]);
     }
 }
 
