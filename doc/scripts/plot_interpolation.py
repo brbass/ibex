@@ -158,7 +158,7 @@ def compare_strong_weak(num_points, func_type, basis_type, shape):
     plt.close()
     
 if __name__ == '__main__':
-    compare_strong_weak(17, "saw", "gauss", 1.0)
+    compare_strong_weak(17, "square", "gauss", 1.0)
     compare_strong_weak(17, "square", "mls", 2)
 
 
