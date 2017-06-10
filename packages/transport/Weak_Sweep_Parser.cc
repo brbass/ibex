@@ -25,9 +25,20 @@ shared_ptr<Weak_RBF_Sweep> Weak_Sweep_Parser::
 get_weak_rbf_sweep(XML_Node input_node) const
 {
     Weak_RBF_Sweep::Options options;
+    options.max_iterations = input_node.get_attribute<int>("max_iterations",
+                                                           options.max_iterations);
+    options.kspace = input_node.get_attribute<int>("kspace",
+                                                   options.kspace);
+    options.level_of_fill = input_node.get_attribute<int>("level_of_fill",
+                                                          options.level_of_fill);
+    options.tolerance = input_node.get_attribute<double>("tolerance",
+                                                         options.tolerance);
+    options.drop_tolerance = input_node.get_attribute<double>("drop_tolerance",
+                                                              options.drop_tolerance);
     
-    string solver = input_node.get_attribute<string>("solver", "amesos");
-
+    string solver = input_node.get_attribute<string>("solver",
+                                                     "amesos");
+    
     if (solver == "amesos")
     {
         options.solver = Weak_RBF_Sweep::Options::Solver::AMESOS;

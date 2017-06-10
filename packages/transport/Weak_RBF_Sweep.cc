@@ -55,23 +55,17 @@ Weak_RBF_Sweep(Options options,
         break;
     case Options::Solver::AZTEC:
     {
-        Aztec_Solver::Options aztec_options;
-        solver_ = make_shared<Aztec_Solver>(*this,
-                                            aztec_options);
+        solver_ = make_shared<Aztec_Solver>(*this);
         break;
     }
     case Options::Solver::AZTEC_ILUT:
     {
-        Aztec_ILUT_Solver::Options aztec_options;
-        solver_ = make_shared<Aztec_ILUT_Solver>(*this,
-                                                 aztec_options);
+        solver_ = make_shared<Aztec_ILUT_Solver>(*this);
         break;
     }
     case Options::Solver::AZTEC_IFPACK:
     {
-        Aztec_Ifpack_Solver::Options aztec_options;
-        solver_ = make_shared<Aztec_Ifpack_Solver>(*this,
-                                                   aztec_options);
+        solver_ = make_shared<Aztec_Ifpack_Solver>(*this);
         break;
     }
     }
@@ -523,10 +517,8 @@ solve(vector<double> &x) const
 }
 
 Weak_RBF_Sweep::Aztec_Solver::
-Aztec_Solver(Weak_RBF_Sweep const &wrs,
-             Options options):
-    Trilinos_Solver(wrs),
-    options_(options)
+Aztec_Solver(Weak_RBF_Sweep const &wrs):
+    Trilinos_Solver(wrs)
 {
 }
 
@@ -561,13 +553,13 @@ solve(vector<double> &x) const
             shared_ptr<AztecOO> solver
                 = make_shared<AztecOO>(*problem);
             solver->SetAztecOption(AZ_solver, AZ_gmres);
-            solver->SetAztecOption(AZ_kspace, options_.kspace);
+            solver->SetAztecOption(AZ_kspace, wrs_.options_.kspace);
             solver->SetAztecOption(AZ_precond, AZ_none);
             solver->SetAztecOption(AZ_output, AZ_warnings);
             
             // Solve, putting result into LHS
-            solver->Iterate(options_.max_iterations,
-                            options_.tolerance);
+            solver->Iterate(wrs_.options_.max_iterations,
+                            wrs_.options_.tolerance);
             
             // Update solution value (overwrite x for this o and g)
             for (int i = 0; i < number_of_points; ++i)
@@ -580,10 +572,8 @@ solve(vector<double> &x) const
 }
 
 Weak_RBF_Sweep::Aztec_ILUT_Solver::
-Aztec_ILUT_Solver(Weak_RBF_Sweep const &wrs,
-                  Options options):
-    Trilinos_Solver(wrs),
-    options_(options)
+Aztec_ILUT_Solver(Weak_RBF_Sweep const &wrs):
+    Trilinos_Solver(wrs)
 {
     // Initialize matrices
     int number_of_groups = wrs_.energy_discretization_->number_of_groups();
@@ -610,7 +600,7 @@ Aztec_ILUT_Solver(Weak_RBF_Sweep const &wrs,
                 = make_shared<AztecOO>(*problem_[k]);
             
             // Set solver options
-            solver_[k]->SetAztecOption(AZ_kspace, options_.kspace);
+            solver_[k]->SetAztecOption(AZ_kspace, wrs_.options_.kspace);
             solver_[k]->SetAztecOption(AZ_precond, AZ_dom_decomp);
             solver_[k]->SetAztecOption(AZ_subdomain_solve, AZ_ilut);
             solver_[k]->SetAztecOption(AZ_output, AZ_warnings);
@@ -645,8 +635,8 @@ solve(vector<double> &x) const
             
             // Solve, putting result into LHS
             int k = g + number_of_groups * o;
-            solver_[k]->Iterate(options_.max_iterations,
-                                options_.tolerance);
+            solver_[k]->Iterate(wrs_.options_.max_iterations,
+                                wrs_.options_.tolerance);
             // Update solution value (overwrite x for this o and g)
             for (int i = 0; i < number_of_points; ++i)
             {
@@ -658,10 +648,8 @@ solve(vector<double> &x) const
 }
 
 Weak_RBF_Sweep::Aztec_Ifpack_Solver::
-Aztec_Ifpack_Solver(Weak_RBF_Sweep const &wrs,
-                    Options options):
-    Trilinos_Solver(wrs),
-    options_(options)
+Aztec_Ifpack_Solver(Weak_RBF_Sweep const &wrs):
+    Trilinos_Solver(wrs)
 {
     Ifpack ifp_factory;
     
@@ -691,8 +679,8 @@ Aztec_Ifpack_Solver(Weak_RBF_Sweep const &wrs,
                 = shared_ptr<Ifpack_Preconditioner>(ifp_factory.Create("ILU",
                                                                        mat_[k].get()));
             Teuchos::ParameterList prec_list;
-            // prec_list.set("fact: drop tolerance", options_.drop_tolerance);
-            prec_list.set("fact: level-of-fill", options_.level_of_fill);
+            // prec_list.set("fact: drop tolerance", wrs_.options_.drop_tolerance);
+            prec_list.set("fact: level-of-fill", wrs_.options_.level_of_fill);
             prec_[k]->SetParameters(prec_list);
             prec_[k]->Initialize();
             prec_[k]->Compute();
@@ -703,7 +691,7 @@ Aztec_Ifpack_Solver(Weak_RBF_Sweep const &wrs,
             
             // Set solver options
             solver_[k]->SetAztecOption(AZ_solver, AZ_gmres);
-            solver_[k]->SetAztecOption(AZ_kspace, options_.kspace);
+            solver_[k]->SetAztecOption(AZ_kspace, wrs_.options_.kspace);
             solver_[k]->SetPrecOperator(prec_[k].get());
             solver_[k]->SetAztecOption(AZ_output, AZ_warnings);
         }
@@ -729,8 +717,8 @@ solve(vector<double> &x) const
             
             // Solve, putting result into LHS
             int k = g + number_of_groups * o;
-            solver_[k]->Iterate(options_.max_iterations,
-                                options_.tolerance);
+            solver_[k]->Iterate(wrs_.options_.max_iterations,
+                                wrs_.options_.tolerance);
             // Update solution value (overwrite x for this o and g)
             for (int i = 0; i < number_of_points; ++i)
             {

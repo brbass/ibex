@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iostream>
 
 #include "Angular_Discretization.hh"
 #include "Basis_Function.hh"
@@ -43,11 +44,19 @@ Weight_Function_Integration(int number_of_points,
                               solid->dimension(),
                               limits,
                               dimensional_cells);
+
+    // Check to ensure sufficient number of cells
+    if (mesh_->number_of_background_cells_ < number_of_points_)
+    {
+        cerr << "more background integration cells recommended" << endl;
+        cerr << "number of points:\t" << number_of_points_ << endl;
+        cerr << "number of cells:\t" << mesh_->number_of_background_cells_ << endl;
+    }
     
     // Get normalization information
     apply_basis_normalization_ = bases[0]->function()->depends_on_neighbors();
     apply_weight_normalization_ = weights[0]->function()->depends_on_neighbors();
-    
+
     if (apply_basis_normalization_)
     {
         basis_normalization_ = bases[0]->function()->normalization();

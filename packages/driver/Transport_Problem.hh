@@ -2,6 +2,9 @@
 #define Transport_Problem_hh
 
 #include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "XML_Node.hh"
 
@@ -39,6 +42,10 @@ private:
 
     XML_Node input_node_;
     XML_Node output_node_;
+
+    // Timing
+    void output_timing();
+    std::vector<std::pair<double, std::string> > times_;
 };
 
 #endif
