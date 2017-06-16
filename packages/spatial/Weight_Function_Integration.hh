@@ -152,6 +152,7 @@ private:
     // Add material cell values to global integrals
     void add_volume_material(Mesh::Cell const &cell,
                              double quad_weight,
+                             std::vector<double> const &b_val,
                              std::vector<double> const &w_val,
                              std::vector<std::vector<double> > const &w_grad,
                              std::shared_ptr<Material> point_material,
@@ -230,6 +231,11 @@ private:
     void get_weight_centers(std::vector<int> const &weight_indices,
                             std::vector<std::vector<double> > &center_positions) const;
                      
+
+    // Get the flux for a specific point, given basis coefficients
+    void get_flux(Mesh::Cell const &cell,
+                  std::vector<double> const &b_val,
+                  std::vector<double> &flux) const;
     
     // Initialize material data to zero
     void initialize_materials(std::vector<Material_Data> &materials) const;

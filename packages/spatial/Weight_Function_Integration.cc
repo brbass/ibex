@@ -73,6 +73,13 @@ Weight_Function_Integration(int number_of_points,
     shared_ptr<Material> test_material = solid_->material(weights_[0]->position());
     angular_ = test_material->angular_discretization();
     energy_ = test_material->energy_discretization();
+    if (options->weighting == Weight_Function_Options::Weighting::FLUX)
+    {
+        Assert(options->flux_coefficients.size()
+               == (number_of_points_
+                   * energy->number_of_groups()
+                   * angular_->number_of_moments()));
+    }
 }
 
 void Weight_Function_Integration::
@@ -174,6 +181,7 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
                                     integrals);
             add_volume_material(cell,
                                 weights[q],
+                                b_val,
                                 w_val,
                                 w_grad,
                                 point_material,
@@ -358,6 +366,7 @@ add_volume_basis_weight(Mesh::Cell const &cell,
 void Weight_Function_Integration::
 add_volume_material(Mesh::Cell const &cell,
                     double quad_weight,
+                    vector<double> const &b_val,
                     vector<double> const &w_val,
                     vector<vector<double> > const &w_grad,
                     shared_ptr<Material> point_material,
@@ -377,9 +386,15 @@ add_volume_material(Mesh::Cell const &cell,
     vector<double> chi = point_material->chi()->data();
     vector<double> internal_source = point_material->internal_source()->data();
 
-    // Get placeholder flux: change for flux weighting to work
-    vector<double> flux(number_of_groups * number_of_moments, 1);
-
+    // Get flux
+    vector<double> flux;
+    if (options_->weighting == Weak_Spatial_Discretization_Options::Weighting::FLUX)
+    {
+        get_flux(cell,
+                 b_val,
+                 flux);
+    }
+    
     // Add value to each of the weight functions
     for (int i = 0; i < cell.number_of_weight_functions; ++i)
     {
@@ -1247,9 +1262,41 @@ get_weight_centers(vector<int> const &weight_indices,
     }
 }
 
+void Weight_Function_Integration::
+get_flux(Mesh::cell const &cell,
+         vector<double> const &b_val,
+         vector<double> &flux) const
+{
+    // Get size information
+    int const number_of_groups = energy_->number_of_groups();
+    int const number_of_moments = angular_->number_of_moments();
+
+    // Get coefficients
+    vector<double> const &coefficients = options_->flux_coefficients;
+    double const sff = options_->scalar_flux_fraction;
+    
+    flux.assign(number_of_groups * number_of_moments, 0);
+    
+    int const m0 = 0;
+    for (int i = 0; i < cell.number_of_basis_functions; ++i)
+    {
+        int const j = cell.basis_indices[i];
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            int const k_sf = g + number_of_groups * (m0 + number_of_moments * j); // global scalar flux coefficient index
+            for (int m = 0; m < number_of_moments; ++m)
+            {
+                int const k_f = g + number_of_groups * m; // local flux index
+                int const k_c = g + number_of_groups * (m + number_of_moments * j); // global coefficient index
+                flux[k_f] += b_val[i] * ((1 - sff) * coefficients[k_c] + sff * coefficients[k_sf]);
+            }
+        }
+    }
+}
+
 
 Weight_Function_Integration::Mesh::
-Mesh(Weight_Function_Integration const &wfi,
+    Mesh(Weight_Function_Integration const &wfi,
      int dimension,
      vector<vector<double> > limits,
      vector<int> dimensional_cells):
