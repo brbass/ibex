@@ -1,4 +1,4 @@
-#include "Combined_SUPG_Scattering.hh"
+#include "Combined_SUPG_Fission.hh"
 
 #include <iostream>
 #include <memory>
@@ -15,11 +15,11 @@
 
 using namespace std;
 
-Combined_SUPG_Scattering::
-Combined_SUPG_Scattering(shared_ptr<Weak_Spatial_Discretization> spatial_discretization,
-                         shared_ptr<Angular_Discretization> angular_discretization,
-                         shared_ptr<Energy_Discretization> energy_discretization,
-                         Options options):
+Combined_SUPG_Fission::
+Combined_SUPG_Fission(shared_ptr<Weak_Spatial_Discretization> spatial_discretization,
+                      shared_ptr<Angular_Discretization> angular_discretization,
+                      shared_ptr<Energy_Discretization> energy_discretization,
+                      Options options):
     Combined_SUPG_Operator(spatial_discretization,
                            angular_discretiza`tion,
                            energy_discretization,
@@ -28,7 +28,7 @@ Combined_SUPG_Scattering(shared_ptr<Weak_Spatial_Discretization> spatial_discret
     check_class_invariants();
 }
 
-void Combined_SUPG_Scattering::
+void Combined_SUPG_Fission::
 check_class_invariants() const
 {
     Assert(spatial_discretization_);
@@ -39,15 +39,15 @@ check_class_invariants() const
     for (int i = 0; i < number_of_points; ++i)
     {
         shared_ptr<Material> material = spatial_discretization_->point(i)->material();
-        Cross_Section::Dependencies dep = material->sigma_s()->dependencies();
+        Cross_Section::Dependencies dep = material->sigma_f()->dependencies();
         // Make sure angular and energy dependencies for each point are correct
-        Assert(dep.angular == Cross_Section::Dependencies::Angular::MOMENTS);
+        Assert(dep.angular == Cross_Section::Dependencies::Angular::NONE);
         Assert(dep.energy == Cross_Section::Dependencies::Energy::GROUP_TO_GROUP);
         Assert(dep.dimensional == Cross_Section::Dependencies::Dimensional::SUPG);
     }
 }
 
-void Combined_SUPG_Scattering::
+void Combined_SUPG_Fission::
 apply_full(vector<double> &x) const
 {
     // Get size information
@@ -57,8 +57,7 @@ apply_full(vector<double> &x) const
     int const number_of_moments = angular_discretization_->number_of_moments();
     int const number_of_ordinates = angular_discretization_->number_of_ordinates();
     double const angular_normalization = angular_discretization_->angular_normalization();
-    vector<int> const scattering_indices = angular_discretization_->scattering_indices();
-
+    
     // Get dimensional moments
     shared_ptr<Dimensional_Moments> const dimensional_moments = spatial_discretization_->dimensional_moments();
     int const number_of_dimensional_moments = dimensional_moments->number_of_dimensional_moments();
@@ -66,6 +65,7 @@ apply_full(vector<double> &x) const
     // Copy source flux
     vector<double> y(x);
     x.assign(number_of_points * number_of_groups * number_of_ordinates, 0);
+    int const m = 0;
     for (int i = 0; i < number_of_points; ++i)
     {
         // Get weight function information
@@ -74,9 +74,9 @@ apply_full(vector<double> &x) const
         
         // Get cross section information
         shared_ptr<Material> const material = weight->material();
-        shared_ptr<Cross_Section> const sigma_s_cs = material->sigma_s();
+        shared_ptr<Cross_Section> const sigma_f_cs = material->sigma_f();
         shared_ptr<Cross_Section> const norm_cs = material->norm();
-        vector<double> const sigma_s = sigma_s_cs->data();
+        vector<double> const sigma_f = sigma_f_cs->data();
         vector<double> const norm = norm_cs->data();
         for (int o = 0; o < number_of_ordinates; ++o)
         {
@@ -87,46 +87,36 @@ apply_full(vector<double> &x) const
             
             for (int gt = 0; gt < number_of_groups; ++gt)
             {
-                // Moment-to-discrete sum
-                double sum = 0;
-                for (int m = 0; m < number_of_moments; ++m)
+                // Apply fission operator
+                double fission = 0;
+                for (int gf = 0; gf < number_of_groups; ++gf)
                 {
-                    // Apply scattering operator
-                    double scattering = 0;
-                    for (int gf = 0; gf < number_of_groups; ++gf)
+                    // Get summations of dimensional moments
+                    double phi = 0;
+                    double num = 0;
+                    double den = 0;
+                    for (int d = 0; d < number_of_dimensional_moments; ++d)
                     {
-                        // Get summations of dimensional moments
-                        double phi = 0;
-                        double num = 0;
-                        double den = 0;
-                        for (int d = 0; d < number_of_dimensional_moments; ++d)
-                        {
-                            int const k_ss = d + number_of_dimensional_moments * (gf + number_of_groups * (gt + number_of_groups * m));
-                            int const k_phi = d + number_of_dimensional_moments * (gf + number_of_groups * (m + number_of_moments * i));
-                            phi += y[k_phi] * coeffs[d];
-                            num += sigma_s[k_ss] * coeffs[d];
-                            den += norm[k_phi] * coeffs[d];
-                        }
-
-                        scattering += num / den * phi;
+                        int const k_sf = d + number_of_dimensional_moments * (gf + number_of_groups * gt);
+                        int const k_phi = d + number_of_dimensional_moments * (gf + number_of_groups * (m + number_of_moments * i));
+                        phi += y[k_phi] * coeffs[d];
+                        num += sigma_f[k_sf] * coeffs[d];
+                        den += norm[k_phi] * coeffs[d];
                     }
                     
-                    // Apply moment-to-discrete operator
-                    int const l = scattering_indices[m];
-                    double const p = angular_discretization_->moment(m, o);
-                    sum += (2 * static_cast<double>(l) + 1) / angular_normalization * p * scattering;
+                    fission += num / den * phi;
                 }
                 
-                // Assign result
+                // Apply angular normalization and assign result
                 int const k_psi = gt + number_of_groups * (o + number_of_ordiantes * j);
-                x[k_psi] = sum;
+                x[k_psi] = fission / angular_normalization;
             }
         }
     }
 }
 
-void Combined_SUPG_Scattering::
+void Combined_SUPG_Fission::
 apply_coherent(vector<double> &x) const
 {
-    AssertMsg(false, "coherent scattering not yet implemented in Combined_SUPG_Scattering");
+    AssertMsg(false, "coherent scattering not yet implemented in Combined_SUPG_Fission");
 }
