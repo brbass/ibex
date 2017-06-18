@@ -1,4 +1,4 @@
-#include "SUPG_Combined_Operator.hh"
+#include "Combined_SUPG_Operator.hh"
 
 #include <memory>
 #include <vector>
@@ -8,15 +8,15 @@
 #include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
 #include "Conversion.hh"
-#include "Spatial_Discretization.hh"
+#include "Weak_Spatial_Discretization.hh"
 
 using namespace std;
 
-SUPG_Combined_Operator::
-SUPG_Combined_Operator(shared_ptr<Spatial_Discretization> spatial_discretization,
-                    shared_ptr<Angular_Discretization> angular_discretization,
-                    shared_ptr<Energy_Discretization> energy_discretization,
-                    Options options):
+Combined_SUPG_Operator::
+Combined_SUPG_Operator(shared_ptr<Weak_Spatial_Discretization> spatial_discretization,
+                       shared_ptr<Angular_Discretization> angular_discretization,
+                       shared_ptr<Energy_Discretization> energy_discretization,
+                       Options options):
     Vector_Operator(),
     spatial_discretization_(spatial_discretization),
     angular_discretization_(angular_discretization),
@@ -39,7 +39,7 @@ SUPG_Combined_Operator(shared_ptr<Spatial_Discretization> spatial_discretization
     row_size_ = psi_size;
 }
 
-void SUPG_Combined_Operator::
+void Combined_SUPG_Operator::
 apply(vector<double> &x) const
 {
     switch(options_.scattering_type)
@@ -56,7 +56,7 @@ apply(vector<double> &x) const
     }
 }
 
-void SUPG_Combined_Operator::
+void Combined_SUPG_Operator::
 apply_incoherent(vector<double> &x) const
 {
     vector<double> y(x);
@@ -71,7 +71,7 @@ apply_incoherent(vector<double> &x) const
     }
 }
 
-std::shared_ptr<Conversion<SUPG_Combined_Operator::Options::Scattering_Type, string> > SUPG_Combined_Operator::Options::
+std::shared_ptr<Conversion<Combined_SUPG_Operator::Options::Scattering_Type, string> > Combined_SUPG_Operator::Options::
 scattering_type_conversion() const
 {
     vector<pair<Scattering_Type, string> > conversions

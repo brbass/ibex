@@ -1,5 +1,5 @@
-#ifndef SUPG_Combined_Operator_hh
-#define SUPG_Combined_Operator_hh
+#ifndef Combined_SUPG_Operator_hh
+#define Combined_SUPG_Operator_hh
 
 #include <memory>
 #include <vector>
@@ -15,7 +15,7 @@ class Weak_Spatial_Discretization;
   Pure virtual class to apply scattering and moment-to-discrete operators
   to a moment representation of the flux
 */
-class SUPG_Combined_Operator : public Vector_Operator
+class Combined_SUPG_Operator : public Vector_Operator
 {
 public:
 
@@ -35,7 +35,7 @@ public:
     };
     
     // Constructor
-    SUPG_Combined_Operator(std::shared_ptr<Weak_Spatial_Discretization> spatial_discretization,
+    Combined_SUPG_Operator(std::shared_ptr<Weak_Spatial_Discretization> spatial_discretization,
                            std::shared_ptr<Angular_Discretization> angular_discretization,
                            std::shared_ptr<Energy_Discretization> energy_discretization,
                            Options options);

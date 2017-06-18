@@ -21,7 +21,7 @@ Combined_SUPG_Scattering(shared_ptr<Weak_Spatial_Discretization> spatial_discret
                          shared_ptr<Energy_Discretization> energy_discretization,
                          Options options):
     Combined_SUPG_Operator(spatial_discretization,
-                           angular_discretiza`tion,
+                           angular_discretization,
                            energy_discretization,
                            options)
 {
@@ -70,7 +70,7 @@ apply_full(vector<double> &x) const
     {
         // Get weight function information
         shared_ptr<Weight_Function> const weight = spatial_discretization_->weight(i);
-        double const tau = weight->options().tau;
+        double const tau = weight->options()->tau;
         
         // Get cross section information
         shared_ptr<Material> const material = weight->material();
@@ -80,7 +80,7 @@ apply_full(vector<double> &x) const
         vector<double> const norm = norm_cs->data();
         for (int o = 0; o < number_of_ordinates; ++o)
         {
-            vector<double> const direction = angular_->direction(o);
+            vector<double> const direction = angular_discretization_->direction(o);
             vector<double> const coeffs
                 = dimensional_moments->coefficients(tau,
                                                     direction);
@@ -118,7 +118,7 @@ apply_full(vector<double> &x) const
                 }
                 
                 // Assign result
-                int const k_psi = gt + number_of_groups * (o + number_of_ordiantes * j);
+                int const k_psi = gt + number_of_groups * (o + number_of_ordinates * i);
                 x[k_psi] = sum;
             }
         }

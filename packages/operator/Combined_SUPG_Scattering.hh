@@ -14,7 +14,7 @@ class Combined_SUPG_Scattering : public Combined_SUPG_Operator
 public:
 
     // Constructor
-    Combined_SUPG_Scattering(std::shared_ptr<Spatial_Discretization> spatial_discretization,
+    Combined_SUPG_Scattering(std::shared_ptr<Weak_Spatial_Discretization> spatial_discretization,
                              std::shared_ptr<Angular_Discretization> angular_discretization,
                              std::shared_ptr<Energy_Discretization> energy_discretization,
                              Options options = Options());

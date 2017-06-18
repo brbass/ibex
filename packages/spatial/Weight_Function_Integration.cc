@@ -73,11 +73,11 @@ Weight_Function_Integration(int number_of_points,
     shared_ptr<Material> test_material = solid_->material(weights_[0]->position());
     angular_ = test_material->angular_discretization();
     energy_ = test_material->energy_discretization();
-    if (options->weighting == Weight_Function_Options::Weighting::FLUX)
+    if (options->weighting == Weak_Spatial_Discretization_Options::Weighting::FLUX)
     {
         Assert(options->flux_coefficients.size()
                == (number_of_points_
-                   * energy->number_of_groups()
+                   * energy_->number_of_groups()
                    * angular_->number_of_moments()));
     }
 }
@@ -1263,7 +1263,7 @@ get_weight_centers(vector<int> const &weight_indices,
 }
 
 void Weight_Function_Integration::
-get_flux(Mesh::cell const &cell,
+get_flux(Mesh::Cell const &cell,
          vector<double> const &b_val,
          vector<double> &flux) const
 {

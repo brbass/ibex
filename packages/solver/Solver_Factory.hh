@@ -29,14 +29,20 @@ public:
                               std::shared_ptr<Vector_Operator> &flux_operator) const;
     
     void get_supg_source_operators(std::shared_ptr<Sweep_Operator> Linv,
-                                       std::shared_ptr<Vector_Operator> &source_operator,
-                                       std::shared_ptr<Vector_Operator> &flux_operator) const;
+                                   std::shared_ptr<Vector_Operator> &source_operator,
+                                   std::shared_ptr<Vector_Operator> &flux_operator) const;
+    void get_supg_combined_source_operators(std::shared_ptr<Sweep_Operator> Linv,
+                                            std::shared_ptr<Vector_Operator> &source_operator,
+                                            std::shared_ptr<Vector_Operator> &flux_operator) const;
     void get_eigenvalue_operators(std::shared_ptr<Sweep_Operator> Linv,
                                   std::shared_ptr<Vector_Operator> &fission_operator,
                                   std::shared_ptr<Vector_Operator> &flux_operator) const;
     void get_supg_eigenvalue_operators(std::shared_ptr<Sweep_Operator> Linv,
                                        std::shared_ptr<Vector_Operator> &fission_operator,
                                        std::shared_ptr<Vector_Operator> &flux_operator) const;
+    void get_supg_combined_eigenvalue_operators(std::shared_ptr<Sweep_Operator> Linv,
+                                                std::shared_ptr<Vector_Operator> &fission_operator,
+                                                std::shared_ptr<Vector_Operator> &flux_operator) const;
 
     
     // Get iteration methods
