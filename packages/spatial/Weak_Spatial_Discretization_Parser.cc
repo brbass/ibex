@@ -407,7 +407,7 @@ get_weak_options(XML_Node input_node) const
         XML_Node coeff_node = coeff_doc.get_child(coeff_path[0]);
         for (int i = 1; i < coeff_path.size(); ++i)
         {
-            coeff_node = coeff_node.get_child(coeff_path[1]);
+            coeff_node = coeff_node.get_child(coeff_path[i]);
         }
         options->flux_coefficients = coeff_node.get_vector<double>();
     }

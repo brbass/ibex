@@ -56,4 +56,8 @@ output(XML_Node output_node) const
     sigma_f_->output(output_node.append_child("sigma_f"));
     chi_->output(output_node.append_child("chi"));
     internal_source_->output(output_node.append_child("internal_source"));
+    if (norm_)
+    {
+        norm_->output(output_node.append_child("norm"));
+    }
 }

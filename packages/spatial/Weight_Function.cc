@@ -1244,22 +1244,6 @@ calculate_supg_weight_material()
 void Weight_Function::
 calculate_boundary_source()
 {
-    switch(weak_options_->weighting)
-    {
-    case Weak_Spatial_Discretization_Options::Weighting::POINT:
-        // Point weighting doesn't make sense for boundary
-        return calculate_weight_boundary_source(); 
-    case Weak_Spatial_Discretization_Options::Weighting::WEIGHT:
-        return calculate_weight_boundary_source();
-    case Weak_Spatial_Discretization_Options::Weighting::FLUX:
-        AssertMsg(false, "Weight_Function flux weighting not yet implemented");
-        return;
-    }
-}
-
-void Weight_Function::
-calculate_weight_boundary_source()
-{
     weighted_boundary_surfaces_.resize(number_of_boundary_surfaces_);
     for (int s = 0; s < number_of_boundary_surfaces_; ++s)
     {

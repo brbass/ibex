@@ -1274,9 +1274,9 @@ get_flux(Mesh::Cell const &cell,
     // Get coefficients
     vector<double> const &coefficients = options_->flux_coefficients;
     double const sff = options_->scalar_flux_fraction;
-    
+
+    // Calculate flux
     flux.assign(number_of_groups * number_of_moments, 0);
-    
     int const m0 = 0;
     for (int i = 0; i < cell.number_of_basis_functions; ++i)
     {
@@ -1291,6 +1291,13 @@ get_flux(Mesh::Cell const &cell,
                 flux[k_f] += b_val[i] * ((1 - sff) * coefficients[k_c] + sff * coefficients[k_sf]);
             }
         }
+    }
+    
+    // Ensure all scalar flux values are positive for weighting
+    for (int g = 0; g < number_of_groups; ++g)
+    {
+        int const k_sf = g + number_of_groups * m0;
+        flux[k_sf] = abs(flux[k_sf]);
     }
 }
 

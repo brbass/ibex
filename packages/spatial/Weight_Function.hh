@@ -222,7 +222,6 @@ private:
     virtual void calculate_standard_weight_material();
     virtual void calculate_supg_point_material();
     virtual void calculate_supg_weight_material();
-    virtual void calculate_weight_boundary_source();
     
     // Point data
     int index_;
