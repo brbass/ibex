@@ -43,9 +43,17 @@ public:
     // Get an attribute of the node given a default
     template<typename T> T get_attribute(std::string description,
                                          T def);
+
+    // Get an attribute of the node, insisting that it exists
+    template<typename T> std::vector<T> get_attribute_vector(std::string description);
+
+    // Get an attribute of the node given a default
+    template<typename T> std::vector<T> get_attribute_vector(std::string description,
+                                                             std::vector<T> def);
     
     // Get the value of the node, insisting that it exists
     template<typename T> T get_value();
+    template<typename T> std::vector<T> get_vector();
     template<typename T> std::vector<T> get_vector(int expected_size);
     
     // Get the value of the node given a default
@@ -143,6 +151,40 @@ get_attribute(std::string description,
     return XML_Functions::attr_value<T>(attr);
 }
 
+template<typename T> std::vector<T> XML_Node::
+get_attribute_vector(std::string description)
+{
+    pugi::xml_attribute attr = xml_node_->attribute(description.c_str());
+
+    if (attr.empty())
+    {
+        std::string error_message
+            = "required attribute ("
+            + description
+            + ") in node ("
+            + name_
+            + ") not found";
+        
+        AssertMsg(false, error_message);
+    }
+
+    return XML_Functions::attr_vector<T>(attr);
+}
+
+template<typename T> std::vector<T> XML_Node::
+get_attribute_vector(std::string description,
+                     std::vector<T> def)
+{
+    pugi::xml_attribute attr = xml_node_->attribute(description.c_str());
+
+    if (attr.empty())
+    {
+        return def;
+    }
+
+    return XML_Functions::attr_vector<T>(attr);
+}
+
 template<typename T> T XML_Node::
 get_value()
 {
@@ -159,6 +201,24 @@ get_value()
     }
     
     return XML_Functions::text_value<T>(text);
+}
+
+template<typename T> std::vector<T> XML_Node::
+get_vector()
+{
+    pugi::xml_text text = xml_node_->text();
+
+    if (text.empty())
+    {
+        std::string error_message
+            = "required value in node ("
+            + name_
+            + ") not found";
+        
+        AssertMsg(false, error_message);
+    }
+    
+    return XML_Functions::text_vector<T>(text);
 }
 
 template<typename T> std::vector<T> XML_Node::

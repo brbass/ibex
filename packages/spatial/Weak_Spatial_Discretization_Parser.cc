@@ -1,11 +1,13 @@
 #include "Weak_Spatial_Discretization_Parser.hh"
 
+#include "Angular_Discretization.hh"
 #include "Basis_Function.hh"
 #include "Cartesian_Distance.hh"
 #include "Cartesian_Plane.hh"
 #include "Compact_Gaussian_RBF.hh"
 #include "Conversion.hh"
 #include "Dimensional_Moments.hh"
+#include "Energy_Discretization.hh"
 #include "Linear_MLS_Function.hh"
 #include "KD_Tree.hh"
 #include "Meshless_Function.hh"
@@ -397,6 +399,18 @@ get_weak_options(XML_Node input_node) const
     // Get weighting method
     string weighting_string = input_node.get_attribute<string>("weighting");
     options->weighting = options->weighting_conversion()->convert(weighting_string);
+    if (options->weighting == Weak_Spatial_Discretization_Options::Weighting::FLUX)
+    {
+        string coeff_filename = input_node.get_attribute<string>("flux_file");
+        vector<string> coeff_path = input_node.get_attribute_vector<string>("flux_path");
+        XML_Document coeff_doc(coeff_filename);
+        XML_Node coeff_node = coeff_doc.get_child(coeff_path[0]);
+        for (int i = 1; i < coeff_path.size(); ++i)
+        {
+            coeff_node = coeff_node.get_child(coeff_path[1]);
+        }
+        options->flux_coefficients = coeff_node.get_vector<double>();
+    }
     
     // Get integral options
     options->integration_ordinates = input_node.get_child_value<int>("integration_ordinates");

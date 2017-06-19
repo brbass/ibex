@@ -13,6 +13,7 @@ namespace XML_Functions
     // Declarations
     
     template<typename T> T attr_value(pugi::xml_attribute attr);
+    template<typename T> std::vector<T> attr_vector(pugi::xml_text text);
     template<typename T> T text_value(pugi::xml_text text);
     template<typename T> std::vector<T> text_vector(pugi::xml_text text);
 
@@ -23,6 +24,15 @@ namespace XML_Functions
         std::vector<T> value;
         
         String_Functions::string_to_vector(text_value<std::string>(text),
+                                           value);
+        
+        return value;
+    }
+    template<typename T> std::vector<T> attr_vector(pugi::xml_attribute text)
+    {
+        std::vector<T> value;
+        
+        String_Functions::string_to_vector(attr_value<std::string>(text),
                                            value);
         
         return value;
