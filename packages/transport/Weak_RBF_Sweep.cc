@@ -223,35 +223,64 @@ get_matrix_row(int i, // weight function index (row)
     vector<double> const &iv_b_dw = integrals.iv_b_dw;
     vector<double> const &iv_db_dw = integrals.iv_db_dw;
     vector<double> const direction = angular_discretization_->direction(o);
-    vector<double> const sigma_t_data = weight->material()->sigma_t()->data();
-    int number_of_dimensional_moments = spatial_discretization_->dimensional_moments()->number_of_dimensional_moments();
-    int number_of_basis_functions = weight->number_of_basis_functions();
-    int number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
-    int dimension = spatial_discretization_->dimension();
+    shared_ptr<Material> const material = weight->material();
+    shared_ptr<Cross_Section> const sigma_t_cs = material->sigma_t();
+    shared_ptr<Cross_Section> const norm_cs = material->norm();
+    vector<double> const sigma_t_data = sigma_t_cs->data();
+    vector<double> const norm_data = norm_cs->data();
+    shared_ptr<Dimensional_Moments> const dimensional_moments
+        = spatial_discretization_->dimensional_moments();
+    int const number_of_dimensional_moments = dimensional_moments->number_of_dimensional_moments();
+    int const number_of_basis_functions = weight->number_of_basis_functions();
+    int const number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
+    int const dimension = spatial_discretization_->dimension();
     shared_ptr<Weak_Spatial_Discretization_Options> const weak_options
         = spatial_discretization_->options();
     shared_ptr<Weight_Function_Options> const weight_options
         = weight->options();
-    bool include_supg = weak_options->include_supg;
-    double tau = weight_options->tau;
+    bool const include_supg = weak_options->include_supg;
+    bool const normalized = weak_options->normalized;
+    double const tau = weight_options->tau;
+    vector<double> const dimensional_coefficients
+        = dimensional_moments->coefficients(tau,
+                                            direction);
     Assert(weak_options->total == Weak_Spatial_Discretization_Options::Total::ISOTROPIC); // moment method not yet implemented
 
-    // Get total cross section: already normalized if not SUPG
-    double sigma_t = sigma_t_data[0 + number_of_dimensional_moments * g];
-    if (include_supg)
+    // Get total cross section: leave out higher moments for now
+    double sigma_t = 0;
+    for (int d = 0; d < number_of_dimensional_moments; ++d)
     {
-        // Get weighted cross section and normalization separately
-        double den = 0;
-        den += iv_w[0];
-        
-        for (int d = 1; d < number_of_dimensional_moments; ++d)
-        {
-            sigma_t += tau * direction[d - 1] * sigma_t_data[d + number_of_dimensional_moments * g];
-            den += tau * direction[d - 1] * iv_dw[d - 1];
-        }
+        int const k_sigma = d + number_of_dimensional_moments * g;
+        sigma_t += sigma_t_data[k_sigma] * dimensional_coefficients[d];
+    }
 
-        // Normalize cross section
-        sigma_t /= den;
+    // Normalize total cross section if needed
+    if (!normalized)
+    {
+        double norm = 0;
+        switch (norm_cs->dependencies().energy)
+        {
+        case Cross_Section::Dependencies::Energy::NONE:
+            // Norm depends only on dimensional moment
+            for (int d = 0; d < number_of_dimensional_moments; ++d)
+            {
+                norm += norm_data[d] * dimensional_coefficients[d];
+            }
+            break;
+        case Cross_Section::Dependencies::Energy::GROUP:
+            // Norm depends on dimensional moment, angular moment and group
+            // Ignore the angular moment for now
+            for (int d = 0; d < number_of_dimensional_moments; ++d)
+            {
+                int const k_norm = d + number_of_dimensional_moments * g;
+                norm += norm_data[k_norm] * dimensional_coefficients[d];
+            }
+            break;
+        default:
+            AssertMsg(false, "norm dependency incorrect");
+            break;
+        }
+        sigma_t /= norm;
     }
     
     // Get indices

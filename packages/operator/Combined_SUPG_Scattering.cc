@@ -102,12 +102,13 @@ apply_full(vector<double> &x) const
                         for (int d = 0; d < number_of_dimensional_moments; ++d)
                         {
                             int const k_ss = d + number_of_dimensional_moments * (gf + number_of_groups * (gt + number_of_groups * m));
+                        int const k_norm = d + number_of_dimensional_moments * (gf + number_of_groups * m);
                             int const k_phi = d + number_of_dimensional_moments * (gf + number_of_groups * (m + number_of_moments * i));
                             phi += y[k_phi] * coeffs[d];
                             num += sigma_s[k_ss] * coeffs[d];
-                            den += norm[k_phi] * coeffs[d];
+                            den += norm[k_norm] * coeffs[d];
                         }
-
+                        
                         scattering += num / den * phi;
                     }
                     
