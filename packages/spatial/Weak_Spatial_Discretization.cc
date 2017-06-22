@@ -290,23 +290,41 @@ check_class_invariants() const
 void Weak_Spatial_Discretization::
 output(XML_Node output_node) const
 {
+    // Output scalar values
     output_node.set_child_value(has_reflection_, "has_reflection");
     output_node.set_child_value(number_of_points_, "number_of_points");
     output_node.set_child_value(number_of_boundary_weights_, "number_of_boundary_weights");
     output_node.set_child_value(number_of_boundary_bases_, "number_of_boundary_bases");
     output_node.set_child_value(dimension_, "dimension");
     output_node.set_child_value(number_of_nodes_, "number_of_nodes");
+
+    // Output options
     options_->output(output_node.append_child("options"));
     
+    // Output point positions
+    vector<double> points(dimension_ * number_of_points_);
+    for (int i = 0; i < number_of_points_; ++i)
+    {
+        vector<double> const point = weights_[i]->position();
+        for (int d = 0; d < dimension_; ++d)
+        {
+            points[d + dimension_ * i] = point[d];
+        }
+    }
+    output_node.set_child_vector(points, "points", "dimension-point");
+
+    // Output weights
     XML_Node weights_node = output_node.append_child("weights");
-    
     for (int i = 0; i < number_of_points_; ++i)
     {
         weights_[i]->output(weights_node.append_child("weight"));
     }
+
+    // Output bases
+    XML_Node bases_node = output_node.append_child("bases");
     for (int i = 0; i < number_of_points_; ++i)
     {
-        bases_[i]->output(weights_node.append_child("basis"));
+        bases_[i]->output(bases_node.append_child("basis"));
     }
 }
 

@@ -31,7 +31,7 @@ struct Weak_Spatial_Discretization_Options
     enum class Tau_Scaling
     {
         NONE,
-        FUNCTIONAL, // 1 - b(boundary) - b(center)
+        FUNCTIONAL, // val(boundary) / val(center)
         LINEAR, // pos_boundary / radius
         ABSOLUTE // 0 if on boundary
     };

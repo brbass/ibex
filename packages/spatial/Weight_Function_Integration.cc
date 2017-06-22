@@ -269,7 +269,7 @@ normalize_materials(vector<Material_Data> &materials) const
                         {
                             int kf = d + number_of_dimensional_moments * (g2 + number_of_groups * g1);
                             int kn = d + number_of_dimensional_moments * (g2 + number_of_groups * 0);
-                            material.sigma_f[kf] /= material.norm[d];
+                            material.sigma_f[kf] /= material.norm[kn];
                         }
                     }
 
