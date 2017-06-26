@@ -274,7 +274,7 @@ normalize_materials(vector<Material_Data> &materials) const
                     }
 
                     // Scattering cross section
-                    for (int m = 0; m < number_of_scattering_moments; ++m)
+                    for (int m = 0; m < number_of_moments; ++m)
                     {
                         for (int g1 = 0; g1 < number_of_groups; ++g1)
                         {

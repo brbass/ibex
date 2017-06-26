@@ -410,6 +410,7 @@ get_weak_options(XML_Node input_node) const
             coeff_node = coeff_node.get_child(coeff_path[i]);
         }
         options->flux_coefficients = coeff_node.get_vector<double>();
+        options->scalar_flux_fraction = input_node.get_attribute<double>("scalar_flux_fraction");
     }
     
     // Get integral options

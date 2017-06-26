@@ -76,7 +76,7 @@ solve()
     options.kspace = options_.kspace;
     options.solver_print = options_.solver_print;
     options.tolerance = options_.tolerance;
-    shared_ptr<Inverse_Operator> inverse_operator
+    shared_ptr<Aztec_Inverse_Operator> inverse_operator
         = make_shared<Aztec_Inverse_Operator>(options,
                                               flux_operator_,
                                               comm,
@@ -152,6 +152,7 @@ solve()
     // Get solution
     shared_ptr<Anasazi_Eigensolution const> solution
         = make_shared<Anasazi_Eigensolution> (problem->getSolution());
+    result_->inverse_iterations = inverse_operator->number_of_iterations();
     
     // Get eigenvalue
     if (solution->numVecs < 1)

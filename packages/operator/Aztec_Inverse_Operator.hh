@@ -39,6 +39,11 @@ public:
     virtual void check_class_invariants() const override;
     
     virtual std::string description() const override;
+
+    virtual int number_of_iterations() const
+    {
+        return number_of_iterations_;
+    }
     
 private:
     
@@ -46,6 +51,7 @@ private:
     virtual void initialize_trilinos(bool initialize_comm);
     
     // Solver data
+    mutable int number_of_iterations_ = 0;
     Options options_;
     std::shared_ptr<Epetra_Comm> comm_;
     std::shared_ptr<Epetra_Map> map_;

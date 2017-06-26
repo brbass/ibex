@@ -26,6 +26,7 @@ public:
     {
         // General
         int total_iterations = -1;
+        int inverse_iterations = -1;
         std::vector<double> coefficients;
         std::vector<std::vector<double> > phi;
 

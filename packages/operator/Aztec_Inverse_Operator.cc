@@ -81,6 +81,7 @@ apply(vector<double> &x) const
     
     solver_->Iterate(options_.max_iterations,
                      options_.tolerance);
+    number_of_iterations_ += solver_->NumIters();
     
     lhs_->ExtractCopy(&x[0]);
 }
@@ -105,3 +106,4 @@ description() const
 {
     return "(Aztec_Inverse_Operator -> " + vector_operator_->description() + ")";
 }
+

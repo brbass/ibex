@@ -105,6 +105,8 @@ output_result(XML_Node output_node,
 {
     output_node.set_child_value(result->total_iterations,
                                 "total_iterations");
+    output_node.set_child_value(result->inverse_iterations,
+                                "inverse_iterations");
     output_node.set_child_vector(result->coefficients,
                                  "coefficients",
                                  "node-group-moment-point");
