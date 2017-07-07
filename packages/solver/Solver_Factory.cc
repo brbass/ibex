@@ -602,11 +602,7 @@ get_source_iteration(shared_ptr<Sweep_Operator> Linv,
         = {make_shared<Moment_Value_Operator>(spatial_,
                                               angular_,
                                               energy_,
-                                              false), // no weighting
-           make_shared<Moment_Value_Operator>(spatial_,
-                                              angular_,
-                                              energy_,
-                                              true)}; // weighting
+                                              false)}; // no weighting
     
     // Get source iteration
     Source_Iteration::Options iteration_options;
@@ -642,11 +638,7 @@ get_krylov_steady_state(shared_ptr<Sweep_Operator> Linv,
         = {make_shared<Moment_Value_Operator>(spatial_,
                                               angular_,
                                               energy_,
-                                              false), // no weighting
-           make_shared<Moment_Value_Operator>(spatial_,
-                                              angular_,
-                                              energy_,
-                                              true)}; // weighting
+                                              false)}; // no weighting
     
     // Get source iteration
     Krylov_Steady_State::Options iteration_options;
@@ -681,11 +673,7 @@ get_krylov_eigenvalue(shared_ptr<Sweep_Operator> Linv) const
         = {make_shared<Moment_Value_Operator>(spatial_,
                                               angular_,
                                               energy_,
-                                              false), // no weighting
-           make_shared<Moment_Value_Operator>(spatial_,
-                                              angular_,
-                                              energy_,
-                                              true)}; // weighting
+                                              false)}; // no weighting
     
     // Get source iteration
     Krylov_Eigenvalue::Options iteration_options;
