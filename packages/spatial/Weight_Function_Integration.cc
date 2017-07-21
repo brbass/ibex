@@ -364,6 +364,42 @@ add_volume_basis_weight(Mesh::Cell const &cell,
 }
 
 void Weight_Function_Integration::
+get_cross_sections(shared_ptr<Material> material,
+                   vector<double> &sigma_t,
+                   vector<double> &sigma_s,
+                   vector<double> &chi_nu_sigma_f,
+                   vector<double> &internal_source) const
+{
+    sigma_t = material->sigma_t()->data();
+    sigma_s = material->sigma_s()->data();
+    internal_source = material->internal_source()->data();
+
+    if (material->sigma_f()->dependencies().energy
+        == Cross_Section::Dependencies::Energy::GROUP_TO_GROUP)
+    {
+        chi_nu_sigma_f = material->sigma_f()->data();
+    }
+    else
+    {
+        int number_of_groups = energy_->number_of_groups();
+        vector<double> nu = material->nu()->data();
+        vector<double> sigma_f = material->sigma_f()->data();
+        vector<double> chi = material->chi()->data();
+
+        chi_nu_sigma_f.resize(number_of_groups * number_of_groups);
+        for (int gt = 0; gt < number_of_groups; ++gt)
+        {
+            for (int gf = 0; gf < number_of_groups; ++gf)
+            {
+                int k = gf + number_of_groups * gt;
+                
+                chi_nu_sigma_f[k] = chi[gt] * nu[gf] * sigma_f[gf];
+            }
+        }
+    }
+}
+
+void Weight_Function_Integration::
 add_volume_material(Mesh::Cell const &cell,
                     double quad_weight,
                     vector<double> const &b_val,
@@ -379,13 +415,16 @@ add_volume_material(Mesh::Cell const &cell,
     vector<int> const scattering_indices = angular_->scattering_indices();
     
     // Get cross sections
-    vector<double> sigma_t = point_material->sigma_t()->data();
-    vector<double> sigma_s = point_material->sigma_s()->data();
-    vector<double> nu = point_material->nu()->data();
-    vector<double> sigma_f = point_material->sigma_f()->data();
-    vector<double> chi = point_material->chi()->data();
-    vector<double> internal_source = point_material->internal_source()->data();
-
+    vector<double> sigma_t;
+    vector<double> sigma_s;
+    vector<double> sigma_f;
+    vector<double> internal_source;
+    get_cross_sections(point_material,
+                       sigma_t,
+                       sigma_s,
+                       sigma_f,
+                       internal_source);
+                       
     // Get flux
     vector<double> flux;
     if (options_->weighting == Weak_Spatial_Discretization_Options::Weighting::FLUX)
@@ -429,7 +468,9 @@ add_volume_material(Mesh::Cell const &cell,
                     {
                         // Fission cross section
                         int kf = d + number_of_dimensional_moments * (g2 + number_of_groups * g);
-                        material.sigma_f[kf] += chi[g] * nu[g2] * sigma_f[g2] * wid * quad_weight;
+                        int kg = g2 + number_of_groups * g;
+                        
+                        material.sigma_f[kf] += sigma_f[kg] * wid * quad_weight;
                         
                         for (int l = 0; l < number_of_scattering_moments; ++l)
                         {
@@ -459,8 +500,9 @@ add_volume_material(Mesh::Cell const &cell,
                         int m0 = 0;
                         int kf = d + number_of_dimensional_moments * (g2 + number_of_groups * g);
                         int kx = g2 + number_of_groups * m0;
+                        int kg = g2 + number_of_groups * g;
 
-                        material.sigma_f[kf] += chi[g] * nu[g2] * sigma_f[g2] * flux[kx] * wid * quad_weight;
+                        material.sigma_f[kf] += sigma_f[kg] * flux[kx] * wid * quad_weight;
                     }
                     
                     for (int m = 0; m < number_of_moments; ++m)

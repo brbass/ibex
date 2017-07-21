@@ -220,6 +220,13 @@ private:
     void get_weight_surface_indices(Mesh::Surface const &surface,
                                     std::vector<int> &indices) const;
 
+    // Get cross section data
+    void get_cross_sections(std::shared_ptr<Material> material,
+                            std::vector<double> &sigma_t,
+                            std::vector<double> &sigma_s,
+                            std::vector<double> &chi_nu_sigma_f,
+                            std::vector<double> &internal_source) const;
+    
     // Get a material from the material data
     void get_material(int index,
                       Material_Data const &material_data,
