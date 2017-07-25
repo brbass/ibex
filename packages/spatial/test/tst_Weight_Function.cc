@@ -96,7 +96,7 @@ vector<shared_ptr<Weight_Function> > get_weight_functions(XML_Node input_node)
 
     // Get options
     shared_ptr<Weak_Spatial_Discretization_Options> weak_options
-        = spatial_parser.get_weak_options(input_node);
+        = spatial_parser.get_weak_options(input_node.get_child("weight_functions").get_child("options"));
     
     // Get dimensional moments
     shared_ptr<Dimensional_Moments> dimensional_moments

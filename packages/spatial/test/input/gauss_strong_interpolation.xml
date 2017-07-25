@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='ASCII'?>
 <input>
-  <tolerance>1e-10</tolerance>
+  <tolerance>1e0</tolerance>
   
   <angular_discretization>
     <dimension>2</dimension>
@@ -21,14 +21,21 @@
     </boundary_source>
   </boundary_sources>
 
-  <spatial_discretization file='square_2.0_10_60_60.xml'>
-    <integration external="false">
-      <dimensional_cells>10 10</dimensional_cells>
-    </integration>
+  <spatial_discretization input_format='full'
+                          file='square_2.0_10_60_60.xml'>
+    <options weighting='weight'
+             external_integral_calculation='true'
+             supg='false'
+             tau_scaling='none'
+             identical_basis_functions='false'>
+      <integration_ordinates>64</integration_ordinates>
+      <dimensional_cells>18 18</dimensional_cells>
+    </options>
     <basis_functions>
       <meshless_function type='rbf' function='compact_gaussian'/>
     </basis_functions>
     <weight_functions>
+      <tau>0.0</tau>
       <meshless_function type='rbf' function='compact_gaussian'/>
       <material_options weighting='point' output='standard' external="false"/>
       <integration_ordinates>1</integration_ordinates>

@@ -32,14 +32,21 @@
     </material>
   </materials>
   
-  <spatial_discretization file='slab_2.0_11_10_10.xml'>
-    <integration external="true">
-      <dimensional_cells>10</dimensional_cells>
-    </integration>
+  <spatial_discretization input_format='full'
+                          file='slab_2.0_11_10_10.xml'>
+    <options weighting='weight'
+             external_integral_calculation='true'
+             supg='false'
+             tau_scaling='none'
+             identical_basis_functions='false'>
+      <integration_ordinates>16</integration_ordinates>
+      <dimensional_cells>20</dimensional_cells>
+    </options>
     <basis_functions>
       <meshless_function type='rbf' function='compact_gaussian'/>
     </basis_functions>
     <weight_functions>
+      <tau>0.0</tau>
       <meshless_function type='rbf' function='compact_gaussian'/>
       <material_options weighting='weight' output='supg' tau='1.0' external="true"/>
       <integration_ordinates>32</integration_ordinates>

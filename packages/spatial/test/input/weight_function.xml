@@ -208,8 +208,18 @@
   </basis_functions>
   
   <weight_functions>
+    <options
+        weighting='weight'
+        output='standard'
+        external_integral_calculation='false'
+        identical_basis_functions='false'
+        supg='false'
+        tau_scaling='none'>
+      <tau>0.0</tau>
+      <integration_ordinates>128</integration_ordinates>
+    </options>
+    <tau>0.0</tau>
     <meshless_function type='rbf' function='compact_gaussian'/>
-    <material_options weighting='weight' output='standard' external="false"/>
     <integration_ordinates>32</integration_ordinates>
     
     <number_of_weight_functions>3</number_of_weight_functions>
