@@ -17,7 +17,8 @@ public:
     Moment_Weighting_Operator(std::shared_ptr<Weak_Spatial_Discretization> spatial,
                               std::shared_ptr<Angular_Discretization> angular,
                               std::shared_ptr<Energy_Discretization> energy,
-                              Options options);    
+                              Options options = Options());
+    
     virtual int row_size() const override
     {
         return row_size_;

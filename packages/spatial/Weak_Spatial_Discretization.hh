@@ -49,7 +49,7 @@ struct Weak_Spatial_Discretization_Options
     // External integration parameters: must be set for external calculation
     bool external_integral_calculation = true;
     int integration_ordinates = 8; // Dimensional integration quadrature
-    double scalar_flux_fraction = 0.2;
+    double scalar_flux_fraction = 1e-8;
     std::vector<double> flux_coefficients;
     std::vector<std::vector<double> > limits;
     std::shared_ptr<Solid_Geometry> solid;

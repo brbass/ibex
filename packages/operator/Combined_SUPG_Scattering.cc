@@ -40,10 +40,17 @@ check_class_invariants() const
     {
         shared_ptr<Material> material = spatial_discretization_->point(i)->material();
         Cross_Section::Dependencies dep = material->sigma_s()->dependencies();
+        
         // Make sure angular and energy dependencies for each point are correct
         Assert(dep.angular == Cross_Section::Dependencies::Angular::MOMENTS);
         Assert(dep.energy == Cross_Section::Dependencies::Energy::GROUP_TO_GROUP);
         Assert(dep.dimensional == Cross_Section::Dependencies::Dimensional::SUPG);
+        
+        // Make sure norm dependencies are correct
+        Cross_Section::Dependencies n_dep = material->norm()->dependencies();
+        Assert(n_dep.angular == Cross_Section::Dependencies::Angular::MOMENTS);
+        Assert(n_dep.energy == Cross_Section::Dependencies::Energy::GROUP);
+        Assert(n_dep.dimensional == Cross_Section::Dependencies::Dimensional::SUPG);
     }
 }
 

@@ -9,3 +9,4 @@ macro(include_test test_exec test_src)
 endmacro()
 
 include_test(tst_moment_discrete tst_Moment_Discrete.cc)
+include_test(tst_scattering_equivalence tst_Scattering_Equivalence.cc)
