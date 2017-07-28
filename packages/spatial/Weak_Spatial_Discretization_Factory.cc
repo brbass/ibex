@@ -256,7 +256,7 @@ get_simple_discretization(int num_dimensional_points,
 
     weak_options->limits = limits;
     weak_options->solid = solid_geometry_;
-    weak_options->dimensional_cells.assign(dimension, num_dimensional_points - 1);
+    weak_options->dimensional_cells.assign(dimension, 2 * (num_dimensional_points - 1));
     
     return make_shared<Weak_Spatial_Discretization>(bases,
                                                     weights,

@@ -1,10 +1,11 @@
+#include <iomanip>
 #include <iostream>
-#include <string>
 #include <vector>
 
 #include "Angular_Discretization_Factory.hh"
 #include "Boundary_Source.hh"
 #include "Cartesian_Plane.hh"
+#include "Check_Equality.hh"
 #include "Combined_SUPG_Fission.hh"
 #include "Combined_SUPG_Scattering.hh"
 #include "Constructive_Solid_Geometry.hh"
@@ -28,9 +29,14 @@
 #include "Weak_Spatial_Discretization_Factory.hh"
 
 using namespace std;
+namespace ce = Check_Equality;
 
 // Create a three-group, anisotropically-scattering pincell problem with reflective boundaries
 // Test whether the various scattering and fission operators return identical results when they should
+
+Random_Number_Generator<double> rng(0, // lower bound
+                                    1, // upper bound
+                                    203); // seed
 
 vector<shared_ptr<Material> >
 get_materials(shared_ptr<Angular_Discretization> angular,
@@ -245,7 +251,7 @@ get_discretizations(bool supg,
     int number_of_scattering_moments = 2;
     angular = make_shared<LDFE_Quadrature>(dimension,
                                            number_of_scattering_moments,
-                                           2); // rule
+                                           1); // rule
 
     // Initialize energy discretization
     int number_of_groups = 3;
@@ -295,16 +301,16 @@ get_discretizations(bool supg,
                                                     weak_options);
 }
 
-shared_ptr<Vector_Operator>
+void
 get_standard_operator(bool use_flux,
-                      int num_dimensional_points)
+                      int num_dimensional_points,
+                      shared_ptr<Angular_Discretization> &angular,
+                      shared_ptr<Energy_Discretization> &energy,
+                      shared_ptr<Constructive_Solid_Geometry> &solid,
+                      shared_ptr<Weak_Spatial_Discretization> &spatial,
+                      shared_ptr<Vector_Operator> &oper)
 {
     // Get discretizations
-    shared_ptr<Angular_Discretization> angular;
-    shared_ptr<Energy_Discretization> energy;
-    shared_ptr<Constructive_Solid_Geometry> solid;
-    shared_ptr<Weak_Spatial_Discretization> spatial;
-    
     get_discretizations(false, // supg
                         use_flux,
                         num_dimensional_points,
@@ -333,20 +339,20 @@ get_standard_operator(bool use_flux,
                                                  energy);
 
     // Combine combined operator
-    return M * (S + F) * W;
+    oper = M * (S + F) * W;
 }
                                                   
-shared_ptr<Vector_Operator>
+void
 get_supg_operator(bool use_flux,
                   int num_dimensional_points,
-                  double tau)
+                  double tau,
+                  shared_ptr<Angular_Discretization> &angular,
+                  shared_ptr<Energy_Discretization> &energy,
+                  shared_ptr<Constructive_Solid_Geometry> &solid,
+                  shared_ptr<Weak_Spatial_Discretization> &spatial,
+                  shared_ptr<Vector_Operator> &oper)
 {
     // Get discretizations
-    shared_ptr<Angular_Discretization> angular;
-    shared_ptr<Energy_Discretization> energy;
-    shared_ptr<Constructive_Solid_Geometry> solid;
-    shared_ptr<Weak_Spatial_Discretization> spatial;
-    
     get_discretizations(true, // supg
                         use_flux,
                         num_dimensional_points,
@@ -373,7 +379,7 @@ get_supg_operator(bool use_flux,
                                                      angular,
                                                      energy);
         // Return combined operator
-        return (S + F) * W;
+        oper = (S + F) * W;
     }
     else
     {
@@ -401,15 +407,195 @@ get_supg_operator(bool use_flux,
                                                            energy);
         
         // Return combined operator
-        return N * M2 * (S + F) * W;
+        oper = N * M2 * (S + F) * W;
     }
+}
+
+void
+get_random_coefficients(shared_ptr<Angular_Discretization> angular,
+                        shared_ptr<Energy_Discretization> energy,
+                        shared_ptr<Spatial_Discretization> spatial,
+                        vector<double> &coefficients)
+{
+    // Set size of coefficient vector
+    int number_of_moments = angular->number_of_moments();
+    int number_of_groups = energy->number_of_groups();
+    int number_of_points = spatial->number_of_points();
+    coefficients.resize(number_of_moments * number_of_groups * number_of_points);
+    
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            for (int m = 0; m < number_of_moments; ++m)
+            {
+                // Get random number
+                double rand = rng.scalar();
+
+                // Scale random number for non-scalar coefficients
+                if (m != 0)
+                {
+                    // Allow random number to be negative
+                    rand = 2 * rand - 1;
+
+                    // Ensure that random number is not larger than a third of the scalar coefficient
+                    int k0 = g + number_of_groups * (0 + number_of_moments * i);
+                    rand *= 0.3 * coefficients[k0];
+                }
+                
+                int k = g + number_of_groups * (m + number_of_moments * i);
+                coefficients[k] = rand;
+            }
+        }
+    }
+}
+
+void
+print_error(shared_ptr<Angular_Discretization> angular,
+            shared_ptr<Energy_Discretization> energy,
+            shared_ptr<Spatial_Discretization> spatial,
+            double tolerance,
+            string desc1,
+            vector<double> val1,
+            string desc2,
+            vector<double> val2)
+{
+    // Check size data
+    int number_of_points = spatial->number_of_points();
+    int number_of_groups = energy->number_of_groups();
+    int number_of_ordinates = angular->number_of_ordinates();
+    int flux_size = number_of_points * number_of_groups * number_of_ordinates;
+    Assert(val1.size() == flux_size);
+    Assert(val2.size() == flux_size);
+    
+    // Print header
+    int w1 = 10;
+    int w2 = 16;
+    cout << setw(w1) << "cell";
+    cout << setw(w1) << "group";
+    cout << setw(w1) << "ordinate";
+    cout << setw(w2) << desc1;
+    cout << setw(w2) << desc2;
+    cout << setw(w2) << "difference";
+    cout << endl;
+
+    // Check points for error
+    for (int i = 0; i < number_of_points; ++ i)
+    {
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            for (int o = 0; o < number_of_ordinates; ++o)
+            {
+                // Get difference between values
+                int k = g + number_of_groups * (o + number_of_ordinates * i);
+                double diff = val1[k] - val2[k];
+
+                // If difference is too large, print data
+                if (abs(diff) > tolerance)
+                {
+                    cout << setw(w1) << i;
+                    cout << setw(w1) << g;
+                    cout << setw(w1) << o;
+                    cout << setw(w2) << val1[k];
+                    cout << setw(w2) << val2[k];
+                    cout << setw(w2) << diff;
+                    cout << endl;
+                }
+            }
+        }
+    }
+}
+    
+int check_supg_operators(int num_dimensional_points)
+{
+    // Set preliminary values
+    int checksum = 0;
+    double tau = 0.9;
+    cout << "check_supg_operators running for ";
+    cout << num_dimensional_points;
+    cout << " dimensional points";
+    cout << endl;
+        
+    
+    // Get simple SUPG operator
+    cout << "creating simple SUPG operator" << endl;
+    shared_ptr<Angular_Discretization> simple_angular;
+    shared_ptr<Energy_Discretization> simple_energy;
+    shared_ptr<Constructive_Solid_Geometry> simple_solid;
+    shared_ptr<Weak_Spatial_Discretization> simple_spatial;
+    shared_ptr<Vector_Operator> simple_oper;
+    get_supg_operator(false, // use_flux
+                      num_dimensional_points,
+                      tau,
+                      simple_angular,
+                      simple_energy,
+                      simple_solid,
+                      simple_spatial,
+                      simple_oper);
+
+    // Get flux-weighted SUPG operator
+    cout << "creating flux-weighted SUPG operator" << endl;
+    shared_ptr<Angular_Discretization> flux_angular;
+    shared_ptr<Energy_Discretization> flux_energy;
+    shared_ptr<Constructive_Solid_Geometry> flux_solid;
+    shared_ptr<Weak_Spatial_Discretization> flux_spatial;
+    shared_ptr<Vector_Operator> flux_oper;
+    get_supg_operator(true, // use_flux
+                      num_dimensional_points,
+                      tau,
+                      flux_angular,
+                      flux_energy,
+                      flux_solid,
+                      flux_spatial,
+                      flux_oper);
+
+    // Ensure that size information is the same for the two discretizations
+    Assert(simple_angular->number_of_moments() == flux_angular->number_of_moments());
+    Assert(simple_energy->number_of_groups() == flux_energy->number_of_groups());
+    Assert(simple_spatial->number_of_points() == flux_spatial->number_of_points());
+    
+    // Get random coefficients
+    vector<double> coefficients;
+    get_random_coefficients(simple_angular,
+                            simple_energy,
+                            simple_spatial,
+                            coefficients);
+
+    // Apply the operators to the random coefficients
+    cout << "applying operators" << endl;
+    vector<double> simple_result = coefficients;
+    (*simple_oper)(simple_result);
+    vector<double> flux_result = coefficients;
+    (*flux_oper)(flux_result);
+
+    // Check to ensure that the two operators returned the same results
+    double tolerance = 1e-10;
+    if (ce::approx(simple_result, flux_result, tolerance))
+    {
+        cout << "test_passed" << endl;
+    }
+    else
+    {
+        cout << "supg operator results differ" << endl;
+        print_error(simple_angular,
+                    simple_energy,
+                    simple_spatial,
+                    tolerance,
+                    "simple",
+                    simple_result,
+                    "flux",
+                    flux_result);
+        checksum += 1;
+    }
+
+    return checksum;
 }
 
 int main()
 {
     int checksum = 0;
-
     
+    checksum += check_supg_operators(11);
     
     return checksum;
 }

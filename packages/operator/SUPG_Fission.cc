@@ -117,7 +117,7 @@ group_to_group_full(vector<double> &x) const
         shared_ptr<Cross_Section> sigma_f_cs = spatial_discretization_->point(i)->material()->sigma_f();
         vector<double> const sigma_f = sigma_f_cs->data();
         
-        int m = 0;
+        int const m = 0;
         for (int gt = 0; gt < number_of_groups; ++gt)
         {
             for (int n = 0; n < number_of_nodes; ++n)
@@ -145,23 +145,6 @@ group_to_group_full(vector<double> &x) const
             }
         }
     }
-    
-    // Zero out other moments
-    for (int i = 0; i < number_of_points; ++i)
-    {
-        for (int m = 1; m < number_of_moments; ++m)
-        {
-            for (int g = 0; g < number_of_groups; ++g)
-            {
-                for (int n = 0; n < number_of_nodes; ++n)
-                {
-                    int k_phi = n + number_of_nodes * (g + number_of_groups * (m + number_of_moments * i));
-                        
-                    x[k_phi] = 0;
-                }
-            }
-        }
-    }
 }
 
 void SUPG_Fission::
@@ -173,6 +156,8 @@ group_to_group_coherent(vector<double> &x) const
 void SUPG_Fission::
 group_full(vector<double> &x) const
 {
+    AssertMsg(false, "group_full in SUPG_Fission not tested");
+    
     int number_of_points = spatial_discretization_->number_of_points();
     int number_of_nodes = spatial_discretization_->number_of_nodes();
     int number_of_dimensional_moments = spatial_discretization_->dimensional_moments()->number_of_dimensional_moments();
