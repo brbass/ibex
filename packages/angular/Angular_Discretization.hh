@@ -69,10 +69,18 @@ public:
     // Output data to XML file
     virtual void output(XML_Node output_node) const = 0;
 
+    // Get reflected direction for ordinate direction
     virtual int reflect_ordinate(int o,
                                  std::vector<double> const &normal) const = 0;
 
+    // Check class member sizes
     virtual void check_class_invariants() const = 0;
+    
+    // Perform moment-to-discrete operation
+    virtual void moment_to_discrete(std::vector<double> &data) const;
+
+    // Perform discrete-to-moment operation
+    virtual void discrete_to_moment(std::vector<double> &data) const;
     
 protected:
     

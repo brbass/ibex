@@ -134,3 +134,58 @@ moment(int mom,
     }
 }
 
+void Angular_Discretization::
+moment_to_discrete(vector<double> &data) const
+{
+    // Check size of input vector
+    Check(data.size() == number_of_moments_);
+    
+    // Make copy of input vector
+    vector<double> old_data(data);
+
+    // Resize input vector
+    data.resize(number_of_ordinates_);
+
+    // Perform moment to discrete operation
+    for (int o = 0; o < number_of_ordinates_; ++o)
+    {
+        double sum = 0;
+        
+        for (int m = 0; m < number_of_moments; ++m)
+        {
+            int const l = scattering_indices()[m];
+            double const p = moment(m, o);
+            
+            sum += (2 * static_cast<double>(l) + 1) / angular_normalization_ * p * old_data[m];
+        }
+
+        data[o] = sum;
+    }
+}
+
+void Angular_Discretization::
+discrete_to_moment(vector<double> &data) const
+{
+    // Check size of input vector
+    Check(data.size() == number_of_ordinates_);
+    
+    // Make copy of input vector
+    vector<double> old_data(data);
+
+    // Resize input vector
+    data.resize(number_of_moments_);
+
+    // Perform moment to discrete operation
+    for (int m = 0; m < number_of_moments; ++m)
+    {
+        double sum = 0;
+        for (int o = 0; o < number_of_ordinates; ++o)
+        {
+            double const p = moment(m, o);
+            
+            sum += weights()[o] * p * old_data[o];
+        }
+
+        data[m] = sum;
+    }
+}

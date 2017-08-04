@@ -38,6 +38,7 @@ Random_Number_Generator<double> rng(0, // lower bound
                                     1, // upper bound
                                     203); // seed
 
+// Get a sample material
 vector<shared_ptr<Material> >
 get_materials(shared_ptr<Angular_Discretization> angular,
               shared_ptr<Energy_Discretization> energy)
@@ -60,7 +61,7 @@ get_materials(shared_ptr<Angular_Discretization> angular,
         vector<double> chi = {0.5, 0.2, 0.3};
         vector<double> internal_source = {0.0, 0.0, 0.0};
         
-        materials[0]
+        materials[index]
             = material_factory.get_standard_material(index,
                                                      sigma_t,
                                                      sigma_s,
@@ -70,7 +71,7 @@ get_materials(shared_ptr<Angular_Discretization> angular,
                                                      internal_source);
     }
     {
-        int index = 0;
+        int index = 1;
         vector<double> sigma_t = {1.1, 2.1, 3.1};
         vector<double> sigma_s = {0.02, 0.1, 0.12,
                                   0.6, 0.8, 0.65,
@@ -83,7 +84,67 @@ get_materials(shared_ptr<Angular_Discretization> angular,
         vector<double> chi = {0.0, 0.0, 0.0};
         vector<double> internal_source = {0.0, 0.0, 0.0};
         
-        materials[1]
+        materials[index]
+            = material_factory.get_standard_material(index,
+                                                     sigma_t,
+                                                     sigma_s,
+                                                     nu,
+                                                     sigma_f,
+                                                     chi,
+                                                     internal_source);
+    }
+    
+    return materials;
+ }
+
+// Get a sample material
+// Scattering and fission data should produce equivalent results
+vector<shared_ptr<Material> >
+get_equivalent_materials(shared_ptr<Angular_Discretization> angular,
+                         shared_ptr<Energy_Discretization> energy)
+{
+    int number_of_materials = 2;
+    Material_Factory material_factory(angular,
+                                      energy);
+    vector<shared_ptr<Material> > materials(number_of_materials);
+    {
+        int index = 0;
+        vector<double> sigma_t = {1.0, 2.0, 3.0};
+        vector<double> sigma_s = {0.12, 0.19, 0.525,
+                                  0.048, 0.076, 0.21,
+                                  0.072, 0.114, 0.315,
+                                  0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0};
+        vector<double> nu = {2.4, 1.9, 2.1};
+        vector<double> sigma_f = {0.1, 0.2, 0.5};
+        vector<double> chi = {0.5, 0.2, 0.3};
+        vector<double> internal_source = {0.0, 0.0, 0.0};
+        
+        materials[0]
+            = material_factory.get_standard_material(index,
+                                                     sigma_t,
+                                                     sigma_s,
+                                                     nu,
+                                                     sigma_f,
+                                                     chi,
+                                                     internal_source);
+    }
+    {
+        int index = 1;
+        vector<double> sigma_t = {1.1, 2.1, 3.1};
+        vector<double> sigma_s = {0.0126, 0.072, 0.01026,
+                                  0.0014, 0.008, 0.00114,
+                                  0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0,
+                                  0.0, 0.0, 0.0};
+        vector<double> nu = {1.4, 2.0, 1.9};
+        vector<double> sigma_f = {0.01, 0.04, 0.006};
+        vector<double> chi = {0.9, 0.1, 0.0};
+        vector<double> internal_source = {0.0, 0.0, 0.0};
+        
+        materials[index]
             = material_factory.get_standard_material(index,
                                                      sigma_t,
                                                      sigma_s,
@@ -239,6 +300,7 @@ get_weak_options(bool supg,
 void
 get_discretizations(bool supg,
                     bool use_flux,
+                    bool equivalent_materials,
                     int num_dimensional_points,
                     double tau,
                     shared_ptr<Angular_Discretization> &angular,
@@ -258,8 +320,17 @@ get_discretizations(bool supg,
     energy = make_shared<Energy_Discretization>(number_of_groups);
 
     // Initialize materials
-    vector<shared_ptr<Material> > materials = get_materials(angular,
-                                                            energy);
+    vector<shared_ptr<Material> > materials;
+    if (equivalent_materials)
+    {
+        materials = get_equivalent_materials(angular,
+                                             energy);
+    }
+    else
+    {
+        materials = get_materials(angular,
+                                  energy);
+    }
     
     // Initialize boundary sources
     vector<shared_ptr<Boundary_Source> > boundary_sources = get_boundary_sources(angular,
@@ -313,6 +384,7 @@ get_standard_operator(bool use_flux,
     // Get discretizations
     get_discretizations(false, // supg
                         use_flux,
+                        false, // equivalent_materials,
                         num_dimensional_points,
                         0.0, // tau
                         angular,
@@ -337,7 +409,7 @@ get_standard_operator(bool use_flux,
         = make_shared<Moment_Weighting_Operator>(spatial,
                                                  angular,
                                                  energy);
-
+    
     // Combine combined operator
     oper = M * (S + F) * W;
 }
@@ -355,6 +427,7 @@ get_supg_operator(bool use_flux,
     // Get discretizations
     get_discretizations(true, // supg
                         use_flux,
+                        false, // equivalent_materials
                         num_dimensional_points,
                         tau,
                         angular,
@@ -506,7 +579,101 @@ print_error(shared_ptr<Angular_Discretization> angular,
     }
 }
     
-int check_supg_operators(int num_dimensional_points)
+int
+check_all_operators(int num_dimensional_points)
+{
+    // Set preliminary values
+    int checksum = 0;
+    double tau = 0.0;
+    cout << "check_standard_operators running for ";
+    cout << num_dimensional_points;
+    cout << " dimensional points";
+    cout << endl;
+
+    // Initialize discretizations and operators
+    cout << "initializing operators" << endl;
+    int num_cases = 4;
+    vector<shared_ptr<Angular_Discretization> > angular(num_cases);
+    vector<shared_ptr<Energy_Discretization> > energy(num_cases);
+    vector<shared_ptr<Constructive_Solid_Geometry> > solid(num_cases);
+    vector<shared_ptr<Weak_Spatial_Discretization> > spatial(num_cases);
+    vector<shared_ptr<Vector_Operator> > oper(num_cases);
+    vector<bool> use_flux = {false, true, false, true};
+    vector<string> desc = {"standard", "flux", "supg", "supg_flux"};
+    for (int i = 0; i < 2; ++i)
+    {
+        get_standard_operator(use_flux[i],
+                              num_dimensional_points,
+                              angular[i],
+                              energy[i],
+                              solid[i],
+                              spatial[i],
+                              oper[i]);
+    }
+    for (int i = 2; i < 4; ++i)
+    {
+        get_supg_operator(use_flux[i],
+                          num_dimensional_points,
+                          tau,
+                          angular[i],
+                          energy[i],
+                          solid[i],
+                          spatial[i],
+                          oper[i]);
+    }
+    
+    // Check that size information is the same among the discretizations
+    for (int i = 0; i < num_cases - 1; ++i)
+    {
+        Assert(angular[i]->number_of_moments() == angular[i+1]->number_of_moments());
+        Assert(angular[i]->number_of_ordinates() == angular[i+1]->number_of_ordinates());
+        Assert(energy[i]->number_of_groups() == energy[i+1]->number_of_groups());
+        Assert(spatial[i]->number_of_points() == spatial[i+1]->number_of_points());
+    }
+    
+    // Get random coefficients
+    vector<double> coefficients;
+    get_random_coefficients(angular[0],
+                            energy[0],
+                            spatial[0],
+                            coefficients);
+    
+    // Apply the operators to the random coefficients
+    vector<vector<double> > results(num_cases, coefficients);
+    cout << "applying operators" << endl;
+    for (int i = 0; i < num_cases; ++i)
+    {
+        (*oper[i])(results[i]);
+    }
+    
+    // Check to ensure that the operators returned the same results
+    double tolerance = 1e-12;
+    for (int i = 1; i < num_cases; ++i)
+    {
+        if (ce::approx(results[0], results[i], tolerance))
+        {
+            cout << "test_passed" << endl;
+        }
+        else
+        {
+            cout << "results differ" << endl;
+            print_error(angular[0],
+                        energy[0],
+                        spatial[0],
+                        tolerance,
+                        desc[0],
+                        results[0],
+                        desc[i],
+                        results[i]);
+            checksum += 1;
+        }
+    }
+    
+    return checksum;
+}
+
+int
+check_supg_operators(int num_dimensional_points)
 {
     // Set preliminary values
     int checksum = 0;
@@ -569,7 +736,7 @@ int check_supg_operators(int num_dimensional_points)
     (*flux_oper)(flux_result);
 
     // Check to ensure that the two operators returned the same results
-    double tolerance = 1e-10;
+    double tolerance = 1e-12;
     if (ce::approx(simple_result, flux_result, tolerance))
     {
         cout << "test_passed" << endl;
@@ -594,8 +761,9 @@ int check_supg_operators(int num_dimensional_points)
 int main()
 {
     int checksum = 0;
-    
-    checksum += check_supg_operators(11);
+
+    checksum += check_all_operators(9);
+    checksum += check_supg_operators(9);
     
     return checksum;
 }
