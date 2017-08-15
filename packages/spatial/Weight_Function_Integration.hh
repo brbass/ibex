@@ -155,6 +155,7 @@ private:
                              std::vector<double> const &b_val,
                              std::vector<double> const &w_val,
                              std::vector<std::vector<double> > const &w_grad,
+                             std::vector<std::vector<int> > const &weight_basis_indices,
                              std::shared_ptr<Material> point_material,
                              std::vector<Material_Data> &materials) const;
     

@@ -23,6 +23,25 @@ Cross_Section(Dependencies dependencies,
     data_(data)
 {
     check_class_invariants();
+
+    // if (zero_out_dimensional)
+    // {
+    //     int m_size = angular_size();
+    //     int g_size = energy_size();
+    //     int d_size = dimensional_size();
+    //     for (int m = 0; m < m_size; ++m)
+    //     {
+    //         for (int g = 0; g < g_size; ++g)
+    //         {
+    //             for (int d = 1; d < d_size; ++d)
+    //             {
+    //                 int k = d + d_size * (g + g_size * m);
+
+    //                 data_[k] = 0;
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 int Cross_Section::
@@ -76,7 +95,18 @@ dimensional_size() const
         return dimension + 1;
     }
 }
-   
+
+int Cross_Section::
+spatial_size() const
+{
+    switch (dependencies_.spatial)
+    {
+    case Dependencies::Spatial::NONE:
+        return 1;
+    case Dependencies::Spatial::BASIS:
+        return dependencies_.number_of_basis_functions;
+    }
+}
 
 string Cross_Section::
 angular_string() const
@@ -120,18 +150,31 @@ dimensional_string() const
     }
 }
 
+string Cross_Section::
+spatial_string() const
+{
+    switch (dependencies_.spatial)
+    {
+    case Dependencies::Spatial::NONE:
+        return "";
+    case Dependencies::Spatial::BASIS:
+        return "-basis";
+    }
+}
+
+
 void Cross_Section::
 check_class_invariants() const
 {
     Assert(angular_discretization_);
     Assert(energy_discretization_);
-    Assert(data_.size() == angular_size() * energy_size() * dimensional_size());
+    Assert(data_.size() == angular_size() * energy_size() * dimensional_size() * spatial_size());
 }
     
 void Cross_Section::
 output(XML_Node output_node) const
 {
-    string description = angular_string() + energy_string() + dimensional_string();
+    string description = angular_string() + energy_string() + dimensional_string() + spatial_string();
     
     output_node.set_vector(data_, description);
 }
@@ -164,5 +207,14 @@ dimensional_conversion() const
         = {{Dimensional::NONE, "none"},
            {Dimensional::SUPG, "supg"}};
     return make_shared<Conversion<Dimensional, string> >(conversions);
+}
+
+std::shared_ptr<Conversion<Cross_Section::Dependencies::Spatial, string> > Cross_Section::Dependencies::
+spatial_conversion() const
+{
+    vector<pair<Spatial, string> > conversions
+        = {{Spatial::NONE, "none"},
+           {Spatial::BASIS, "basis"}};
+    return make_shared<Conversion<Spatial, string> >(conversions);
 }
 

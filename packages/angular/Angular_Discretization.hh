@@ -58,7 +58,7 @@ public:
 
     // Find a value of the moment in a particular ordinate direction
     virtual double moment(int mom,
-                          int ord);
+                          int ord) const;
     
     // Return base index of spherical harmonics function
     virtual std::vector<int> const &scattering_indices() const

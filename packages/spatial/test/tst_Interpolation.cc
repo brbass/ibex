@@ -145,7 +145,7 @@ shared_ptr<Epetra_CrsMatrix> get_matrix(shared_ptr<Weak_Spatial_Discretization> 
             mat->InsertGlobalValues(i, number_of_basis_functions[i], &v_b[0], &basis_function_indices[0]);
             break;
         }
-        case Weak_Spatial_Discretization_Options::Weighting::WEIGHT:
+        case Weak_Spatial_Discretization_Options::Weighting::FLAT:
         {
             vector<double> const &iv_b_w = integrals.iv_b_w;
             mat->InsertGlobalValues(i, number_of_basis_functions[i], &iv_b_w[0], &basis_function_indices[0]);
@@ -184,7 +184,7 @@ shared_ptr<Epetra_Vector> get_rhs(shared_ptr<Weak_Spatial_Discretization> spatia
             (*vec)[i] = data[0] / weight->integrals().iv_w[0];
             break;
         }
-        case Weak_Spatial_Discretization_Options::Weighting::WEIGHT:
+        case Weak_Spatial_Discretization_Options::Weighting::FLAT:
         {
             (*vec)[i] = data[0];
             break;

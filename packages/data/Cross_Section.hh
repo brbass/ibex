@@ -36,14 +36,24 @@ public:
             NONE,
             SUPG
         };
+
+        enum class Spatial
+        {
+            NONE,
+            BASIS
+        };
         
         Angular angular = Angular::NONE;
         Energy energy = Energy::NONE;
         Dimensional dimensional = Dimensional::NONE;
+        Spatial spatial = Spatial::NONE;
 
+        int number_of_basis_functions = -1;
+        
         std::shared_ptr<Conversion<Angular, std::string> > angular_conversion() const;
         std::shared_ptr<Conversion<Energy, std::string> > energy_conversion() const;
         std::shared_ptr<Conversion<Dimensional, std::string> > dimensional_conversion() const;
+        std::shared_ptr<Conversion<Spatial, std::string> > spatial_conversion() const;
     };
     
     Cross_Section(Dependencies dependencies,
@@ -64,9 +74,11 @@ public:
     virtual int angular_size() const;
     virtual int energy_size() const;
     virtual int dimensional_size() const;
+    virtual int spatial_size() const;
     virtual std::string angular_string() const;
     virtual std::string energy_string() const;
     virtual std::string dimensional_string() const;
+    virtual std::string spatial_string() const;
     
     virtual void check_class_invariants() const;
     virtual void output(XML_Node output_node) const;

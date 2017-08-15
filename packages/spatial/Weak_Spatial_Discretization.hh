@@ -13,8 +13,9 @@ struct Weak_Spatial_Discretization_Options
     enum class Weighting
     {
         POINT,
-        WEIGHT,
-        FLUX
+        FLAT,
+        FLUX,
+        FULL
     };
     std::shared_ptr<Conversion<Weighting, std::string> > weighting_conversion() const;
         
@@ -58,7 +59,7 @@ struct Weak_Spatial_Discretization_Options
     // Parameters for the user to set
     bool include_supg = false;
     Identical_Basis_Functions identical_basis_functions = Identical_Basis_Functions::FALSE;
-    Weighting weighting = Weighting::WEIGHT; 
+    Weighting weighting = Weighting::FLAT; 
     Total total = Total::ISOTROPIC;
     Tau_Scaling tau_scaling = Tau_Scaling::LINEAR;
     

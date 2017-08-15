@@ -735,13 +735,13 @@ calculate_integrals()
 void Weight_Function::
 calculate_material()
 {
-    // Make sure options for material weighting are cohesive
+    // Make sure options for material weighting are compatible
     // switch (weak_options_->weighting)
     // {
     // case Weak_Spatial_Discretization_Options::Weighting::POINT:
     //     options_.total = Weak_Spatial_Discretization_Options::Total::ISOTROPIC;
     //     break; // POINT
-    // case Weak_Spatial_Discretization_Options::Weighting::WEIGHT:
+    // case Weak_Spatial_Discretization_Options::Weighting::FLAT:
     //     options_.total = Weak_Spatial_Discretization_Options::Total::ISOTROPIC;
     //     break; // WEIGHT
     // case Weak_Spatial_Discretization_Options::Weighting::FLUX:
@@ -757,13 +757,13 @@ calculate_material()
         {
             return calculate_supg_point_material();
         } // POINT
-        case Weak_Spatial_Discretization_Options::Weighting::WEIGHT:
+        case Weak_Spatial_Discretization_Options::Weighting::FLAT:
         {
             return calculate_supg_weight_material();
         } // WEIGHT
-        case Weak_Spatial_Discretization_Options::Weighting::FLUX:
+        default:
         {
-            AssertMsg(false, "Weight_Function flux weighting not yet implemented");
+            AssertMsg(false, "Weight_Function flux and full weighting not yet implemented");
             return;
         } // FLUX
         } // Weighting
@@ -776,13 +776,13 @@ calculate_material()
         {
             return calculate_standard_point_material();
         } // POINT
-        case Weak_Spatial_Discretization_Options::Weighting::WEIGHT:
+        case Weak_Spatial_Discretization_Options::Weighting::FLAT:
         {
             return calculate_standard_weight_material();
         } // WEIGHT
-        case Weak_Spatial_Discretization_Options::Weighting::FLUX:
+        default:
         {
-            AssertMsg(false, "Weight_Function flux weighting not yet implemented");
+            AssertMsg(false, "Weight_Function flux and full weighting not yet implemented");
             return;
         } // FLUX
         } // Weighting

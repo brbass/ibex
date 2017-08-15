@@ -91,7 +91,7 @@ initialize_moment_data()
 
 double Angular_Discretization::
 moment(int mom,
-       int ord)
+       int ord) const
 {
     switch(dimension_)
     {
@@ -151,7 +151,7 @@ moment_to_discrete(vector<double> &data) const
     {
         double sum = 0;
         
-        for (int m = 0; m < number_of_moments; ++m)
+        for (int m = 0; m < number_of_moments_; ++m)
         {
             int const l = scattering_indices()[m];
             double const p = moment(m, o);
@@ -176,10 +176,10 @@ discrete_to_moment(vector<double> &data) const
     data.resize(number_of_moments_);
 
     // Perform moment to discrete operation
-    for (int m = 0; m < number_of_moments; ++m)
+    for (int m = 0; m < number_of_moments_; ++m)
     {
         double sum = 0;
-        for (int o = 0; o < number_of_ordinates; ++o)
+        for (int o = 0; o < number_of_ordinates_; ++o)
         {
             double const p = moment(m, o);
             

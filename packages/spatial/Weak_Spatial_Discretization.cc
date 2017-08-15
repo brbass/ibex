@@ -345,8 +345,9 @@ weighting_conversion() const
 {
     vector<pair<Weighting, string> > conversions
         = {{Weighting::POINT, "point"},
-           {Weighting::WEIGHT, "weight"},
-           {Weighting::FLUX, "flux"}};
+           {Weighting::FLAT, "weight"},
+           {Weighting::FLUX, "flux"},
+           {Weighting::FULL, "full"}};
     return make_shared<Conversion<Weighting, string> >(conversions);
 }
 
@@ -385,10 +386,19 @@ finalize_input()
 {
     if (include_supg)
     {
-        normalized = false;
+        if (weighting == Weighting::FULL)
+        {
+            normalized = true;
+        }
+        else
+        {
+            normalized = false;
+        }
     }
     else
     {
         normalized = true;
     }
+
+    input_finalized = true;
 }
