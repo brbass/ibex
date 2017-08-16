@@ -345,7 +345,7 @@ weighting_conversion() const
 {
     vector<pair<Weighting, string> > conversions
         = {{Weighting::POINT, "point"},
-           {Weighting::FLAT, "weight"},
+           {Weighting::FLAT, "flat"},
            {Weighting::FLUX, "flux"},
            {Weighting::FULL, "full"}};
     return make_shared<Conversion<Weighting, string> >(conversions);

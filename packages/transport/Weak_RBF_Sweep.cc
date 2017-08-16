@@ -320,7 +320,8 @@ get_matrix_row(int i, // weight function index (row)
             }
             
             value += sum;
-        }
+            break;
+        } // Spatial::BASIS
         case Cross_Section::Dependencies::Spatial::NONE:
         {
             Assert(weak_options->total == Weak_Spatial_Discretization_Options::Total::ISOTROPIC); // moment method not yet implemented
@@ -360,7 +361,7 @@ get_matrix_row(int i, // weight function index (row)
                     break;
                 }
                 sigma_t /= norm;
-            }
+            } // if !normalized
     
             double sum = iv_b_w[j];
             if (include_supg)
@@ -373,9 +374,10 @@ get_matrix_row(int i, // weight function index (row)
             }
             
             value += sum * sigma_t;
-        }
-        }
-    }
+            break;
+        } // Spatial::NONE
+        } // switch Spatial
+    } // basis functions
 }
 
 void Weak_RBF_Sweep::

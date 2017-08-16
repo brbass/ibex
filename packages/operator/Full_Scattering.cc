@@ -94,7 +94,7 @@ apply_full(vector<double> &x) const
                             for (int gf = 0; gf < number_of_groups; ++gf)
                             {
                                 int k_phi_from = n + number_of_nodes * (gf + number_of_groups * (m + number_of_moments * b));
-                                int k_sigma = d + number_of_dimensional_moments * (gf + number_of_groups * (gt + number_of_groups * (l + number_of_scattering_moments * b)));
+                                int k_sigma = d + number_of_dimensional_moments * (gf + number_of_groups * (gt + number_of_groups * (l + number_of_scattering_moments * j)));
                                 
                                 sum += sigma_s[k_sigma] * y[k_phi_from];
                             } // from group
