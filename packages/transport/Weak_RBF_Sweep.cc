@@ -234,6 +234,7 @@ get_matrix_row(int i, // weight function index (row)
     int const number_of_basis_functions = weight->number_of_basis_functions();
     int const number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
     int const dimension = spatial_discretization_->dimension();
+    int const number_of_groups = energy_discretization_->number_of_groups();
     shared_ptr<Weak_Spatial_Discretization_Options> const weak_options
         = spatial_discretization_->options();
     shared_ptr<Weight_Function_Options> const weight_options
@@ -244,45 +245,7 @@ get_matrix_row(int i, // weight function index (row)
     vector<double> const dimensional_coefficients
         = dimensional_moments->coefficients(tau,
                                             direction);
-    Assert(weak_options->total == Weak_Spatial_Discretization_Options::Total::ISOTROPIC); // moment method not yet implemented
 
-    // Get total cross section: leave out higher moments for now
-    double sigma_t = 0;
-    for (int d = 0; d < number_of_dimensional_moments; ++d)
-    {
-        int const k_sigma = d + number_of_dimensional_moments * g;
-        sigma_t += sigma_t_data[k_sigma] * dimensional_coefficients[d];
-    }
-
-    // Normalize total cross section if needed
-    if (!normalized)
-    {
-        double norm = 0;
-        switch (norm_cs->dependencies().energy)
-        {
-        case Cross_Section::Dependencies::Energy::NONE:
-            // Norm depends only on dimensional moment
-            for (int d = 0; d < number_of_dimensional_moments; ++d)
-            {
-                norm += norm_data[d] * dimensional_coefficients[d];
-            }
-            break;
-        case Cross_Section::Dependencies::Energy::GROUP:
-            // Norm depends on dimensional moment, angular moment and group
-            // Ignore the angular moment for now
-            for (int d = 0; d < number_of_dimensional_moments; ++d)
-            {
-                int const k_norm = d + number_of_dimensional_moments * g;
-                norm += norm_data[k_norm] * dimensional_coefficients[d];
-            }
-            break;
-        default:
-            AssertMsg(false, "norm dependency incorrect");
-            break;
-        }
-        sigma_t /= norm;
-    }
-    
     // Get indices
     {
         vector<int> const indices_data = weight->basis_function_indices();
@@ -343,8 +306,62 @@ get_matrix_row(int i, // weight function index (row)
             }
         }
 
-        // Add absorption term
+        // Add collision term
+        switch (sigma_t_cs->dependencies().spatial)
         {
+        case Cross_Section::Dependencies::Spatial::BASIS:
+        {
+            double sum = 0;
+            
+            for (int d = 0; d < number_of_dimensional_moments; ++d)
+            {
+                int k_sigma = d + number_of_dimensional_moments * (g + number_of_groups * j);
+                sum += dimensional_coefficients[d] * sigma_t_data[k_sigma];
+            }
+            
+            value += sum;
+        }
+        case Cross_Section::Dependencies::Spatial::NONE:
+        {
+            Assert(weak_options->total == Weak_Spatial_Discretization_Options::Total::ISOTROPIC); // moment method not yet implemented
+            
+            // Get total cross section: leave out higher moments for now
+            double sigma_t = 0;
+            for (int d = 0; d < number_of_dimensional_moments; ++d)
+            {
+                int const k_sigma = d + number_of_dimensional_moments * g;
+                sigma_t += sigma_t_data[k_sigma] * dimensional_coefficients[d];
+            }
+            
+            // Normalize total cross section if needed
+            if (!normalized)
+            {
+                double norm = 0;
+                switch (norm_cs->dependencies().energy)
+                {
+                case Cross_Section::Dependencies::Energy::NONE:
+                    // Norm depends only on dimensional moment
+                    for (int d = 0; d < number_of_dimensional_moments; ++d)
+                    {
+                        norm += norm_data[d] * dimensional_coefficients[d];
+                    }
+                    break;
+                case Cross_Section::Dependencies::Energy::GROUP:
+                    // Norm depends on dimensional moment, angular moment and group
+                    // Ignore the angular moment for now
+                    for (int d = 0; d < number_of_dimensional_moments; ++d)
+                    {
+                        int const k_norm = d + number_of_dimensional_moments * g;
+                        norm += norm_data[k_norm] * dimensional_coefficients[d];
+                    }
+                    break;
+                default:
+                    AssertMsg(false, "norm dependency incorrect");
+                    break;
+                }
+                sigma_t /= norm;
+            }
+    
             double sum = iv_b_w[j];
             if (include_supg)
             {
@@ -356,6 +373,7 @@ get_matrix_row(int i, // weight function index (row)
             }
             
             value += sum * sigma_t;
+        }
         }
     }
 }

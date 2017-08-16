@@ -23,27 +23,45 @@ public:
                    std::shared_ptr<Energy_Discretization> energy,
                    std::shared_ptr<Transport_Discretization> transport);
 
-    // Get combined operators
+    // Get combined source operators
     void get_source_operators(std::shared_ptr<Sweep_Operator> Linv,
                               std::shared_ptr<Vector_Operator> &source_operator,
                               std::shared_ptr<Vector_Operator> &flux_operator) const;
-    
+    void get_standard_source_operators(std::shared_ptr<Sweep_Operator> Linv,
+                                       std::shared_ptr<Vector_Operator> &source_operator,
+                                       std::shared_ptr<Vector_Operator> &flux_operator) const;
     void get_supg_source_operators(std::shared_ptr<Sweep_Operator> Linv,
                                    std::shared_ptr<Vector_Operator> &source_operator,
                                    std::shared_ptr<Vector_Operator> &flux_operator) const;
     void get_supg_combined_source_operators(std::shared_ptr<Sweep_Operator> Linv,
                                             std::shared_ptr<Vector_Operator> &source_operator,
                                             std::shared_ptr<Vector_Operator> &flux_operator) const;
+    void get_full_source_operators(std::shared_ptr<Sweep_Operator> Linv,
+                                   std::shared_ptr<Vector_Operator> &source_operator,
+                                   std::shared_ptr<Vector_Operator> &flux_operator) const;
+    void get_supg_full_source_operators(std::shared_ptr<Sweep_Operator> Linv,
+                                        std::shared_ptr<Vector_Operator> &source_operator,
+                                        std::shared_ptr<Vector_Operator> &flux_operator) const;
+
+    // Get combined eigenvalue operators
     void get_eigenvalue_operators(std::shared_ptr<Sweep_Operator> Linv,
                                   std::shared_ptr<Vector_Operator> &fission_operator,
                                   std::shared_ptr<Vector_Operator> &flux_operator) const;
+    void get_standard_eigenvalue_operators(std::shared_ptr<Sweep_Operator> Linv,
+                                           std::shared_ptr<Vector_Operator> &fission_operator,
+                                           std::shared_ptr<Vector_Operator> &flux_operator) const;
     void get_supg_eigenvalue_operators(std::shared_ptr<Sweep_Operator> Linv,
                                        std::shared_ptr<Vector_Operator> &fission_operator,
                                        std::shared_ptr<Vector_Operator> &flux_operator) const;
     void get_supg_combined_eigenvalue_operators(std::shared_ptr<Sweep_Operator> Linv,
                                                 std::shared_ptr<Vector_Operator> &fission_operator,
                                                 std::shared_ptr<Vector_Operator> &flux_operator) const;
-
+    void get_full_eigenvalue_operators(std::shared_ptr<Sweep_Operator> Linv,
+                                       std::shared_ptr<Vector_Operator> &fission_operator,
+                                       std::shared_ptr<Vector_Operator> &flux_operator) const;
+    void get_supg_full_eigenvalue_operators(std::shared_ptr<Sweep_Operator> Linv,
+                                            std::shared_ptr<Vector_Operator> &fission_operator,
+                                            std::shared_ptr<Vector_Operator> &flux_operator) const;
     
     // Get iteration methods
     std::shared_ptr<Source_Iteration> get_source_iteration(std::shared_ptr<Sweep_Operator> Linv,
