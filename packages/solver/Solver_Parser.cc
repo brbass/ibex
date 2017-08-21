@@ -82,7 +82,10 @@ get_krylov_steady_state(XML_Node input_node,
     factory_->get_source_operators(Linv,
                                    source_operator,
                                    flux_operator);
-
+    shared_ptr<Identity_Operator> identity
+        = make_shared<Identity_Operator>(flux_operator->column_size());
+    flux_operator = identity - flux_operator;
+    
     // Get value operator
     vector<shared_ptr<Vector_Operator> > value_operators
         = {make_shared<Moment_Value_Operator>(spatial_,

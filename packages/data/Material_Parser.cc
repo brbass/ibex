@@ -46,7 +46,8 @@ parse_from_xml(XML_Node input_node)
                                                    false))
     {
         int a = material_node.get_attribute<int>("index");
-
+        Assert(a < number_of_materials);
+        
         // Get cross sections
         shared_ptr<Cross_Section> sigma_t
             = make_shared<Cross_Section>(none_group,

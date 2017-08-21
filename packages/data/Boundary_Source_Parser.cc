@@ -32,6 +32,7 @@ parse_from_xml(XML_Node input_node)
                                                false))
     {
         int a = source_node.get_attribute<int>("index");
+        Assert(a < number_of_boundary_sources);
         
         vector<double> alpha = source_node.get_child_vector<double>("alpha", number_of_groups);
         vector<double> isotropic_boundary_source = source_node.get_child_vector<double>("isotropic_source", number_of_groups);

@@ -59,6 +59,8 @@ get_surfaces(XML_Node surfaces_node,
                                                  false))
     {
         int index = surface_node.get_attribute<int>("index");
+        Assert(index < number_of_surfaces);
+        
         string shape = surface_node.get_attribute<string>("shape");
         
         shared_ptr<Surface> surface;
@@ -205,6 +207,7 @@ get_regions(XML_Node regions_node,
                                                false))
     {
         int index = region_node.get_attribute<int>("index");
+        Assert(index < number_of_regions);
         int material_number = region_node.get_attribute<int>("material");
         
         vector<Surface::Relation> surface_relations;

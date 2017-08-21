@@ -43,7 +43,7 @@ solve()
 {
     int phi_size = transport_discretization_->phi_size();
     int number_of_augments = transport_discretization_->number_of_augments();
-
+    
     // Initialize result
     result_ = make_shared<Result>();
     
@@ -87,14 +87,14 @@ solve()
         (*source_operator_)(q); 
         print_error(0);
         print_convergence();
-   }
+    }
     
     // Zero out augments of first-flight source
     for (int i = phi_size; i < phi_size + number_of_augments; ++i)
     {
         q[i] = 0;
     }
-
+    
     // Get solver
     Aztec_Inverse_Operator::Options options;
     options.max_iterations = options_.max_iterations;
