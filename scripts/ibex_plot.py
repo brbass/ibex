@@ -20,14 +20,14 @@ def plot_flux_1d(data,
     num_groups = data["number_of_groups"]
     num_points = data["number_of_points"]
     num_moments = data["number_of_moments"]
-    phi = data["phi"]
+    phi = np.abs(data["phi"])
     points = data["points"]
 
     plt.figure()
     for g in range(num_groups):
         plt.plot(points[:, 0], phi[:, 0, g], label="g{}".format(g))
     plt.xlabel("x")
-    plt.ylabel("$\phi(x)$")
+    plt.ylabel("$|\phi(x)|$")
     plt.legend()
     plt.tight_layout()
     
@@ -42,7 +42,7 @@ def plot_flux_2d(data,
     num_groups = data["number_of_groups"]
     num_points = data["number_of_points"]
     num_moments = data["number_of_moments"]
-    phi = data["phi"]
+    phi = np.abs(data["phi"])
     points = data["points"]
     
     for g in range(num_groups):
@@ -51,7 +51,7 @@ def plot_flux_2d(data,
         plt.xlabel("x")
         plt.ylabel("y")
         plt.title("group " + str(g))
-        plt.colorbar(label=r"$\phi(x, y)$")
+        plt.colorbar(label=r"$|\phi(x, y)|$")
         plt.axis('equal')
         plt.tight_layout()
         

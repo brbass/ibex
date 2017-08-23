@@ -29,7 +29,7 @@ def output_pincell_clad(r_fuel,
                         num_points_fuel,
                         num_points_clad,
                         num_points_mod):
-    output_path = "in/pincell_clad_{}_{}_{}_{}_{}_{}.xml".format(r_fuel,
+    output_path = "pincell_clad_{}_{}_{}_{}_{}_{}.xml".format(r_fuel,
                                                                  r_clad,
                                                                  l_mod,
                                                                  num_points_fuel,
@@ -56,7 +56,7 @@ def output_pincell_clad(r_fuel,
                                pretty_print=True,
                                xml_declaration=True)
 
-    if False:
+    if True:
         plt.figure()
         plt.scatter(points[:,0], points[:,1], s=2)
         plt.axes().set_aspect('equal')
