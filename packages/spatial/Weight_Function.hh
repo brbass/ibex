@@ -21,7 +21,9 @@ struct Weight_Function_Options
     double tau; // SUPG parameter (tau_const / shape)
     
     // Parameters for the user to set
-    double tau_const = 1; // Constant in front of 1/shape
+    bool output_material = true;
+    bool output_integrals = true;
+    double tau_const = 1.0; // Constant in front of 1/shape
 };
 
 class Weight_Function : public Point

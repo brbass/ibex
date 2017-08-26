@@ -113,21 +113,23 @@ def save_from_template(data):
     parameters = data["parameters"]
     num_parameters = len(parameters)
     values = data["values"]
+    descriptions = data["descriptions"]
     prefix = data["prefix"]
     postfix = data["postfix"]
     
     # Get all permutations of data
-    perms = list(itertools.product(*values))
-
+    value_perms = list(itertools.product(*values))
+    description_perms = list(itertools.product(*descriptions))
+    
     # Get input files
     input_filenames = []
-    for perm in perms:
+    for value_perm, description_perm in zip(value_perms, description_perms):
         # Get input filename and string
         input_string = template_string
         input_filename = prefix
-        for parameter, value in zip(parameters, perm):
+        for parameter, value, description in zip(parameters, value_perm, description_perm):
             input_string = input_string.replace(parameter, str(value))
-            input_filename += "_{}".format(value)
+            input_filename += "_{}".format(description)
         input_filename += postfix
         input_filenames.append(input_filename)
 
@@ -169,4 +171,7 @@ def run_from_template(data):
     
     # Run problems
     pool.starmap(run_multiprocessing_command, input_commands)
+
+    # Return filenames
+    return input_filenames
     

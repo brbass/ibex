@@ -18,7 +18,7 @@ def get_square_discretization(length,
 
 def output_square_discretization_points(length,
                                         num_points_xy):
-    output_path = "in/square_{}_{}.xml".format(length, num_points_xy)
+    output_path = "square_{}_{}.xml".format(length, num_points_xy)
     num_points, points = get_cartesian_points(length,
                                               num_points_xy)
     node = xml_points(2, # dimension
@@ -44,7 +44,7 @@ def output_square_discretization(length,
                                     num_neighbors_weight,
                                     use_constant_radius)
     
-    output_path = "in/square_{}_{}_{}_{}_{}.xml".format(length, num_points_xy, num_neighbors_basis, num_neighbors_weight, int(use_constant_radius))
+    output_path = "square_{}_{}_{}_{}_{}.xml".format(length, num_points_xy, num_neighbors_basis, num_neighbors_weight, int(use_constant_radius))
     
     # Get spatial discretization node
     node = xml_discretization(output_path,

@@ -384,6 +384,12 @@ get_weight_options(XML_Node input_node) const
     
     options->tau_const
         = input_node.get_child_value<double>("tau");
+    options->output_material
+        = input_node.get_attribute<bool>("output_material",
+                                         options->output_material);
+    options->output_integrals
+        = input_node.get_attribute<bool>("output_integrals",
+                                         options->output_integrals);
 
     return options;
 }

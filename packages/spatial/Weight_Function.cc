@@ -1322,8 +1322,10 @@ output(XML_Node output_node) const
     output_node.set_attribute(point_type_conversion()->convert(point_type_), "point_type");
     output_node.set_child_value(dimension_, "dimension");
     output_node.set_child_vector(position_, "position");
-    material_->output(output_node.append_child("material"));
-    output_node.set_child_value(weak_options_->integration_ordinates, "number_of_integration_ordinates");
+    if (options_->output_material)
+    {
+        material_->output(output_node.append_child("material"));
+    }
     output_node.set_child_value(number_of_basis_functions_, "number_of_basis_functions");
     output_node.set_child_value(radius_, "radius");
     meshless_function_->output(output_node.append_child("function"));
@@ -1344,14 +1346,18 @@ output(XML_Node output_node) const
     
     output_node.set_child_vector(min_boundary_limits_, "min_boundary_limits");
     output_node.set_child_vector(max_boundary_limits_, "max_boundary_limits");
-    output_node.set_child_vector(integrals_.is_w, "is_w", "surface");
-    output_node.set_child_vector(integrals_.is_b_w, "is_b_w", "surface-basis");
-    output_node.set_child_vector(integrals_.iv_w, "iv_w");
-    output_node.set_child_vector(integrals_.iv_dw, "iv_dw", "dimension");
-    output_node.set_child_vector(integrals_.iv_b_w, "iv_b_w", "basis");
-    output_node.set_child_vector(integrals_.iv_b_dw, "iv_b_dw", "dimension-basis");
-    output_node.set_child_vector(integrals_.iv_db_w, "iv_db_w", "dimension-basis");
-    output_node.set_child_vector(integrals_.iv_db_dw, "iv_db_dw", "dimension-dimension-basis");
+
+    if (options_->output_integrals)
+    {
+        output_node.set_child_vector(integrals_.is_w, "is_w", "surface");
+        output_node.set_child_vector(integrals_.is_b_w, "is_b_w", "surface-basis");
+        output_node.set_child_vector(integrals_.iv_w, "iv_w");
+        output_node.set_child_vector(integrals_.iv_dw, "iv_dw", "dimension");
+        output_node.set_child_vector(integrals_.iv_b_w, "iv_b_w", "basis");
+        output_node.set_child_vector(integrals_.iv_b_dw, "iv_b_dw", "dimension-basis");
+        output_node.set_child_vector(integrals_.iv_db_w, "iv_db_w", "dimension-basis");
+        output_node.set_child_vector(integrals_.iv_db_dw, "iv_db_dw", "dimension-dimension-basis");
+    }
 }
 
 void Weight_Function::
