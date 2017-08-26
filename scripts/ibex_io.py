@@ -3,6 +3,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import tri
 import xml.etree.ElementTree as et
+import itertools
+import multiprocessing
+import subprocess
 
 # Unpack an indexed array
 def unpack2(data, num1, num2):
@@ -93,5 +96,62 @@ def get_data(file_path):
     data["timing"] = timing
     
     return data
+
+# Data should contain parameters, a list of strings to be replaced,
+# and values, a list for each of these parameters.
+# Ex: parameters = ["num_points", "num_groups"], values = [[120, 240], [2, 3]]
+# Assumes values are scalars or strings
+def save_from_template(data):
+    # Get template string
+    template_filename = data["template_filename"]
+    template_file = open(template_filename, "r")
+    template_string = template_file.read()
+    template_file.close()
     
+    # Get data
+    parameters = data["parameters"]
+    num_parameters = len(parameters)
+    values = data["values"]
+    prefix = data["prefix"]
+    postfix = data["postfix"]
+    
+    # Get all permutations of data
+    perms = list(itertools.product(*values))
+
+    # Get input files
+    input_filenames = []
+    for perm in perms:
+        # Get input filename and string
+        input_string = template_string
+        input_filename = prefix
+        for parameter, value in zip(parameters, perm):
+            input_string = input_string.replace(parameter, str(value))
+            input_filename += "_{}".format(value)
+        input_filename += postfix
+        input_filenames.append(input_filename)
+
+        # Save input file
+        input_file = open(input_filename, "w")
+        input_file.write(input_string)
+        input_file.close()
+    
+    return input_filenames
+
+def run_command(command):
+    print("start \"{}\"".format(command))
+    subprocess.call([command], shell=True)
+    print("end {}".format(command))     
+    
+def run_from_template(data):
+    # Get commands
+    executable = data["executable"]
+    input_filenames = save_from_template(data)
+    input_commands = [executable + " " + input_filename for input_filename in input_filenames]
+    
+    # Create multiprocessing pool
+    num_procs = data["num_procs"]
+    pool = multiprocessing.Pool(processes=num_procs)
+
+    # Run problems
+    pool.map(run_command, input_commands)
     
