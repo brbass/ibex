@@ -6,6 +6,7 @@ import xml.etree.ElementTree as et
 import itertools
 import multiprocessing
 import subprocess
+import os
 
 # Unpack an indexed array
 def unpack2(data, num1, num2):
@@ -137,21 +138,35 @@ def save_from_template(data):
     
     return input_filenames
 
-def run_command(command):
-    print("start \"{}\"".format(command))
-    subprocess.call([command], shell=True)
-    print("end {}".format(command))     
+def run_multiprocessing_command(executable,
+                                arguments):
+    # Change to working directory
+    # starting_directory = os.getcwd()
+    # os.chdir(directory)
     
+    # Get command
+    pid = multiprocessing.current_process().name
+    command = "{} {}".format(executable, arguments)
+
+    # Run command
+    print("start \"{}\" on process {}".format(command, pid))
+    subprocess.call([command], shell=True)
+    print("end \"{}\" on process {}".format(command, pid))
+
+    # Switch back to starting directory
+    # os.chdir(starting_directory)
+
 def run_from_template(data):
     # Get commands
     executable = data["executable"]
+    # directory = data["directory"]
     input_filenames = save_from_template(data)
-    input_commands = [executable + " " + input_filename for input_filename in input_filenames]
+    input_commands = [[executable, input_filename] for input_filename in input_filenames]
     
     # Create multiprocessing pool
     num_procs = data["num_procs"]
     pool = multiprocessing.Pool(processes=num_procs)
-
+    
     # Run problems
-    pool.map(run_command, input_commands)
+    pool.starmap(run_multiprocessing_command, input_commands)
     
