@@ -39,14 +39,15 @@ public:
 
         enum class Spatial
         {
-            NONE,
-            BASIS
+            WEIGHT,
+            BASIS,
+            BASIS_WEIGHT
         };
         
         Angular angular = Angular::NONE;
         Energy energy = Energy::NONE;
         Dimensional dimensional = Dimensional::NONE;
-        Spatial spatial = Spatial::NONE;
+        Spatial spatial = Spatial::WEIGHT;
 
         int number_of_basis_functions = -1;
         

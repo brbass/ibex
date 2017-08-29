@@ -43,7 +43,7 @@ check_class_invariants() const
         // Make sure angular and energy dependencies for each point are correct
         Assert(dep.angular == Cross_Section::Dependencies::Angular::NONE);               
         Assert(dep.energy == Cross_Section::Dependencies::Energy::GROUP_TO_GROUP);
-        Assert(dep.spatial == Cross_Section::Dependencies::Spatial::BASIS);
+        Assert(dep.spatial == Cross_Section::Dependencies::Spatial::BASIS_WEIGHT);
     }
 }
 

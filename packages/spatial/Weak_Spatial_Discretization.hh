@@ -15,7 +15,8 @@ struct Weak_Spatial_Discretization_Options
         POINT,
         FLAT,
         FLUX,
-        FULL
+        FULL,
+        BASIS
     };
     std::shared_ptr<Conversion<Weighting, std::string> > weighting_conversion() const;
         

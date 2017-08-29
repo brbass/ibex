@@ -2,6 +2,8 @@
 
 #include "Angular_Discretization.hh"
 #include "Augmented_Operator.hh"
+#include "Basis_Fission.hh"
+#include "Basis_Scattering.hh"
 #include "Boundary_Source_Toggle.hh"
 #include "Combined_SUPG_Fission.hh"
 #include "Combined_SUPG_Scattering.hh"
@@ -69,6 +71,8 @@ get_source_operators(shared_ptr<Sweep_Operator> Linv,
                                                  flux_operator);
         }
     case Weak_Spatial_Discretization_Options::Weighting::FULL:
+        // Fallthrough intentional
+    case Weak_Spatial_Discretization_Options::Weighting::BASIS:
         if (include_supg)
         {
             return get_supg_full_source_operators(Linv,
@@ -398,16 +402,34 @@ get_full_source_operators(shared_ptr<Sweep_Operator> Linv,
     
     // Get Scattering operators
     Full_Scattering_Operator::Options scattering_options;
-    shared_ptr<Vector_Operator> S
-        = make_shared<Full_Scattering>(spatial_,
+    shared_ptr<Vector_Operator> S;
+    shared_ptr<Vector_Operator> F;
+    switch (spatial_->options()->weighting)
+    {
+    case Weak_Spatial_Discretization_Options::Weighting::FULL:
+        S = make_shared<Full_Scattering>(spatial_,
+                                         angular_,
+                                         energy_,
+                                         scattering_options);
+        F = make_shared<Full_Fission>(spatial_,
+                                      angular_,
+                                      energy_,
+                                      scattering_options);
+        break;
+    case Weak_Spatial_Discretization_Options::Weighting::BASIS:
+        S = make_shared<Basis_Scattering>(spatial_,
+                                          angular_,
+                                          energy_,
+                                          scattering_options);
+        F = make_shared<Basis_Fission>(spatial_,
                                        angular_,
                                        energy_,
                                        scattering_options);
-    shared_ptr<Vector_Operator> F
-        = make_shared<Full_Fission>(spatial_,
-                                    angular_,
-                                    energy_,
-                                    scattering_options);
+        break;
+    default:
+        Assert(false);
+        break;
+    }
     
     // Get source operator
     shared_ptr<Vector_Operator> Q
@@ -477,16 +499,34 @@ get_supg_full_source_operators(shared_ptr<Sweep_Operator> Linv,
     
     // Get Scattering operators
     Full_Scattering_Operator::Options scattering_options;
-    shared_ptr<Vector_Operator> S
-        = make_shared<Full_Scattering>(spatial_,
+    shared_ptr<Vector_Operator> S;
+    shared_ptr<Vector_Operator> F;
+    switch (spatial_->options()->weighting)
+    {
+    case Weak_Spatial_Discretization_Options::Weighting::FULL:
+        S = make_shared<Full_Scattering>(spatial_,
+                                         angular_,
+                                         energy_,
+                                         scattering_options);
+        F = make_shared<Full_Fission>(spatial_,
+                                      angular_,
+                                      energy_,
+                                      scattering_options);
+        break;
+    case Weak_Spatial_Discretization_Options::Weighting::BASIS:
+        S = make_shared<Basis_Scattering>(spatial_,
+                                          angular_,
+                                          energy_,
+                                          scattering_options);
+        F = make_shared<Basis_Fission>(spatial_,
                                        angular_,
                                        energy_,
                                        scattering_options);
-    shared_ptr<Vector_Operator> F
-        = make_shared<Full_Fission>(spatial_,
-                                    angular_,
-                                    energy_,
-                                    scattering_options);
+        break;
+    default:
+        Assert(false);
+        break;
+    }
     
     // Get source operator
     shared_ptr<Vector_Operator> Q
@@ -552,6 +592,8 @@ get_eigenvalue_operators(shared_ptr<Sweep_Operator> Linv,
                                                  flux_operator);
         }
     case Weak_Spatial_Discretization_Options::Weighting::FULL:
+        // Fallthrough intentional
+    case Weak_Spatial_Discretization_Options::Weighting::BASIS:
         if (include_supg)
         {
             return get_supg_full_eigenvalue_operators(Linv,
@@ -829,16 +871,34 @@ get_full_eigenvalue_operators(shared_ptr<Sweep_Operator> Linv,
     
     // Get Scattering operators
     Full_Scattering_Operator::Options scattering_options;
-    shared_ptr<Vector_Operator> S
-        = make_shared<Full_Scattering>(spatial_,
+    shared_ptr<Vector_Operator> S;
+    shared_ptr<Vector_Operator> F;
+    switch (spatial_->options()->weighting)
+    {
+    case Weak_Spatial_Discretization_Options::Weighting::FULL:
+        S = make_shared<Full_Scattering>(spatial_,
+                                         angular_,
+                                         energy_,
+                                         scattering_options);
+        F = make_shared<Full_Fission>(spatial_,
+                                      angular_,
+                                      energy_,
+                                      scattering_options);
+        break;
+    case Weak_Spatial_Discretization_Options::Weighting::BASIS:
+        S = make_shared<Basis_Scattering>(spatial_,
+                                          angular_,
+                                          energy_,
+                                          scattering_options);
+        F = make_shared<Basis_Fission>(spatial_,
                                        angular_,
                                        energy_,
                                        scattering_options);
-    shared_ptr<Vector_Operator> F
-        = make_shared<Full_Fission>(spatial_,
-                                    angular_,
-                                    energy_,
-                                    scattering_options);
+        break;
+    default:
+        Assert(false);
+        break;
+    }
     
     // Add augments to operators
     if (number_of_augments > 0)
@@ -896,16 +956,34 @@ get_supg_full_eigenvalue_operators(shared_ptr<Sweep_Operator> Linv,
     
     // Get Scattering operators
     Full_Scattering_Operator::Options scattering_options;
-    shared_ptr<Vector_Operator> S
-        = make_shared<Full_Scattering>(spatial_,
+    shared_ptr<Vector_Operator> S;
+    shared_ptr<Vector_Operator> F;
+    switch (spatial_->options()->weighting)
+    {
+    case Weak_Spatial_Discretization_Options::Weighting::FULL:
+        S = make_shared<Full_Scattering>(spatial_,
+                                         angular_,
+                                         energy_,
+                                         scattering_options);
+        F = make_shared<Full_Fission>(spatial_,
+                                      angular_,
+                                      energy_,
+                                      scattering_options);
+        break;
+    case Weak_Spatial_Discretization_Options::Weighting::BASIS:
+        S = make_shared<Basis_Scattering>(spatial_,
+                                          angular_,
+                                          energy_,
+                                          scattering_options);
+        F = make_shared<Basis_Fission>(spatial_,
                                        angular_,
                                        energy_,
                                        scattering_options);
-    shared_ptr<Vector_Operator> F
-        = make_shared<Full_Fission>(spatial_,
-                                    angular_,
-                                    energy_,
-                                    scattering_options);
+        break;
+    default:
+        Assert(false);
+        break;
+    }
     
     // Add augments to operators
     if (number_of_augments > 0)

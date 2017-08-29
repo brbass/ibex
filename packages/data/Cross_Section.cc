@@ -101,9 +101,11 @@ spatial_size() const
 {
     switch (dependencies_.spatial)
     {
-    case Dependencies::Spatial::NONE:
+    case Dependencies::Spatial::WEIGHT:
         return 1;
     case Dependencies::Spatial::BASIS:
+        return 1;
+    case Dependencies::Spatial::BASIS_WEIGHT:
         return dependencies_.number_of_basis_functions;
     }
 }
@@ -155,9 +157,9 @@ spatial_string() const
 {
     switch (dependencies_.spatial)
     {
-    case Dependencies::Spatial::NONE:
+    case Dependencies::Spatial::WEIGHT:
         return "";
-    case Dependencies::Spatial::BASIS:
+    case Dependencies::Spatial::BASIS_WEIGHT:
         return "-basis";
     }
 }
@@ -213,8 +215,9 @@ std::shared_ptr<Conversion<Cross_Section::Dependencies::Spatial, string> > Cross
 spatial_conversion() const
 {
     vector<pair<Spatial, string> > conversions
-        = {{Spatial::NONE, "none"},
-           {Spatial::BASIS, "basis"}};
+        = {{Spatial::WEIGHT, "weight"},
+           {Spatial::BASIS, "basis"},
+           {Spatial::BASIS_WEIGHT, "basis_weight"}};
     return make_shared<Conversion<Spatial, string> >(conversions);
 }
 

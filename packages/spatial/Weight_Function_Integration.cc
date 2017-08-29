@@ -216,6 +216,8 @@ normalize_materials(vector<Material_Data> &materials) const
                 AssertMsg(false, "point weighting not compatible with external integration");
                 break;
             case Weak_Spatial_Discretization_Options::Weighting::FLAT:
+                // Fallthrough intentional
+            case Weak_Spatial_Discretization_Options::Weighting::BASIS:
                 for (int d = 0; d < number_of_dimensional_moments; ++d)
                 {
                     // Total cross section
@@ -438,22 +440,23 @@ add_volume_material(Mesh::Cell const &cell,
                  b_val,
                  flux);
     }
+
+    // Get data
+    int number_of_dimensional_moments = weights_[0]->dimensional_moments()->number_of_dimensional_moments();
     
     // Add value to each of the weight functions
-    for (int i = 0; i < cell.number_of_weight_functions; ++i)
+    switch (options_->weighting)
     {
-        // Get weight function data
-        int w_ind = cell.weight_indices[i];
-        shared_ptr<Weight_Function> weight = weights_[w_ind];
-        Material_Data &material = materials[w_ind];
-        int number_of_dimensional_moments = weight->dimensional_moments()->number_of_dimensional_moments();
-        
-        switch (options_->weighting)
+    case Weak_Spatial_Discretization_Options::Weighting::POINT:
+        AssertMsg(false, "point weighting not compatible with external integration");
+        break;
+    case Weak_Spatial_Discretization_Options::Weighting::FLAT:
+        for (int i = 0; i < cell.number_of_weight_functions; ++i)
         {
-        case Weak_Spatial_Discretization_Options::Weighting::POINT:
-            AssertMsg(false, "point weighting not compatible with external integration");
-            break;
-        case Weak_Spatial_Discretization_Options::Weighting::FLAT:
+            // Get weight function data
+            int w_ind = cell.weight_indices[i];
+            Material_Data &material = materials[w_ind];
+        
             for (int d = 0; d < number_of_dimensional_moments; ++d)
             {
                 double wid = d == 0 ? w_val[i] : w_grad[i][d - 1];
@@ -487,8 +490,15 @@ add_volume_material(Mesh::Cell const &cell,
                     }
                 }
             }
-            break;
-        case Weak_Spatial_Discretization_Options::Weighting::FLUX:
+        }
+        break;
+    case Weak_Spatial_Discretization_Options::Weighting::FLUX:
+        for (int i = 0; i < cell.number_of_weight_functions; ++i)
+        {
+            // Get weight function data
+            int w_ind = cell.weight_indices[i];
+            Material_Data &material = materials[w_ind];
+        
             for (int d = 0; d < number_of_dimensional_moments; ++d)
             {
                 double wid = d == 0 ? w_val[i] : w_grad[i][d - 1];
@@ -533,8 +543,15 @@ add_volume_material(Mesh::Cell const &cell,
                     }
                 }
             }
-            break;
-        case Weak_Spatial_Discretization_Options::Weighting::FULL:
+        }
+        break;
+    case Weak_Spatial_Discretization_Options::Weighting::FULL:
+        for (int i = 0; i < cell.number_of_weight_functions; ++i)
+        {
+            // Get weight function data
+            int w_ind = cell.weight_indices[i];
+            Material_Data &material = materials[w_ind];
+        
             for (int d = 0; d < number_of_dimensional_moments; ++d)
             {
                 double wid = d == 0 ? w_val[i] : w_grad[i][d - 1];
@@ -591,9 +608,72 @@ add_volume_material(Mesh::Cell const &cell,
                     }
                 }
             }
-            break;
-        } // switch options->weighting
-    } // for weight functions
+        }
+        break;
+    case Weak_Spatial_Discretization_Options::Weighting::BASIS:
+        // Perform internal source integration
+        for (int i = 0; i < cell.number_of_weight_functions; ++i)
+        {
+            // Get weight function data
+            int w_ind = cell.weight_indices[i];
+            Material_Data &material = materials[w_ind];
+            
+            for (int d = 0; d < number_of_dimensional_moments; ++d)
+            {
+                double wid = d == 0 ? w_val[i] : w_grad[i][d - 1];
+                
+                for (int g = 0; g < number_of_groups; ++g)
+                {
+                    // Total cross section and internal source
+                    int kt = d + number_of_dimensional_moments * g;
+                    
+                    material.internal_source[kt] += internal_source[g] * wid * quad_weight;
+                }
+            }
+        }
+
+        // Perform cross section integration
+        for (int i = 0; i < cell.number_of_basis_functions; ++i)
+        {
+            // Get basis function data
+            int b_ind = cell.basis_indices[i];
+            Material_Data &material = materials[b_ind];
+            double bas = b_val[i];
+
+            // Integrals should be the same for all dimensional moments:
+            // Could optimize later
+            for (int d = 0; d < number_of_dimensional_moments; ++d)
+            {
+                material.norm[d] += bas * quad_weight;
+                
+                for (int g = 0; g < number_of_groups; ++g)
+                {
+                    // Total cross section and internal source
+                    int kt = d + number_of_dimensional_moments * g;
+                    
+                    material.sigma_t[kt] += sigma_t[g] * bas * quad_weight;
+                    
+                    for (int g2 = 0; g2 < number_of_groups; ++g2)
+                    {
+                        // Fission cross section
+                        int kf = d + number_of_dimensional_moments * (g2 + number_of_groups * g);
+                        int kg = g2 + number_of_groups * g;
+                        
+                        material.sigma_f[kf] += sigma_f[kg] * bas * quad_weight;
+                        
+                        for (int l = 0; l < number_of_scattering_moments; ++l)
+                        {
+                            // Scattering cross section
+                            int ks = d + number_of_dimensional_moments * (g2 + number_of_groups * (g + number_of_groups * l));
+                            int ks0 = g2 + number_of_groups * (g + number_of_groups * l);
+                            material.sigma_s[ks] += sigma_s[ks0] * bas * quad_weight;
+                        }
+                    }
+                }
+            }
+        }
+        break;
+    } // switch options->weighting
 }
 
 void Weight_Function_Integration::
@@ -794,15 +874,22 @@ get_material(int index,
         break;
     case Weak_Spatial_Discretization_Options::Weighting::FULL:
         sigma_s_deps.angular = Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS;
-        sigma_t_deps.spatial = Cross_Section::Dependencies::Spatial::BASIS;
-        sigma_s_deps.spatial = Cross_Section::Dependencies::Spatial::BASIS;
-        sigma_f_deps.spatial = Cross_Section::Dependencies::Spatial::BASIS;
+        sigma_t_deps.spatial = Cross_Section::Dependencies::Spatial::BASIS_WEIGHT;
+        sigma_s_deps.spatial = Cross_Section::Dependencies::Spatial::BASIS_WEIGHT;
+        sigma_f_deps.spatial = Cross_Section::Dependencies::Spatial::BASIS_WEIGHT;
         sigma_t_deps.number_of_basis_functions = number_of_basis_functions;
         sigma_s_deps.number_of_basis_functions = number_of_basis_functions;
         sigma_f_deps.number_of_basis_functions = number_of_basis_functions;
         break;
+    case Weak_Spatial_Discretization_Options::Weighting::BASIS:
+        sigma_s_deps.angular = Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS;
+        sigma_t_deps.spatial = Cross_Section::Dependencies::Spatial::BASIS;
+        sigma_s_deps.spatial = Cross_Section::Dependencies::Spatial::BASIS;
+        sigma_f_deps.spatial = Cross_Section::Dependencies::Spatial::BASIS;
+        norm_deps.spatial = Cross_Section::Dependencies::Spatial::BASIS;
+        break;
     }
-
+    
     // Set SUPG dependencies
     if (options_->include_supg)
     {
@@ -1293,45 +1380,57 @@ initialize_materials(vector<Material_Data> &materials) const
             break;
         case Weak_Spatial_Discretization_Options::Weighting::FLAT:
             material.sigma_t.assign(number_of_dimensional_moments
-                                    * number_of_groups, 0);
+                                    * number_of_groups, 0.);
             material.sigma_s.assign(number_of_dimensional_moments
                                     * number_of_groups
                                     * number_of_groups
-                                    * number_of_scattering_moments, 0);
+                                    * number_of_scattering_moments, 0.);
             material.sigma_f.assign(number_of_dimensional_moments
                                     * number_of_groups
-                                    * number_of_groups, 0);
-            material.norm.assign(number_of_dimensional_moments, 0);
+                                    * number_of_groups, 0.);
+            material.norm.assign(number_of_dimensional_moments, 0.);
             break;
         case Weak_Spatial_Discretization_Options::Weighting::FLUX:
             material.sigma_t.assign(number_of_dimensional_moments
                                     * number_of_groups
-                                    * number_of_moments, 0);
+                                    * number_of_moments, 0.);
             material.sigma_s.assign(number_of_dimensional_moments
                                     * number_of_groups
                                     * number_of_groups
-                                    * number_of_moments, 0);
+                                    * number_of_moments, 0.);
             material.sigma_f.assign(number_of_dimensional_moments
                                     * number_of_groups
-                                    * number_of_groups, 0);
+                                    * number_of_groups, 0.);
             material.norm.assign(number_of_dimensional_moments
                                  * number_of_groups
-                                 * number_of_moments, 0);
+                                 * number_of_moments, 0.);
             break;
         case Weak_Spatial_Discretization_Options::Weighting::FULL:
             material.sigma_t.assign(number_of_basis_functions
                                     * number_of_dimensional_moments
-                                    * number_of_groups, 0);
+                                    * number_of_groups, 0.);
             material.sigma_s.assign(number_of_basis_functions
                                     * number_of_dimensional_moments
                                     * number_of_groups
                                     * number_of_groups
-                                    * number_of_scattering_moments, 0);
+                                    * number_of_scattering_moments, 0.);
             material.sigma_f.assign(number_of_basis_functions
                                     * number_of_dimensional_moments
                                     * number_of_groups
-                                    * number_of_groups, 0);
+                                    * number_of_groups, 0.);
             material.norm.assign(number_of_dimensional_moments, 1.);
+            break;
+        case Weak_Spatial_Discretization_Options::Weighting::BASIS:
+            material.sigma_t.assign(number_of_dimensional_moments
+                                    * number_of_groups, 0.);
+            material.sigma_s.assign(number_of_dimensional_moments
+                                    * number_of_groups
+                                    * number_of_groups
+                                    * number_of_scattering_moments, 0.);
+            material.sigma_f.assign(number_of_dimensional_moments
+                                    * number_of_groups
+                                    * number_of_groups, 0.);
+            material.norm.assign(number_of_dimensional_moments, 0.);
             break;
         } // switch options->weighting
     } // for points
@@ -1407,7 +1506,7 @@ get_flux(Mesh::Cell const &cell,
     double const sff = options_->scalar_flux_fraction;
 
     // Calculate flux
-    flux.assign(number_of_groups * number_of_moments, 0);
+    flux.assign(number_of_groups * number_of_moments, 0.);
     int const m0 = 0;
     for (int i = 0; i < cell.number_of_basis_functions; ++i)
     {
@@ -1434,7 +1533,7 @@ get_flux(Mesh::Cell const &cell,
 
 
 Weight_Function_Integration::Mesh::
-    Mesh(Weight_Function_Integration const &wfi,
+Mesh(Weight_Function_Integration const &wfi,
      int dimension,
      vector<vector<double> > limits,
      vector<int> dimensional_cells):

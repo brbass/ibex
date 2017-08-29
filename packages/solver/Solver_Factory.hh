@@ -42,7 +42,7 @@ public:
     void get_supg_full_source_operators(std::shared_ptr<Sweep_Operator> Linv,
                                         std::shared_ptr<Vector_Operator> &source_operator,
                                         std::shared_ptr<Vector_Operator> &flux_operator) const;
-
+    
     // Get combined eigenvalue operators
     void get_eigenvalue_operators(std::shared_ptr<Sweep_Operator> Linv,
                                   std::shared_ptr<Vector_Operator> &fission_operator,

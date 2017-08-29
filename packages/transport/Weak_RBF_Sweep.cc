@@ -223,15 +223,11 @@ get_matrix_row(int i, // weight function index (row)
     vector<double> const &iv_b_dw = integrals.iv_b_dw;
     vector<double> const &iv_db_dw = integrals.iv_db_dw;
     vector<double> const direction = angular_discretization_->direction(o);
-    shared_ptr<Material> const material = weight->material();
-    shared_ptr<Cross_Section> const sigma_t_cs = material->sigma_t();
-    shared_ptr<Cross_Section> const norm_cs = material->norm();
-    vector<double> const sigma_t_data = sigma_t_cs->data();
-    vector<double> const norm_data = norm_cs->data();
     shared_ptr<Dimensional_Moments> const dimensional_moments
         = spatial_discretization_->dimensional_moments();
     int const number_of_dimensional_moments = dimensional_moments->number_of_dimensional_moments();
     int const number_of_basis_functions = weight->number_of_basis_functions();
+    vector<int> const basis_indices = weight->basis_function_indices();
     int const number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
     int const dimension = spatial_discretization_->dimension();
     int const number_of_groups = energy_discretization_->number_of_groups();
@@ -239,6 +235,12 @@ get_matrix_row(int i, // weight function index (row)
         = spatial_discretization_->options();
     shared_ptr<Weight_Function_Options> const weight_options
         = weight->options();
+    shared_ptr<Material> const material = weight->material();
+    shared_ptr<Cross_Section> const sigma_t_cs = material->sigma_t();
+    shared_ptr<Cross_Section> const norm_cs = material->norm();
+    vector<double> const sigma_t_data = sigma_t_cs->data();
+    vector<double> const norm_data = norm_cs->data();
+    
     bool const include_supg = weak_options->include_supg;
     bool const normalized = weak_options->normalized;
     double const tau = weight_options->tau;
@@ -309,7 +311,7 @@ get_matrix_row(int i, // weight function index (row)
         // Add collision term
         switch (sigma_t_cs->dependencies().spatial)
         {
-        case Cross_Section::Dependencies::Spatial::BASIS:
+        case Cross_Section::Dependencies::Spatial::BASIS_WEIGHT:
         {
             double sum = 0;
             
@@ -321,8 +323,28 @@ get_matrix_row(int i, // weight function index (row)
             
             value += sum;
             break;
-        } // Spatial::BASIS
-        case Cross_Section::Dependencies::Spatial::NONE:
+        } // Spatial::BASIS_WEIGHT
+        case Cross_Section::Dependencies::Spatial::BASIS:
+        {
+            int const b = basis_indices[j];
+            shared_ptr<Material> const basis_material = spatial_discretization_->weight(b)->material();
+            shared_ptr<Cross_Section> const basis_sigma_t_cs = basis_material->sigma_t();
+            vector<double> const basis_sigma_t_data = basis_sigma_t_cs->data();
+
+            double sum = 0;
+            for (int d = 0; d < number_of_dimensional_moments; ++d)
+            {
+                int const k_sigma = d + number_of_dimensional_moments * g;
+                double const mult = (d == 0
+                                     ? iv_b_w[j]
+                                     : iv_b_dw[d - 1 + dimension * j]);
+                sum += dimensional_coefficients[d] * mult * basis_sigma_t_data[k_sigma];
+            }
+            
+            value += sum;
+            break;
+        }
+        case Cross_Section::Dependencies::Spatial::WEIGHT:
         {
             Assert(weak_options->total == Weak_Spatial_Discretization_Options::Total::ISOTROPIC); // moment method not yet implemented
             
@@ -375,7 +397,7 @@ get_matrix_row(int i, // weight function index (row)
             
             value += sum * sigma_t;
             break;
-        } // Spatial::NONE
+        } // Spatial::WEIGHT
         } // switch Spatial
     } // basis functions
 }

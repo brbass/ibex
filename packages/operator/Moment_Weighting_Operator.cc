@@ -91,7 +91,6 @@ apply(vector<double> &x) const
         shared_ptr<Weight_Function> weight = spatial_->weight(i);
         int number_of_basis_functions = weight->number_of_basis_functions();
         Weight_Function::Integrals const integrals = weight->integrals();
-        Weight_Function::Values const values = weight->values();
         vector<int> basis_indices = weight->basis_function_indices();
 
         vector<double> const &iv_w = integrals.iv_w;

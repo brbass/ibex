@@ -347,7 +347,8 @@ weighting_conversion() const
         = {{Weighting::POINT, "point"},
            {Weighting::FLAT, "flat"},
            {Weighting::FLUX, "flux"},
-           {Weighting::FULL, "full"}};
+           {Weighting::FULL, "full"},
+           {Weighting::BASIS, "basis"}};
     return make_shared<Conversion<Weighting, string> >(conversions);
 }
 
@@ -386,19 +387,22 @@ finalize_input()
 {
     if (include_supg)
     {
-        if (weighting == Weighting::FULL)
+        switch (weighting)
         {
+        case Weighting::FULL:
+            // Fallthrough intentional
+        case Weighting::BASIS:
             normalized = true;
-        }
-        else
-        {
+            break;
+        default:
             normalized = false;
+            break;
         }
     }
     else
     {
         normalized = true;
     }
-
+    
     input_finalized = true;
 }
