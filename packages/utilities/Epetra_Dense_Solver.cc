@@ -129,4 +129,5 @@ determinant()
 {
     Assert(initialized_);
     AssertMsg(false, "not implemented");
+    return -1;
 }

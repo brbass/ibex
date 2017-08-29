@@ -21,13 +21,13 @@ public:
     
 
     // Check whether data has been initialized
-    virtual bool initialized() const
+    virtual bool initialized() const override
     {
         return initialized_;
     }
     
     // Set matrix and perform decomposition
-    virtual void initialize(std::vector<double> &a);
+    virtual void initialize(std::vector<double> &a) override;
     
     // Rank of matrix
     virtual int size() const override

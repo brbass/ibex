@@ -389,6 +389,8 @@ int run_interpolation(string input_folder)
                         return 2.;
                     case 1:
                         return 3.;
+                    default:
+                        return -1.;
                     }
                 };
             
@@ -456,6 +458,8 @@ int check_basis(string input_folder)
             cout << endl;
         }
     }
+
+    return checksum;
 }
 
 int main(int argc, char **argv)

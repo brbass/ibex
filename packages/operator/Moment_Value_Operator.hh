@@ -19,7 +19,7 @@ public:
                           std::shared_ptr<Energy_Discretization> energy,
                           bool weighted);
 
-    virtual int size() const
+    virtual int size() const override
     {
         return size_;
     }

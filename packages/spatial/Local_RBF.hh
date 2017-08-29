@@ -16,19 +16,19 @@ public:
     }
     
     // Distance from center the function is nonzero
-    virtual double radius() const = 0;
+    virtual double radius() const override = 0;
     
     // Value of basis function
-    virtual double value(double r) const = 0;
+    virtual double value(double r) const override = 0;
     
     // Derivative of basis function
-    virtual double d_value(double r) const = 0;
+    virtual double d_value(double r) const override = 0;
     
     // Second derivative of the basis function
-    virtual double dd_value(double r) const = 0;
+    virtual double dd_value(double r) const override = 0;
 
     // Description of RBF
-    virtual std::string description() const = 0;
+    virtual std::string description() const override = 0;
 };
 
 #endif

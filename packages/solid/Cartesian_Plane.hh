@@ -31,18 +31,18 @@ public:
     }
     
     // Surface methods
-    virtual Surface_Class surface_class() const
+    virtual Surface_Class surface_class() const override
     {
         return Surface_Class::CARTESIAN_PLANE;
     }
     virtual Relation relation(std::vector<double> const &position,
                               bool check_equality = false) const override;
     virtual Intersection intersection(std::vector<double> const &initial_position,
-                                      std::vector<double> const &initial_direction) const;
+                                      std::vector<double> const &initial_direction) const override;
     virtual Normal normal_direction(std::vector<double> const &position,
                                   bool check_normal = true) const override;
-    virtual void check_class_invariants() const;
-    virtual void output(XML_Node output_node) const;
+    virtual void check_class_invariants() const override;
+    virtual void output(XML_Node output_node) const override;
     
 private:
     

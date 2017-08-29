@@ -111,9 +111,8 @@ apply_full(vector<double> &x) const
                     }
                 }
             }
-        break;
-        }
-        
+            break;
+        } // SCATTERING_MOMENTS
         case Cross_Section::Dependencies::Angular::MOMENTS:
         {
             // Perform scattering
@@ -147,9 +146,12 @@ apply_full(vector<double> &x) const
                 }
             }
             break;
-        }
-        }
-    }
+        } // MOMENTS
+        default:
+            Assert(false);
+            break;
+        } // switch (angular_dep)
+    } // points
 }
 
 void SUPG_Scattering::

@@ -159,8 +159,10 @@ spatial_string() const
     {
     case Dependencies::Spatial::WEIGHT:
         return "";
-    case Dependencies::Spatial::BASIS_WEIGHT:
+    case Dependencies::Spatial::BASIS:
         return "-basis";
+    case Dependencies::Spatial::BASIS_WEIGHT:
+        return "-basis_weight";
     }
 }
 

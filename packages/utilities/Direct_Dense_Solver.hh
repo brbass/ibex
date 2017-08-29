@@ -22,13 +22,13 @@ public:
     }
     
     // Check whether data has been initialized
-    virtual bool initialized() const
+    virtual bool initialized() const override
     {
         return initialized_;
     }
     
     // Set matrix and perform decomposition
-    virtual void initialize(std::vector<Scalar> &a)
+    virtual void initialize(std::vector<Scalar> &a) override
     {
         Check(a.size() == size_ * size_);
         a_ = a;

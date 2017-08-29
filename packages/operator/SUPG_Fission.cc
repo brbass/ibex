@@ -76,8 +76,11 @@ apply_full(vector<double> &x) const
         break;
     case Cross_Section::Dependencies::Energy::GROUP_TO_GROUP:
         group_to_group_full(x);
+        break; 
+    default:
+        Assert(false);
         break;
-    }
+   }
 }
 
 void SUPG_Fission::
@@ -90,6 +93,9 @@ apply_coherent(vector<double> &x) const
         break;
     case Cross_Section::Dependencies::Energy::GROUP_TO_GROUP:
         group_to_group_coherent(x);
+        break;
+    default:
+        Assert(false);
         break;
     }
 }

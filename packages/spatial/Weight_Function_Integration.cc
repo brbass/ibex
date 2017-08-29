@@ -2089,6 +2089,9 @@ get_inclusive_radius(double radius) const
         return sqrt(radius * radius + 0.25 * max_interval_ * max_interval_);
     case 3:
         return sqrt(radius * radius + 0.5 * max_interval_ * max_interval_);
+    default:
+        AssertMsg(false, "dimension cannot exceed 3");
+        return -1.;
     }
 }
 

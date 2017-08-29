@@ -19,19 +19,19 @@ public:
                            std::shared_ptr<Sweep_Operator> sweep);
     
     // Data
-    virtual std::shared_ptr<Spatial_Discretization> spatial_discretization() const
+    virtual std::shared_ptr<Spatial_Discretization> spatial_discretization() const override
     {
         return sweep_->spatial_discretization();
     }
-    virtual std::shared_ptr<Angular_Discretization> angular_discretization() const
+    virtual std::shared_ptr<Angular_Discretization> angular_discretization() const override
     {
         return sweep_->angular_discretization();
     }
-    virtual std::shared_ptr<Energy_Discretization> energy_discretization() const
+    virtual std::shared_ptr<Energy_Discretization> energy_discretization() const override
     {
         return sweep_->energy_discretization();
     }
-    virtual std::shared_ptr<Transport_Discretization> transport_discretization() const
+    virtual std::shared_ptr<Transport_Discretization> transport_discretization() const override
     {
         return sweep_->transport_discretization();
     }

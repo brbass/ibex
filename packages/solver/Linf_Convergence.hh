@@ -9,7 +9,7 @@ public:
 
     Linf_Convergence(double tolerance = 1e-8);
 
-    virtual void set_tolerance(double tolerance)
+    virtual void set_tolerance(double tolerance) override
     {
         tolerance_ = tolerance;
     }

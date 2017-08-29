@@ -57,12 +57,12 @@ public:
     {
         return dimension_;
     }
-    virtual int find_region(std::vector<double> const &position) const
+    virtual int find_region(std::vector<double> const &position) const override
     {
         AssertMsg(false, "not implemented");
         return -1;
     }
-    virtual int find_surface(std::vector<double> const &position) const
+    virtual int find_surface(std::vector<double> const &position) const override
     {
         AssertMsg(false, "not implemented");
         return -1;
@@ -71,7 +71,7 @@ public:
                                   std::vector<double> const &initial_direction,
                                   int &final_region,
                                   double &distance,
-                                  std::vector<double> &final_position) const
+                                  std::vector<double> &final_position) const override
     {
         AssertMsg(false, "not implemented");
         return -1;
@@ -80,18 +80,18 @@ public:
                               std::vector<double> const &initial_direction,
                               int &boundary_region,
                               double &distance,
-                              std::vector<double> &final_position) const
+                              std::vector<double> &final_position) const override
     {
         AssertMsg(false, "not implemented");
         return -1;
     }
     virtual void optical_distance(std::vector<double> const &initial_position,
                                   std::vector<double> const &final_position,
-                                  std::vector<double> &optical_distance) const
+                                  std::vector<double> &optical_distance) const override
     {
         AssertMsg(false, "not implemented");
     }
-    virtual std::shared_ptr<Material> material(std::vector<double> const &position) const
+    virtual std::shared_ptr<Material> material(std::vector<double> const &position) const override
     {
         Cross_Section::Dependencies none_group;
         none_group.energy = Cross_Section::Dependencies::Energy::GROUP;
@@ -113,11 +113,11 @@ public:
                                           internal_source);
         
     }
-    virtual void check_class_invariants() const
+    virtual void check_class_invariants() const override
     {
         AssertMsg(false, "not implemented");
     }
-    virtual void output(XML_Node output_node) const
+    virtual void output(XML_Node output_node) const override
     {
         AssertMsg(false, "not implemented");
     }

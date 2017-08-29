@@ -11,7 +11,7 @@ public:
     Truncated_Gaussian_RBF(double radius = 5);
 
     // Distance from center the function is nonzero
-    virtual double radius() const
+    virtual double radius() const override
     {
         return radius_;
     }

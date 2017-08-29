@@ -14,7 +14,7 @@ public:
     Wendland1_RBF(int order);
     
     // Distance from center the function is nonzero
-    virtual double radius() const
+    virtual double radius() const override
     {
         return 1.;
     }

@@ -102,6 +102,7 @@ get_direct_solver(int size) const
         return make_shared<DDS5>();
     default:
         AssertMsg(false, "direct solver of size (" + to_string(size) + ") not available");
+        return shared_ptr<Dense_Solver<Dense_Solver_Factory::Scalar> >();
     }
 }
 
@@ -154,5 +155,6 @@ get_fixed_eigen_solver(int size) const
     */
     default:
         AssertMsg(false, "fixed eigen solver of size (" + to_string(size) + ") not available");
+        return shared_ptr<Dense_Solver<Dense_Solver_Factory::Scalar> >();
     }
 }

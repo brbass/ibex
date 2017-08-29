@@ -56,6 +56,7 @@ namespace Quadrature_Rule
                            weights);
             break;
         }
+        return true;
     }
     
     bool cartesian_1d(Quadrature_Type quadrature_type,

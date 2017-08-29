@@ -56,7 +56,7 @@ endif()
 # Project #
 ###########
 
-project(Orca)
+project(Ibex)
 
 if(TRUE)
     message("\nCMake CXX Compiler:\t${CMAKE_CXX_COMPILER}")

@@ -162,6 +162,7 @@ double Linear_MLS_Function::
 laplacian_value(vector<double> const &r) const
 {
     AssertMsg(false, "laplacian not available for Linear_MLS");
+    return -1.;
 }
 
 void Linear_MLS_Function::
