@@ -102,7 +102,7 @@ def get_data(file_path):
 # and values, a list for each of these parameters.
 # Ex: parameters = ["num_points", "num_groups"], values = [[120, 240], [2, 3]]
 # Assumes values are scalars or strings
-def save_from_template(data):
+def perm_save_from_template(data):
     # Get template string
     template_filename = data["template_filename"]
     template_file = open(template_filename, "r")
@@ -152,17 +152,68 @@ def run_multiprocessing_command(executable,
 
     # Run command
     print("start \"{}\" on process {}".format(command, pid))
-    subprocess.call([command], shell=True)
-    print("end \"{}\" on process {}".format(command, pid))
+    try:
+        subprocess.call([command], shell=True)
+        print("end \"{}\" on process {}".format(command, pid))
+    except:
+        print("fail \"{}\" on process {}".format(command, pid))
 
     # Switch back to starting directory
     # os.chdir(starting_directory)
 
-def run_from_template(data):
+# Run all permutations of data
+def perm_run_from_template(data):
     # Get commands
     executable = data["executable"]
     # directory = data["directory"]
-    input_filenames = save_from_template(data)
+    input_filenames = perm_save_from_template(data)
+    input_commands = [[executable, input_filename] for input_filename in input_filenames]
+    
+    # Run problems
+    num_procs = data["num_procs"]
+    with multiprocessing.Pool(processes=num_procs) as pool:
+        pool.starmap(run_multiprocessing_command, input_commands)
+        pool.close()
+        pool.join()
+    
+    # Return filenames
+    return input_filenames
+
+def single_save_from_template(data):
+    # Get template string
+    template_filename = data["template_filename"]
+    template_file = open(template_filename, "r")
+    template_string = template_file.read()
+    template_file.close()
+    
+    # Get data
+    parameters = data["parameters"]
+    num_parameters = len(parameters)
+    values = data["values"]
+    descriptions = data["descriptions"]
+    prefix = data["prefix"]
+    postfix = data["postfix"]
+    
+    # Get input filename and string
+    input_string = template_string
+    input_filename = prefix
+    for parameter, value, description in zip(parameters, values, descriptions):
+        input_string = input_string.replace(parameter, str(value))
+        input_filename += "_{}".format(description)
+    input_filename += postfix
+    
+    # Save input file
+    input_file = open(input_filename, "w")
+    input_file.write(input_string)
+    input_file.close()
+    
+    return input_filename
+    
+def single_run_from_template(data):
+    # Get commands
+    executable = data["executable"]
+    # directory = data["directory"]
+    input_filenames = perm_save_from_template(data)
     input_commands = [[executable, input_filename] for input_filename in input_filenames]
     
     # Create multiprocessing pool
@@ -170,8 +221,67 @@ def run_from_template(data):
     pool = multiprocessing.Pool(processes=num_procs)
     
     # Run problems
-    pool.starmap(run_multiprocessing_command, input_commands)
+    num_procs = data["num_procs"]
+    with multiprocessing.Pool(processes=num_procs) as pool:
+        pool.starmap(run_multiprocessing_command, input_commands)
+        pool.close()
+        pool.join()
 
     # Return filenames
     return input_filenames
+
+def full_save_from_template(data,
+                            save_files=True):
+    # Get template string
+    template_filename = data["template_filename"]
+    template_file = open(template_filename, "r")
+    template_string = template_file.read()
+    template_file.close()
     
+    # Get data
+    parameters = data["parameters"]
+    num_parameters = len(parameters)
+    values = data["values"]
+    descriptions = data["descriptions"]
+    prefix = data["prefix"]
+    postfix = data["postfix"]
+    
+    # Get input files
+    input_filenames = []
+    for value_perm, description_perm in zip(values, descriptions):
+        # Get input filename and string
+        input_string = template_string
+        input_filename = prefix
+        for parameter, value, description in zip(parameters, value_perm, description_perm):
+            input_string = input_string.replace(parameter, str(value))
+            input_filename += "_{}".format(description)
+        input_filename += postfix
+        input_filenames.append(input_filename)
+
+        # Save input file
+        if save_files:
+            input_file = open(input_filename, "w")
+            input_file.write(input_string)
+            input_file.close()
+    
+    return input_filenames
+
+# Give list of run parameters: no permutations taken
+def full_run_from_template(data,
+                           save_files=True):
+    # Get commands
+    executable = data["executable"]
+    # directory = data["directory"]
+    input_filenames = full_save_from_template(data,
+                                              save_files)
+    input_commands = [[executable, input_filename] for input_filename in input_filenames]
+    
+    # Run problems
+    num_procs = data["num_procs"]
+    with multiprocessing.Pool(processes=num_procs) as pool:
+        pool.starmap(run_multiprocessing_command, input_commands)
+        pool.close()
+        pool.join()
+
+    # Return filenames
+    return input_filenames
