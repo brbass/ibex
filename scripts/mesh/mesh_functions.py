@@ -68,7 +68,10 @@ def get_annular_points(r1, # inside radius
                        include_endpoint = True):
     # Get radius values
     radius_vals = np.linspace(r1, r2, num_points_r, endpoint=include_endpoint)
-    dr = radius_vals[1] - radius_vals[0]
+    if include_endpoint:
+        dr = radius_vals[1] - radius_vals[0]
+    else:
+        dr = (r2 - r1) / num_points_r
     max_points = 2*int(np.power(2 * r2 / dr, 2))
     
     # Get points
