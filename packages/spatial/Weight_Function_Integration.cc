@@ -1878,7 +1878,7 @@ initialize_mesh()
             int j = p == 0 ? 0 : dimensional_cells_[dj] - 1;
             int nj = p == 0 ? 0 : dimensional_nodes_[dj] - 1;
             double normal = p == 0 ? -1 : 1;
-            for (int i = 0; j < dimensional_cells_[di]; ++i)
+            for (int i = 0; i < dimensional_cells_[di]; ++i)
             {
                 for (int k = 0; k < dimensional_cells_[dk]; ++k)
                 {
@@ -1903,7 +1903,7 @@ initialize_mesh()
             }
         }
 
-        // Positive and negative (p = 0, 1) y boundaries
+        // Positive and negative (p = 0, 1) z boundaries
         for (int p = 0; p < 2; ++p)
         {
             int k = p == 0 ? 0 : dimensional_cells_[dk] - 1;
