@@ -52,6 +52,24 @@ def get_cartesian_points(length, # Length of a single side
                 points[i + num_points_xy * j, :] = [x, y]
     return num_points, points
 
+# Get a 3D Cartesian mesh
+def get_cartesian_points_3d(length, # Length of a single side
+                            num_points_xyz): # Number of points in one dimension
+    # Get total number of points and the actual points
+    num_points = num_points_xyz**3
+    points_x = np.linspace(-length/2, length/2, num_points_xyz, endpoint=True)
+    points_y = np.linspace(-length/2, length/2, num_points_xyz, endpoint=True)
+    points_z = np.linspace(-length/2, length/2, num_points_xyz, endpoint=True)
+    
+    # Create array of points outside cutout circle
+    points = np.zeros((num_points, 3))
+    point = 0
+    for i, x in enumerate(points_x):
+        for j, y in enumerate(points_y):
+            for k, z in enumerate(points_z):
+                points[i + num_points_xyz * (j + num_points_xyz * k), :] = [x, y, z]
+    return num_points, points
+
 # Get a cylindrical mesh
 def get_cylindrical_points(radius, # Radius of mesh
                            num_points_r, # Number of points in radial direction

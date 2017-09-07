@@ -1624,8 +1624,8 @@ initialize_mesh()
                                      limits_[dk][0] + intervals_[dk] * k};
                 }
             }
-            break;
         }
+        break;
     }
     default:
         AssertMsg(false, "dimension (" + to_string(dimension_) +  ") not found");
