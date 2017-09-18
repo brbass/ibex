@@ -254,7 +254,8 @@ gradient_values(vector<double> const &position,
 void Linear_MLS_Function::
 output(XML_Node output_node) const
 {
-    
+    output_node.set_attribute("linear_mls", "type");
+    function_->output(output_node);
 }
 
 void Linear_MLS_Function::

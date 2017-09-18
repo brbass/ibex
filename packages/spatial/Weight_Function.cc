@@ -1328,6 +1328,8 @@ output(XML_Node output_node) const
     }
     output_node.set_child_value(number_of_basis_functions_, "number_of_basis_functions");
     output_node.set_child_value(radius_, "radius");
+    output_node.set_child_value(options_->tau_const, "tau_const");
+    output_node.set_child_value(options_->tau, "tau");
     meshless_function_->output(output_node.append_child("function"));
     
     vector<int> basis_functions(number_of_basis_functions_);

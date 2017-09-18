@@ -1214,7 +1214,7 @@ get_surface_quadrature(int i,
             {
                 // At positive y boundary
                 ordinates_y.assign(number_of_ordinates,
-                                   limits[dx][max]);
+                                   limits[dy][max]);
             }
             break;
         case dz:
@@ -1861,7 +1861,7 @@ initialize_mesh()
                     {
                         for (int nk = k; nk <= k + 1; ++nk)
                         {
-                            int n_index = nk + dimensional_nodes_[dk] * (nj + dimensional_nodes_[dj] * i);
+                            int n_index = nk + dimensional_nodes_[dk] * (nj + dimensional_nodes_[dj] * ni);
                             Node &node = nodes_[n_index];
                             node.neighboring_surfaces.push_back(index);
                         }
@@ -1892,7 +1892,7 @@ initialize_mesh()
                     {
                         for (int nk = k; nk <= k + 1; ++nk)
                         {
-                            int n_index = nk + dimensional_nodes_[dk] * (nj + dimensional_nodes_[dj] * i);
+                            int n_index = nk + dimensional_nodes_[dk] * (nj + dimensional_nodes_[dj] * ni);
                             Node &node = nodes_[n_index];
                             node.neighboring_surfaces.push_back(index);
                         }
@@ -1923,7 +1923,7 @@ initialize_mesh()
                     {
                         for (int nj = j; nj <= j + 1; ++nj)
                         {
-                            int n_index = nk + dimensional_nodes_[dk] * (nj + dimensional_nodes_[dj] * i);
+                            int n_index = nk + dimensional_nodes_[dk] * (nj + dimensional_nodes_[dj] * ni);
                             Node &node = nodes_[n_index];
                             node.neighboring_surfaces.push_back(index);
                         }

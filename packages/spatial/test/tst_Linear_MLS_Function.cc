@@ -190,7 +190,7 @@ int test_all_values(int dimension)
 
     // Set preliminary data
     double tolerance = 1e-10;
-    double radius_num_intervals = 4;
+    double radius_num_intervals = 3;
     string rbf_type = "wendland11";
     
     // Set limits and number of points
