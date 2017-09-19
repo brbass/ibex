@@ -550,5 +550,15 @@ output(XML_Node output_node) const
 shared_ptr<Material> Constructive_Solid_Geometry::
 material(vector<double> const &position) const
 {
-    return regions_[find_region_including_surface(position)]->material();
+    int region = find_region_including_surface(position);
+
+    if (region == NO_REGION)
+    {
+        AssertMsg(false, "point not found in any region");
+        return shared_ptr<Material>();
+    }
+    else
+    {
+        return regions_[region]->material();
+    }
 }
