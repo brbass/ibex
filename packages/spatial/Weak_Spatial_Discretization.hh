@@ -186,6 +186,8 @@ private:
 
     // Data
     bool has_reflection_;
+    bool basis_depends_on_neighbors_;
+    bool weight_depends_on_neighbors_;
     int number_of_points_;
     int number_of_boundary_weights_;
     int number_of_boundary_bases_;

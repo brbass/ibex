@@ -1,5 +1,6 @@
 #include "Solver_Parser.hh"
 
+#include "Arbitrary_Moment_Value_Operator.hh"
 #include "Identity_Operator.hh"
 #include "Krylov_Eigenvalue.hh"
 #include "Krylov_Steady_State.hh"
@@ -30,6 +31,68 @@ Solver_Parser(shared_ptr<Weak_Spatial_Discretization> spatial,
 {
 }
 
+vector<shared_ptr<Vector_Operator> > Solver_Parser::
+get_value_operators(XML_Node input_node) const
+{
+    int dimension = spatial_->dimension();
+    vector<shared_ptr<Vector_Operator> > opers;
+
+    for (XML_Node value_node = input_node.get_child("value",
+                                                    false);
+         value_node;
+         value_node = value_node.get_sibling("value",
+                                             false))
+    {
+        string value_type = value_node.get_attribute<string>("type");
+        
+        if (value_type == "centers")
+        { 
+            // Values at the weight function centers
+            opers.push_back(make_shared<Moment_Value_Operator>(spatial_,
+                                                               angular_,
+                                                               energy_,
+                                                               false));
+        }
+        else if (value_type == "weighted_centers")
+        {
+            // Values weighted by weight function integrals
+            opers.push_back(make_shared<Moment_Value_Operator>(spatial_,
+                                                               angular_,
+                                                               energy_,
+                                                               true));
+        }
+        else if (value_type == "points")
+        {
+            // Values at given points
+            int num_value_points
+                = value_node.get_child_value<int>("number_of_points");
+            vector<double> input_points
+                = value_node.get_child_vector<double>("points",
+                                                      num_value_points * dimension);
+            vector<vector<double> > points(num_value_points,
+                                           vector<double>(dimension));
+            for (int i = 0; i < num_value_points; ++i)
+            {
+                for (int d = 0; d < dimension; ++d)
+                {
+                    points[i][d] = input_points[d + dimension * i];
+                }
+            }
+            
+            opers.push_back(make_shared<Arbitrary_Moment_Value_Operator>(spatial_,
+                                                                         angular_,
+                                                                         energy_,
+                                                                         points));
+        }
+        else
+        {
+            AssertMsg(false, "value type (" + value_type + ") not found");
+        }
+    }
+    
+    return opers;
+}
+
 shared_ptr<Source_Iteration> Solver_Parser::
 get_source_iteration(XML_Node input_node,
                      shared_ptr<Sweep_Operator> Linv) const
@@ -43,11 +106,8 @@ get_source_iteration(XML_Node input_node,
 
     // Get value operator
     vector<shared_ptr<Vector_Operator> > value_operators
-        = {make_shared<Moment_Value_Operator>(spatial_,
-                                              angular_,
-                                              energy_,
-                                              false)};
-
+        = get_value_operators(input_node);
+    
     // Get convergence
     shared_ptr<Convergence_Measure> convergence
         = make_shared<Linf_Convergence>();
@@ -88,11 +148,8 @@ get_krylov_steady_state(XML_Node input_node,
     
     // Get value operator
     vector<shared_ptr<Vector_Operator> > value_operators
-        = {make_shared<Moment_Value_Operator>(spatial_,
-                                              angular_,
-                                              energy_,
-                                              false)};
-
+        = get_value_operators(input_node);
+    
     // Get convergence
     shared_ptr<Convergence_Measure> convergence
         = make_shared<Linf_Convergence>();
@@ -133,11 +190,8 @@ get_krylov_eigenvalue(XML_Node input_node,
     
     // Get value operator
     vector<shared_ptr<Vector_Operator> > value_operators
-        = {make_shared<Moment_Value_Operator>(spatial_,
-                                              angular_,
-                                              energy_,
-                                              false)};
-
+       = get_value_operators(input_node);
+    
     // Get source iteration
     Krylov_Eigenvalue::Options iteration_options;
     iteration_options.max_inverse_iterations = input_node.get_attribute<int>("max_inverse_iterations", 5000);

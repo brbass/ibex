@@ -974,7 +974,7 @@ get_volume_values(Mesh::Cell const &cell,
     for (int j = 0; j < cell.number_of_weight_functions; ++j)
     {
         shared_ptr<Meshless_Function> func = weights_[cell.weight_indices[j]]->function()->base_function();
-
+        
         w_val[j] = func->value(position);
         w_grad[j] = func->gradient_value(position);
     }

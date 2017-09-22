@@ -12,6 +12,7 @@ class Solver_Factory;
 class Source_Iteration;
 class Sweep_Operator;
 class Transport_Discretization;
+class Vector_Operator;
 class Weak_Spatial_Discretization;
 class XML_Node;
 
@@ -23,6 +24,8 @@ public:
                   std::shared_ptr<Energy_Discretization> energy,
                   std::shared_ptr<Transport_Discretization> transport);
 
+    std::vector<std::shared_ptr<Vector_Operator> >
+    get_value_operators(XML_Node input_node) const;
     std::shared_ptr<Source_Iteration>
     get_source_iteration(XML_Node input_node,
                          std::shared_ptr<Sweep_Operator> Linv) const;

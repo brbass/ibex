@@ -8,6 +8,7 @@
 #include "Dimensional_Moments.hh"
 #include "KD_Tree.hh"
 #include "Meshless_Function.hh"
+#include "Meshless_Normalization.hh"
 #include "Weight_Function_Integration.hh"
 #include "XML_Node.hh"
 
@@ -19,6 +20,8 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
                             shared_ptr<Dimensional_Moments> dimensional_moments,
                             shared_ptr<Weak_Spatial_Discretization_Options> options,
                             shared_ptr<KD_Tree> kd_tree):
+    basis_depends_on_neighbors_(bases[0]->function()->depends_on_neighbors()),
+    weight_depends_on_neighbors_(weights[0]->function()->depends_on_neighbors()),
     number_of_points_(weights.size()),
     dimension_(weights[0]->dimension()),
     number_of_nodes_(weights[0]->number_of_nodes()),
@@ -33,7 +36,7 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
     {
         options_->finalize_input();
     }
-    
+
     // Get number of basis functions
     number_of_basis_functions_.resize(number_of_points_);
     for (int i = 0; i < number_of_points_; ++i)
@@ -236,18 +239,42 @@ expansion_values(int i,
     int number_of_basis_functions = weight->number_of_basis_functions();
     vector<int> const basis_indices = weight->basis_function_indices();
 
+    // Get the basis function values at the position
+    vector<double> basis_vals(number_of_basis_functions);
+    for (int j = 0; j < number_of_basis_functions; ++j)
+    {
+        basis_vals[j] = weight->basis_function(j)->function()->base_function()->value(position);
+    }
+
+    // Normalize if applicable
+    if (basis_depends_on_neighbors_)
+    {
+        vector<vector<double> > center_positions(number_of_basis_functions);
+        for (int j = 0; j < number_of_basis_functions; ++j)
+        {
+            center_positions[i] = weight->basis_function(j)->position();
+        }
+        shared_ptr<Meshless_Normalization> norm
+            = weight->basis_function(0)->function()->normalization();
+        norm->get_values(position,
+                         center_positions,
+                         basis_vals,
+                         basis_vals);
+    }
+    
     // Get value of function at a specific point
     vector<double> vals(number_of_groups, 0.);
     for (int j = 0; j < number_of_basis_functions; ++j)
     {
         int basis_index = basis_indices[j];
-        double val = weight->basis_function(j)->function()->value(position);
+        double val = basis_vals[j];
         for (int g = 0; g < number_of_groups; ++g)
         {
             int index = g + number_of_groups * basis_index;
             vals[g] += val * coefficients[index];
         }
     }
+    
     return vals;
 }
 
