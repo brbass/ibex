@@ -252,7 +252,7 @@ expansion_values(int i,
         vector<vector<double> > center_positions(number_of_basis_functions);
         for (int j = 0; j < number_of_basis_functions; ++j)
         {
-            center_positions[i] = weight->basis_function(j)->position();
+            center_positions[j] = weight->basis_function(j)->position();
         }
         shared_ptr<Meshless_Normalization> norm
             = weight->basis_function(0)->function()->normalization();

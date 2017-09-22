@@ -2,6 +2,7 @@
 #define Solver_Parser_hh
 
 #include <memory>
+#include <vector>
 
 class Angular_Discretization;
 class Energy_Discretization;
