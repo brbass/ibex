@@ -7,6 +7,7 @@
 #include "Constructive_Solid_Geometry.hh"
 #include "Cylinder_2D.hh"
 #include "Cylinder_3D.hh"
+#include "Ellipsoid_3D.hh"
 #include "Material.hh"
 #include "Plane_1D.hh"
 #include "Plane_2D.hh"
@@ -164,6 +165,23 @@ get_surfaces(XML_Node surfaces_node,
                                                  surface_type,
                                                  radius,
                                                  origin);
+                break;
+            default:
+                AssertMsg(false, "dimension not found");
+            }
+        }
+        else if (shape == "ellipsoid")
+        {
+            vector<double> axes = surface_node.get_child_vector<double>("axes", dimension);
+            vector<double> origin = surface_node.get_child_vector<double>("origin", dimension);
+            
+            switch(dimension)
+            {
+            case 3:
+                surface = make_shared<Ellipsoid_3D>(index,
+                                                    surface_type,
+                                                    axes,
+                                                    origin);
                 break;
             default:
                 AssertMsg(false, "dimension not found");

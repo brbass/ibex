@@ -24,7 +24,8 @@ public:
         CARTESIAN_PLANE,
         PLANE,
         SPHERE,
-        CYLINDER    
+        CYLINDER,
+        ELLIPSOID
     };
 
     std::shared_ptr<Conversion<Surface_Class, std::string> > surface_class_conversion() const;

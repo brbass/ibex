@@ -1,24 +1,24 @@
-#ifndef Sphere_hh
-#define Sphere_hh
+#ifndef Ellipsoid_hh
+#define Ellipsoid_hh
 
 #include "Surface.hh"
 
-class Sphere : public Surface
+class Ellipsoid : public Surface
 {
 public:
 
-    Sphere(int index,
-           int dimension,
-           Surface_Type surface_type);
+    Ellipsoid(int index,
+              int dimension,
+              Surface_Type surface_type);
     
-    // Sphere methods
-    virtual double radius() const = 0;
+    // Ellipsoid methods
+    virtual std::vector<double> axes() const = 0;
     virtual std::vector<double> const &origin() const = 0;
     
     // Surface methods
     virtual Surface_Class surface_class() const
     {
-        return Surface_Class::SPHERE;
+        return Surface_Class::ELLIPSOID;
     }
     virtual Relation relation(std::vector<double> const &position,
                               bool check_equality = false) const = 0;

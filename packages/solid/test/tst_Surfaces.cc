@@ -1,6 +1,7 @@
 #include "Check_Equality.hh"
 #include "Cylinder_2D.hh"
 #include "Cylinder_3D.hh"
+#include "Ellipsoid_3D.hh"
 #include "Plane_1D.hh"
 #include "Plane_2D.hh"
 #include "Plane_3D.hh"
@@ -111,6 +112,19 @@ shared_ptr<Surface> get_sphere_3d()
                                   surface_type,
                                   radius,
                                   origin);
+}
+
+shared_ptr<Surface> get_ellipsoid_3d()
+{
+    int index = 0;
+    Surface::Surface_Type surface_type = Surface::Surface_Type::INTERNAL;
+    vector<double> axes = {5, 1, 7};
+    vector<double> origin = {-4., 1., 1.};
+    
+    return make_shared<Ellipsoid_3D>(index,
+                                     surface_type,
+                                     axes,
+                                     origin);
 }
 
 int test_surface(shared_ptr<Surface> surface,
@@ -229,7 +243,11 @@ int test_surface(shared_ptr<Surface> surface,
             checksum += 1;
         }
     }
-                                      
+
+    if (checksum == 0)
+    {
+        cout << description << " success" << endl;
+    }
     return checksum;
 }
 
@@ -242,7 +260,8 @@ int main()
     checksum += test_surface(get_plane_1d(), "plane_1d");
     checksum += test_surface(get_plane_2d(), "plane_2d");
     checksum += test_surface(get_plane_3d(), "plane_3d");
-    checksum += test_surface(get_sphere_3d(), "plane_3d");
+    checksum += test_surface(get_sphere_3d(), "sphere_3d");
+    checksum += test_surface(get_ellipsoid_3d(), "ellipsoid_3d");
 
     return checksum;
 }

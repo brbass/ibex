@@ -58,6 +58,19 @@ namespace Vector_Functions_2D
         return {x[0] / k,
                 x[1] / k};
     }
+    
+    template<class T> vector<T> entrywise_product(vector<T> const &x,
+                                                  vector<T> const &y)
+    {
+        return {x[0] * y[0],
+                x[1] * y[1]};
+    }
+
+    template<class T> vector<T> inverse(vector<T> const &x)
+    {
+        return {1 / x[0],
+                1 / x[1]};
+    }
 } // namespace Vector_Functions_2D
 
 #endif
