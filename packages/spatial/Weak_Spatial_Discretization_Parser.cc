@@ -48,6 +48,10 @@ get_weak_discretization(XML_Node input_node) const
     {
         return get_galerkin_points_discretization(input_node);
     }
+    else if (input_format == "cartesian")
+    {
+        return get_cartesian_discretization(input_node);
+    }
     else
     {
         AssertMsg(false, "input format (" + input_format + ") not found");
@@ -135,6 +139,147 @@ get_galerkin_points_discretization(XML_Node input_node) const
             points[i][d] = points_input[k];
         }
     }
+    
+    // Make KD tree
+    shared_ptr<KD_Tree> kd_tree
+        = make_shared<KD_Tree>(dimension,
+                               number_of_points,
+                               points);
+    
+    // Find radii
+    XML_Node radius_node = weights_node.get_child("radius_calculation");
+    string radii_method = radius_node.get_attribute<string>("method");
+    int number_of_neighbors = radius_node.get_child_value<int>("number_of_neighbors");
+    double radius_multiplier = radius_node.get_child_value<double>("radius_multiplier");
+    vector<double> radii;
+    if (radii_method == "nearest")
+    {
+        meshless_factory.get_radii_nearest(kd_tree,
+                                           dimension,
+                                           number_of_points,
+                                           number_of_neighbors,
+                                           radius_multiplier,
+                                           radii);
+    }
+    else if (radii_method == "coverage")
+    {
+        meshless_factory.get_radii_coverage(kd_tree,
+                                            dimension,
+                                            number_of_points,
+                                            number_of_neighbors,
+                                            radius_multiplier,
+                                            radii);
+    }
+    else
+    {
+        AssertMsg(false, "radii method (" + radii_method + ") not found");
+    }
+    
+    // Find neighbors
+    vector<vector<int> > neighbors;
+    meshless_factory.get_neighbors(kd_tree,
+                                   dimension,
+                                   number_of_points,
+                                   radii,
+                                   radii,
+                                   points,
+                                   neighbors);
+    
+    // Get RBF
+    shared_ptr<RBF> rbf = rbf_parser.parse_from_xml(weights_node.get_child("meshless_function"));
+    shared_ptr<Distance> distance = make_shared<Cartesian_Distance>(dimension);
+    
+    // Get independent meshless functions
+    vector<shared_ptr<Meshless_Function> > meshless_functions;
+    meshless_factory.get_rbf_functions(number_of_points,
+                                       radii,
+                                       points,
+                                       rbf,
+                                       distance,
+                                       meshless_functions);
+
+    // Get MLS
+    string meshless_type = weights_node.get_child("meshless_function").get_attribute<string>("type");
+    if (meshless_type == "rbf")
+    {
+        // Do nothing
+    }
+    else if (meshless_type == "linear_mls")
+    {
+        vector<shared_ptr<Meshless_Function> > mls_functions;
+        meshless_factory.get_mls_functions(number_of_points,
+                                           meshless_functions,
+                                           neighbors,
+                                           mls_functions);
+        meshless_functions.swap(mls_functions);
+    }
+    else
+    {
+        AssertMsg(false, "meshless type (" + meshless_type + ") not found");
+    }
+
+    // Get basis functions
+    vector<shared_ptr<Basis_Function> > basis_functions;
+    weak_factory.get_basis_functions(number_of_points,
+                                     meshless_functions,
+                                     basis_functions);
+
+    // Get weight functions
+    vector<shared_ptr<Weight_Function> > weight_functions;
+    weak_factory.get_weight_functions(number_of_points,
+                                      weight_options,
+                                      weak_options,
+                                      dimensional_moments,
+                                      neighbors,
+                                      meshless_functions,
+                                      basis_functions,
+                                      weight_functions);
+    
+    // Create spatial discretization
+    return make_shared<Weak_Spatial_Discretization>(basis_functions,
+                                                    weight_functions,
+                                                    dimensional_moments,
+                                                    weak_options);
+}
+
+shared_ptr<Weak_Spatial_Discretization> Weak_Spatial_Discretization_Parser::
+get_cartesian_discretization(XML_Node input_node) const
+{
+    RBF_Parser rbf_parser;
+    Meshless_Function_Factory meshless_factory;
+    Weak_Spatial_Discretization_Factory weak_factory(solid_geometry_,
+                                                     boundary_surfaces_);
+    
+    // Get options
+    shared_ptr<Weight_Function_Options> weight_options
+        = get_weight_options(input_node.get_child("options"));
+    shared_ptr<Weak_Spatial_Discretization_Options> weak_options
+        = get_weak_options(input_node.get_child("options"));
+    Assert(weak_options->identical_basis_functions
+           != Weak_Spatial_Discretization_Options::Identical_Basis_Functions::FALSE);
+    weak_options->identical_basis_functions
+        = Weak_Spatial_Discretization_Options::Identical_Basis_Functions::TRUE;
+    
+    // Initialize data
+    int dimension = solid_geometry_->dimension();
+    XML_Node weights_node = input_node.get_child("weight_functions");
+    
+    // Get dimensional moments
+    shared_ptr<Dimensional_Moments> dimensional_moments
+        = make_shared<Dimensional_Moments>(weak_options->include_supg,
+                                           dimension);
+    
+    // Get points
+    vector<int> dimensional_points =
+        input_node.get_child_vector<int>("dimensional_points",
+                                         dimension);
+    int number_of_points;
+    vector<vector<double> > points;
+    meshless_factory.get_cartesian_points(dimension,
+                                          dimensional_points,
+                                          weak_options->limits,
+                                          number_of_points,
+                                          points);
     
     // Make KD tree
     shared_ptr<KD_Tree> kd_tree
@@ -422,15 +567,15 @@ get_weak_options(XML_Node input_node) const
     // Get integral options
     options->integration_ordinates = input_node.get_child_value<int>("integration_ordinates");
     options->external_integral_calculation = input_node.get_attribute<bool>("external_integral_calculation");
+    options->solid = solid_geometry_;
+    meshless_factory.get_boundary_limits(dimension,
+                                         boundary_surfaces_,
+                                         options->limits);
     if (options->external_integral_calculation)
     {
-        options->solid = solid_geometry_;
         options->dimensional_cells = input_node.get_child_vector<int>("dimensional_cells", dimension);
-        meshless_factory.get_boundary_limits(dimension,
-                                             boundary_surfaces_,
-                                             options->limits);
     }
-
+    
     // Get Galerkin option
     string identical_string = input_node.get_attribute<string>("identical_basis_functions");
     options->identical_basis_functions = options->identical_basis_functions_conversion()->convert(identical_string);

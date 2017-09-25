@@ -30,6 +30,7 @@ public:
     // Parse from XML node
     std::shared_ptr<Weak_Spatial_Discretization> get_weak_discretization(XML_Node input_node) const;
     std::shared_ptr<Weak_Spatial_Discretization> get_full_discretization(XML_Node input_node) const;
+    std::shared_ptr<Weak_Spatial_Discretization> get_cartesian_discretization(XML_Node input_node) const;
     std::shared_ptr<Weak_Spatial_Discretization> get_galerkin_points_discretization(XML_Node input_node) const;
     std::shared_ptr<Weight_Function_Options> get_weight_options(XML_Node input_node) const;
     std::shared_ptr<Weak_Spatial_Discretization_Options> get_weak_options(XML_Node input_node) const;
