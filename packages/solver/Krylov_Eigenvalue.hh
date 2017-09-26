@@ -22,6 +22,7 @@ public:
         int kspace = 20; // Number of past guesses to store
         int solver_print = 0;
         double tolerance = 1e-10;
+        double eigenvalue_tolerance = 1e-10;
 
         // These shouldn't need to be edited
         int const number_of_eigenvalues = 1;

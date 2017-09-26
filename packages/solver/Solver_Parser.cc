@@ -199,6 +199,8 @@ get_krylov_eigenvalue(XML_Node input_node,
     iteration_options.kspace = input_node.get_attribute<int>("kspace", 10);
     iteration_options.solver_print = input_node.get_attribute<int>("solver_print", 0);
     iteration_options.tolerance = input_node.get_attribute<double>("tolerance", 1e-10);
+    iteration_options.eigenvalue_tolerance = input_node.get_attribute<double>("eigenvalue_tolerance",
+                                                                              iteration_options.tolerance);
     
     return make_shared<Krylov_Eigenvalue>(iteration_options,
                                           spatial_,

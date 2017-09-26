@@ -113,7 +113,7 @@ solve()
         = get_shared_ptr(parameterList());
     params->set("Maximum Iterations", options_.max_iterations);
     params->set("Block Size", options_.block_size);
-    params->set("Convergence Tolerance", options_.tolerance);
+    params->set("Convergence Tolerance", options_.eigenvalue_tolerance);
     params->set("Which", "LR");
     params->set("Maximum Restarts", options_.max_iterations);
     params->set("Relative Convergence Tolerance", true);
