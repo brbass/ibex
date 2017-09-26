@@ -738,12 +738,15 @@ Aztec_Ifpack_Solver(Weak_RBF_Sweep const &wrs):
                                                     rhs_.get());
 
             // Create preconditioner
+            // ILU requires an int "fact: level-of-fill"
+            // ILUT requires a double "fact: ilut level-of-fill"
             prec_[k]
-                = shared_ptr<Ifpack_Preconditioner>(ifp_factory.Create("ILU",
+                = shared_ptr<Ifpack_Preconditioner>(ifp_factory.Create("ILUT",
                                                                        mat_[k].get()));
             Teuchos::ParameterList prec_list;
-            // prec_list.set("fact: drop tolerance", wrs_.options_.drop_tolerance);
-            prec_list.set("fact: level-of-fill", wrs_.options_.level_of_fill);
+            prec_list.set("fact: drop tolerance", wrs_.options_.drop_tolerance);
+            // prec_list.set("fact: level-of-fill", wrs_.options_.level_of_fill);
+            prec_list.set("fact: ilut level-of-fill", wrs_.options_.level_of_fill);
             prec_[k]->SetParameters(prec_list);
             prec_[k]->Initialize();
             prec_[k]->Compute();

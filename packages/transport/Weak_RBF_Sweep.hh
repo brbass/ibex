@@ -36,9 +36,9 @@ public:
         // List of possible solver options
         int max_iterations = 1000;
         int kspace = 20;
-        int level_of_fill = 2;
+        double level_of_fill = 1.0;
         double tolerance = 1e-8;
-        double drop_tolerance = 1e-8;
+        double drop_tolerance = 1e-12;
     };
 
     // Constructor

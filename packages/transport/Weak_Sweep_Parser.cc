@@ -29,8 +29,8 @@ get_weak_rbf_sweep(XML_Node input_node) const
                                                            options.max_iterations);
     options.kspace = input_node.get_attribute<int>("kspace",
                                                    options.kspace);
-    options.level_of_fill = input_node.get_attribute<int>("level_of_fill",
-                                                          options.level_of_fill);
+    options.level_of_fill = input_node.get_attribute<double>("level_of_fill",
+                                                             options.level_of_fill);
     options.tolerance = input_node.get_attribute<double>("tolerance",
                                                          options.tolerance);
     options.drop_tolerance = input_node.get_attribute<double>("drop_tolerance",
