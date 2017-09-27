@@ -101,7 +101,7 @@ solve()
     options.kspace = options_.kspace;
     options.solver_print = options_.solver_print;
     options.tolerance = options_.tolerance;
-    shared_ptr<Inverse_Operator> solver
+    shared_ptr<Aztec_Inverse_Operator> solver
         = make_shared<Aztec_Inverse_Operator>(options,
                                               flux_operator_);
     
@@ -110,6 +110,7 @@ solve()
     coefficients = q;
     (*solver)(coefficients);
     coefficients.resize(phi_size);
+    result_->inverse_iterations = solver->number_of_iterations();
     
     // Get flux
     int number_of_values = value_operators_.size();
