@@ -52,6 +52,7 @@ solve()
     }
     timer.stop();
     times_.emplace_back(timer.time(), "total");
+    output_timing();
 }
 
 void Transport_Problem::
@@ -201,7 +202,6 @@ solve_steady_state()
     solver->output(output_node_.append_child("solver"));
     timer.stop();
     times_.emplace_back(timer.time(), "output");
-    output_timing();
 }
 
 void Transport_Problem::
@@ -264,7 +264,6 @@ solve_eigenvalue()
     solver->output(output_node_.append_child("solver"));
     timer.stop();
     times_.emplace_back(timer.time(), "output");
-    output_timing();
 }
 
 void Transport_Problem::
