@@ -111,6 +111,7 @@ solve()
     (*solver)(coefficients);
     coefficients.resize(phi_size);
     result_->inverse_iterations = solver->number_of_iterations();
+    result_->total_iterations = solver->number_of_evaluations();
     
     // Get flux
     int number_of_values = value_operators_.size();

@@ -6,20 +6,90 @@ from matplotlib import pyplot as plt
 import lxml.etree as et
 
 # Get a 1D Cartesian mesh
-def get_cartesian_points_1d(length,
+def get_cartesian_points_1d(xmin,
+                            xmax,
                             num_points):
+    points_1d = np.linspace(xmin, xmax, num_points, endpoint=True)
+    points = np.zeros((num_points, 1))
+    for i in range(num_points):
+        points[i][0] = points_1d[i]
+    return points
+
+# Get a 2D Cartesian mesh
+def get_cartesian_points_2d(xmin,
+                            xmax,
+                            ymin,
+                            ymax,
+                            numx,
+                            numy):
+    # Get total number of points and the actual points
+    num_points = numx * numy;
+    points_x = np.linspace(xmin, xmax, numx, endpoint=True)
+    points_y = np.linspace(ymin, ymax, numy, endpoint=True)
+    
+    # Create array of points outside cutout circle
+    points = np.zeros((num_points, 2))
+    point = 0
+    for i, x in enumerate(points_x):
+        for j, y in enumerate(points_y):
+                points[i + numx * j, :] = [x, y]
+    return num_points, points
+    
+# Get a 3D Cartesian mesh
+def get_cartesian_points_3d(xmin,
+                            xmax,
+                            ymin,
+                            ymax,
+                            zmin,
+                            zmax,
+                            numx,
+                            numy,
+                            numz):
+    # Get total number of points and the actual points
+    num_points = num_points_xyz**3
+    points_x = np.linspace(-length/2, length/2, num_points_xyz, endpoint=True)
+    points_y = np.linspace(-length/2, length/2, num_points_xyz, endpoint=True)
+    points_z = np.linspace(-length/2, length/2, num_points_xyz, endpoint=True)
+    
+    # Create array of points outside cutout circle
+    points = np.zeros((num_points, 3))
+    point = 0
+    for i, x in enumerate(points_x):
+        for j, y in enumerate(points_y):
+            for k, z in enumerate(points_z):
+                points[i + num_points_xyz * (j + num_points_xyz * k), :] = [x, y, z]
+    return num_points, points
+    
+# Get slab with automatic min/max
+def get_slab(length,
+             num_points):
     points_1d = np.linspace(-length/2, length/2, num_points, endpoint=True)
     points = np.zeros((num_points, 1))
     for i in range(num_points):
         points[i][0] = points_1d[i]
     return points
-                            
 
+# Get a square with automatic min/max
+def get_square(length, # Length of a single side
+               num_points_xy): # Number of points in one dimension
+    # Get total number of points and the actual points
+    num_points = num_points_xy**2
+    points_x = np.linspace(-length/2, length/2, num_points_xy, endpoint=True)
+    points_y = np.linspace(-length/2, length/2, num_points_xy, endpoint=True)
+    
+    # Create array of points outside cutout circle
+    points = np.zeros((num_points, 2))
+    point = 0
+    for i, x in enumerate(points_x):
+        for j, y in enumerate(points_y):
+                points[i + num_points_xy * j, :] = [x, y]
+    return num_points, points
+    
 # Get a Cartesian mesh with a cylindrical cutout
-def get_cartesian_mesh_cutout(radius, # Radius of cutout circle
-                              length, # Length of a single side
-                              num_points_xy, # Number of points in one dimension
-                              delta): # Extra distance outside of radius to avoid putting points
+def get_square_cutout(radius, # Radius of cutout circle
+                      length, # Length of a single side
+                      num_points_xy, # Number of points in one dimension
+                      delta): # Extra distance outside of radius to avoid putting points
     # Get total number of points and the actual points
     num_points = num_points_xy**2
     points_x = np.linspace(-length/2, length/2, num_points_xy, endpoint=True)
@@ -36,25 +106,9 @@ def get_cartesian_mesh_cutout(radius, # Radius of cutout circle
     points = points[0:point]
     return points
 
-# Get a Cartesian mesh
-def get_cartesian_points(length, # Length of a single side
-                         num_points_xy): # Number of points in one dimension
-    # Get total number of points and the actual points
-    num_points = num_points_xy**2
-    points_x = np.linspace(-length/2, length/2, num_points_xy, endpoint=True)
-    points_y = np.linspace(-length/2, length/2, num_points_xy, endpoint=True)
-    
-    # Create array of points outside cutout circle
-    points = np.zeros((num_points, 2))
-    point = 0
-    for i, x in enumerate(points_x):
-        for j, y in enumerate(points_y):
-                points[i + num_points_xy * j, :] = [x, y]
-    return num_points, points
-
 # Get a 3D Cartesian mesh
-def get_cartesian_points_3d(length, # Length of a single side
-                            num_points_xyz): # Number of points in one dimension
+def get_cube(length, # Length of a single side
+             num_points_xyz): # Number of points in one dimension
     # Get total number of points and the actual points
     num_points = num_points_xyz**3
     points_x = np.linspace(-length/2, length/2, num_points_xyz, endpoint=True)

@@ -15,6 +15,20 @@ def get_slab_discretization(length,
                             num_neighbors_weight,
                             use_constant_radius)
 
+def output_slab_discretization_points(length,
+                                      num_points):
+    output_path = "slab_{}_{}.xml".format(length, num_points)
+    points = get_cartesian_points_1d(length,
+                                     num_points)
+    node = xml_points(1, # dimension
+                      num_points,
+                      points)
+    spatial_node = node.find("spatial_discretization")
+    
+    et.ElementTree(node).write(output_path,
+                               pretty_print=True,
+                               xml_declaration=True)
+    
 def output_slab_discretization(length,
                                num_points,
                                num_neighbors_basis,
@@ -77,18 +91,27 @@ def output_slab_discretization(length,
                                xml_declaration=True)
     
 if __name__ == '__main__':
-    if (len(sys.argv) != 5):
-        print("slab_functions.py [length num_points num_neighbors_basis num_neighbors_weight]")
+    if (len(sys.argv) != 3):
+        print("slab_functions.py [length num_points]")
         sys.exit()
     length = float(sys.argv[1])
     num_points = int(sys.argv[2])
-    num_neighbors_basis = int(sys.argv[3])
-    num_neighbors_weight = int(sys.argv[4])
     
-    output_slab_discretization(length,
-                               num_points,
-                               num_neighbors_basis,
-                               num_neighbors_weight,
-                               True)
+    output_slab_discretization_points(length,
+                                      num_points)
+    
+    # if (len(sys.argv) != 5):
+    #     print("slab_functions.py [length num_points num_neighbors_basis num_neighbors_weight]")
+    #     sys.exit()
+    # length = float(sys.argv[1])
+    # num_points = int(sys.argv[2])
+    # num_neighbors_basis = int(sys.argv[3])
+    # num_neighbors_weight = int(sys.argv[4])
+    
+    # output_slab_discretization(length,
+    #                            num_points,
+    #                            num_neighbors_basis,
+    #                            num_neighbors_weight,
+    #                            True)
     
     

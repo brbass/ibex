@@ -7,8 +7,8 @@ def get_square_discretization(length,
                               num_neighbors_weight,
                               use_constant_radius):
 
-    num_points, points = get_cartesian_points(length,
-                                              num_points_xy)
+    num_points, points = get_square(length,
+                                    num_points_xy)
     
     return get_connectivity(num_points,
                             points,
@@ -19,8 +19,8 @@ def get_square_discretization(length,
 def output_square_discretization_points(length,
                                         num_points_xy):
     output_path = "square_{}_{}.xml".format(length, num_points_xy)
-    num_points, points = get_cartesian_points(length,
-                                              num_points_xy)
+    num_points, points = get_square(length,
+                                    num_points_xy)
     node = xml_points(2, # dimension
                       num_points,
                       points)

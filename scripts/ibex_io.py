@@ -79,15 +79,18 @@ def get_data(file_path):
                                    num_points,
                                    num_moments,
                                    num_groups)
-    data["k_eigenvalue"] = get_scalar("k_eigenvalue", float, child_node)
-
+    try:
+        data["k_eigenvalue"] = get_scalar("k_eigenvalue", float, child_node)
+    except:
+        print("k_eigenvalue data not found")
+        
     # Solver values
     child_node = child_node.find("values")
     data["phi"] = unpack3(get_vector("phi", float, child_node),
                           num_points,
                           num_moments,
                           num_groups)
-
+    
     # Timing
     timing = {}
     child_node = output_node.find("timing")
@@ -141,14 +144,18 @@ def perm_save_from_template(data):
     return input_filenames
 
 def run_multiprocessing_command(executable,
-                                arguments):
+                                arguments,
+                                save_output = True):
     # Change to working directory
     # starting_directory = os.getcwd()
     # os.chdir(directory)
     
     # Get command
     pid = multiprocessing.current_process().name
-    command = "{} {}".format(executable, arguments)
+    if save_output:
+        command = "{} {} &> {}.ter".format(executable, arguments, arguments)
+    else:
+        command = "{} {}".format(executable, arguments)
 
     # Run command
     print("start \"{}\" on process {}".format(command, pid))

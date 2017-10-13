@@ -6,10 +6,10 @@ def get_points_pincell_clad(r_fuel,
                             num_points_fuel,
                             num_points_clad,
                             num_points_mod):
-    mod_points = get_cartesian_mesh_cutout(r_clad,
-                                           l_mod,
-                                           num_points_mod,
-                                           0.7*(r_clad - r_fuel) / num_points_clad)
+    mod_points = get_square_cutout(r_clad,
+                                   l_mod,
+                                   num_points_mod,
+                                   0.7*(r_clad - r_fuel) / num_points_clad)
     fuel_points = get_cylindrical_points(r_fuel,
                                          num_points_fuel,
                                          False)
