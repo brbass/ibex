@@ -37,6 +37,9 @@ public:
             int number_of_weight_functions;
             std::vector<int> basis_indices;
             std::vector<int> weight_indices;
+
+            // Integration
+            int number_of_integration_ordinates;
         };
 
         // Single point in the mesh
@@ -65,6 +68,9 @@ public:
             int number_of_weight_functions;
             std::vector<int> basis_indices;
             std::vector<int> weight_indices;
+
+            // Integration
+            int number_of_integration_ordinates;
         };
         
         Mesh(Weight_Function_Integration const &wfi,

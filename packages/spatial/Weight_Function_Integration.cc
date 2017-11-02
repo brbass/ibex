@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <limits>
 
 #include "Angular_Discretization.hh"
 #include "Basis_Function.hh"
@@ -1081,7 +1082,8 @@ get_surface_quadrature(int i,
     Mesh::Surface const &surface = mesh_->surfaces_[i];
     Mesh::Cell const &cell = mesh_->cells_[surface.neighboring_cell];
     vector<vector<double> > const &limits = cell.limits;
-    int const number_of_integration_ordinates = options_->integration_ordinates;
+    // int const number_of_integration_ordinates = options_->integration_ordinates;
+    int const number_of_integration_ordinates = surface.number_of_integration_ordinates;
     int const dx = 0;
     int const dy = 1;
     int const dz = 2;
@@ -1261,7 +1263,8 @@ get_volume_quadrature(int i,
     // Get limits of integration
     Mesh::Cell const &cell = mesh_->cells_[i];
     vector<vector<double> > const &limits = cell.limits;
-    int const number_of_integration_ordinates = options_->integration_ordinates;
+    // int const number_of_integration_ordinates = options_->integration_ordinates;
+    int const number_of_integration_ordinates = cell.number_of_integration_ordinates;
     int const dx = 0;
     int const dy = 1;
     int const dz = 2;
@@ -2032,7 +2035,7 @@ initialize_connectivity()
     for (int i = 0; i < number_of_background_cells_; ++i)
     {
         Cell &cell = cells_[i];
-
+        
         // Remove duplicate weight indices
         sort(cell.weight_indices.begin(), cell.weight_indices.end());
         cell.weight_indices.erase(unique(cell.weight_indices.begin(), cell.weight_indices.end()), cell.weight_indices.end());
@@ -2075,6 +2078,150 @@ initialize_connectivity()
             surface.number_of_basis_functions = surface.basis_indices.size();
         }
     }
+
+    // If applicable, change the number of integration ordinates
+    if (wfi_.options_->adaptive_quadrature)
+    {
+        // Get background cell integration ordinates
+        for (int i = 0; i < number_of_background_cells_; ++i)
+        {
+            Cell &cell = cells_[i];
+            
+            // Find minimum radius
+            double min_radius = numeric_limits<double>::max();
+            for (int j = 0; j < cell.number_of_weight_functions; ++j)
+            {
+                int k = cell.weight_indices[j];
+                shared_ptr<Weight_Function> weight = wfi_.weights_[k];
+                double radius = weight->radius();
+                
+                if (radius < min_radius)
+                {
+                    min_radius = radius;
+                }
+            }
+            if (wfi_.options_->identical_basis_functions != Weak_Spatial_Discretization_Options::Identical_Basis_Functions::TRUE)
+            {
+                for (int j = 0; j < cell.number_of_basis_functions; ++j)
+                {
+                    int k = cell.basis_indices[j];
+                    shared_ptr<Basis_Function> basis = wfi_.bases_[k];
+                    double radius = basis->radius();
+                    
+                    if (radius < min_radius)
+                    {
+                        min_radius = radius;
+                    }
+                }
+            }
+            
+            // Find min cell length
+            double min_length = numeric_limits<double>::max();
+            for (int d = 0; d < dimension_; ++d)
+            {
+                double length = cell.limits[d][1] - cell.limits[d][0];
+                if (length < min_length)
+                {
+                    min_length = length;
+                }
+            }
+            
+            // Get expected number of integration ordinates
+            int expected_number = ceil(min_radius / min_length * wfi_.options_->minimum_radius_ordinates);
+            
+            // Compare to actual number of integration ordinates
+            int global_integration_ordinates = wfi_.options_->integration_ordinates;
+            if (expected_number > global_integration_ordinates)
+            {
+                cell.number_of_integration_ordinates = expected_number;
+            }
+            else
+            {
+                cell.number_of_integration_ordinates = global_integration_ordinates;
+            }
+        }
+        
+        // Get background surface integration ordinates
+        for (int i = 0; i < number_of_background_surfaces_; ++i)
+        {
+            Surface &surface = surfaces_[i];
+            
+            // Find minimum radius
+            double min_radius = numeric_limits<double>::max();
+            for (int j = 0; j < surface.number_of_weight_functions; ++j)
+            {
+                int k = surface.weight_indices[j];
+                shared_ptr<Weight_Function> weight = wfi_.weights_[k];
+                double radius = weight->radius();
+                
+                if (radius < min_radius)
+                {
+                    min_radius = radius;
+                }
+            }
+            if (wfi_.options_->identical_basis_functions != Weak_Spatial_Discretization_Options::Identical_Basis_Functions::TRUE)
+            {
+                for (int j = 0; j < surface.number_of_basis_functions; ++j)
+                {
+                    int k = surface.basis_indices[j];
+                    shared_ptr<Basis_Function> basis = wfi_.bases_[k];
+                    double radius = basis->radius();
+                
+                    if (radius < min_radius)
+                    {
+                        min_radius = radius;
+                    }
+                }
+            }
+            
+            // Find min surface length
+            Cell &cell = cells_[surface.neighboring_cell];
+            double min_length = numeric_limits<double>::max();
+            for (int d = 0; d < dimension_; ++d)
+            {
+                if (d != surface.dimension)
+                {
+                    double length = cell.limits[d][1] - cell.limits[d][0];
+                    if (length < min_length)
+                    {
+                        min_length = length;
+                    }
+                }
+            }
+            
+            // Get expected number of integration ordinates
+            int expected_number = ceil(min_radius / min_length * wfi_.options_->minimum_radius_ordinates);
+            
+            // Compare to actual number of integration ordinates
+            int global_integration_ordinates = wfi_.options_->integration_ordinates;
+            if (expected_number > global_integration_ordinates)
+            {
+                surface.number_of_integration_ordinates = expected_number;
+            }
+            else
+            {
+                surface.number_of_integration_ordinates = global_integration_ordinates;
+            }
+        }
+    }
+    else
+    {
+        // Set number of integration ordinates for each cell and surface to global value
+        for (int i = 0; i < number_of_background_cells_; ++i)
+        {
+            Cell &cell = cells_[i];
+
+            cell.number_of_integration_ordinates = wfi_.options_->integration_ordinates;
+        }
+        for (int i = 0; i < number_of_background_surfaces_; ++i)
+        {
+            Surface &surface = surfaces_[i];
+        
+            surface.number_of_integration_ordinates = wfi_.options_->integration_ordinates;
+        }
+        
+    }
+
 }
 
 double Weight_Function_Integration::Mesh::

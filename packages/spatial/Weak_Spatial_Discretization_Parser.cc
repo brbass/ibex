@@ -566,15 +566,23 @@ get_weak_options(XML_Node input_node) const
     
     // Get integral options
     options->integration_ordinates = input_node.get_child_value<int>("integration_ordinates");
-    options->external_integral_calculation = input_node.get_attribute<bool>("external_integral_calculation");
+    options->external_integral_calculation = input_node.get_attribute<bool>("external_integral_calculation",
+                                                                            options->external_integral_calculation);
+    if (options->external_integral_calculation)
+    {
+        options->adaptive_quadrature = input_node.get_attribute<bool>("adaptive_quadrature", options->adaptive_quadrature);
+        if (options->adaptive_quadrature)
+        {
+            options->minimum_radius_ordinates = input_node.get_attribute<double>("minimum_radius_ordinates",
+                                                                                 options->minimum_radius_ordinates);
+        }
+        
+        options->dimensional_cells = input_node.get_child_vector<int>("dimensional_cells", dimension);
+    }
     options->solid = solid_geometry_;
     meshless_factory.get_boundary_limits(dimension,
                                          boundary_surfaces_,
                                          options->limits);
-    if (options->external_integral_calculation)
-    {
-        options->dimensional_cells = input_node.get_child_vector<int>("dimensional_cells", dimension);
-    }
     
     // Get Galerkin option
     string identical_string = input_node.get_attribute<string>("identical_basis_functions");
