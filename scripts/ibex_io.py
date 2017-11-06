@@ -31,10 +31,14 @@ def unpack3(data, num1, num2, num3):
 def get_scalar(data_name, dtype, node):
     return dtype(node.findtext(data_name))
 
-# Get a 1D vector from XML
+# Get a 1D vector from parent XML node
 def get_vector(data_name, dtype, node):
     return np.fromstring(node.findtext(data_name), dtype=dtype, sep="\t")
 
+# Get a 1D vector from XML node
+def get_vector_text(dtype, node):
+    return np.fromstring(node.text, dtype=dtype, sep="\t")
+    
 # Put pertinant output data into a struct
 def get_data(file_path):
     # Read in output file
@@ -86,10 +90,15 @@ def get_data(file_path):
         
     # Solver values
     child_node = child_node.find("values")
-    data["phi"] = unpack3(get_vector("phi", float, child_node),
-                          num_points,
-                          num_moments,
-                          num_groups)
+    try:
+        data["phi"] = unpack3(get_vector("phi", float, child_node),
+                              num_points,
+                              num_moments,
+                              num_groups)
+    except:
+        print("phi data not found")
+    for i, val in enumerate(child_node.findall("phi")):
+        data["phi{}".format(i)] = get_vector_text(float, val)
     
     # Timing
     timing = {}

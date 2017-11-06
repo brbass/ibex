@@ -184,10 +184,10 @@ def get_pincell_points(radius,
     cyl_points = get_cylindrical_points(radius,
                                         num_points_r,
                                         True)
-    cart_points = get_cartesian_mesh_cutout(radius,
-                                            length,
-                                            num_points_xy,
-                                            0.7 * radius / num_points_r)
+    cart_points = get_square_cutout(radius,
+                                    length,
+                                    num_points_xy,
+                                    0.7 * radius / (num_points_r - 1))
     points = np.concatenate((cart_points, cyl_points), axis=0)
     num_points = len(points)
 
