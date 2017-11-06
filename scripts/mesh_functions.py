@@ -133,6 +133,23 @@ def get_cylindrical_points(radius, # Radius of mesh
                               num_points_r,
                               include_endpoint)
 
+# Get a ring of points
+def get_ring_points(r,
+                    dr):
+    if r == 0.0:
+        points = [[0, 0]]
+    else:
+        if dr > r:
+            dr = r
+        dt = np.arcsin(dr / r)
+        num_theta = int(np.ceil(2 * np.pi / dt))
+        if num_theta < 4:
+            num_theta = 4
+        theta_vals = np.linspace(0, 2* np.pi, num_theta, endpoint=False)
+        points = [[r * np.cos(t), r * np.sin(t)] for t in theta_vals]
+
+    return points
+
 # Get annular points
 def get_annular_points(r1, # inside radius
                        r2, # outside radius
@@ -150,20 +167,10 @@ def get_annular_points(r1, # inside radius
     points = np.zeros((max_points, 2))
     point = 0
     for r in radius_vals:
-        if r == 0: # Center point
-            points[point, :] = [0, 0]
+        points_temp = get_ring_points(r)
+        for point_temp in points_temp:
+            points[point, :] = point_temp
             point += 1
-        else: # Place points in a circle of constant radius with distance approximately equal to dr
-            # Get angular values
-            dt = np.arcsin(dr / r)
-            num_theta = int(np.ceil(2 * np.pi / dt))
-            if point == 1:
-                num_theta *= 2
-            theta_vals = np.linspace(0, 2 * np.pi, num_theta, endpoint=False)
-            # Convert values to x-y coordinates
-            for t in theta_vals:
-                points[point, :] = [r * np.cos(t), r * np.sin(t)]
-                point += 1
     points = points[0:point]
 
     return points

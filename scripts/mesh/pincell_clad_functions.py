@@ -9,7 +9,7 @@ def get_points_pincell_clad(r_fuel,
     mod_points = get_square_cutout(r_clad,
                                    l_mod,
                                    num_points_mod,
-                                   0.7*(r_clad - r_fuel) / num_points_clad)
+                                   0.7*(r_clad - r_fuel) / (num_points_clad - 1))
     fuel_points = get_cylindrical_points(r_fuel,
                                          num_points_fuel,
                                          False)
@@ -56,7 +56,7 @@ def output_pincell_clad(r_fuel,
                                pretty_print=True,
                                xml_declaration=True)
 
-    if False:
+    if True:
         plt.figure()
         plt.scatter(points[:,0], points[:,1], s=2)
         plt.axes().set_aspect('equal')

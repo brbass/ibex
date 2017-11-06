@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 
@@ -2127,7 +2128,7 @@ initialize_connectivity()
             }
             
             // Get expected number of integration ordinates
-            int expected_number = ceil(min_radius / min_length * wfi_.options_->minimum_radius_ordinates);
+            int expected_number = ceil(min_length / min_radius * wfi_.options_->minimum_radius_ordinates);
             
             // Compare to actual number of integration ordinates
             int global_integration_ordinates = wfi_.options_->integration_ordinates;
@@ -2139,6 +2140,10 @@ initialize_connectivity()
             {
                 cell.number_of_integration_ordinates = global_integration_ordinates;
             }
+
+            if (i == 0)
+                cout << setw(30) << "position" << setw(15) << "num ordinates" << endl;
+            cout << setw(15) << cell.limits[0][0] << setw(15) << cell.limits[1][0] << setw(15) << cell.number_of_integration_ordinates << endl;
         }
         
         // Get background surface integration ordinates
@@ -2190,7 +2195,7 @@ initialize_connectivity()
             }
             
             // Get expected number of integration ordinates
-            int expected_number = ceil(min_radius / min_length * wfi_.options_->minimum_radius_ordinates);
+            int expected_number = ceil(min_length / min_radius * wfi_.options_->minimum_radius_ordinates);
             
             // Compare to actual number of integration ordinates
             int global_integration_ordinates = wfi_.options_->integration_ordinates;
