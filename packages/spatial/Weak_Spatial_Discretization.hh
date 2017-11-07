@@ -141,6 +141,14 @@ public:
     {
         return bases_[point_index];
     }
+    virtual std::vector<std::shared_ptr<Weight_Function> > const &weights() const
+    {
+        return weights_;
+    }
+    virtual std::vector<std::shared_ptr<Basis_Function> > const &bases() const
+    {
+        return bases_;
+    }
     virtual std::shared_ptr<Weight_Function> boundary_weight(int boundary_index) const
     {
         return boundary_weights_[boundary_index];

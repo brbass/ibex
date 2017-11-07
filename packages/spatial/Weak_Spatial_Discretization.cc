@@ -104,10 +104,7 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
         Weight_Function_Integration integrator(number_of_points_,
                                                options_,
                                                bases,
-                                               weights,
-                                               options_->solid,
-                                               options_->limits,
-                                               options_->dimensional_cells);
+                                               weights);
         integrator.perform_integration();
     }
     

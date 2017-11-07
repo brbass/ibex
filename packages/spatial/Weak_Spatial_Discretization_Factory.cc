@@ -18,7 +18,6 @@
 #include "RBF_Function.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weight_Function.hh"
-#include "Weight_Function_Integration.hh"
 
 using namespace std;
 
@@ -253,11 +252,11 @@ get_simple_discretization(int num_dimensional_points,
                          weights);
 
     // Get integration options
-
     weak_options->limits = limits;
     weak_options->solid = solid_geometry_;
     weak_options->dimensional_cells.assign(dimension, 2 * (num_dimensional_points - 1));
-    
+
+    // Create weak spatial discretization
     return make_shared<Weak_Spatial_Discretization>(bases,
                                                     weights,
                                                     dimensional_moments,
