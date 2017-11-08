@@ -481,8 +481,8 @@ initialize_connectivity()
     for (int i = 0; i < number_of_points_; ++i)
     {
         // Get weight function data
-        shared_ptr<Weight_Function> weight = weights_[i];
-        double radius = get_inclusive_radius(weight->radius());
+        shared_ptr<Weight_Function> const weight = weights_[i];
+        double const radius = get_inclusive_radius(weight->radius());
         vector<double> const position = weight->position();
         
         // Find nodes that intersect with the weight function
@@ -517,7 +517,7 @@ initialize_connectivity()
         for (int i = 0; i < number_of_points_; ++i)
         {
             // Get basis function data
-            shared_ptr<Basis_Function> basis = bases_[i];
+            shared_ptr<Basis_Function> const basis = bases_[i];
             double radius = get_inclusive_radius(basis->radius());
             vector<double> const position = basis->position();
 
@@ -608,9 +608,9 @@ initialize_connectivity()
             double min_radius = numeric_limits<double>::max();
             for (int j = 0; j < cell->number_of_weight_functions; ++j)
             {
-                int k = cell->weight_indices[j];
-                shared_ptr<Weight_Function> weight = weights_[k];
-                double radius = weight->radius();
+                int const k = cell->weight_indices[j];
+                shared_ptr<Weight_Function> const weight = weights_[k];
+                double const radius = weight->radius();
                 
                 if (radius < min_radius)
                 {
@@ -621,9 +621,9 @@ initialize_connectivity()
             {
                 for (int j = 0; j < cell->number_of_basis_functions; ++j)
                 {
-                    int k = cell->basis_indices[j];
-                    shared_ptr<Basis_Function> basis = bases_[k];
-                    double radius = basis->radius();
+                    int const k = cell->basis_indices[j];
+                    shared_ptr<Basis_Function> const basis = bases_[k];
+                    double const radius = basis->radius();
                     
                     if (radius < min_radius)
                     {
@@ -647,7 +647,7 @@ initialize_connectivity()
             int expected_number = ceil(min_length / min_radius * options_->minimum_radius_ordinates);
             
             // Compare to actual number of integration ordinates
-            int global_integration_ordinates = options_->integration_ordinates;
+            int const global_integration_ordinates = options_->integration_ordinates;
             if (expected_number > global_integration_ordinates)
             {
                 cell->number_of_integration_ordinates = expected_number;
@@ -667,9 +667,9 @@ initialize_connectivity()
             double min_radius = numeric_limits<double>::max();
             for (int j = 0; j < surface->number_of_weight_functions; ++j)
             {
-                int k = surface->weight_indices[j];
-                shared_ptr<Weight_Function> weight = weights_[k];
-                double radius = weight->radius();
+                int const k = surface->weight_indices[j];
+                shared_ptr<Weight_Function> const weight = weights_[k];
+                double const radius = weight->radius();
                 
                 if (radius < min_radius)
                 {
@@ -681,8 +681,8 @@ initialize_connectivity()
                 for (int j = 0; j < surface->number_of_basis_functions; ++j)
                 {
                     int k = surface->basis_indices[j];
-                    shared_ptr<Basis_Function> basis = bases_[k];
-                    double radius = basis->radius();
+                    shared_ptr<Basis_Function> const basis = bases_[k];
+                    double const radius = basis->radius();
                 
                     if (radius < min_radius)
                     {
@@ -710,7 +710,7 @@ initialize_connectivity()
             int expected_number = ceil(min_length / min_radius * options_->minimum_radius_ordinates);
             
             // Compare to actual number of integration ordinates
-            int global_integration_ordinates = options_->integration_ordinates;
+            int const global_integration_ordinates = options_->integration_ordinates;
             if (expected_number > global_integration_ordinates)
             {
                 surface->number_of_integration_ordinates = expected_number;
@@ -766,7 +766,7 @@ get_volume_quadrature(int i,
                       vector<double> &weights) const
 {
     // Get limits of integration
-    shared_ptr<Cell> cell = cells_[i];
+    shared_ptr<Cell> const cell = cells_[i];
     vector<vector<double> > const &limits = cell->limits;
     int const number_of_integration_ordinates = cell->number_of_integration_ordinates;
     int const dx = 0;
@@ -845,8 +845,8 @@ get_surface_quadrature(int i,
                        vector<double> &weights) const
 {
     // Get limits of integration
-    shared_ptr<Surface> surface = surfaces_[i];
-    shared_ptr<Cell> cell = cells_[surface->neighboring_cell];
+    shared_ptr<Surface> const surface = surfaces_[i];
+    shared_ptr<Cell> const cell = cells_[surface->neighboring_cell];
     vector<vector<double> > const &limits = cell->limits;
     int const number_of_integration_ordinates = surface->number_of_integration_ordinates;
     int const dx = 0;
@@ -1020,7 +1020,34 @@ get_surface_quadrature(int i,
 }
 
 void Integration_Mesh::
-get_volume_values(shared_ptr<Cell> cell,
+get_basis_values(shared_ptr<Cell> const cell,
+                 vector<double> const &position,
+                 vector<vector<double> > const &basis_centers,
+                 vector<double> &b_val) const
+{
+    // Initialize values 
+    b_val.resize(cell->number_of_basis_functions);
+    
+    // Get values for basis functions at quadrature point
+    for (int j = 0; j < cell->number_of_basis_functions; ++j)
+    {
+        shared_ptr<Meshless_Function> const func = bases_[cell->basis_indices[j]]->function()->base_function();
+                
+        b_val[j] = func->value(position);
+    }
+
+    // Normalize basis functions
+    if (apply_basis_normalization_)
+    {
+        basis_normalization_->get_values(position,
+                                         basis_centers,
+                                         b_val,
+                                         b_val);
+    }
+}
+
+void Integration_Mesh::
+get_volume_values(shared_ptr<Cell> const cell,
                   vector<double> const &position,
                   vector<vector<double> > const &basis_centers,
                   vector<vector<double> > const &weight_centers,
@@ -1038,7 +1065,7 @@ get_volume_values(shared_ptr<Cell> cell,
     // Get values for weight functions at quadrature point
     for (int j = 0; j < cell->number_of_weight_functions; ++j)
     {
-        shared_ptr<Meshless_Function> func = weights_[cell->weight_indices[j]]->function()->base_function();
+        shared_ptr<Meshless_Function> const func = weights_[cell->weight_indices[j]]->function()->base_function();
         
         w_val[j] = func->value(position);
         w_grad[j] = func->gradient_value(position);
@@ -1065,7 +1092,7 @@ get_volume_values(shared_ptr<Cell> cell,
         // Get values for basis functions at quadrature point
         for (int j = 0; j < cell->number_of_basis_functions; ++j)
         {
-            shared_ptr<Meshless_Function> func = bases_[cell->basis_indices[j]]->function()->base_function();
+            shared_ptr<Meshless_Function> const func = bases_[cell->basis_indices[j]]->function()->base_function();
                 
             b_val[j] = func->value(position);
             b_grad[j] = func->gradient_value(position);
@@ -1085,7 +1112,7 @@ get_volume_values(shared_ptr<Cell> cell,
 }
 
 void Integration_Mesh::
-get_surface_values(shared_ptr<Surface> surface,
+get_surface_values(shared_ptr<Surface> const surface,
                    vector<double> const &position,
                    vector<vector<double> > const &basis_centers,
                    vector<vector<double> > const &weight_centers,
@@ -1099,7 +1126,7 @@ get_surface_values(shared_ptr<Surface> surface,
     // Get values for weight functions at quadrature point
     for (int j = 0; j < surface->number_of_weight_functions; ++j)
     {
-        shared_ptr<Meshless_Function> func = weights_[surface->weight_indices[j]]->function()->base_function();
+        shared_ptr<Meshless_Function> const func = weights_[surface->weight_indices[j]]->function()->base_function();
                 
         w_val[j] = func->value(position);
     }
@@ -1122,7 +1149,7 @@ get_surface_values(shared_ptr<Surface> surface,
         // Get values for basis functions at quadrature point
         for (int j = 0; j < surface->number_of_basis_functions; ++j)
         {
-            shared_ptr<Meshless_Function> func = bases_[surface->basis_indices[j]]->function()->base_function();
+            shared_ptr<Meshless_Function> const func = bases_[surface->basis_indices[j]]->function()->base_function();
                 
             b_val[j] = func->value(position);
         }
@@ -1137,14 +1164,14 @@ get_surface_values(shared_ptr<Surface> surface,
 }
 
 void Integration_Mesh::
-get_cell_basis_indices(shared_ptr<Cell> cell,
+get_cell_basis_indices(shared_ptr<Cell> const cell,
                        vector<vector<int> > &indices) const
 {
     indices.assign(cell->number_of_weight_functions,
                    vector<int>(cell->number_of_basis_functions, -1));
     for (int i = 0; i < cell->number_of_weight_functions; ++i)
     {
-        shared_ptr<Weight_Function> weight = weights_[cell->weight_indices[i]];
+        shared_ptr<Weight_Function> const weight = weights_[cell->weight_indices[i]];
         for (int j = 0; j < cell->number_of_basis_functions; ++j)
         {
             indices[i][j] = weight->local_basis_index(cell->basis_indices[j]);
@@ -1153,14 +1180,14 @@ get_cell_basis_indices(shared_ptr<Cell> cell,
 }
 
 void Integration_Mesh::
-get_surface_basis_indices(shared_ptr<Surface> surface,
+get_surface_basis_indices(shared_ptr<Surface> const surface,
                           vector<vector<int> > &indices) const
 {
     indices.assign(surface->number_of_weight_functions,
                    vector<int>(surface->number_of_basis_functions, -1));
     for (int i = 0; i < surface->number_of_weight_functions; ++i)
     {
-        shared_ptr<Weight_Function> weight = weights_[surface->weight_indices[i]];
+        shared_ptr<Weight_Function> const weight = weights_[surface->weight_indices[i]];
         for (int j = 0; j < surface->number_of_basis_functions; ++j)
         {
             indices[i][j] = weight->local_basis_index(surface->basis_indices[j]);
@@ -1169,24 +1196,36 @@ get_surface_basis_indices(shared_ptr<Surface> surface,
 }
 
 void Integration_Mesh::
-get_weight_surface_indices(shared_ptr<Surface> surface,
+get_weight_surface_indices(shared_ptr<Surface> const surface,
                            vector<int> &indices) const
 {
     indices.assign(surface->number_of_weight_functions, Weight_Function::Errors::DOES_NOT_EXIST);
     for (int i = 0; i < surface->number_of_weight_functions; ++i)
     {
-        shared_ptr<Weight_Function> weight = weights_[surface->weight_indices[i]];
+        shared_ptr<Weight_Function> const weight = weights_[surface->weight_indices[i]];
         indices[i] = weight->local_surface_index(surface->dimension,
                                                  surface->normal);
     }
 }
 
 void Integration_Mesh::
-get_basis_weight_centers(shared_ptr<Cell> cell,
+get_basis_centers(shared_ptr<Cell> const cell,
+                  vector<vector<double> > &basis_positions) const
+{
+    int const number_of_basis_functions = cell->number_of_basis_functions;
+    basis_positions.resize(number_of_basis_functions);
+    for (int i = 0; i < number_of_basis_functions; ++i)
+    {
+        basis_positions[i] = bases_[cell->basis_indices[i]]->position();
+    }
+}
+
+void Integration_Mesh::
+get_basis_weight_centers(shared_ptr<Cell> const cell,
                          vector<vector<double> > &basis_positions,
                          vector<vector<double> > &weight_positions) const
 {
-    int number_of_weight_functions = cell->number_of_weight_functions;
+    int const number_of_weight_functions = cell->number_of_weight_functions;
     weight_positions.resize(number_of_weight_functions);
     for (int i = 0; i < number_of_weight_functions; ++i)
     {
@@ -1199,7 +1238,7 @@ get_basis_weight_centers(shared_ptr<Cell> cell,
     }
     else
     {
-        int number_of_basis_functions = cell->number_of_basis_functions;
+        int const number_of_basis_functions = cell->number_of_basis_functions;
         basis_positions.resize(number_of_basis_functions);
         for (int i = 0; i < number_of_basis_functions; ++i)
         {
@@ -1209,11 +1248,11 @@ get_basis_weight_centers(shared_ptr<Cell> cell,
 }
 
 void Integration_Mesh::
-get_basis_weight_centers(shared_ptr<Surface> surface,
+get_basis_weight_centers(shared_ptr<Surface> const surface,
                          vector<vector<double> > &basis_positions,
                          vector<vector<double> > &weight_positions) const
 {
-    int number_of_weight_functions = surface->number_of_weight_functions;
+    int const number_of_weight_functions = surface->number_of_weight_functions;
     weight_positions.resize(number_of_weight_functions);
     for (int i = 0; i < number_of_weight_functions; ++i)
     {
@@ -1226,7 +1265,7 @@ get_basis_weight_centers(shared_ptr<Surface> surface,
     }
     else
     {
-        int number_of_basis_functions = surface->number_of_basis_functions;
+        int const number_of_basis_functions = surface->number_of_basis_functions;
         basis_positions.resize(number_of_basis_functions);
         for (int i = 0; i < number_of_basis_functions; ++i)
         {

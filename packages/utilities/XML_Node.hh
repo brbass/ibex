@@ -55,16 +55,24 @@ public:
     template<typename T> T get_value();
     template<typename T> std::vector<T> get_vector();
     template<typename T> std::vector<T> get_vector(int expected_size);
+    template<typename T> std::vector<std::vector<T> > get_matrix(int expected_size_1,
+                                                                 int expected_size_2);
     
     // Get the value of the node given a default
     template<typename T> T get_value(T def);
     template<typename T> std::vector<T> get_vector(int expected_size,
                                                    std::vector<T> def);
+    template<typename T> std::vector<std::vector<T> > get_matrix(int expected_size_1,
+                                                                 int expected_size_2,
+                                                                 std::vector<std::vector<T> > def);
     
     // Get a child value of the node, insisting that it exists
     template<typename T> T get_child_value(std::string description);
     template<typename T> std::vector<T> get_child_vector(std::string description,
                                                          int expected_size);
+    template<typename T> std::vector<std::vector<T> > get_child_matrix(std::string description,
+                                                                       int expected_size_1,
+                                                                       int expected_size_2);
     
     // Get a child value of the node given a default
     template<typename T> T get_child_value(std::string description,
@@ -72,7 +80,11 @@ public:
     template<typename T> std::vector<T> get_child_vector(std::string description,
                                                          int expected_size,
                                                          std::vector<T> def);
-
+    template<typename T> std::vector<std::vector<T> > get_child_matrix(std::string description,
+                                                                       int expected_size_1,
+                                                                       int expected_size_2,
+                                                                       std::vector<std::vector<T> > def);
+    
     // Set attribute of node
     template<typename T> void set_attribute(T data,
                                             std::string description);
@@ -255,6 +267,51 @@ get_vector(int expected_size)
     return value;
 }
 
+template<typename T> std::vector<std::vector<T> > XML_Node::
+get_matrix(int expected_size_1,
+           int expected_size_2)
+{
+    pugi::xml_text text = xml_node_->text();
+
+    if (text.empty())
+    {
+        std::string error_message
+            = "required value in node ("
+            + name_
+            + ") not found";
+        
+        AssertMsg(false, error_message);
+    }
+    
+    std::vector<T> input = XML_Functions::text_vector<T>(text);
+
+    if (input.size() != expected_size_1 * expected_size_2)
+    {
+        std::string error_message
+            = "size in node ("
+            + name_
+            + ") incorrect - expected ("
+            + std::to_string(expected_size_1 * expected_size_2)
+            + ") but calculated ("
+            + std::to_string(input.size())
+            + ")";
+
+        AssertMsg(false, error_message);
+    }
+    
+    std::vector<std::vector<T> > value(expected_size_1, std::vector<T>(expected_size_2));
+
+    for (int i = 0; i < expected_size_1; ++i)
+    {
+        for (int j = 0; j < expected_size_2; ++j)
+        {
+            value[i][j] = input[j + expected_size_2 * i];
+        }
+    }
+    
+    return value;
+}
+
 template<typename T> T XML_Node::
 get_value(T def)
 {
@@ -299,6 +356,48 @@ get_vector(int expected_size,
     return value;
 }
 
+template<typename T> std::vector<std::vector<T> > XML_Node::
+get_matrix(int expected_size_1,
+           int expected_size_2,
+           std::vector<std::vector<T> > def)
+{
+    pugi::xml_text text = xml_node_->text();
+
+    if (text.empty())
+    {
+        return def;
+    }
+    
+    std::vector<T> input = XML_Functions::text_vector<T>(text);
+
+    if (input.size() != expected_size_1 * expected_size_2)
+    {
+        std::string error_message
+            = "size in node ("
+            + name_
+            + ") incorrect - expected ("
+            + std::to_string(expected_size_1 * expected_size_2)
+            + ") but calculated ("
+            + std::to_string(input.size())
+            + ") - reverting to default value";
+        std::cout << error_message << std::endl;
+
+        return def;
+    }
+    
+    std::vector<std::vector<T> > value(expected_size_1, std::vector<T>(expected_size_2));
+
+    for (int i = 0; i < expected_size_1; ++i)
+    {
+        for (int j = 0; j < expected_size_2; ++j)
+        {
+            value[i][j] = input[j + expected_size_2 * i];
+        }
+    }
+
+    return value;
+}
+
 template<typename T> T XML_Node::
 get_child_value(std::string description)
 {
@@ -312,6 +411,16 @@ get_child_vector(std::string description,
 {
     return get_child(description,
                      false).get_vector<T>(expected_size);
+}
+
+template<typename T> std::vector<std::vector<T> > XML_Node::
+get_child_matrix(std::string description,
+                 int expected_size_1,
+                 int expected_size_2)
+{
+    return get_child(description,
+                     false).get_matrix<T>(expected_size_1,
+                                          expected_size_2);
 }
 
 template<typename T> T XML_Node::
@@ -329,6 +438,18 @@ get_child_vector(std::string description,
 {
     return get_child(description,
                      false).get_vector(expected_size,
+                                       def);
+}
+
+template<typename T> std::vector<std::vector<T> > XML_Node::
+get_child_matrix(std::string description,
+                 int expected_size_1,
+                 int expected_size_2,
+                 std::vector<std::vector<T> > def)
+{
+    return get_child(description,
+                     false).get_matrix(expected_size_1,
+                                       expected_size_2,
                                        def);
 }
 

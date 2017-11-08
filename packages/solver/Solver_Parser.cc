@@ -2,6 +2,7 @@
 
 #include "Arbitrary_Moment_Value_Operator.hh"
 #include "Identity_Operator.hh"
+#include "Integral_Value_Operator.hh"
 #include "Krylov_Eigenvalue.hh"
 #include "Krylov_Steady_State.hh"
 #include "Linf_Convergence.hh"
@@ -66,23 +67,46 @@ get_value_operators(XML_Node input_node) const
             // Values at given points
             int num_value_points
                 = value_node.get_child_value<int>("number_of_points");
-            vector<double> input_points
-                = value_node.get_child_vector<double>("points",
-                                                      num_value_points * dimension);
-            vector<vector<double> > points(num_value_points,
-                                           vector<double>(dimension));
-            for (int i = 0; i < num_value_points; ++i)
-            {
-                for (int d = 0; d < dimension; ++d)
-                {
-                    points[i][d] = input_points[d + dimension * i];
-                }
-            }
+            vector<vector<double> > points
+                = value_node.get_child_matrix<double>("points",
+                                                      num_value_points,
+                                                      dimension);
             
             opers.push_back(make_shared<Arbitrary_Moment_Value_Operator>(spatial_,
                                                                          angular_,
                                                                          energy_,
                                                                          points));
+        }
+        else if (value_type == "integral")
+        {
+            // Get integration options
+            std::shared_ptr<Integration_Mesh::Options> integration_options
+                = make_shared<Integration_Mesh::Options>();
+            integration_options->initialize_from_weak_options(spatial_->options());
+            integration_options->adaptive_quadrature
+                = value_node.get_attribute<bool>("adaptive_quadrature",
+                                                 false);
+            if (integration_options->adaptive_quadrature)
+            {
+                integration_options->minimum_radius_ordinates
+                    = value_node.get_attribute<bool>("minimum_radius_ordinates");
+            }
+            
+            integration_options->integration_ordinates
+                = value_node.get_attribute<bool>("integration_ordinates");
+            integration_options->limits
+                = value_node.get_child_matrix<double>("limits",
+                                                      dimension,
+                                                      2);
+            integration_options->dimensional_cells
+                = value_node.get_child_vector<int>("dimensional_cells",
+                                                   dimension);
+
+            // Create operator
+            opers.push_back(make_shared<Integral_Value_Operator>(integration_options,
+                                                                 spatial_,
+                                                                 angular_,
+                                                                 energy_));
         }
         else
         {

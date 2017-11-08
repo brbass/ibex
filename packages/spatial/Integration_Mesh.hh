@@ -128,7 +128,11 @@ public:
                                 std::vector<double> &weights) const;
 
     // Get values at a single specified point
-    void get_volume_values(std::shared_ptr<Cell> cell,
+    void get_basis_values(std::shared_ptr<Cell> const cell,
+                          std::vector<double> const &position,
+                          std::vector<std::vector<double> > const &basis_centers,
+                          std::vector<double> &b_val) const;
+    void get_volume_values(std::shared_ptr<Cell> const cell,
                            std::vector<double> const &position,
                            std::vector<std::vector<double> > const &basis_centers,
                            std::vector<std::vector<double> > const &weight_centers,
@@ -136,7 +140,7 @@ public:
                            std::vector<std::vector<double> > &b_grad,
                            std::vector<double> &w_val,
                            std::vector<std::vector<double> > &w_grad) const;
-    void get_surface_values(std::shared_ptr<Surface> surface,
+    void get_surface_values(std::shared_ptr<Surface> const surface,
                             std::vector<double> const &position,
                             std::vector<std::vector<double> > const &basis_centers,
                             std::vector<std::vector<double> > const &weight_centers,
@@ -144,18 +148,20 @@ public:
                             std::vector<double> &w_val) const;
     
     // Indexing methods
-    void get_cell_basis_indices(std::shared_ptr<Cell> cell,
+    void get_cell_basis_indices(std::shared_ptr<Cell> const cell,
                                  std::vector<std::vector<int> > &basis_indices) const;
-    void get_surface_basis_indices(std::shared_ptr<Surface> surface,
+    void get_surface_basis_indices(std::shared_ptr<Surface> const surface,
                                    std::vector<std::vector<int> > &basis_indices) const;
-    void get_weight_surface_indices(std::shared_ptr<Surface> surface,
+    void get_weight_surface_indices(std::shared_ptr<Surface> const surface,
                                     std::vector<int> &surface_indices) const;
 
     // Get the positions of the centers basis/weight functions
-    void get_basis_weight_centers(std::shared_ptr<Cell> cell,
+    void get_basis_centers(std::shared_ptr<Cell> const cell,
+                           std::vector<std::vector<double> > &basis_positions) const;
+    void get_basis_weight_centers(std::shared_ptr<Cell> const cell,
                                   std::vector<std::vector<double> > &basis_positions,
                                   std::vector<std::vector<double> > &weight_positions) const;
-    void get_basis_weight_centers(std::shared_ptr<Surface> surface,
+    void get_basis_weight_centers(std::shared_ptr<Surface> const surface,
                                   std::vector<std::vector<double> > &basis_positions,
                                   std::vector<std::vector<double> > &weight_positions) const;
     

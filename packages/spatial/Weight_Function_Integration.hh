@@ -50,14 +50,14 @@ private:
     void normalize_materials(std::vector<Material_Data> &materials) const;
     
     // Add weight function cell values to global integrals
-    void add_volume_weight(std::shared_ptr<Integration_Mesh::Cell> cell,
+    void add_volume_weight(std::shared_ptr<Integration_Mesh::Cell> const cell,
                            double quad_weight,
                            std::vector<double> const &w_val,
                            std::vector<std::vector<double> > const &w_grad,
                            std::vector<Weight_Function::Integrals> &integrals) const;
 
     // Add basis/weight function cell values to global integrals
-    void add_volume_basis_weight(std::shared_ptr<Integration_Mesh::Cell> cell,
+    void add_volume_basis_weight(std::shared_ptr<Integration_Mesh::Cell> const cell,
                                  double quad_weight,
                                  std::vector<double> const &b_val,
                                  std::vector<std::vector<double> > const &b_grad,
@@ -67,7 +67,7 @@ private:
                                  std::vector<Weight_Function::Integrals> &integrals) const;
 
     // Add material cell values to global integrals
-    void add_volume_material(std::shared_ptr<Integration_Mesh::Cell> cell,
+    void add_volume_material(std::shared_ptr<Integration_Mesh::Cell> const cell,
                              double quad_weight,
                              std::vector<double> const &b_val,
                              std::vector<double> const &w_val,
@@ -80,14 +80,14 @@ private:
     void perform_surface_integration(std::vector<Weight_Function::Integrals> &integrals) const;
     
     // Add weight function surface values to global integrals
-    void add_surface_weight(std::shared_ptr<Integration_Mesh::Surface> surface,
+    void add_surface_weight(std::shared_ptr<Integration_Mesh::Surface> const surface,
                             double quad_weight,
                             std::vector<double> const &w_val,
                             std::vector<int> const &weight_surface_indices,
                             std::vector<Weight_Function::Integrals> &integrals) const;
     
     // Add basis/weight function surface values to global integrals
-    void add_surface_basis_weight(std::shared_ptr<Integration_Mesh::Surface> surface,
+    void add_surface_basis_weight(std::shared_ptr<Integration_Mesh::Surface> const surface,
                                   double quad_weight,
                                   std::vector<double> const &b_val,
                                   std::vector<double> const &w_val,
@@ -108,7 +108,7 @@ private:
                       std::shared_ptr<Material> &material) const;
 
     // Get the flux for a specific point, given basis coefficients
-    void get_flux(std::shared_ptr<Integration_Mesh::Cell> cell,
+    void get_flux(std::shared_ptr<Integration_Mesh::Cell> const cell,
                   std::vector<double> const &b_val,
                   std::vector<double> &flux) const;
     
