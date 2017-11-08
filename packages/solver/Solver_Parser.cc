@@ -93,7 +93,7 @@ get_value_operators(XML_Node input_node) const
             }
             
             integration_options->integration_ordinates
-                = value_node.get_attribute<bool>("integration_ordinates");
+                = value_node.get_attribute<int>("integration_ordinates");
             integration_options->limits
                 = value_node.get_child_matrix<double>("limits",
                                                       dimension,
@@ -218,13 +218,27 @@ get_krylov_eigenvalue(XML_Node input_node,
     
     // Get source iteration
     Krylov_Eigenvalue::Options iteration_options;
-    iteration_options.max_inverse_iterations = input_node.get_attribute<int>("max_inverse_iterations", 5000);
-    iteration_options.max_iterations = input_node.get_attribute<int>("max_iterations", 1000);
-    iteration_options.kspace = input_node.get_attribute<int>("kspace", 10);
-    iteration_options.solver_print = input_node.get_attribute<int>("solver_print", 0);
-    iteration_options.tolerance = input_node.get_attribute<double>("tolerance", 1e-10);
-    iteration_options.eigenvalue_tolerance = input_node.get_attribute<double>("eigenvalue_tolerance",
-                                                                              iteration_options.tolerance);
+    iteration_options.explicit_inverse
+        = input_node.get_attribute<bool>("explicit_inverse",
+                                         iteration_options.explicit_inverse);
+    iteration_options.max_inverse_iterations
+        = input_node.get_attribute<int>("max_inverse_iterations",
+                                        iteration_options.max_inverse_iterations);
+    iteration_options.max_iterations
+        = input_node.get_attribute<int>("max_iterations",
+                                        iteration_options.max_iterations);
+    iteration_options.kspace
+        = input_node.get_attribute<int>("kspace",
+                                        iteration_options.kspace);
+    iteration_options.solver_print
+        = input_node.get_attribute<int>("solver_print",
+                                        iteration_options.solver_print);
+    iteration_options.tolerance
+        = input_node.get_attribute<double>("tolerance",
+                                           iteration_options.tolerance);
+    iteration_options.eigenvalue_tolerance
+        = input_node.get_attribute<double>("eigenvalue_tolerance",
+                                           iteration_options.eigenvalue_tolerance);
     
     return make_shared<Krylov_Eigenvalue>(iteration_options,
                                           spatial_,

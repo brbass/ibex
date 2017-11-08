@@ -17,6 +17,7 @@ public:
 
     struct Options
     {
+        bool explicit_inverse = false;
         int max_inverse_iterations = 1000;
         int max_iterations = 1000;
         int kspace = 20; // Number of past guesses to store

@@ -69,28 +69,45 @@ solve()
     // Initialize comm and map
     shared_ptr<Epetra_Comm> comm = make_shared<Epetra_MpiComm>(MPI_COMM_WORLD);
     shared_ptr<Epetra_Map> map = make_shared<Epetra_Map>(phi_size + number_of_augments, 0, *comm);
+
+    // Get LHS and RHS operators
+    shared_ptr<Epetra_Operator> oper_lhs;
+    shared_ptr<Epetra_Operator> oper_rhs;
+    if (options_.explicit_inverse)
+    {
+        // Get inverse operator
+        Aztec_Inverse_Operator::Options options;
+        options.max_iterations = options_.max_inverse_iterations;
+        options.kspace = options_.kspace;
+        options.solver_print = options_.solver_print;
+        options.tolerance = options_.tolerance;
+        shared_ptr<Aztec_Inverse_Operator> inverse_operator
+            = make_shared<Aztec_Inverse_Operator>(options,
+                                                  flux_operator_,
+                                                  comm,
+                                                  map);
     
-    // Get inverse operator
-    Aztec_Inverse_Operator::Options options;
-    options.max_iterations = options_.max_inverse_iterations;
-    options.kspace = options_.kspace;
-    options.solver_print = options_.solver_print;
-    options.tolerance = options_.tolerance;
-    shared_ptr<Aztec_Inverse_Operator> inverse_operator
-        = make_shared<Aztec_Inverse_Operator>(options,
-                                              flux_operator_,
-                                              comm,
-                                              map);
+        // Get combined operator
+        shared_ptr<Vector_Operator> full_operator
+            = inverse_operator * fission_operator_;
     
-    // Get combined operator
-    shared_ptr<Vector_Operator> full_operator
-        = inverse_operator * fission_operator_;
-    
-    // Get Epetra operator
-    shared_ptr<Epetra_Operator> oper
-        = make_shared<Epetra_Operator_Interface>(comm,
-                                                 map,
-                                                 full_operator);
+        // Get Epetra operator
+        oper_lhs
+            = make_shared<Epetra_Operator_Interface>(comm,
+                                                     map,
+                                                     full_operator);
+    }
+    else
+    {
+        oper_rhs
+            = make_shared<Epetra_Operator_Interface>(comm,
+                                                     map,
+                                                     flux_operator_);
+        oper_lhs
+            = make_shared<Epetra_Operator_Interface>(comm,
+                                                     map,
+                                                     fission_operator_);
+    }
     
     // Create other Trilinos members
     shared_ptr<Epetra_MultiVector> init
@@ -101,7 +118,15 @@ solve()
     // Create problem
     shared_ptr<Anasazi_Eigenproblem> problem
         = make_shared<Anasazi_Eigenproblem>();
-    problem->setOperator(rcp(oper));
+    if (options_.explicit_inverse)
+    {
+        problem->setOperator(rcp(oper_lhs));
+    }
+    else
+    {
+        problem->setA(rcp(oper_lhs));
+        problem->setM(rcp(oper_rhs));
+    }
     problem->setInitVec(rcp(init));
     problem->setNEV(options_.number_of_eigenvalues);
     problem->setHermitian(false);
@@ -152,7 +177,7 @@ solve()
     // Get solution
     shared_ptr<Anasazi_Eigensolution const> solution
         = make_shared<Anasazi_Eigensolution> (problem->getSolution());
-    result_->inverse_iterations = inverse_operator->number_of_iterations();
+    //result_->inverse_iterations = inverse_operator->number_of_iterations();
     
     // Get eigenvalue
     if (solution->numVecs < 1)
