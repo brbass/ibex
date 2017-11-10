@@ -177,15 +177,21 @@ get_galerkin_points_discretization(XML_Node input_node) const
     
     // Find neighbors
     vector<vector<int> > neighbors;
+    vector<vector<double> > squared_distances;
     meshless_factory.get_neighbors(kd_tree,
                                    dimension,
                                    number_of_points,
                                    radii,
                                    radii,
                                    points,
-                                   neighbors);
+                                   neighbors,
+                                   squared_distances);
+    Assert(meshless_factory.check_point_conditioning(number_of_points,
+                                                     radii,
+                                                     neighbors,
+                                                     squared_distances));
     
-    // Get RBF
+    // Get RBFp
     shared_ptr<RBF> rbf = rbf_parser.parse_from_xml(weights_node.get_child("meshless_function"));
     shared_ptr<Distance> distance = make_shared<Cartesian_Distance>(dimension);
     
@@ -318,13 +324,19 @@ get_cartesian_discretization(XML_Node input_node) const
     
     // Find neighbors
     vector<vector<int> > neighbors;
+    vector<vector<double> > squared_distances;
     meshless_factory.get_neighbors(kd_tree,
                                    dimension,
                                    number_of_points,
                                    radii,
                                    radii,
                                    points,
-                                   neighbors);
+                                   neighbors,
+                                   squared_distances);
+    Assert(meshless_factory.check_point_conditioning(number_of_points,
+                                                     radii,
+                                                     neighbors,
+                                                     squared_distances));
     
     // Get RBF
     shared_ptr<RBF> rbf = rbf_parser.parse_from_xml(weights_node.get_child("meshless_function"));

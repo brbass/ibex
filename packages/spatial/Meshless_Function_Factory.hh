@@ -58,7 +58,8 @@ public:
                        std::vector<double> const &radii,
                        std::vector<double> const &other_radii,
                        std::vector<std::vector<double> > const &positions,
-                       std::vector<std::vector<int> > &neighbors) const;
+                       std::vector<std::vector<int> > &neighbors,
+                       std::vector<std::vector<double> > &distances) const;
     
     // Get independent meshless functions
     void get_rbf_functions(int number_of_points,
@@ -84,6 +85,12 @@ public:
                                      std::vector<std::vector<double> > const &limits,
                                      std::string rbf_type,
                                      std::vector<std::shared_ptr<Meshless_Function> > &functions) const;
+
+    // Given radii, make certain no two points are too close together
+    bool check_point_conditioning(int const number_of_points,
+                                  std::vector<double> const &radii,
+                                  std::vector<std::vector<int> > const &neighbors,
+                                  std::vector<std::vector<double> > const &squared_distances) const;
     
     // Get intersecting boundary surfaces for a given meshless function
     void get_boundary_surfaces(std::shared_ptr<Meshless_Function> function,

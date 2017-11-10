@@ -163,13 +163,19 @@ get_simple_discretization(int num_dimensional_points,
     double radius = interval * radius_num_intervals;
     vector<double> radii(number_of_points, radius);
     vector<vector<int> > neighbors;
+    vector<vector<double> > squared_distances;
     meshless_factory_.get_neighbors(kd_tree,
                                     dimension,
                                     number_of_points,
                                     radii,
                                     radii,
                                     points,
-                                    neighbors);
+                                    neighbors,
+                                    squared_distances);
+    Assert(meshless_factory_.check_point_conditioning(number_of_points,
+                                                      radii,
+                                                      neighbors,
+                                                      squared_distances));
     
     // Get RBF and distance
     RBF_Factory rbf_factory;

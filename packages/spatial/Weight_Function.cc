@@ -201,7 +201,8 @@ set_options_and_limits()
     else
     {
     }
-    
+
+    // Get basis function indices
     basis_function_indices_.resize(number_of_basis_functions_);
     basis_global_indices_.clear();
     for (int i = 0; i < number_of_basis_functions_; ++i)
