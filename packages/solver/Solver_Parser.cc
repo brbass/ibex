@@ -221,9 +221,15 @@ get_krylov_eigenvalue(XML_Node input_node,
     iteration_options.explicit_inverse
         = input_node.get_attribute<bool>("explicit_inverse",
                                          iteration_options.explicit_inverse);
-    iteration_options.max_inverse_iterations
-        = input_node.get_attribute<int>("max_inverse_iterations",
-                                        iteration_options.max_inverse_iterations);
+    if (iteration_options.explicit_inverse)
+    {
+        iteration_options.max_inverse_iterations
+            = input_node.get_attribute<int>("max_inverse_iterations",
+                                            iteration_options.max_inverse_iterations);
+        iteration_options.tolerance
+            = input_node.get_attribute<double>("tolerance",
+                                               iteration_options.tolerance);
+    }
     iteration_options.max_iterations
         = input_node.get_attribute<int>("max_iterations",
                                         iteration_options.max_iterations);
@@ -233,9 +239,6 @@ get_krylov_eigenvalue(XML_Node input_node,
     iteration_options.solver_print
         = input_node.get_attribute<int>("solver_print",
                                         iteration_options.solver_print);
-    iteration_options.tolerance
-        = input_node.get_attribute<double>("tolerance",
-                                           iteration_options.tolerance);
     iteration_options.eigenvalue_tolerance
         = input_node.get_attribute<double>("eigenvalue_tolerance",
                                            iteration_options.eigenvalue_tolerance);

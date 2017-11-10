@@ -21,6 +21,7 @@ public:
         bool adaptive_quadrature = false;
         int minimum_radius_ordinates = 12;
         int integration_ordinates = 8;
+        int maximum_integration_ordinates = 128;
         std::vector<std::vector<double> > limits;
         std::vector<int> dimensional_cells;
         

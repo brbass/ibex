@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 
@@ -633,18 +634,22 @@ initialize_connectivity()
             }
             
             // Find min cell length
-            double min_length = numeric_limits<double>::max();
+            double max_length = 0.0;
             for (int d = 0; d < dimension_; ++d)
             {
                 double length = cell->limits[d][1] - cell->limits[d][0];
-                if (length < min_length)
+                if (length > max_length)
                 {
-                    min_length = length;
+                    max_length = length;
                 }
             }
             
             // Get expected number of integration ordinates
-            int expected_number = ceil(min_length / min_radius * options_->minimum_radius_ordinates);
+            int expected_number = ceil(max_length / min_radius * options_->minimum_radius_ordinates);
+            if (expected_number > options_->maximum_integration_ordinates)
+            {
+                expected_number = options_->maximum_integration_ordinates;
+            }
             
             // Compare to actual number of integration ordinates
             int const global_integration_ordinates = options_->integration_ordinates;
@@ -656,6 +661,16 @@ initialize_connectivity()
             {
                 cell->number_of_integration_ordinates = global_integration_ordinates;
             }
+
+            // Print adaptive information for debug
+            // for (int d = 0; d < dimension_; ++d)
+            // {
+            //     cout << setw(14) << cell->limits[d][0];
+            // }
+            // cout << setw(14) << max_length;
+            // cout << setw(14) << min_radius;
+            // cout << setw(6) << cell->number_of_integration_ordinates;
+            // cout << endl;
         }
         
         // Get background surface integration ordinates
@@ -1280,6 +1295,7 @@ initialize_from_weak_options(std::shared_ptr<Weak_Spatial_Discretization_Options
     identical_basis_functions = (weak_options->identical_basis_functions == Weak_Spatial_Discretization_Options::Identical_Basis_Functions::TRUE);
     adaptive_quadrature = weak_options->adaptive_quadrature;
     minimum_radius_ordinates = weak_options->minimum_radius_ordinates;
+    maximum_integration_ordinates = weak_options->maximum_integration_ordinates;
     integration_ordinates = weak_options->integration_ordinates;
     limits = weak_options->limits;
     dimensional_cells = weak_options->dimensional_cells;

@@ -24,7 +24,8 @@ class Transport_Problem
 public:
     
     Transport_Problem(XML_Node input_node,
-                      XML_Node output_node);
+                      XML_Node output_node,
+                      bool print = false);
 
     void solve();
     
@@ -42,6 +43,10 @@ private:
 
     XML_Node input_node_;
     XML_Node output_node_;
+
+    // Print
+    bool print_;
+    void print_message(std::string message) const;
 
     // Timing
     void output_timing();

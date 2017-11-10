@@ -1,5 +1,7 @@
 #include "Transport_Problem.hh"
 
+#include <iostream>
+
 #include "Angular_Discretization.hh"
 #include "Angular_Discretization_Parser.hh"
 #include "Boundary_Source_Parser.hh"
@@ -24,9 +26,11 @@ using namespace std;
 
 Transport_Problem::
 Transport_Problem(XML_Node input_node,
-                  XML_Node output_node):
+                  XML_Node output_node,
+                  bool print):
     input_node_(input_node),
-    output_node_(output_node)
+    output_node_(output_node),
+    print_(print)
 {
 }
 
@@ -66,6 +70,7 @@ get_weak_data(shared_ptr<Energy_Discretization> &energy,
     Timer timer;
     
     // Get energy discretization
+    print_message("Parsing energy");
     timer.start();
     Energy_Discretization_Parser energy_parser;
     energy = energy_parser.parse_from_xml(input_node_.get_child("energy_discretization"));
@@ -73,6 +78,7 @@ get_weak_data(shared_ptr<Energy_Discretization> &energy,
     times_.emplace_back(timer.time(), "energy_initialization");
 
     // Get angular discretization
+    print_message("Parsing angular");
     timer.start();
     Angular_Discretization_Parser angular_parser;
     angular = angular_parser.parse_from_xml(input_node_.get_child("angular_discretization"));
@@ -80,6 +86,7 @@ get_weak_data(shared_ptr<Energy_Discretization> &energy,
     times_.emplace_back(timer.time(), "angular_initialization");
 
     // Get materials
+    print_message("Parsing materials");
     timer.start();
     Material_Parser material_parser(angular,
                                     energy);
@@ -89,6 +96,7 @@ get_weak_data(shared_ptr<Energy_Discretization> &energy,
     times_.emplace_back(timer.time(), "material_initialization");
 
     // Get boundary sources
+    print_message("Parsing boundary sources");
     timer.start();
     Boundary_Source_Parser boundary_parser(angular,
                                            energy);
@@ -98,6 +106,7 @@ get_weak_data(shared_ptr<Energy_Discretization> &energy,
     times_.emplace_back(timer.time(), "boundary_source_initialization");
     
     // Get solid geometry
+    print_message("Parsing solid geometry");
     timer.start();
     Constructive_Solid_Geometry_Parser solid_parser(materials,
                                                     boundary_sources);
@@ -111,6 +120,7 @@ get_weak_data(shared_ptr<Energy_Discretization> &energy,
     times_.emplace_back(timer.time(), "solid_geometry_initialization");
     
     // Get spatial discretization
+    print_message("Parsing spatial discretization");
     timer.start();
     Weak_Spatial_Discretization_Parser spatial_parser(solid,
                                                       boundary_surfaces);
@@ -119,6 +129,7 @@ get_weak_data(shared_ptr<Energy_Discretization> &energy,
     times_.emplace_back(timer.time(), "spatial_initialization");
 
     // Get transport discretization
+    print_message("Creating transport discretization");
     timer.start();
     transport = make_shared<Transport_Discretization>(spatial,
                                                       angular,
@@ -127,6 +138,7 @@ get_weak_data(shared_ptr<Energy_Discretization> &energy,
     times_.emplace_back(timer.time(), "transport_initialization");
     
     // Get sweep
+    print_message("Parsing sweep");
     timer.start();
     Weak_Sweep_Parser sweep_parser(spatial,
                                    angular,
@@ -143,6 +155,7 @@ solve_steady_state()
     Timer timer;
     
     // Get preliminaries
+    print_message("Parsing weak data");
     timer.start();
     shared_ptr<Energy_Discretization> energy;
     shared_ptr<Angular_Discretization> angular;
@@ -160,6 +173,7 @@ solve_steady_state()
     times_.emplace_back(timer.time(), "weak_data_initialization");
 
     // Get solver
+    print_message("Parsing solver");
     timer.start();
     XML_Node solver_node = input_node_.get_child("solver");
     string type = solver_node.get_attribute<string>("type");
@@ -186,12 +200,14 @@ solve_steady_state()
     times_.emplace_back(timer.time(), "solver_initialization");
     
     // Solve problem
+    print_message("Solving problem");
     timer.start();
     solver->solve();
     timer.stop();
     times_.emplace_back(timer.time(), "solve");
     
     // Output data
+    print_message("Output data");
     timer.start();
     energy->output(output_node_.append_child("energy_discretization"));
     angular->output(output_node_.append_child("angular_discretization"));
@@ -210,6 +226,7 @@ solve_eigenvalue()
     Timer timer;
     
     // Get preliminaries
+    print_message("Parsing weak data");
     timer.start();
     shared_ptr<Energy_Discretization> energy;
     shared_ptr<Angular_Discretization> angular;
@@ -227,6 +244,7 @@ solve_eigenvalue()
     times_.emplace_back(timer.time(), "weak_data_initialization");
 
     // Get solver
+    print_message("Parsing solver");
     timer.start();
     XML_Node solver_node = input_node_.get_child("solver");
     string type = solver_node.get_attribute<string>("type");
@@ -248,12 +266,14 @@ solve_eigenvalue()
     times_.emplace_back(timer.time(), "solver_initialization");
     
     // Solve problem
+    print_message("Solving problem");
     timer.start();
     solver->solve();
     timer.stop();
     times_.emplace_back(timer.time(), "solve");
     
     // Output data
+    print_message("Output data");
     timer.start();
     energy->output(output_node_.append_child("energy_discretization"));
     angular->output(output_node_.append_child("angular_discretization"));
@@ -273,5 +293,16 @@ output_timing()
     for (pair<double, string> time : times_)
     {
         timing_node.set_child_value(time.first, time.second);
+    }
+}
+
+void Transport_Problem::
+print_message(string message) const
+{
+    if (print_)
+    {
+        cout << endl;
+        cout << "Transport Problem:  ";
+        cout << message << endl;
     }
 }

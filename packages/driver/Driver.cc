@@ -28,12 +28,15 @@ run_problem()
 
     // Get problem type
     string problem_type = input_node.get_attribute<string>("type");
-
+    bool print_progress = input_node.get_attribute<bool>("print",
+                                                         false);
+    
     // Solve problem
     if (problem_type == "transport")
     {
         Transport_Problem transport_problem(input_node,
-                                            output_node);
+                                            output_node,
+                                            print_progress);
         transport_problem.solve();
     }
     else if (problem_type == "integration")
@@ -48,3 +51,4 @@ run_problem()
     // Save output file
     output_file.save(output_filename_);
 }
+

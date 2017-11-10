@@ -52,7 +52,8 @@ struct Weak_Spatial_Discretization_Options
     bool external_integral_calculation = true;
     bool adaptive_quadrature = false;
     int integration_ordinates = 8; // Dimensional integration quadrature
-    double minimum_radius_ordinates = 12;
+    int minimum_radius_ordinates = 12;
+    int maximum_integration_ordinates = 128;
     double scalar_flux_fraction = 1e-8;
     std::vector<double> flux_coefficients;
     std::vector<std::vector<double> > limits;

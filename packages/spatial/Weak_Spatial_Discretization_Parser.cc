@@ -573,8 +573,10 @@ get_weak_options(XML_Node input_node) const
         options->adaptive_quadrature = input_node.get_attribute<bool>("adaptive_quadrature", options->adaptive_quadrature);
         if (options->adaptive_quadrature)
         {
-            options->minimum_radius_ordinates = input_node.get_attribute<double>("minimum_radius_ordinates",
+            options->minimum_radius_ordinates = input_node.get_attribute<int>("minimum_radius_ordinates",
                                                                                  options->minimum_radius_ordinates);
+            options->maximum_integration_ordinates = input_node.get_attribute<int>("maximum_integration_ordinates",
+                                                                                 options->maximum_integration_ordinates);
         }
         
         options->dimensional_cells = input_node.get_child_vector<int>("dimensional_cells", dimension);
