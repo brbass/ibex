@@ -72,10 +72,20 @@ public:
     }
     
     // Inverse of matrix
+    virtual void inverse(std::vector<Scalar> &a_data,
+                         std::vector<Scalar> &ainv_data) override
+    {
+        Check(ainv_data.size() == size_ * size_);
+        return inverse_(a_data,
+                        ainv_data);
+    }
+    
+    // Inverse of matrix
     virtual void inverse(std::vector<Scalar> &ainv_data) override
     {
         Check(ainv_data.size() == size_ * size_);
-        return inverse_(ainv_data);
+        return inverse_(a_,
+                        ainv_data);
     }
 
     // Determinant of matrix
@@ -96,7 +106,8 @@ private:
     virtual void solve_(std::vector<Scalar> &a_data,
                         std::vector<Scalar> &b_data,
                         std::vector<Scalar> &x_data) = 0;
-    virtual void inverse_(std::vector<Scalar> &ainv_data) = 0;
+    virtual void inverse_(std::vector<Scalar> &a_data,
+                          std::vector<Scalar> &ainv_data) = 0;
     virtual Scalar determinant_() = 0;
     
 };
@@ -115,7 +126,8 @@ private:
     {
         AssertMsg(false, "not implemented for size " + std::to_string(size_));
     }
-    virtual void inverse_(std::vector<Scalar> &ainv_data) override
+    virtual void inverse_(std::vector<Scalar> &a_data,
+                          std::vector<Scalar> &ainv_data) override
     {
         AssertMsg(false, "not implemented for size " + std::to_string(size_));
     }
@@ -137,9 +149,10 @@ private:
                                               b,
                                               x);
     }
-    virtual void inverse_(std::vector<Scalar> &ainv_data)
+    virtual void inverse_(std::vector<Scalar> &a_data,
+                          std::vector<Scalar> &ainv_data)
     {
-        return Linear_Algebra::direct_inverse_1(this->a_,
+        return Linear_Algebra::direct_inverse_1(a_data,
                                                 ainv_data);
     }
 
@@ -161,9 +174,10 @@ private:
                                               b,
                                               x);
     }
-    virtual void inverse_(std::vector<Scalar> &ainv_data)
+    virtual void inverse_(std::vector<Scalar> &a_data,
+                          std::vector<Scalar> &ainv_data)
     {
-        return Linear_Algebra::direct_inverse_2(this->a_,
+        return Linear_Algebra::direct_inverse_2(a_data,
                                                 ainv_data);
     }
 
@@ -185,9 +199,10 @@ private:
                                               b,
                                               x);
     }
-    virtual void inverse_(std::vector<Scalar> &ainv_data)
+    virtual void inverse_(std::vector<Scalar> &a_data,
+                          std::vector<Scalar> &ainv_data)
     {
-        return Linear_Algebra::direct_inverse_3(this->a_,
+        return Linear_Algebra::direct_inverse_3(a_data,
                                                 ainv_data);
     }
 
@@ -209,9 +224,10 @@ private:
                                               b,
                                               x);
     }
-    virtual void inverse_(std::vector<Scalar> &ainv_data)
+    virtual void inverse_(std::vector<Scalar> &a_data,
+                          std::vector<Scalar> &ainv_data)
     {
-        return Linear_Algebra::direct_inverse_4(this->a_,
+        return Linear_Algebra::direct_inverse_4(a_data,
                                                 ainv_data);
     }
 
@@ -233,9 +249,10 @@ private:
                                               b,
                                               x);
     }
-    virtual void inverse_(std::vector<Scalar> &ainv_data)
+    virtual void inverse_(std::vector<Scalar> &a_data,
+                          std::vector<Scalar> &ainv_data)
     {
-        return Linear_Algebra::direct_inverse_5(this->a_,
+        return Linear_Algebra::direct_inverse_5(a_data,
                                                 ainv_data);
     }
 

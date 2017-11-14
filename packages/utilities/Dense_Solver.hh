@@ -40,6 +40,10 @@ public:
                              std::vector<Scalar> &b,
                              std::vector<Scalar> &x) = 0;
 
+    // Inverse of given matrix
+    virtual void inverse(std::vector<Scalar> &a_data,
+                         std::vector<Scalar> &ainv) = 0;
+    
     // Inverse of matrix
     virtual void inverse(std::vector<Scalar> &ainv) = 0;
 

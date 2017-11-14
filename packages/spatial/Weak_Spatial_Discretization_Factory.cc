@@ -198,7 +198,8 @@ get_simple_discretization(int num_dimensional_points,
                                             simple_functions);
         
         // Get MLS functions
-        meshless_factory_.get_mls_functions(number_of_points,
+        meshless_factory_.get_mls_functions(1,
+                                            number_of_points,
                                             simple_functions,
                                             neighbors,
                                             meshless_basis);
@@ -225,7 +226,8 @@ get_simple_discretization(int num_dimensional_points,
                                             simple_functions);
 
         // Get MLS functions
-        meshless_factory_.get_mls_functions(number_of_points,
+        meshless_factory_.get_mls_functions(1,
+                                            number_of_points,
                                             simple_functions,
                                             neighbors,
                                             meshless_weight);

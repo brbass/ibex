@@ -587,9 +587,9 @@ get_eigenvalue_operators(shared_ptr<Sweep_Operator> Linv,
         }
         else
         {
-            return get_standard_source_operators(Linv,
-                                                 fission_operator,
-                                                 flux_operator);
+            return get_standard_eigenvalue_operators(Linv,
+                                                     fission_operator,
+                                                     flux_operator);
         }
     case Weak_Spatial_Discretization_Options::Weighting::FULL:
         // Fallthrough intentional

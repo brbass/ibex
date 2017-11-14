@@ -51,6 +51,8 @@ public:
 
     // Inverse of matrix
     virtual void inverse(std::vector<double> &ainv) override;
+    virtual void inverse(std::vector<double> &a,
+                         std::vector<double> &ainv) override;
 
     // Determinant of matrix
     virtual double determinant() override;

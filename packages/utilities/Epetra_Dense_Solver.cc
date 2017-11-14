@@ -124,6 +124,16 @@ inverse(std::vector<double> &ainv)
     AssertMsg(false, "not implemented");
 }
 
+void Epetra_Dense_Solver::
+inverse(std::vector<double> &a,
+        std::vector<double> &ainv)
+{
+    Assert(initialized_);
+    Assert(a.size() == size_ * size_);
+    Assert(ainv.size() == size_ * size_);
+    AssertMsg(false, "not implemented");
+}
+
 double Epetra_Dense_Solver::
 determinant()
 {

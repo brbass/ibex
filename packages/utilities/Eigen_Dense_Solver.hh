@@ -110,6 +110,18 @@ public:
         ainv = lu_.inverse();
     }
 
+    virtual void inverse(std::vector<double> &a_data,
+                         std::vector<double> &ainv_data) override
+    {
+        Check(a_data.size() == size_ * size_);
+        Check(ainv_data.size() == size_ * size_);
+
+        EMMatrixR a(&a_data[0], size_, size_);
+        EMMatrixR ainv(&ainv_data[0], size_, size_);
+
+        ainv = a.fullPivLu().inverse();
+    }
+    
     // Get determinant
     virtual Scalar determinant() override
     {

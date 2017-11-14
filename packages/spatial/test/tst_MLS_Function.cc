@@ -159,32 +159,35 @@ int test_1d()
     return checksum;
 }
 
-int test_values()
-{
-    int checksum = 0;
+// int test_values()
+// {
+//     int checksum = 0;
 
-    Meshless_Function_Factory meshless_factory;
-    int dimension = 1;
-    double radius_num_intervals = 5.1;
-    vector<int> dimensional_points(dimension, 11);
-    vector<vector<double> > limits(dimension);
-    limits[0] = {0, 2};
-    string rbf_type = "wendland11";
-    vector<shared_ptr<Meshless_Function> > functions;
-    meshless_factory.get_cartesian_mls_functions(dimension,
-                                                 radius_num_intervals,
-                                                 dimensional_points,
-                                                 limits,
-                                                 rbf_type,
-                                                 functions);
-    shared_ptr<Meshless_Function> function = functions[0];
-    cout << function->value({0.1}) << endl;
-    cout << function->d_value(0, {0.1}) << endl;
+//     Meshless_Function_Factory meshless_factory;
+//     int dimension = 1;
+//     int order = 1;
+//     double radius_num_intervals = 5.1;
+//     vector<int> dimensional_points(dimension, 11);
+//     vector<vector<double> > limits(dimension);
+//     limits[0] = {0, 2};
+//     string rbf_type = "wendland11";
+//     vector<shared_ptr<Meshless_Function> > functions;
+//     meshless_factory.get_cartesian_mls_functions(order,
+//                                                  dimension,
+//                                                  radius_num_intervals,
+//                                                  dimensional_points,
+//                                                  limits,
+//                                                  rbf_type,
+//                                                  functions);
+//     shared_ptr<Meshless_Function> function = functions[0];
+//     cout << function->value({0.1}) << endl;
+//     cout << function->d_value(0, {0.1}) << endl;
     
-    return checksum;
-}
+//     return checksum;
+// }
 
-int test_all_values(int dimension)
+int test_all_values(int order,
+                    int dimension)
 {
     int checksum = 0;
 
@@ -205,7 +208,8 @@ int test_all_values(int dimension)
     // Get MLS functions
     vector<shared_ptr<Meshless_Function> > functions;
     Meshless_Function_Factory factory;
-    factory.get_cartesian_mls_functions(dimension,
+    factory.get_cartesian_mls_functions(order,
+                                        dimension,
                                         radius_num_intervals,
                                         dimensional_points,
                                         limits,
@@ -255,6 +259,7 @@ int test_all_values(int dimension)
                 if (!ce::approx(val, vals[i], tolerance))
                 {
                     cout << "MLS value failed for test " << t << " and value " << i << endl;
+                    cout << "dimension: " << dimension << "\torder: " << order << endl;
                     cout << "error: " << val - vals[i] << endl;
                     checksum += 1;
                 }
@@ -281,9 +286,14 @@ int main()
     int checksum = 0;
 
     // checksum += test_1d();
-    checksum += test_all_values(1);
-    checksum += test_all_values(2);
-    checksum += test_all_values(3);
+    for (int order = 1; order <=1; ++ order)
+    {
+        for (int d = 0; d < 3; ++d)
+        {
+            checksum += test_all_values(order,
+                                        d);
+        }
+    }
     
     return checksum;
 }

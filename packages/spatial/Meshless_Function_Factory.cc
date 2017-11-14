@@ -10,6 +10,7 @@
 #include "Distance.hh"
 #include "KD_Tree.hh"
 #include "Linear_MLS_Function.hh"
+#include "Quadratic_MLS_Function.hh"
 #include "RBF.hh"
 #include "RBF_Factory.hh"
 #include "RBF_Function.hh"
@@ -261,7 +262,8 @@ get_rbf_functions(int number_of_points,
 }
 
 void Meshless_Function_Factory::
-get_mls_functions(int number_of_points,
+get_mls_functions(int order,
+                  int number_of_points,
                   vector<shared_ptr<Meshless_Function> > const &functions,
                   vector<vector<int> > const &neighbors,
                   vector<shared_ptr<Meshless_Function> > &mls_functions) const
@@ -284,8 +286,19 @@ get_mls_functions(int number_of_points,
         }
         
         // Create MLS function
-        mls_functions[i]
-            = make_shared<Linear_MLS_Function>(neighbor_functions);
+        switch (order)
+        {
+        case 1:
+            mls_functions[i]
+                = make_shared<Linear_MLS_Function>(neighbor_functions);
+            break;
+        case 2:
+            mls_functions[i]
+                = make_shared<Quadratic_MLS_Function>(neighbor_functions);
+            break;
+        default:
+            AssertMsg(false, "invalid order for MLS function");
+        }
     }
 }
 
@@ -345,13 +358,20 @@ get_boundary_surfaces(shared_ptr<Meshless_Function> function,
 }
 
 void Meshless_Function_Factory::
-get_cartesian_mls_functions(int dimension,
+get_cartesian_mls_functions(int order,
+                            int dimension,
                             double radius_num_intervals,
                             vector<int> dimensional_points,
                             vector<vector<double> > const &limits,
                             string rbf_type,
                             vector<shared_ptr<Meshless_Function> > &functions) const
 {
+    // Check input data
+    Assert(dimension <= 3);
+    Assert(radius_num_intervals > 0);
+    Assert(dimensional_points.size() == dimension);
+    Assert(limits.size() == dimension);
+    
     // Get points
     int number_of_points;
     vector<vector<double> > points;
@@ -398,7 +418,8 @@ get_cartesian_mls_functions(int dimension,
                       simple_functions);
     
     // Get MLS functions
-    get_mls_functions(number_of_points,
+    get_mls_functions(order,
+                      number_of_points,
                       simple_functions,
                       neighbors,
                       functions);

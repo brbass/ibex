@@ -39,6 +39,7 @@ public:
                                                                        int dimension,
                                                                        std::string prefix) const;
     std::vector<std::shared_ptr<Meshless_Function> > get_mls_functions(XML_Node input_node,
+                                                                       int order,
                                                                        int number_of_points,
                                                                        int dimension,
                                                                        std::string prefix) const;

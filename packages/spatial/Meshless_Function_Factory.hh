@@ -71,7 +71,8 @@ public:
     
     // Get MLS functions, given meshless functions and neighbors
     // Input and output vector of functions cannot be the same
-    void get_mls_functions(int number_of_points,
+    void get_mls_functions(int order,
+                           int number_of_points,
                            std::vector<std::shared_ptr<Meshless_Function> > const &functions,
                            std::vector<std::vector<int> > const &neighbors,
                            std::vector<std::shared_ptr<Meshless_Function> > &mls_functions) const;
@@ -79,7 +80,8 @@ public:
     // Get MLS functions based on RBF functions
     // Creates and destroys KD tree, so it's advisable not to use this
     // where a KD tree is already being created (for weak discretization)
-    void get_cartesian_mls_functions(int dimension,
+    void get_cartesian_mls_functions(int order,
+                                     int dimension,
                                      double radius_num_intervals,
                                      std::vector<int> dimensional_points,
                                      std::vector<std::vector<double> > const &limits,

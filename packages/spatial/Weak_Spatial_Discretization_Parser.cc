@@ -12,6 +12,7 @@
 #include "KD_Tree.hh"
 #include "Meshless_Function.hh"
 #include "Meshless_Function_Factory.hh"
+#include "Quadratic_MLS_Function.hh"
 #include "RBF_Function.hh"
 #include "RBF_Parser.hh"
 #include "Solid_Geometry.hh"
@@ -213,7 +214,18 @@ get_galerkin_points_discretization(XML_Node input_node) const
     else if (meshless_type == "linear_mls")
     {
         vector<shared_ptr<Meshless_Function> > mls_functions;
-        meshless_factory.get_mls_functions(number_of_points,
+        meshless_factory.get_mls_functions(1,
+                                           number_of_points,
+                                           meshless_functions,
+                                           neighbors,
+                                           mls_functions);
+        meshless_functions.swap(mls_functions);
+    }
+    else if (meshless_type == "quadratic_mls")
+    {
+        vector<shared_ptr<Meshless_Function> > mls_functions;
+        meshless_factory.get_mls_functions(2,
+                                           number_of_points,
                                            meshless_functions,
                                            neighbors,
                                            mls_functions);
@@ -360,7 +372,18 @@ get_cartesian_discretization(XML_Node input_node) const
     else if (meshless_type == "linear_mls")
     {
         vector<shared_ptr<Meshless_Function> > mls_functions;
-        meshless_factory.get_mls_functions(number_of_points,
+        meshless_factory.get_mls_functions(1,
+                                           number_of_points,
+                                           meshless_functions,
+                                           neighbors,
+                                           mls_functions);
+        meshless_functions.swap(mls_functions);
+    }
+    else if (meshless_type == "quadratic_mls")
+    {
+        vector<shared_ptr<Meshless_Function> > mls_functions;
+        meshless_factory.get_mls_functions(2,
+                                           number_of_points,
                                            meshless_functions,
                                            neighbors,
                                            mls_functions);
@@ -430,6 +453,7 @@ get_rbf_functions(XML_Node input_node,
 
 vector<shared_ptr<Meshless_Function> > Weak_Spatial_Discretization_Parser::
 get_mls_functions(XML_Node input_node,
+                  int order,
                   int number_of_points,
                   int dimension,
                   string prefix) const
@@ -462,8 +486,18 @@ get_mls_functions(XML_Node input_node,
         {
             local_functions[i] = rbf_functions[neighbor_indices[i]];
         }
-        
-        functions[index] = make_shared<Linear_MLS_Function>(local_functions);
+
+        switch (order)
+        {
+        case 1:
+            functions[index] = make_shared<Linear_MLS_Function>(local_functions);
+            break;
+        case 2:
+            functions[index] = make_shared<Quadratic_MLS_Function>(local_functions);
+            break;
+        default:
+            AssertMsg(false, "order for MLS function not found");
+        }
     }
 
     return functions;
@@ -487,6 +521,15 @@ get_meshless_functions(XML_Node input_node,
     else if (meshless_type == "linear_mls")
     {
         return get_mls_functions(input_node,
+                                 1,
+                                 number_of_points,
+                                 dimension,
+                                 prefix);
+    }
+    else if (meshless_type == "quadratic_mls")
+    {
+        return get_mls_functions(input_node,
+                                 2,
                                  number_of_points,
                                  dimension,
                                  prefix);
