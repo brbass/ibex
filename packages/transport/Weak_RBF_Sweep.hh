@@ -34,6 +34,7 @@ public:
         Solver solver = Solver::AMESOS;
 
         // List of possible solver options
+        bool quit_if_diverged = true;
         int max_iterations = 1000;
         int kspace = 20;
         double level_of_fill = 1.0;
@@ -126,7 +127,9 @@ private:
         void set_rhs(int o,
                      int g,
                      std::vector<double> const &x) const;
-        
+
+        // Check Aztec solver message
+        void check_aztec_convergence(std::shared_ptr<AztecOO> const solver) const;
         // Data
         std::shared_ptr<Epetra_Comm> comm_;
         std::shared_ptr<Epetra_Map> map_;

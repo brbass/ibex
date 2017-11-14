@@ -163,6 +163,7 @@ set_options_and_limits()
             switch (weak_options_->tau_scaling)
             {
             case Weak_Spatial_Discretization_Options::Tau_Scaling::NONE:
+            case Weak_Spatial_Discretization_Options::Tau_Scaling::CONSTANT:
                 ratio = 1;
                 break;
             case Weak_Spatial_Discretization_Options::Tau_Scaling::ABSOLUTE:
@@ -196,10 +197,16 @@ set_options_and_limits()
             // Set new tau
             options_->tau_const *= ratio;
         }
-        options_->tau = options_->tau_const / meshless_function_->shape();
-    }
-    else
-    {
+
+        switch (weak_options_->tau_scaling)
+        {
+        case Weak_Spatial_Discretization_Options::Tau_Scaling::CONSTANT:
+            options_->tau = options_->tau_const;
+            break;
+        default:
+            options_->tau = options_->tau_const / meshless_function_->shape();
+            break;
+        }
     }
 
     // Get basis function indices

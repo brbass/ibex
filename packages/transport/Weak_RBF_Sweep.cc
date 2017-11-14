@@ -408,25 +408,6 @@ output(XML_Node output_node) const
     output_node.set_attribute("solver", options_.solver_conversion()->convert(options_.solver));
 }
 
-Weak_RBF_Sweep::Sweep_Solver::
-Sweep_Solver(Weak_RBF_Sweep const &wrs):
-    wrs_(wrs)
-{
-}
-
-Weak_RBF_Sweep::Trilinos_Solver::
-Trilinos_Solver(Weak_RBF_Sweep const &wrs):
-    Sweep_Solver(wrs)
-{
-    int number_of_points = wrs_.spatial_discretization_->number_of_points();
-    comm_ = make_shared<Epetra_MpiComm>(MPI_COMM_WORLD);
-    map_ = make_shared<Epetra_Map>(number_of_points, 0, *comm_);
-    lhs_ = make_shared<Epetra_Vector>(*map_);
-    rhs_ = make_shared<Epetra_Vector>(*map_);
-    lhs_->PutScalar(1.0);
-    rhs_->PutScalar(1.0);
-}
-
 void Weak_RBF_Sweep::
 save_matrix_as_xml(int o,
                    int g,
@@ -459,6 +440,25 @@ save_matrix_as_xml(int o,
         row_node.set_child_vector(values,
                                   "values");
     }
+}
+
+Weak_RBF_Sweep::Sweep_Solver::
+Sweep_Solver(Weak_RBF_Sweep const &wrs):
+    wrs_(wrs)
+{
+}
+
+Weak_RBF_Sweep::Trilinos_Solver::
+Trilinos_Solver(Weak_RBF_Sweep const &wrs):
+    Sweep_Solver(wrs)
+{
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    comm_ = make_shared<Epetra_MpiComm>(MPI_COMM_WORLD);
+    map_ = make_shared<Epetra_Map>(number_of_points, 0, *comm_);
+    lhs_ = make_shared<Epetra_Vector>(*map_);
+    rhs_ = make_shared<Epetra_Vector>(*map_);
+    lhs_->PutScalar(1.0);
+    rhs_->PutScalar(1.0);
 }
 
 shared_ptr<Epetra_CrsMatrix> Weak_RBF_Sweep::Trilinos_Solver::
@@ -510,6 +510,51 @@ set_rhs(int o,
                      value);
         
         (*rhs_)[i] = value;
+    }
+}
+
+void Weak_RBF_Sweep::Trilinos_Solver::
+check_aztec_convergence(shared_ptr<AztecOO> const solver) const
+{
+    bool converged;
+    string message;
+    double const *status = solver->GetAztecStatus();
+    switch ((int) status[AZ_why])
+    {
+    case AZ_normal:
+        converged = true;
+        break;
+    case AZ_param:
+        converged = false;
+        message = "AztecOO: Parameter not available";
+        break;
+    case AZ_breakdown:
+        converged = false;
+        message = "AztecOO: Numerical breakdown";
+        break;
+    case AZ_loss:
+        converged = false;
+        message = "AztecOO: Numerical loss of precision";
+        break;
+    case AZ_ill_cond:
+        converged = false;
+        message = "AztecOO: Ill-conditioned matrix";
+        break;
+    case AZ_maxits:
+        converged = false;
+        message = "AztecOO: Max iterations reached without convergence";
+        break;
+    }
+    if (!converged)
+    {
+        if (wrs_.options_.quit_if_diverged)
+        {
+            AssertMsg(false, message);
+        }
+        else
+        {
+            std::cerr << message << std::endl;
+        }
     }
 }
 
@@ -623,6 +668,9 @@ solve(vector<double> &x) const
             // Solve, putting result into LHS
             solver->Iterate(wrs_.options_.max_iterations,
                             wrs_.options_.tolerance);
+
+            // Check to ensure solver converged
+            check_aztec_convergence(solver);
             
             // Update solution value (overwrite x for this o and g)
             for (int i = 0; i < number_of_points; ++i)
@@ -657,7 +705,7 @@ Aztec_ILUT_Solver(Weak_RBF_Sweep const &wrs):
                 = make_shared<Epetra_LinearProblem>(mat_[k].get(),
                                                     lhs_.get(),
                                                     rhs_.get());
-
+            
             // Create solver
             solver_[k]
                 = make_shared<AztecOO>(*problem_[k]);
@@ -700,6 +748,10 @@ solve(vector<double> &x) const
             int k = g + number_of_groups * o;
             solver_[k]->Iterate(wrs_.options_.max_iterations,
                                 wrs_.options_.tolerance);
+
+            // Check to ensure solver converged
+            check_aztec_convergence(solver_[k]);
+            
             // Update solution value (overwrite x for this o and g)
             for (int i = 0; i < number_of_points; ++i)
             {
@@ -785,6 +837,10 @@ solve(vector<double> &x) const
             int k = g + number_of_groups * o;
             solver_[k]->Iterate(wrs_.options_.max_iterations,
                                 wrs_.options_.tolerance);
+            
+            // Check to ensure solver converged
+            check_aztec_convergence(solver_[k]);
+            
             // Update solution value (overwrite x for this o and g)
             for (int i = 0; i < number_of_points; ++i)
             {

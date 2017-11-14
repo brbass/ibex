@@ -35,7 +35,8 @@ struct Weak_Spatial_Discretization_Options
         NONE,
         FUNCTIONAL, // val(boundary) / val(center)
         LINEAR, // pos_boundary / radius
-        ABSOLUTE // 0 if on boundary
+        ABSOLUTE, // 0 if on boundary
+        CONSTANT // set exactly to specified constant
     };
     std::shared_ptr<Conversion<Tau_Scaling, std::string> > tau_scaling_conversion() const;
 

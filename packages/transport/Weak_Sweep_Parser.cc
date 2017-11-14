@@ -25,6 +25,8 @@ shared_ptr<Weak_RBF_Sweep> Weak_Sweep_Parser::
 get_weak_rbf_sweep(XML_Node input_node) const
 {
     Weak_RBF_Sweep::Options options;
+    options.quit_if_diverged = input_node.get_attribute<bool>("quit_if_diverged",
+                                                              options.quit_if_diverged);
     options.max_iterations = input_node.get_attribute<int>("max_iterations",
                                                            options.max_iterations);
     options.kspace = input_node.get_attribute<int>("kspace",

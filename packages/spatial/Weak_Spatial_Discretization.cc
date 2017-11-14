@@ -392,7 +392,8 @@ tau_scaling_conversion() const
         = {{Tau_Scaling::NONE, "none"},
            {Tau_Scaling::FUNCTIONAL, "functional"},
            {Tau_Scaling::LINEAR, "linear"},
-           {Tau_Scaling::ABSOLUTE, "absolute"}};
+           {Tau_Scaling::ABSOLUTE, "absolute"},
+           {Tau_Scaling::CONSTANT, "constant"}};
     return make_shared<Conversion<Tau_Scaling, string> >(conversions);
 }
 
