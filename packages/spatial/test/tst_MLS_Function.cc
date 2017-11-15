@@ -92,7 +92,7 @@ int test_1d()
     // Test that sum of values is one everywhere
     {
         bool failed = false;
-        double tolerance = 1.e-10;
+        double tolerance = 1e-9;
         double largest_error = 0.;
         for (int t = 0; t < num_tests; ++t)
         {
@@ -125,7 +125,7 @@ int test_1d()
     // Test that sum of derivatives is zero everywhere
     {
         bool failed = false;
-        double tolerance = 1.e-8;
+        double tolerance = 1e-8;
         double largest_error = 0.;
         for (int t = 0; t < num_tests; ++t)
         {
@@ -192,8 +192,8 @@ int test_all_values(int order,
     int checksum = 0;
 
     // Set preliminary data
-    double tolerance = 1e-10;
-    double radius_num_intervals = 3;
+    double tolerance = order == 1 ? 1e-10 : 1e-8;
+    double radius_num_intervals = 3.5;
     string rbf_type = "wendland11";
     
     // Set limits and number of points
@@ -274,7 +274,7 @@ int test_all_values(int order,
     }
     Assert(num_inside > 10);
 
-    cout << "dimension: " << dimension << endl;
+    cout << "dimension: " << dimension << "\t" << "order: " << order << endl;
     cout << "\told method time: " << old_time << endl;
     cout << "\tnew method time: " << new_time << endl;
     
@@ -286,9 +286,9 @@ int main()
     int checksum = 0;
 
     // checksum += test_1d();
-    for (int order = 1; order <=1; ++ order)
+    for (int order = 1; order <=2; ++ order)
     {
-        for (int d = 0; d < 3; ++d)
+        for (int d = 1; d <= 3; ++d)
         {
             checksum += test_all_values(order,
                                         d);

@@ -54,6 +54,7 @@ get_cartesian_points(int dimension,
                      vector<vector<double> > &points) const
 {
     // Check sizes
+    Assert(dimension >= 1 && dimension <= 3);
     Assert(dimensional_points.size() == dimension);
     Assert(limits.size() == dimension);
     
@@ -367,7 +368,7 @@ get_cartesian_mls_functions(int order,
                             vector<shared_ptr<Meshless_Function> > &functions) const
 {
     // Check input data
-    Assert(dimension <= 3);
+    Assert(dimension >= 1 && dimension <= 3);
     Assert(radius_num_intervals > 0);
     Assert(dimensional_points.size() == dimension);
     Assert(limits.size() == dimension);

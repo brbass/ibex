@@ -3,6 +3,8 @@
 
 #include "Meshless_Normalization.hh"
 
+#include <memory>
+
 template<class T> class Dense_Solver;
 
 class Quadratic_MLS_Normalization : public Meshless_Normalization

@@ -12,6 +12,8 @@ KD_Tree(int dimension,
     number_of_points_(number_of_points),
     points_(points)
 {
+    Assert(dimension >= 1);
+    
     adaptor_ = make_shared<KD_Adaptor>(*this);
     kd_tree_ = make_shared<KDT>(dimension_,
                                 *adaptor_);

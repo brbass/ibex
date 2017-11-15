@@ -10,9 +10,23 @@ using std::vector;
 
 Quadratic_MLS_Normalization::
 Quadratic_MLS_Normalization(int dimension):
-    dimension_(dimension),
-    number_of_polynomials_(dimension + 1)
+    dimension_(dimension)
 {
+    switch (dimension_)
+    {
+    case 1:
+        number_of_polynomials_ = 3;
+        break;
+    case 2:
+        number_of_polynomials_ = 6;
+        break;
+    case 3:
+        number_of_polynomials_ = 10;
+        break;
+    default:
+        AssertMsg(false, "dimension incorrect");
+    }
+    
     Dense_Solver_Factory factory;
     solver_ = factory.get_solver(number_of_polynomials_);
 }
@@ -27,7 +41,7 @@ get_polynomial(vector<double> const &position,
     {
     case 1:
     {
-        double x = position[1];
+        double x = position[0];
         
         poly[0] = 1;
         poly[1] = x;
@@ -36,8 +50,8 @@ get_polynomial(vector<double> const &position,
     }
     case 2:
     {
-        double x = position[1];
-        double y = position[2];
+        double x = position[0];
+        double y = position[1];
         
         poly[0] = 1;
         poly[1] = x;
@@ -49,9 +63,9 @@ get_polynomial(vector<double> const &position,
     }
     case 3:
     {
-        double x = position[1];
-        double y = position[2];
-        double z = position[3];
+        double x = position[0];
+        double y = position[1];
+        double z = position[2];
         
         poly[0] = 1;
         poly[1] = x;
@@ -81,8 +95,10 @@ get_d_polynomial(int dim,
     {
     case 1:
     {
+        double x = position[0];
         d_poly[0] = 0;
         d_poly[1] = 1;
+        d_poly[2] = 2 * x;
         break;
     }
     case 2:
@@ -280,7 +296,6 @@ get_gradient_values(vector<double> const &position,
                                             vector<double>(number_of_polynomials_));
     get_grad_polynomial(position,
                         grad_p_position);
-
     
     // Get polynomial values at centers
     vector<vector<double> > p_center(number_of_functions, vector<double>(number_of_polynomials_));

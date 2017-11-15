@@ -295,7 +295,7 @@ get_polynomial(vector<double> const &position,
     {
     case 1:
     {
-        double x = position[1];
+        double x = position[0];
         
         poly[0] = 1;
         poly[1] = x;
@@ -304,8 +304,8 @@ get_polynomial(vector<double> const &position,
     }
     case 2:
     {
-        double x = position[1];
-        double y = position[2];
+        double x = position[0];
+        double y = position[1];
         
         poly[0] = 1;
         poly[1] = x;
@@ -317,9 +317,9 @@ get_polynomial(vector<double> const &position,
     }
     case 3:
     {
-        double x = position[1];
-        double y = position[2];
-        double z = position[3];
+        double x = position[0];
+        double y = position[1];
+        double z = position[2];
         
         poly[0] = 1;
         poly[1] = x;
@@ -349,8 +349,11 @@ get_d_polynomial(int dim,
     {
     case 1:
     {
+        double x = position[0];
+        
         d_poly[0] = 0;
         d_poly[1] = 1;
+        d_poly[2] = 2 * x;
         break;
     }
     case 2:
