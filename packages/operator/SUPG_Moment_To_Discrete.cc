@@ -1,5 +1,9 @@
 #include "SUPG_Moment_To_Discrete.hh"
 
+#if defined(ENABLE_OPENMP)
+    #include <omp.h>
+#endif
+
 #include "Check.hh"
 #include "Angular_Discretization.hh"
 #include "Dimensional_Moments.hh"
@@ -53,7 +57,8 @@ apply(vector<double> &x) const
     double angular_normalization = angular_discretization_->angular_normalization();
     vector<int> const scattering_indices = angular_discretization_->scattering_indices();
     vector<double> const weights = angular_discretization_->weights();
-    
+
+    #pragma omp parallel for
     for (int i = 0; i < number_of_points; ++i)
     {
         double tau = spatial_discretization_->weight(i)->options()->tau;

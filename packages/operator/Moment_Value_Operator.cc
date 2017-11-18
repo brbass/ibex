@@ -1,5 +1,9 @@
 #include "Moment_Value_Operator.hh"
 
+#if defined(ENABLE_OPENMP)
+    #include <omp.h>
+#endif
+
 #include "Angular_Discretization.hh"
 #include "Energy_Discretization.hh"
 #include "Weak_Spatial_Discretization.hh"
@@ -37,7 +41,8 @@ apply(vector<double> &x) const
     int number_of_moments = angular_->number_of_moments();
     
     vector<double> result(number_of_points * number_of_nodes * number_of_groups * number_of_moments, 0);
-    
+
+    #pragma omp parallel for
     for (int i = 0; i < number_of_points; ++i)
     {
         // Get weight function and data

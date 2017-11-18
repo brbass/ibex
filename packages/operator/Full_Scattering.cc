@@ -1,5 +1,9 @@
 #include "Full_Scattering.hh"
 
+#if defined(ENABLE_OPENMP)
+    #include <omp.h>
+#endif
+
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -65,6 +69,7 @@ apply_full(vector<double> &x) const
     // Copy source flux
     vector<double> y(x);
     x.assign(number_of_points * number_of_nodes * number_of_groups * number_of_moments * number_of_dimensional_moments, 0);
+    #pragma omp parallel for
     for (int i = 0; i < number_of_points; ++i)
     {
         // Get cross section information

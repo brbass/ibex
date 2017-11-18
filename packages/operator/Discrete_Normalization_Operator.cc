@@ -1,5 +1,9 @@
 #include "Discrete_Normalization_Operator.hh"
 
+#if defined(ENABLE_OPENMP)
+    #include <omp.h>
+#endif
+
 #include "Angular_Discretization.hh"
 #include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
@@ -70,6 +74,7 @@ apply(vector<double> &x) const
         
     if (include_normalization)
     {
+        #pragma omp parallel for
         for (int i = 0; i < number_of_points; ++i)
         {
             // Get weight function and data

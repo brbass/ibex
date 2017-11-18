@@ -1,5 +1,9 @@
 #include "Internal_Source_Operator.hh"
 
+#if defined(ENABLE_OPENMP)
+    #include <omp.h>
+#endif
+
 #include "Angular_Discretization.hh"
 #include "Check.hh"
 #include "Cross_Section.hh"
@@ -46,7 +50,8 @@ apply(vector<double> &x) const
     int number_of_groups = energy_->number_of_groups();
     int number_of_dimensional_moments = spatial_->dimensional_moments()->number_of_dimensional_moments();
     double normalization = angular_->angular_normalization();
-    
+
+    #pragma omp parallel for
     for (int i = 0; i < number_of_points; ++i)
     {
         shared_ptr<Cross_Section> internal_source

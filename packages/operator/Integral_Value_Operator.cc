@@ -1,5 +1,9 @@
 #include "Integral_Value_Operator.hh"
 
+#if defined(ENABLE_OPENMP)
+    #include <omp.h>
+#endif
+
 #include "Angular_Discretization.hh"
 #include "Basis_Function.hh"
 #include "Energy_Discretization.hh"
@@ -76,6 +80,7 @@ apply(vector<double> &x) const
     
     // Apply operator
     vector<double> result(row_size_, 0.);
+    #pragma omp parallel for
     for (int i = 0; i < number_of_cells; ++i)
     {
         // Get cell
@@ -116,14 +121,17 @@ apply(vector<double> &x) const
                      flux);
 
             // Add to integral
-            for (int m = 0; m < number_of_moments; ++m)
+            #pragma omp critical
             {
-                for (int g = 0; g < number_of_groups; ++g)
+                for (int m = 0; m < number_of_moments; ++m)
                 {
-                    int k_res = g + number_of_groups * (m + number_of_moments * i);
-                    int k_flux = g + number_of_groups * m;
+                    for (int g = 0; g < number_of_groups; ++g)
+                    {
+                        int k_res = g + number_of_groups * (m + number_of_moments * i);
+                        int k_flux = g + number_of_groups * m;
                     
-                    result[k_res] += flux[k_flux] * weight;
+                        result[k_res] += flux[k_flux] * weight;
+                    }
                 }
             }
         }

@@ -1,5 +1,9 @@
 #include "Moment_Weighting_Operator.hh"
 
+#if defined(ENABLE_OPENMP)
+    #include <omp.h>
+#endif
+
 #include "Angular_Discretization.hh"
 #include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
@@ -85,6 +89,7 @@ apply(vector<double> &x) const
         include_normalization = false;
         break;
     }
+    #pragma omp parallel for
     for (int i = 0; i < number_of_points; ++i)
     {
         // Get weight function and data

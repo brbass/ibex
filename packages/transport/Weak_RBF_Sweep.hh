@@ -11,8 +11,21 @@ class Epetra_CrsMatrix;
 class Epetra_Comm;
 class Epetra_LinearProblem;
 class Epetra_Map;
+class Epetra_MultiVector;
+class Epetra_Operator;
 class Epetra_Vector;
 class Ifpack_Preconditioner;
+
+namespace Belos
+{
+    class EpetraPrecOp;
+    template<class Scalar, class MV, class OP> class LinearProblem;
+    template<class Scalar, class MV, class OP> class PseudoBlockGmresSolMgr;
+}
+
+typedef Belos::EpetraPrecOp BelosPreconditioner;
+typedef Belos::LinearProblem<double, Epetra_MultiVector, Epetra_Operator> BelosLinearProblem;
+typedef Belos::PseudoBlockGmresSolMgr<double, Epetra_MultiVector, Epetra_Operator> BelosSolver;
 
 class Weak_RBF_Sweep : public Sweep_Operator
 {
@@ -25,9 +38,10 @@ public:
         enum class Solver
         {
             AMESOS,
+            AMESOS_PARALLEL,
             AZTEC,
-            AZTEC_ILUT,
-            AZTEC_IFPACK
+            AZTEC_IFPACK,
+            BELOS_PARALLEL
         };
         std::shared_ptr<Conversion<Solver, std::string> > solver_conversion() const;
         
@@ -37,6 +51,7 @@ public:
         bool quit_if_diverged = true;
         int max_iterations = 1000;
         int kspace = 20;
+        int max_restarts = 50;
         double level_of_fill = 1.0;
         double tolerance = 1e-8;
         double drop_tolerance = 1e-12;
@@ -121,20 +136,17 @@ private:
         
         // Return transport matrix for o and g
         std::shared_ptr<Epetra_CrsMatrix> get_matrix(int o,
-                                                     int g) const;
-
+                                                     int g,
+                                                     std::shared_ptr<Epetra_Map> map) const;
+        
         // Set rhs_ to current source
         void set_rhs(int o,
                      int g,
+                     std::shared_ptr<Epetra_Vector> &rhs,
                      std::vector<double> const &x) const;
-
+        
         // Check Aztec solver message
         void check_aztec_convergence(std::shared_ptr<AztecOO> const solver) const;
-        // Data
-        std::shared_ptr<Epetra_Comm> comm_;
-        std::shared_ptr<Epetra_Map> map_;
-        mutable std::shared_ptr<Epetra_Vector> lhs_;
-        mutable std::shared_ptr<Epetra_Vector> rhs_;
     };
     
     // Amesos solver: stores LU decompositions of all matrices
@@ -150,7 +162,33 @@ private:
     protected:
         
         // Data
+        std::shared_ptr<Epetra_Comm> comm_;
+        std::shared_ptr<Epetra_Map> map_;
         std::vector<std::shared_ptr<Epetra_CrsMatrix> > mat_;
+        mutable std::shared_ptr<Epetra_Vector> lhs_;
+        mutable std::shared_ptr<Epetra_Vector> rhs_;
+        std::vector<std::shared_ptr<Epetra_LinearProblem> > problem_;
+        std::vector<std::shared_ptr<Amesos_BaseSolver> > solver_;
+    };
+
+    // Amesos parallel solver: solves ordinates in parallel
+    class Amesos_Parallel_Solver : public Trilinos_Solver
+    {
+    public:
+        // Constructor
+        Amesos_Parallel_Solver(Weak_RBF_Sweep const &wrs);
+
+        // Solve problem
+        virtual void solve(std::vector<double> &x) const override;
+        
+    protected:
+        
+        // Data
+        std::vector<std::shared_ptr<Epetra_Comm> > comm_;
+        std::vector<std::shared_ptr<Epetra_Map> > map_;
+        std::vector<std::shared_ptr<Epetra_CrsMatrix> > mat_;
+        mutable std::vector<std::shared_ptr<Epetra_Vector> > lhs_;
+        mutable std::vector<std::shared_ptr<Epetra_Vector> > rhs_;
         std::vector<std::shared_ptr<Epetra_LinearProblem> > problem_;
         std::vector<std::shared_ptr<Amesos_BaseSolver> > solver_;
     };
@@ -172,27 +210,17 @@ private:
         
         // Solve problem
         virtual void solve(std::vector<double> &x) const override;
-    };
-    
-    // Aztec solver: iterative, stores partial LU decompositions
-    // Not working: does not find past preconditioner
-    class Aztec_ILUT_Solver : public Trilinos_Solver
-    {
-    public:
-        
-        // Constructor
-        Aztec_ILUT_Solver(Weak_RBF_Sweep const &wrs);
-        
-        // Solve problem
-        virtual void solve(std::vector<double> &x) const override;
 
     protected:
-        
-        std::vector<std::shared_ptr<Epetra_CrsMatrix> > mat_;
-        std::vector<std::shared_ptr<Epetra_LinearProblem> > problem_;
-        std::vector<std::shared_ptr<AztecOO> > solver_;
-    };
 
+        // Data
+        std::shared_ptr<Epetra_Comm> comm_;
+        std::shared_ptr<Epetra_Map> map_;
+        mutable std::shared_ptr<Epetra_Vector> lhs_;
+        mutable std::shared_ptr<Epetra_Vector> rhs_;
+        
+    };
+    
     class Aztec_Ifpack_Solver : public Trilinos_Solver
     {
     public:
@@ -205,10 +233,36 @@ private:
 
     protected:
         
+        std::shared_ptr<Epetra_Comm> comm_;
+        std::shared_ptr<Epetra_Map> map_;
         std::vector<std::shared_ptr<Epetra_CrsMatrix> > mat_;
+        mutable std::shared_ptr<Epetra_Vector> lhs_;
+        mutable std::shared_ptr<Epetra_Vector> rhs_;
         std::vector<std::shared_ptr<Epetra_LinearProblem> > problem_;
         std::vector<std::shared_ptr<Ifpack_Preconditioner> > prec_;
         std::vector<std::shared_ptr<AztecOO> > solver_;
+    };
+
+    class Belos_Parallel_Solver : public Trilinos_Solver
+    {
+    public:
+        
+        // Constructor
+        Belos_Parallel_Solver(Weak_RBF_Sweep const &wrs);
+        
+        // Solve problem
+        virtual void solve(std::vector<double> &x) const override;
+
+    protected:
+        
+        std::vector<std::shared_ptr<Epetra_Comm> > comm_;
+        std::vector<std::shared_ptr<Epetra_Map> > map_;
+        std::vector<std::shared_ptr<Epetra_CrsMatrix> > mat_;
+        mutable std::vector<std::shared_ptr<Epetra_Vector> > lhs_;
+        mutable std::vector<std::shared_ptr<Epetra_Vector> > rhs_;
+        std::vector<std::shared_ptr<BelosPreconditioner> > prec_;
+        std::vector<std::shared_ptr<BelosLinearProblem> > problem_;
+        std::vector<std::shared_ptr<BelosSolver> > solver_;
     };
     
     // Data

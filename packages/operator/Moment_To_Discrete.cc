@@ -1,5 +1,9 @@
 #include "Moment_To_Discrete.hh"
 
+#if defined(ENABLE_OPENMP)
+    #include <omp.h>
+#endif
+
 #include "Check.hh"
 #include "Angular_Discretization.hh"
 #include "Energy_Discretization.hh"
@@ -44,7 +48,8 @@ apply(vector<double> &x) const
     int number_of_ordinates = angular_discretization_->number_of_ordinates();
     double angular_normalization = angular_discretization_->angular_normalization();
     vector<int> const scattering_indices = angular_discretization_->scattering_indices();
-    
+
+    #pragma omp parallel for
     for (int i = 0; i < number_of_points; ++i)
     {
         for (int g = 0; g < number_of_groups; ++g)

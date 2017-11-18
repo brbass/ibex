@@ -1,5 +1,9 @@
 #include "SUPG_Fission.hh"
 
+#if defined(ENABLE_OPENMP)
+    #include <omp.h>
+#endif
+
 #include <memory>
 #include <vector>
 
@@ -38,6 +42,7 @@ check_class_invariants() const
     
     // For now, assume that all points have the same energy dependence
     Cross_Section::Dependencies::Energy energy_dep = spatial_discretization_->point(0)->material()->sigma_f()->dependencies().energy;
+    
     for (int i = 0; i < number_of_points; ++i)
     {
         shared_ptr<Material> material = spatial_discretization_->point(i)->material();
@@ -118,6 +123,7 @@ group_to_group_full(vector<double> &x) const
     // Copy source flux
     vector<double> y(x);
     x.assign(number_of_points * number_of_nodes * number_of_groups * number_of_moments * number_of_double_dimensional_moments, 0);
+    #pragma omp parallel for
     for (int i = 0; i < number_of_points; ++i)
     {
         shared_ptr<Cross_Section> sigma_f_cs = spatial_discretization_->point(i)->material()->sigma_f();
@@ -174,6 +180,7 @@ group_full(vector<double> &x) const
     {
         int m = 0;
         int d = 0;
+        #pragma omp parallel for
         for (int i = 0; i < number_of_points; ++i)
         {
             shared_ptr<Material> material = spatial_discretization_->point(i)->material();

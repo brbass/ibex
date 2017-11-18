@@ -1,5 +1,11 @@
 #include "Driver.hh"
 
+#if defined(ENABLE_OPENMP)
+#include <omp.h>
+#else
+inline void omp_set_num_threads(int i) {return;}
+#endif
+
 #include "Transport_Problem.hh"
 #include "XML_Document.hh"
 #include "XML_Node.hh"
@@ -30,6 +36,9 @@ run_problem()
     string problem_type = input_node.get_attribute<string>("type");
     bool print_progress = input_node.get_attribute<bool>("print",
                                                          false);
+    int number_of_threads = input_node.get_attribute<int>("number_of_threads",
+                                                    1);
+    omp_set_num_threads(number_of_threads);
     
     // Solve problem
     if (problem_type == "transport")

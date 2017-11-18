@@ -1,5 +1,9 @@
 #include "Discrete_Value_Operator.hh"
 
+#if defined(ENABLE_OPENMP)
+    #include <omp.h>
+#endif
+
 #include "Angular_Discretization.hh"
 #include "Energy_Discretization.hh"
 #include "Weak_Spatial_Discretization.hh"
@@ -35,9 +39,11 @@ apply(vector<double> &x) const
     int number_of_nodes = spatial_->number_of_nodes();
     int number_of_groups = energy_->number_of_groups();
     int number_of_ordinates = angular_->number_of_ordinates();
-    
-    vector<double> result(number_of_points * number_of_nodes * number_of_groups * number_of_ordinates, 0);
-    
+
+    vector<double> y(x);
+    x.assign(number_of_points * number_of_nodes * number_of_groups * number_of_ordinates, 0);
+
+    #pragma omp parallel for
     for (int i = 0; i < number_of_points; ++i)
     {
         // Get weight function and data
@@ -65,18 +71,15 @@ apply(vector<double> &x) const
                 {
                     for (int n = 0; n < number_of_nodes; ++n)
                     {
-                        int k_x = n + number_of_nodes * (g + number_of_groups * (o + number_of_ordinates * k_bas));
-                        int k_res = n + number_of_nodes * (g + number_of_groups * (o + number_of_ordinates * i));
+                        int k_y = n + number_of_nodes * (g + number_of_groups * (o + number_of_ordinates * k_bas));
+                        int k_x = n + number_of_nodes * (g + number_of_groups * (o + number_of_ordinates * i));
                         
-                        result[k_res] += mult * x[k_x];
+                        x[k_x] += mult * x[k_y];
                     }
                 }
             }
         }
     }
-    
-    // Put result into "x"
-    x.swap(result);
 }
 
 void Discrete_Value_Operator::

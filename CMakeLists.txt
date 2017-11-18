@@ -33,7 +33,7 @@ if (FALSE)
    set(global_trilinos_link_libraries ${global_trilinos_link_libraries} ${Trilinos_LIBRARIES} ${Trilinos_TPL_LIBRARIES})
    
 else()
-    set(trilinosPackages Amesos AztecOO Epetra Ifpack Teuchos)
+    set(trilinosPackages Amesos AztecOO Epetra Ifpack Teuchos Belos)
     foreach(trilinosPackage ${trilinosPackages})
         # Find package
         find_package(${trilinosPackage} REQUIRED)
@@ -51,7 +51,7 @@ else()
         set(global_trilinos_link_libraries ${global_trilinos_link_libraries} ${${trilinosPackage}_LIBRARIES} ${${trilinosPackage}_TPL_LIBRARIES})
     endforeach()
 endif()
-        
+
 ###########
 # Project #
 ###########
@@ -67,6 +67,20 @@ if(TRUE)
     message("\nTrilinos link directories:\n${global_trilinos_link_directories}")
     message("\nTrilinos link libraries:\n${global_trilinos_link_libraries}")
 endif()
+
+##########
+# OpenMP #
+##########
+
+include(FindOpenMP)
+if(OPENMP_FOUND)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS} -DENABLE_OPENMP")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DENABLE_OPENMP")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+  message("OpenMP found")
+else(OPENMP_FOUND)
+  message("ERROR: OpenMP could not be found.")
+endif(OPENMP_FOUND)
 
 ##########################
 # Get header directories #

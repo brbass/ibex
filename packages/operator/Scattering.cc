@@ -3,6 +3,9 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#if defined(ENABLE_OPENMP)
+    #include <omp.h>
+#endif
 
 #include "Angular_Discretization.hh"
 #include "Check.hh"
@@ -61,6 +64,7 @@ apply_full(vector<double> &x) const
 
     // Copy source flux
     vector<double> y(x);
+    #pragma omp parallel for
     for (int i = 0; i < number_of_points; ++i)
     {
         int d = 0;
@@ -94,7 +98,7 @@ apply_full(vector<double> &x) const
                         }
                             
                         int k_phi_to = n + number_of_nodes * (gt + number_of_groups * (m + number_of_moments * i));
-                            
+                        
                         x[k_phi_to] = sum;
                     }
                 }

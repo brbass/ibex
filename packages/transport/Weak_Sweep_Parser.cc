@@ -1,6 +1,7 @@
 #include "Weak_Sweep_Parser.hh"
 
 #include "Angular_Discretization.hh"
+#include "Conversion.hh"
 #include "Energy_Discretization.hh"
 #include "Transport_Discretization.hh"
 #include "Weak_RBF_Sweep.hh"
@@ -29,6 +30,8 @@ get_weak_rbf_sweep(XML_Node input_node) const
                                                               options.quit_if_diverged);
     options.max_iterations = input_node.get_attribute<int>("max_iterations",
                                                            options.max_iterations);
+    options.max_restarts = input_node.get_attribute<int>("max_restarts",
+                                                         options.max_restarts);
     options.kspace = input_node.get_attribute<int>("kspace",
                                                    options.kspace);
     options.level_of_fill = input_node.get_attribute<double>("level_of_fill",
@@ -40,27 +43,7 @@ get_weak_rbf_sweep(XML_Node input_node) const
     
     string solver = input_node.get_attribute<string>("solver",
                                                      "amesos");
-    
-    if (solver == "amesos")
-    {
-        options.solver = Weak_RBF_Sweep::Options::Solver::AMESOS;
-    }
-    else if (solver == "aztec")
-    {
-        options.solver = Weak_RBF_Sweep::Options::Solver::AZTEC;
-    }
-    else if (solver == "aztec_ilut")
-    {
-        options.solver = Weak_RBF_Sweep::Options::Solver::AZTEC_ILUT;
-    }
-    else if (solver == "aztec_ifpack")
-    {
-        options.solver = Weak_RBF_Sweep::Options::Solver::AZTEC_IFPACK;
-    }
-    else
-    {
-        AssertMsg(false, "solver (" + solver + ") not found");
-    }
+    options.solver = options.solver_conversion()->convert(solver);
     
     return make_shared<Weak_RBF_Sweep>(options,
                                        spatial_,

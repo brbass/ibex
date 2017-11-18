@@ -1,20 +1,26 @@
 #include "Weak_RBF_Sweep.hh"
 
 #include <iostream>
+#if defined(ENABLE_OPENMP)
+    #include <omp.h>
+#endif
 
-#include <Amesos.h>
-#include <AztecOO.h>
-#include <AztecOO_ConditionNumber.h>
-#include <Epetra_MpiComm.h>
-#include <Epetra_Map.h>
-#include <Epetra_CrsMatrix.h>
-#include <Epetra_Vector.h>
-#include <Epetra_LinearProblem.h>
-// #include <Epetra_SerialDenseMatrix.h>
-// #include <Epetra_SerialDenseSolver.h>
-// #include <Epetra_SerialDenseVector.h>
-#include <Ifpack.h>
-// #include <Ifpack_Preconditioner.h>
+#include "Amesos.h"
+#include "AztecOO.h"
+#include "AztecOO_ConditionNumber.h"
+#include "BelosSolverFactory.hpp"
+#include "BelosEpetraAdapter.hpp"
+#include "Epetra_CrsMatrix.h"
+#include "Epetra_LinearProblem.h"
+#include "Epetra_Map.h"
+#include "Epetra_MpiComm.h"
+#include "Epetra_MultiVector.h"
+#include "Epetra_SerialComm.h"
+#include "Epetra_Vector.h"
+#include "Ifpack.h"
+#include "Teuchos_VerboseObject.hpp"
+#include "Teuchos_RCPStdSharedPtrConversions.hpp"
+#include "Teuchos_ArrayRCP.hpp"
 
 #include "Angular_Discretization.hh"
 #include "Basis_Function.hh"
@@ -53,21 +59,17 @@ Weak_RBF_Sweep(Options options,
     case Options::Solver::AMESOS:
         solver_ = make_shared<Amesos_Solver>(*this);
         break;
+    case Options::Solver::AMESOS_PARALLEL:
+        solver_ = make_shared<Amesos_Parallel_Solver>(*this);
+        break;
     case Options::Solver::AZTEC:
-    {
         solver_ = make_shared<Aztec_Solver>(*this);
         break;
-    }
-    case Options::Solver::AZTEC_ILUT:
-    {
-        solver_ = make_shared<Aztec_ILUT_Solver>(*this);
-        break;
-    }
     case Options::Solver::AZTEC_IFPACK:
-    {
         solver_ = make_shared<Aztec_Ifpack_Solver>(*this);
         break;
-    }
+    case Options::Solver::BELOS_PARALLEL:
+        solver_ = make_shared<Belos_Parallel_Solver>(*this);
     }
     
     check_class_invariants();
@@ -452,25 +454,19 @@ Weak_RBF_Sweep::Trilinos_Solver::
 Trilinos_Solver(Weak_RBF_Sweep const &wrs):
     Sweep_Solver(wrs)
 {
-    int number_of_points = wrs_.spatial_discretization_->number_of_points();
-    comm_ = make_shared<Epetra_MpiComm>(MPI_COMM_WORLD);
-    map_ = make_shared<Epetra_Map>(number_of_points, 0, *comm_);
-    lhs_ = make_shared<Epetra_Vector>(*map_);
-    rhs_ = make_shared<Epetra_Vector>(*map_);
-    lhs_->PutScalar(1.0);
-    rhs_->PutScalar(1.0);
 }
 
 shared_ptr<Epetra_CrsMatrix> Weak_RBF_Sweep::Trilinos_Solver::
 get_matrix(int o,
-           int g) const
+           int g,
+           shared_ptr<Epetra_Map> map) const
 {
     int number_of_points = wrs_.spatial_discretization_->number_of_points();
     vector<int> const number_of_basis_functions = wrs_.spatial_discretization_->number_of_basis_functions();
     
     shared_ptr<Epetra_CrsMatrix> mat
         = make_shared<Epetra_CrsMatrix>(Copy, // Data access
-                                        *map_,
+                                        *map,
                                         &number_of_basis_functions[0], // Num entries per row
                                         true); // Static profile
     for (int i = 0; i < number_of_points; ++i)
@@ -489,17 +485,19 @@ get_matrix(int o,
     }
     mat->FillComplete();
     mat->OptimizeStorage();
-
+    
     return mat;
 }
 
 void Weak_RBF_Sweep::Trilinos_Solver::
 set_rhs(int o,
         int g,
+        std::shared_ptr<Epetra_Vector> &rhs,
         vector<double> const &x) const
 {
     int number_of_points = wrs_.spatial_discretization_->number_of_points();
-
+    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
+    int k = g + number_of_groups * o;
     for (int i = 0; i < number_of_points; ++i)
     {
         double value;
@@ -509,7 +507,7 @@ set_rhs(int o,
                      x,
                      value);
         
-        (*rhs_)[i] = value;
+        (*rhs)[i] = value;
     }
 }
 
@@ -562,9 +560,19 @@ Weak_RBF_Sweep::Amesos_Solver::
 Amesos_Solver(Weak_RBF_Sweep const &wrs):
     Trilinos_Solver(wrs)
 {
-    // Initialize matrices
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
     int number_of_groups = wrs_.energy_discretization_->number_of_groups();
     int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
+    
+    // Initialize communication
+    comm_ = make_shared<Epetra_SerialComm>();
+    map_ = make_shared<Epetra_Map>(number_of_points, 0, *comm_);
+    
+    // Initialize matrices and vectors
+    lhs_ = make_shared<Epetra_Vector>(*map_);
+    rhs_ = make_shared<Epetra_Vector>(*map_);
+    lhs_->PutScalar(1.0);
+    rhs_->PutScalar(1.0);
     mat_.resize(number_of_groups * number_of_ordinates);
     problem_.resize(number_of_groups * number_of_ordinates);
     solver_.resize(number_of_groups * number_of_ordinates);
@@ -576,7 +584,8 @@ Amesos_Solver(Weak_RBF_Sweep const &wrs):
             int k = g + number_of_groups * o;
 
             mat_[k] = get_matrix(o,
-                                 g);
+                                 g,
+                                 map_);
             problem_[k]
                 = make_shared<Epetra_LinearProblem>(mat_[k].get(),
                                                     lhs_.get(),
@@ -584,6 +593,7 @@ Amesos_Solver(Weak_RBF_Sweep const &wrs):
             solver_[k]
                 = shared_ptr<Amesos_BaseSolver>(factory.Create("Klu",
                                                                *problem_[k]));
+                 
             solver_[k]->SymbolicFactorization();
             solver_[k]->NumericFactorization();
         }
@@ -602,17 +612,16 @@ solve(vector<double> &x) const
     {
         for (int g = 0; g < number_of_groups; ++g)
         {
+            int k = g + number_of_groups * o;
+                
             // Set current RHS value
             set_rhs(o,
                     g,
+                    rhs_,
                     x);
-            
+                
             // Solve, putting result into LHS
-            int k = g + number_of_groups * o;
-            // std::cout << *mat_[k] << std::endl;
-            // std::cout << *rhs_ << std::endl;
             solver_[k]->Solve();
-            // std::cout << *lhs_ << std::endl;
             
             // Update solution value (overwrite x for this o and g)
             for (int i = 0; i < number_of_points; ++i)
@@ -624,10 +633,99 @@ solve(vector<double> &x) const
     }
 }
 
+Weak_RBF_Sweep::Amesos_Parallel_Solver::
+Amesos_Parallel_Solver(Weak_RBF_Sweep const &wrs):
+    Trilinos_Solver(wrs)
+{
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
+    int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
+    
+    // Initialize matrices
+    comm_.resize(number_of_groups * number_of_ordinates);
+    map_.resize(number_of_groups * number_of_ordinates);
+    mat_.resize(number_of_groups * number_of_ordinates);
+    lhs_.resize(number_of_groups * number_of_ordinates);
+    rhs_.resize(number_of_groups * number_of_ordinates);
+    problem_.resize(number_of_groups * number_of_ordinates);
+    solver_.resize(number_of_groups * number_of_ordinates);
+    Amesos factory;
+    #pragma omp parallel for
+    for (int o = 0; o < number_of_ordinates; ++o)
+    {
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            int k = g + number_of_groups * o;
+
+            comm_[k] = make_shared<Epetra_SerialComm>();
+            map_[k] = make_shared<Epetra_Map>(number_of_points, 0, *comm_[k]);
+            
+            lhs_[k] = make_shared<Epetra_Vector>(*map_[k]);
+            rhs_[k] = make_shared<Epetra_Vector>(*map_[k]);
+            lhs_[k]->PutScalar(1.0);
+            rhs_[k]->PutScalar(1.0);
+            mat_[k] = get_matrix(o,
+                                 g,
+                                 map_[k]);
+            problem_[k]
+                = make_shared<Epetra_LinearProblem>(mat_[k].get(),
+                                                    lhs_[k].get(),
+                                                    rhs_[k].get());
+            solver_[k]
+                = shared_ptr<Amesos_BaseSolver>(factory.Create("Klu",
+                                                               *problem_[k]));
+                 
+            solver_[k]->SymbolicFactorization();
+            solver_[k]->NumericFactorization();
+        }
+    }
+}
+
+void Weak_RBF_Sweep::Amesos_Parallel_Solver::
+solve(vector<double> &x) const
+{
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
+    int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
+
+    // Solve independently for each ordinate and group
+    #pragma omp parallel for
+    for (int o = 0; o < number_of_ordinates; ++o)
+    {
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            int k = g + number_of_groups * o;
+                
+            // Set current RHS value
+            set_rhs(o,
+                    g,
+                    rhs_[k],
+                    x);
+                
+            // Solve, putting result into LHS
+            solver_[k]->Solve();
+            
+            // Update solution value (overwrite x for this o and g)
+            for (int i = 0; i < number_of_points; ++i)
+            {
+                int k_x = g + number_of_groups * (o + number_of_ordinates * i);
+                x[k_x] = (*lhs_[k])[i];
+            }
+        }
+    }
+}
+
 Weak_RBF_Sweep::Aztec_Solver::
 Aztec_Solver(Weak_RBF_Sweep const &wrs):
     Trilinos_Solver(wrs)
 {
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    comm_ = make_shared<Epetra_MpiComm>(MPI_COMM_WORLD);
+    map_ = make_shared<Epetra_Map>(number_of_points, 0, *comm_);
+    lhs_ = make_shared<Epetra_Vector>(*map_);
+    rhs_ = make_shared<Epetra_Vector>(*map_);
+    lhs_->PutScalar(1.0);
+    rhs_->PutScalar(1.0);
 }
 
 void Weak_RBF_Sweep::Aztec_Solver::
@@ -645,13 +743,16 @@ solve(vector<double> &x) const
             // Set current RHS value
             set_rhs(o,
                     g,
+                    rhs_,
                     x);
 
             // Get matrix
             std::shared_ptr<Epetra_CrsMatrix> mat = get_matrix(o,
-                                                               g);
+                                                               g,
+                                                               map_);
 
             // Get linear problem
+            int k = g + number_of_groups * o;
             std::shared_ptr<Epetra_LinearProblem> problem
                 = make_shared<Epetra_LinearProblem>(mat.get(),
                                                     lhs_.get(),
@@ -682,99 +783,29 @@ solve(vector<double> &x) const
     }
 }
 
-Weak_RBF_Sweep::Aztec_ILUT_Solver::
-Aztec_ILUT_Solver(Weak_RBF_Sweep const &wrs):
-    Trilinos_Solver(wrs)
-{
-    // Initialize matrices
-    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
-    int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
-    mat_.resize(number_of_groups * number_of_ordinates);
-    problem_.resize(number_of_groups * number_of_ordinates);
-    solver_.resize(number_of_groups * number_of_ordinates);
-    for (int o = 0; o < number_of_ordinates; ++o)
-    {
-        for (int g = 0; g < number_of_groups; ++g)
-        {
-            int k = g + number_of_groups * o;
-
-            // Get matrix and problem
-            mat_[k] = get_matrix(o,
-                                 g);
-            problem_[k]
-                = make_shared<Epetra_LinearProblem>(mat_[k].get(),
-                                                    lhs_.get(),
-                                                    rhs_.get());
-            
-            // Create solver
-            solver_[k]
-                = make_shared<AztecOO>(*problem_[k]);
-            
-            // Set solver options
-            solver_[k]->SetAztecOption(AZ_kspace, wrs_.options_.kspace);
-            solver_[k]->SetAztecOption(AZ_precond, AZ_dom_decomp);
-            solver_[k]->SetAztecOption(AZ_subdomain_solve, AZ_ilut);
-            solver_[k]->SetAztecOption(AZ_output, AZ_warnings);
-            solver_[k]->SetAztecOption(AZ_keep_info, 1); // Keeps info for multiple solves
-            double condest;
-            solver_[k]->ConstructPreconditioner(condest);
-            if (condest > 1e14)
-            {
-                std::cout << "preconditioner condition number too large" << std::endl;
-            }
-            solver_[k]->SetAztecOption(AZ_pre_calc, AZ_reuse); // Prevents recomputation of preconditioner
-        }
-    }
-}
-
-void Weak_RBF_Sweep::Aztec_ILUT_Solver::
-solve(vector<double> &x) const
-{
-    int number_of_points = wrs_.spatial_discretization_->number_of_points();
-    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
-    int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
-
-    // Solve independently for each ordinate and group
-    for (int o = 0; o < number_of_ordinates; ++o)
-    {
-        for (int g = 0; g < number_of_groups; ++g)
-        {
-            // Set current RHS value
-            set_rhs(o,
-                    g,
-                    x);
-            
-            // Solve, putting result into LHS
-            int k = g + number_of_groups * o;
-            solver_[k]->Iterate(wrs_.options_.max_iterations,
-                                wrs_.options_.tolerance);
-
-            // Check to ensure solver converged
-            check_aztec_convergence(solver_[k]);
-            
-            // Update solution value (overwrite x for this o and g)
-            for (int i = 0; i < number_of_points; ++i)
-            {
-                int k_x = g + number_of_groups * (o + number_of_ordinates * i);
-                x[k_x] = (*lhs_)[i];
-            }
-        }
-    }
-}
-
 Weak_RBF_Sweep::Aztec_Ifpack_Solver::
 Aztec_Ifpack_Solver(Weak_RBF_Sweep const &wrs):
     Trilinos_Solver(wrs)
 {
-    Ifpack ifp_factory;
-    
-    // Initialize matrices
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
     int number_of_groups = wrs_.energy_discretization_->number_of_groups();
     int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
+    
+    // Initialize communication
+    comm_ = make_shared<Epetra_MpiComm>(MPI_COMM_WORLD);
+    map_ = make_shared<Epetra_Map>(number_of_points, 0, *comm_);
+    
+    // Initialize matrices
+    lhs_ = make_shared<Epetra_Vector>(*map_);
+    rhs_ = make_shared<Epetra_Vector>(*map_);
+    lhs_->PutScalar(1.0);
+    rhs_->PutScalar(1.0);
     mat_.resize(number_of_groups * number_of_ordinates);
     problem_.resize(number_of_groups * number_of_ordinates);
     prec_.resize(number_of_groups * number_of_ordinates);
     solver_.resize(number_of_groups * number_of_ordinates);
+    
+    Ifpack ifp_factory;
     for (int o = 0; o < number_of_ordinates; ++o)
     {
         for (int g = 0; g < number_of_groups; ++g)
@@ -783,12 +814,13 @@ Aztec_Ifpack_Solver(Weak_RBF_Sweep const &wrs):
 
             // Get matrix and problem
             mat_[k] = get_matrix(o,
-                                 g);
+                                 g,
+                                 map_);
             problem_[k]
                 = make_shared<Epetra_LinearProblem>(mat_[k].get(),
                                                     lhs_.get(),
                                                     rhs_.get());
-
+                
             // Create preconditioner
             // ILU requires an int "fact: level-of-fill"
             // ILUT requires a double "fact: ilut level-of-fill"
@@ -802,12 +834,9 @@ Aztec_Ifpack_Solver(Weak_RBF_Sweep const &wrs):
             prec_[k]->SetParameters(prec_list);
             prec_[k]->Initialize();
             prec_[k]->Compute();
-            
-            // Create solver
-            solver_[k]
-                = make_shared<AztecOO>(*problem_[k]);
-            
-            // Set solver options
+
+            // Initialize solver
+            solver_[k] = make_shared<AztecOO>(*problem_[k]);
             solver_[k]->SetAztecOption(AZ_solver, AZ_gmres);
             solver_[k]->SetAztecOption(AZ_kspace, wrs_.options_.kspace);
             solver_[k]->SetPrecOperator(prec_[k].get());
@@ -828,15 +857,23 @@ solve(vector<double> &x) const
     {
         for (int g = 0; g < number_of_groups; ++g)
         {
+            int k = g + number_of_groups * o;
+
+            // Set the LHS value
+            // If not set, the problem can converge too quickly
+            // and the solver thinks it's incorrectly converged
+            lhs_->PutScalar(1.0);
+            
             // Set current RHS value
             set_rhs(o,
                     g,
+                    rhs_,
                     x);
             
             // Solve, putting result into LHS
-            int k = g + number_of_groups * o;
             solver_[k]->Iterate(wrs_.options_.max_iterations,
                                 wrs_.options_.tolerance);
+            //std::cout << solver_[k]->NumIters() << std::endl;
             
             // Check to ensure solver converged
             check_aztec_convergence(solver_[k]);
@@ -851,13 +888,145 @@ solve(vector<double> &x) const
     }
 }
 
+Weak_RBF_Sweep::Belos_Parallel_Solver::
+Belos_Parallel_Solver(Weak_RBF_Sweep const &wrs):
+    Trilinos_Solver(wrs)
+{
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
+    int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
+    
+    // Initialize matrices
+    comm_.resize(number_of_groups * number_of_ordinates);
+    map_.resize(number_of_groups * number_of_ordinates);
+    lhs_.resize(number_of_groups * number_of_ordinates);
+    rhs_.resize(number_of_groups * number_of_ordinates);
+    mat_.resize(number_of_groups * number_of_ordinates);
+    prec_.resize(number_of_groups * number_of_ordinates);
+    problem_.resize(number_of_groups * number_of_ordinates);
+    solver_.resize(number_of_groups * number_of_ordinates);
+    
+    #pragma omp parallel for
+    for (int o = 0; o < number_of_ordinates; ++o)
+    {
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            int k = g + number_of_groups * o;
+
+            // Get comm and map
+            comm_[k] = make_shared<Epetra_SerialComm>();
+            map_[k] = make_shared<Epetra_Map>(number_of_points, 0, *comm_[k]);
+
+            // Get vectors and matrix
+            lhs_[k] = make_shared<Epetra_Vector>(*map_[k]);
+            rhs_[k] = make_shared<Epetra_Vector>(*map_[k]);
+            lhs_[k]->PutScalar(1.0);
+            rhs_[k]->PutScalar(1.0);
+            mat_[k] = get_matrix(o,
+                                 g,
+                                 map_[k]);
+
+            // Get preconditioner
+            {
+                Ifpack factory;
+                shared_ptr<Ifpack_Preconditioner> temp_prec
+                    = shared_ptr<Ifpack_Preconditioner>(factory.Create("ILUT",
+                                                                       mat_[k].get()));
+                Teuchos::ParameterList prec_list;
+                prec_list.set("fact: drop tolerance", wrs_.options_.drop_tolerance);
+                prec_list.set("fact: ilut level-of-fill", wrs_.options_.level_of_fill);
+                temp_prec->SetParameters(prec_list);
+                temp_prec->Initialize();
+                temp_prec->Compute();
+                
+                prec_[k]
+                    = make_shared<BelosPreconditioner>(Teuchos::rcp(temp_prec));
+            }
+
+            // Get problem
+            #pragma omp critical
+            {
+                problem_[k]
+                    = make_shared<BelosLinearProblem>(Teuchos::rcp(mat_[k]),
+                                                      Teuchos::rcp(lhs_[k]),
+                                                      Teuchos::rcp(rhs_[k]));
+                problem_[k]->setLeftPrec(Teuchos::rcp(prec_[k]));
+                Assert(problem_[k]->setProblem());
+            }
+
+            // Get solver
+            shared_ptr<Teuchos::ParameterList> belos_list
+                = make_shared<Teuchos::ParameterList>();
+            belos_list->set("Num Blocks", wrs_.options_.kspace);
+            belos_list->set("Maximum Iterations", wrs_.options_.max_iterations);
+            belos_list->set("Maximum Restarts", wrs_.options_.max_restarts);
+            belos_list->set("Convergence Tolerance", wrs_.options_.tolerance);
+            belos_list->set("Verbosity", Belos::Errors + Belos::Warnings);
+            #pragma omp critical
+            {
+                solver_[k]
+                    = make_shared<BelosSolver>(Teuchos::rcp(problem_[k]),
+                                               Teuchos::rcp(belos_list));
+            }
+        }
+    }
+}
+
+void Weak_RBF_Sweep::Belos_Parallel_Solver::
+solve(vector<double> &x) const
+{
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
+    int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
+
+    // Solve independently for each ordinate and group
+    #pragma omp parallel for
+    for (int o = 0; o < number_of_ordinates; ++o)
+    {
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            int k = g + number_of_groups * o;
+                
+            // Set current RHS value
+            set_rhs(o,
+                    g,
+                    rhs_[k],
+                    x);
+
+            // Initialize LHS to 1.0 to avoid implicit residual problems
+            lhs_[k]->PutScalar(1.0);
+
+            // Set up problem
+            Assert(problem_[k]->setProblem());
+            
+            // Solve, putting result into LHS
+            Belos::ReturnType belos_result
+                = solver_[k]->solve();
+            if (wrs_.options_.quit_if_diverged)
+            {
+                Assert(belos_result == Belos::Converged);
+            }
+            // std::cout << solver_[k]->getNumIters() << std::endl;
+            
+            // Update solution value (overwrite x for this o and g)
+            for (int i = 0; i < number_of_points; ++i)
+            {
+                int k_x = g + number_of_groups * (o + number_of_ordinates * i);
+                x[k_x] = (*lhs_[k])[i];
+            }
+        }
+    }
+}
+
 shared_ptr<Conversion<Weak_RBF_Sweep::Options::Solver, string> > Weak_RBF_Sweep::Options::
 solver_conversion() const
 {
     vector<pair<Solver, string> > conversions
-        = {{Solver::AMESOS, "none"},
-           {Solver::AZTEC, "functional"},
-           {Solver::AZTEC_ILUT, "linear"},
-           {Solver::AZTEC_IFPACK, "absolute"}};
+        = {{Solver::AMESOS, "amesos"},
+           {Solver::AMESOS_PARALLEL, "amesos_parallel"},
+           {Solver::AZTEC, "aztec"},
+           {Solver::AZTEC_IFPACK, "aztec_ifpack"},
+           {Solver::BELOS_PARALLEL, "belos_parallel"}};
+           
     return make_shared<Conversion<Solver, string> >(conversions);
 }
