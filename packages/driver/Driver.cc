@@ -1,9 +1,9 @@
 #include "Driver.hh"
 
 #if defined(ENABLE_OPENMP)
-#include <omp.h>
+    #include <omp.h>
 #else
-inline void omp_set_num_threads(int i) {return;}
+    inline void omp_set_num_threads(int i) {return;}
 #endif
 
 #include "Transport_Problem.hh"

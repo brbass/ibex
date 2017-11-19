@@ -75,6 +75,18 @@ private:
                              std::vector<std::vector<int> > const &weight_basis_indices,
                              std::shared_ptr<Material> point_material,
                              std::vector<Material_Data> &materials) const;
+
+    // Add local vector to total vector
+    void add_vector_to_total(std::vector<double> const &local_data,
+                             std::vector<double> &data);
+    
+    // Add local integrals to global integrals (for parallel)
+    void add_integral_sets(std::vector<Weight_Function::Integrals> const &local_integrals,
+                           std::vector<Weight_Function::Integrals> &integrals);
+
+    // Add local materials to global materials (for parallel)
+    void add_material_sets(std::vector<Material_Data> const &local_materials,
+                           std::vector<Material_Data> &materials);
     
     // Perform all surface integrals
     void perform_surface_integration(std::vector<Weight_Function::Integrals> &integrals) const;

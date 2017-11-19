@@ -4,6 +4,9 @@
 #include <cmath>
 #if defined(ENABLE_OPENMP)
     #include <omp.h>
+#else
+    inline int omp_get_num_threads() {return 1;}
+    inline int omp_get_thread_num() {return 0;}
 #endif
 
 #include "Angular_Discretization.hh"
@@ -59,24 +62,134 @@ Weight_Function_Integration(int number_of_points,
 void Weight_Function_Integration::
 perform_integration()
 {
-    // Initialize integrals to zero
+    // Global materials and integrals
     vector<Weight_Function::Integrals> integrals;
-    initialize_integrals(integrals);
-    
-    // Initialize materials to zero
     vector<Material_Data> materials;
-    initialize_materials(materials);
+
+    // Integrals and materials local to each processor
+    vector<vector<Weight_Function::Integrals> > extra_integrals;
+    vector<vector<Material_Data> > extra_materials;
     
-    // Perform volume integration
-    perform_volume_integration(integrals,
-                               materials);
+    #pragma omp parallel
+    {
+        int number_of_threads = omp_get_num_threads();
+        int local_thread = omp_get_thread_num();
 
-    // Perform surface integration
-    perform_surface_integration(integrals);
+        // Create extra integrals and materials for processors above the first
+        #pragma omp single
+        {
+            extra_integrals.resize(number_of_threads - 1);
+            extra_materials.resize(number_of_threads - 1);
+        }
 
-    // Put results into weight functions and materials
-    put_integrals_into_weight(integrals,
+        // Get local integrals and materials
+        vector<Weight_Function::Integrals> &local_integrals
+            = local_thread == 0 ? integrals : extra_integrals[local_thread - 1];
+        vector<Material_Data> &local_materials
+            = local_thread == 0 ? materials : extra_materials[local_thread - 1];
+        
+        // Initialize integrals to zero
+        initialize_integrals(local_integrals);
+        
+        // Initialize materials to zero
+        initialize_materials(local_materials);
+        
+        // Perform volume integration
+        perform_volume_integration(local_integrals,
+                                   local_materials);
+
+        // Perform surface integration
+        perform_surface_integration(local_integrals);
+
+        // Sum integrals 
+        for (int i = 1; i < number_of_threads; ++i)
+        {
+            add_integral_sets(extra_integrals[i - 1],
+                              integrals);
+            add_material_sets(extra_materials[i - 1],
                               materials);
+        }
+
+        // Remove extra data
+        #pragma omp single
+        {
+            extra_integrals.resize(0);
+            extra_materials.resize(0);
+        }
+         
+        // Normalize materials
+        normalize_materials(materials);
+        
+        // Put results into weight functions and materials
+        put_integrals_into_weight(integrals,
+                                  materials);
+    }
+}
+
+void Weight_Function_Integration::
+add_vector_to_total(vector<double> const &local_data,
+                    vector<double> &data)
+{
+    int local_size = local_data.size();
+    int size = data.size();
+    Assert(local_size == size);
+
+    for (int i = 0; i < size; ++i)
+    {
+        data[i] += local_data[i];
+    }
+}
+
+void Weight_Function_Integration::
+add_integral_sets(vector<Weight_Function::Integrals> const &local_integrals,
+                  vector<Weight_Function::Integrals> &integrals)
+{
+    #pragma omp for
+    for (int i = 0; i < number_of_points_; ++i)
+    {
+        Weight_Function::Integrals const &local_integral = local_integrals[i];
+        Weight_Function::Integrals &integral = integrals[i];
+        
+        add_vector_to_total(local_integral.is_w,
+                            integral.is_w);
+        add_vector_to_total(local_integral.is_b_w,
+                            integral.is_b_w);
+        add_vector_to_total(local_integral.iv_w,
+                            integral.iv_w);
+        add_vector_to_total(local_integral.iv_dw,
+                            integral.iv_dw);
+        add_vector_to_total(local_integral.iv_b_w,
+                            integral.iv_b_w);
+        add_vector_to_total(local_integral.iv_b_dw,
+                            integral.iv_b_dw);
+        add_vector_to_total(local_integral.iv_db_w,
+                            integral.iv_db_w);
+        add_vector_to_total(local_integral.iv_db_dw,
+                            integral.iv_db_dw);
+    }
+}
+
+void Weight_Function_Integration::
+add_material_sets(vector<Material_Data> const &local_materials,
+                  vector<Material_Data> &materials)
+{
+    #pragma omp for
+    for (int i = 0; i < number_of_points_; ++i)
+    {
+        Material_Data const &local_material = local_materials[i];
+        Material_Data &material = materials[i];
+
+        add_vector_to_total(local_material.sigma_t,
+                            material.sigma_t);
+        add_vector_to_total(local_material.sigma_s,
+                            material.sigma_s);
+        add_vector_to_total(local_material.sigma_f,
+                            material.sigma_f);
+        add_vector_to_total(local_material.internal_source,
+                            material.internal_source);
+        add_vector_to_total(local_material.norm,
+                            material.norm);
+    }
 }
 
 void Weight_Function_Integration::
@@ -84,7 +197,7 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
                            vector<Material_Data> &materials) const
 {
     // Integral values should be initialized to zero in perform_integration()
-    #pragma omp parallel for
+    #pragma omp for schedule(dynamic, 1)
     for (int i = 0; i < mesh_->number_of_cells(); ++i)
     {
         // Get cell data
@@ -130,43 +243,31 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
                                      w_val,
                                      w_grad);
             shared_ptr<Material> point_material = solid_->material(position);
-                
+            
             // Add these values to the overall integrals
-            #pragma omp critical
-            {
-                add_volume_weight(cell,
-                                  weights[q],
-                                  w_val,
-                                  w_grad,
-                                  integrals);
-            }
-            #pragma omp critical
-            {
-                add_volume_basis_weight(cell,
-                                        weights[q],
-                                        b_val,
-                                        b_grad,
-                                        w_val,
-                                        w_grad,
-                                        weight_basis_indices,
-                                        integrals);
-            }
-            #pragma omp critical
-            {
-                add_volume_material(cell,
+            add_volume_weight(cell,
+                              weights[q],
+                              w_val,
+                              w_grad,
+                              integrals);
+            add_volume_basis_weight(cell,
                                     weights[q],
                                     b_val,
+                                    b_grad,
                                     w_val,
                                     w_grad,
                                     weight_basis_indices,
-                                    point_material,
-                                    materials);
-            }
+                                    integrals);
+            add_volume_material(cell,
+                                weights[q],
+                                b_val,
+                                w_val,
+                                w_grad,
+                                weight_basis_indices,
+                                point_material,
+                                materials);
         }
     }
-    
-    // Normalize materials
-    normalize_materials(materials);
 }
 
 void Weight_Function_Integration::
@@ -178,8 +279,8 @@ normalize_materials(vector<Material_Data> &materials) const
         int number_of_groups = energy_->number_of_groups();
         int number_of_scattering_moments = angular_->number_of_scattering_moments();
         int number_of_moments = angular_->number_of_moments();
-
-        #pragma omp parallel for
+        
+        #pragma omp for
         for (int i = 0; i < number_of_points_; ++i)
         {
             shared_ptr<Weight_Function> weight = weights_[i];
@@ -656,7 +757,7 @@ void Weight_Function_Integration::
 perform_surface_integration(vector<Weight_Function::Integrals> &integrals) const
 {
     // Integral values should be initialized to zero in perform_integration()
-    #pragma omp parallel for
+    #pragma omp for schedule(dynamic, 1)
     for (int i = 0; i < mesh_->number_of_surfaces(); ++i)
     {
         // Get surface data
@@ -704,24 +805,18 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals) const
                                       w_val);
 
             // Perform integration
-            #pragma omp critical
-            {
-                add_surface_weight(surface,
-                                   weights[q],
-                                   w_val,
-                                   weight_surface_indices,
-                                   integrals);
-            }
-            #pragma omp critical
-            {
-                add_surface_basis_weight(surface,
-                                         weights[q],
-                                         b_val,
-                                         w_val,
-                                         weight_surface_indices,
-                                         weight_basis_indices,
-                                         integrals);
-            }
+            add_surface_weight(surface,
+                               weights[q],
+                               w_val,
+                               weight_surface_indices,
+                               integrals);
+            add_surface_basis_weight(surface,
+                                     weights[q],
+                                     b_val,
+                                     w_val,
+                                     weight_surface_indices,
+                                     weight_basis_indices,
+                                     integrals);
         }
     }
 }
@@ -782,7 +877,7 @@ void Weight_Function_Integration::
 put_integrals_into_weight(vector<Weight_Function::Integrals> const &integrals,
                           vector<Material_Data> const &material_data)
 {
-    #pragma omp parallel for
+    #pragma omp for
     for (int i = 0; i < number_of_points_; ++i)
     {
         // Get material from material data
