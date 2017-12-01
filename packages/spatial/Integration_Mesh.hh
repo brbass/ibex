@@ -22,6 +22,7 @@ public:
         int minimum_radius_ordinates = 12;
         int integration_ordinates = 8;
         int maximum_integration_ordinates = 128;
+        double boundary_tolerance = 1e-10;
         std::vector<std::vector<double> > limits;
         std::vector<int> dimensional_cells;
         
@@ -165,6 +166,9 @@ public:
     void get_basis_weight_centers(std::shared_ptr<Surface> const surface,
                                   std::vector<std::vector<double> > &basis_positions,
                                   std::vector<std::vector<double> > &weight_positions) const;
+
+    // Get the cell index for a certain position
+    int get_cell_at_position(std::vector<double> const &position) const;
     
 private:
 

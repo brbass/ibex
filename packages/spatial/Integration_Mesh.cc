@@ -486,6 +486,10 @@ initialize_connectivity()
         double const radius = get_inclusive_radius(weight->radius());
         vector<double> const position = weight->position();
         
+        // Add weight function to containing cell
+        int containing_cell_index = get_cell_at_position(position);
+        cells_[containing_cell_index]->weight_indices.push_back(i);
+        
         // Find nodes that intersect with the weight function
         vector<int> intersecting_nodes;
         vector<double> distances;
@@ -510,6 +514,7 @@ initialize_connectivity()
                 surfaces_[s_index]->weight_indices.push_back(i);
             }
         }
+        
     }
     
     // Get basis function connectivity
@@ -522,6 +527,10 @@ initialize_connectivity()
             double radius = get_inclusive_radius(basis->radius());
             vector<double> const position = basis->position();
 
+            // Add weight function to containing cell
+            int containing_cell_index = get_cell_at_position(position);
+            cells_[containing_cell_index]->basis_indices.push_back(i);
+            
             // Find nodes that intersect with the basis function
             vector<int> intersecting_nodes;
             vector<double> distances;
@@ -772,6 +781,85 @@ get_inclusive_radius(double radius) const
         AssertMsg(false, "dimension cannot exceed 3");
         return -1.;
     }
+}
+
+int Integration_Mesh::
+get_cell_at_position(vector<double> const &position) const
+{
+    // Find individual indices
+    vector<int> dim_indices(dimension_);
+    bool success = true;
+    for (int d = 0; d < dimension_; ++d)
+    {
+        // Find distances from starting boundary
+        double const distance_from_start = position[d] - options_->limits[d][0];
+        // Get number of intervals from start
+        double const num_intervals = distance_from_start / intervals_[d];
+        
+        // Check for points on the boundary
+        if (num_intervals < 0)
+        {
+            if (abs(num_intervals) < options_->boundary_tolerance)
+            {
+                dim_indices[d] = 0;
+            }
+            else
+            {
+                success = false;
+            }
+        }
+        else if (num_intervals >= options_->dimensional_cells[d])
+        {
+            if (abs(num_intervals - options_->dimensional_cells[d]) < options_->boundary_tolerance)
+            {
+                dim_indices[d] = options_->dimensional_cells[d] - 1;
+            }
+            else
+            {
+                success = false;
+            }
+        }
+        else
+        {
+            dim_indices[d] = static_cast<int>(floor(num_intervals));
+        }
+    }
+
+    // Print error message if cell not found
+    if (!success)
+    {
+        cerr << "Error: there is no cell at or near position ";
+        for (int d = 0; d < dimension_; ++d)
+        {
+            cerr << position[d] << "  ";
+        }
+        cerr << endl;
+
+        AssertMsg(false, "No cell found");
+    }
+
+    // Get global cell index
+    int index = dim_indices[0];
+    for (int d = 1; d < dimension_; ++d)
+    {
+        index = dim_indices[d] + options_->dimensional_cells[d] * index;
+    }
+    
+    // Check that point is actually inside cell (for debugging)
+    // for (int d = 0; d < dimension_; ++d)
+    // {
+    //     Assert(dim_indices[d] >= 0);
+    //     Assert(dim_indices[d] < options_->dimensional_cells[d]);
+        
+    //     double const distance_from_start = position[d] - cells_[index]->limits[d][0];
+    //     double const distance_from_end = cells_[index]->limits[d][1] - position[d];
+
+    //     Assert(distance_from_start > -options_->boundary_tolerance);
+    //     Assert(distance_from_end > -options_->boundary_tolerance);
+    // }
+    Assert(index >= 0 && index < number_of_cells_);
+    
+    return index;
 }
 
 void Integration_Mesh::
