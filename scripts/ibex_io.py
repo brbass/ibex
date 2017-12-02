@@ -98,7 +98,12 @@ def get_data(file_path):
     except:
         print("phi data not found")
     for i, val in enumerate(child_node.findall("phi")):
-        data["phi{}".format(i)] = get_vector_text(float, val)
+        temp_data = get_vector_text(float, val)
+        num_temp_points = int(len(temp_data) / (num_moments * num_groups))
+        data["phi{}".format(i)] = unpack3(temp_data,
+                                          num_temp_points,
+                                          num_moments,
+                                          num_groups)
     
     # Timing
     timing = {}
