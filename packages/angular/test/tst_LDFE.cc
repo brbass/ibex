@@ -27,14 +27,13 @@ int test_ldfe(int dimension,
         sum += weights[i];
     }
 
-    cout << sum << endl;
-
     if (ce::approx(2 * (dimension - 1) * M_PI, sum, 1e-7))
     {
         return 0;
     }
     else
     {
+        cout << sum << endl;
         return 1;
     }
 }
@@ -43,19 +42,17 @@ int main()
 {
     int checksum = 0;
     
-    vector<int> ldfe_cases = {1, 2, 3};
-    vector<int> ldfe_dims = {2, 3};
-    int num_ldfe_cases = ldfe_cases.size();
-    int num_ldfe_dims = ldfe_dims.size();
-    
-    for (int i = 0; i < num_ldfe_cases; ++i)
+    vector<int> dimensions = {2, 3};
+    vector<int> rules = {1, 2, 3, 4, 5, 6, 7, 8};
+
+    for (int dimension : dimensions)
     {
-        for (int j = 0; j < num_ldfe_dims; ++j)
+        for (int rule : rules)
         {
-            checksum += test_ldfe(ldfe_dims[j],
-                                  ldfe_cases[i]);
+            checksum += test_ldfe(dimension,
+                                  rule);
         }
     }
-
+    
     return checksum;
 }

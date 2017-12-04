@@ -135,7 +135,7 @@ bool lossless_phi(int dimension,
         case 2:
             return number_of_scattering_moments <= quadrature_rule;
         default:
-            return number_of_scattering_moments < quadrature_rule;
+            return number_of_scattering_moments < 3;
         }
     }
 }
@@ -248,7 +248,7 @@ int main()
     // Check two and three dimensions
     for (int dimension = 2; dimension <= 3; ++dimension)
     {
-        for (int quad_rule = 1; quad_rule < 4; ++quad_rule)
+        for (int quad_rule = 1; quad_rule < 9; ++quad_rule)
         {
             for (int moments = 1; moments < 4; ++moments)
             {

@@ -66,13 +66,11 @@ public:
 
 private:
 
+    void get_octant_values(int rule,
+                           std::vector<double> &values) const;
     void initialize_quadrature();
-    void initialize_1();
-    void initialize_2();
-    void initialize_3();
     
     int rule_;
-
     double reflection_tolerance_;
 
     std::vector<double> mu_;
