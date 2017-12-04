@@ -43,7 +43,7 @@ int main()
     int checksum = 0;
     
     vector<int> dimensions = {2, 3};
-    vector<int> rules = {1, 2, 3, 4, 5, 6, 7, 8};
+    vector<int> rules = {1, 2, 3, 4, 5, 6};
 
     for (int dimension : dimensions)
     {

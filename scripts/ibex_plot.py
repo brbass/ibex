@@ -5,24 +5,30 @@ from matplotlib import cm as cm
 from ibex_io import get_data
 
 def plot_flux(file_path,
-              file_out = ""):
+              file_out = "",
+              normalized = False):
     data = get_data(file_path)
     dimension = data["dimension"]
     if dimension == 1:
         plot_flux_1d(data,
-                     file_out)
+                     file_out,
+                     normalized)
     elif dimension == 2:
         plot_flux_2d(data,
-                     file_out)
+                     file_out,
+                     normalized)
 
 def plot_flux_1d(data,
-                 file_out):
+                 file_out = "",
+                 normalized = False):
     num_groups = data["number_of_groups"]
     num_points = data["number_of_points"]
     num_moments = data["number_of_moments"]
     phi = np.abs(data["phi"])
     points = data["points"]
-
+    if normalized:
+        phi = phi / np.mean(phi[:, 0, :])
+    
     plt.figure()
     for g in range(num_groups):
         plt.plot(points[:, 0], phi[:, 0, g], label="g{}".format(g))
@@ -38,12 +44,15 @@ def plot_flux_1d(data,
         plt.close()
 
 def plot_flux_2d(data,
-                 file_out):
+                 file_out = "",
+                 normalized = False):
     num_groups = data["number_of_groups"]
     num_points = data["number_of_points"]
     num_moments = data["number_of_moments"]
     phi = np.abs(data["phi"])
     points = data["points"]
+    if normalized:
+        phi = phi / np.mean(phi[:, 0, :])
     
     for g in range(num_groups):
         plt.figure(g)
@@ -67,12 +76,16 @@ if __name__ == '__main__':
     if (len(sys.argv) != 2 and len(sys.argv) != 3):
         print("ibex_plot.py [file_in (file_out)]")
         sys.exit()
+    normalized = False
     file_path = sys.argv[1]
     if (len(sys.argv) == 3):
         file_out = sys.argv[2]
         plot_flux(file_path,
-                  file_out)
+                  file_out,
+                  normalized)
     else:
-        plot_flux(file_path)
+        plot_flux(file_path,
+                  "",
+                  normalized)
     
             

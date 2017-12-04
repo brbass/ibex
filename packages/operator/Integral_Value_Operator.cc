@@ -4,6 +4,8 @@
     #include <omp.h>
 #endif
 
+#include <iostream>
+
 #include "Angular_Discretization.hh"
 #include "Basis_Function.hh"
 #include "Energy_Discretization.hh"
@@ -94,7 +96,7 @@ apply(vector<double> &x) const
                                      number_of_ordinates,
                                      ordinates,
                                      weights);
-        
+
         // Get center positions
         vector<vector<double> > basis_centers;
         mesh_->get_basis_centers(cell,
@@ -121,18 +123,32 @@ apply(vector<double> &x) const
                      flux);
 
             // Add to integral
-            #pragma omp critical
+            for (int m = 0; m < number_of_moments; ++m)
             {
-                for (int m = 0; m < number_of_moments; ++m)
+                for (int g = 0; g < number_of_groups; ++g)
                 {
-                    for (int g = 0; g < number_of_groups; ++g)
-                    {
-                        int k_res = g + number_of_groups * (m + number_of_moments * i);
-                        int k_flux = g + number_of_groups * m;
+                    int k_res = g + number_of_groups * (m + number_of_moments * i);
+                    int k_flux = g + number_of_groups * m;
                     
-                        result[k_res] += flux[k_flux] * weight;
-                    }
+                    result[k_res] += flux[k_flux] * weight;
                 }
+            }
+        }
+
+        // Get the volume (sum of weights)
+        double volume = 0;
+        for (double weight : weights)
+        {
+            volume += weight;
+        }
+        
+        // Normalize to account for the volume
+        for (int m = 0; m < number_of_moments; ++m)
+        {
+            for (int g = 0; g < number_of_groups; ++g)
+            {
+                int k = g + number_of_groups * (m + number_of_moments * i);
+                result[k] /= volume;
             }
         }
     }
