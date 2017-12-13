@@ -411,7 +411,8 @@ get_matrix_row(int i, // weight function index (row)
 void Weak_RBF_Sweep::
 output(XML_Node output_node) const
 {
-    output_node.set_attribute("solver", options_.solver_conversion()->convert(options_.solver));
+    output_node.set_attribute(options_.solver_conversion()->convert(options_.solver),
+                              "solver");
 }
 
 void Weak_RBF_Sweep::
