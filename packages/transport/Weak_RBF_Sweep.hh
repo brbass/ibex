@@ -41,7 +41,8 @@ public:
             AMESOS_PARALLEL,
             AZTEC,
             AZTEC_IFPACK,
-            BELOS_PARALLEL
+            BELOS,
+            BELOS_IFPACK
         };
         std::shared_ptr<Conversion<Solver, std::string> > solver_conversion() const;
         
@@ -244,12 +245,32 @@ private:
         std::vector<std::shared_ptr<AztecOO> > solver_;
     };
 
-    class Belos_Parallel_Solver : public Trilinos_Solver
+    class Belos_Solver : public Trilinos_Solver
     {
     public:
         
         // Constructor
-        Belos_Parallel_Solver(Weak_RBF_Sweep const &wrs);
+        Belos_Solver(Weak_RBF_Sweep const &wrs);
+        
+        // Solve problem
+        virtual void solve(std::vector<double> &x) const override;
+        
+    protected:
+
+        std::vector<std::shared_ptr<Epetra_Comm> > comm_;
+        std::vector<std::shared_ptr<Epetra_Map> > map_;
+        mutable std::vector<std::shared_ptr<Epetra_Vector> > lhs_;
+        mutable std::vector<std::shared_ptr<Epetra_Vector> > rhs_;
+        std::vector<std::shared_ptr<BelosLinearProblem> > problem_;
+        std::vector<std::shared_ptr<BelosSolver> > solver_;
+    };
+    
+    class Belos_Ifpack_Solver : public Trilinos_Solver
+    {
+    public:
+        
+        // Constructor
+        Belos_Ifpack_Solver(Weak_RBF_Sweep const &wrs);
         
         // Solve problem
         virtual void solve(std::vector<double> &x) const override;

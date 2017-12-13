@@ -68,8 +68,12 @@ Weak_RBF_Sweep(Options options,
     case Options::Solver::AZTEC_IFPACK:
         solver_ = make_shared<Aztec_Ifpack_Solver>(*this);
         break;
-    case Options::Solver::BELOS_PARALLEL:
-        solver_ = make_shared<Belos_Parallel_Solver>(*this);
+    case Options::Solver::BELOS:
+        solver_ = make_shared<Belos_Solver>(*this);
+        break;
+    case Options::Solver::BELOS_IFPACK:
+        solver_ = make_shared<Belos_Ifpack_Solver>(*this);
+        break;
     }
     
     check_class_invariants();
@@ -899,8 +903,129 @@ solve(vector<double> &x) const
     }
 }
 
-Weak_RBF_Sweep::Belos_Parallel_Solver::
-Belos_Parallel_Solver(Weak_RBF_Sweep const &wrs):
+Weak_RBF_Sweep::Belos_Solver::
+Belos_Solver(Weak_RBF_Sweep const &wrs):
+    Trilinos_Solver(wrs)
+{
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    
+    #pragma omp parallel
+    {
+        int number_of_threads = omp_get_num_threads();
+        int t = omp_get_thread_num();
+
+        #pragma omp single
+        {
+            // Initialize data pointers
+            comm_.resize(number_of_threads);
+            map_.resize(number_of_threads);
+            lhs_.resize(number_of_threads);
+            rhs_.resize(number_of_threads);
+            problem_.resize(number_of_threads);
+            solver_.resize(number_of_threads);
+        }
+
+        // Get comm and map
+        comm_[t] = make_shared<Epetra_SerialComm>();
+        map_[t] = make_shared<Epetra_Map>(number_of_points, 0, *comm_[t]);
+        
+        // Get vectors
+        lhs_[t] = make_shared<Epetra_Vector>(*map_[t]);
+        rhs_[t] = make_shared<Epetra_Vector>(*map_[t]);
+        lhs_[t]->PutScalar(1.0);
+        rhs_[t]->PutScalar(1.0);
+
+        // Get problem and solver
+        shared_ptr<Teuchos::ParameterList> belos_list
+            = make_shared<Teuchos::ParameterList>();
+        belos_list->set("Num Blocks", wrs_.options_.kspace);
+        belos_list->set("Maximum Iterations", wrs_.options_.max_iterations);
+        belos_list->set("Maximum Restarts", wrs_.options_.max_restarts);
+        belos_list->set("Convergence Tolerance", wrs_.options_.tolerance);
+        belos_list->set("Verbosity", Belos::Errors + Belos::Warnings);
+        #pragma omp critical
+        {
+            problem_[t] = make_shared<BelosLinearProblem>();
+            problem_[t]->setLHS(Teuchos::rcp(lhs_[t]));
+            problem_[t]->setRHS(Teuchos::rcp(rhs_[t]));
+            solver_[t] = make_shared<BelosSolver>(Teuchos::rcp(problem_[t]),
+                                                  Teuchos::rcp(belos_list));
+        }
+    }
+}
+
+void Weak_RBF_Sweep::Belos_Solver::
+solve(vector<double> &x) const
+{
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
+    int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
+
+    // Solve independently for each ordinate and group
+    #pragma omp parallel
+    {
+        int number_of_threads = omp_get_num_threads();
+        int t = omp_get_thread_num();
+        Assert(problem_.size() == number_of_threads);
+        
+        #pragma omp for
+        for (int o = 0; o < number_of_ordinates; ++o)
+        {
+            for (int g = 0; g < number_of_groups; ++g)
+            {
+                int k = g + number_of_groups * o;
+                string description = std::to_string(o) + "_" + std::to_string(g);
+                
+                // Set current RHS value
+                set_rhs(o,
+                        g,
+                        rhs_[t],
+                        x);
+                
+                // Initialize LHS to 1.0 to avoid implicit residual problems
+                lhs_[t]->PutScalar(1.0);
+
+                // Get matrix
+                shared_ptr<Epetra_CrsMatrix> mat
+                    = get_matrix(o,
+                                 g,
+                                 map_[t]);
+
+                // Set up problem
+                problem_[t]->setOperator(Teuchos::rcp(mat));
+                AssertMsg(problem_[t]->setProblem(), description);
+            
+                // Solve, putting result into LHS
+                try
+                {
+                    Belos::ReturnType belos_result
+                        = solver_[t]->solve();
+                
+                    if (wrs_.options_.quit_if_diverged)
+                    {
+                        AssertMsg(belos_result == Belos::Converged, description);
+                    }
+                }
+                catch (Belos::StatusTestError const &error)
+                {
+                    AssertMsg(false, "Belos status test failed, " + description);
+                }
+                // std::cout << solver_[k]->getNumIters() << std::endl;
+            
+                // Update solution value (overwrite x for this o and g)
+                for (int i = 0; i < number_of_points; ++i)
+                {
+                    int k_x = g + number_of_groups * (o + number_of_ordinates * i);
+                    x[k_x] = (*lhs_[t])[i];
+                }
+            }
+        }
+
+    }
+}
+
+Weak_RBF_Sweep::Belos_Ifpack_Solver::
+Belos_Ifpack_Solver(Weak_RBF_Sweep const &wrs):
     Trilinos_Solver(wrs)
 {
     int number_of_points = wrs_.spatial_discretization_->number_of_points();
@@ -993,7 +1118,7 @@ Belos_Parallel_Solver(Weak_RBF_Sweep const &wrs):
     }
 }
 
-void Weak_RBF_Sweep::Belos_Parallel_Solver::
+void Weak_RBF_Sweep::Belos_Ifpack_Solver::
 solve(vector<double> &x) const
 {
     int number_of_points = wrs_.spatial_discretization_->number_of_points();
@@ -1056,7 +1181,8 @@ solver_conversion() const
            {Solver::AMESOS_PARALLEL, "amesos_parallel"},
            {Solver::AZTEC, "aztec"},
            {Solver::AZTEC_IFPACK, "aztec_ifpack"},
-           {Solver::BELOS_PARALLEL, "belos_parallel"}};
+           {Solver::BELOS, "belos"},
+           {Solver::BELOS_IFPACK, "belos_ifpack"}};
            
     return make_shared<Conversion<Solver, string> >(conversions);
 }
