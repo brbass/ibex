@@ -590,12 +590,13 @@ Amesos_Solver(Weak_RBF_Sweep const &wrs):
                 = make_shared<Epetra_LinearProblem>(mat_[k].get(),
                                                     lhs_.get(),
                                                     rhs_.get());
+            
             solver_[k]
                 = shared_ptr<Amesos_BaseSolver>(factory.Create("Klu",
                                                                *problem_[k]));
                  
-            solver_[k]->SymbolicFactorization();
-            solver_[k]->NumericFactorization();
+            AssertMsg(solver_[k]->SymbolicFactorization() == 0, "Amesos solver symbolic factorization failed");
+            AssertMsg(solver_[k]->NumericFactorization() == 0, "Amesos solver numeric factorization failed");
         }
     }
 }
@@ -621,7 +622,7 @@ solve(vector<double> &x) const
                     x);
                 
             // Solve, putting result into LHS
-            solver_[k]->Solve();
+            AssertMsg(solver_[k]->Solve() == 0, "Amesos solver failed to solve");
             
             // Update solution value (overwrite x for this o and g)
             for (int i = 0; i < number_of_points; ++i)
@@ -675,8 +676,8 @@ Amesos_Parallel_Solver(Weak_RBF_Sweep const &wrs):
                 = shared_ptr<Amesos_BaseSolver>(factory.Create("Klu",
                                                                *problem_[k]));
                  
-            solver_[k]->SymbolicFactorization();
-            solver_[k]->NumericFactorization();
+            AssertMsg(solver_[k]->SymbolicFactorization() == 0, "Amesos solver symbolic factorization failed");
+            AssertMsg(solver_[k]->NumericFactorization() == 0, "Amesos solver numeric factorization failed");
         }
     }
 }
@@ -703,7 +704,7 @@ solve(vector<double> &x) const
                     x);
                 
             // Solve, putting result into LHS
-            solver_[k]->Solve();
+            AssertMsg(solver_[k]->Solve() == 0, "Amesos solver failed to solve");
             
             // Update solution value (overwrite x for this o and g)
             for (int i = 0; i < number_of_points; ++i)
@@ -802,7 +803,10 @@ Aztec_Ifpack_Solver(Weak_RBF_Sweep const &wrs):
     rhs_->PutScalar(1.0);
     mat_.resize(number_of_groups * number_of_ordinates);
     problem_.resize(number_of_groups * number_of_ordinates);
-    prec_.resize(number_of_groups * number_of_ordinates);
+    if (wrs_.options_.use_preconditioner)
+    {
+        prec_.resize(number_of_groups * number_of_ordinates);
+    }
     solver_.resize(number_of_groups * number_of_ordinates);
     
     Ifpack ifp_factory;
@@ -820,26 +824,34 @@ Aztec_Ifpack_Solver(Weak_RBF_Sweep const &wrs):
                 = make_shared<Epetra_LinearProblem>(mat_[k].get(),
                                                     lhs_.get(),
                                                     rhs_.get());
-                
-            // Create preconditioner
-            // ILU requires an int "fact: level-of-fill"
-            // ILUT requires a double "fact: ilut level-of-fill"
-            prec_[k]
-                = shared_ptr<Ifpack_Preconditioner>(ifp_factory.Create("ILUT",
-                                                                       mat_[k].get()));
-            Teuchos::ParameterList prec_list;
-            prec_list.set("fact: drop tolerance", wrs_.options_.drop_tolerance);
-            // prec_list.set("fact: level-of-fill", wrs_.options_.level_of_fill);
-            prec_list.set("fact: ilut level-of-fill", wrs_.options_.level_of_fill);
-            prec_[k]->SetParameters(prec_list);
-            prec_[k]->Initialize();
-            prec_[k]->Compute();
 
+            if (wrs_.options_.use_preconditioner)
+            {
+                // Create preconditioner
+                // ILU requires an int "fact: level-of-fill"
+                // ILUT requires a double "fact: ilut level-of-fill"
+                prec_[k]
+                    = shared_ptr<Ifpack_Preconditioner>(ifp_factory.Create("ILUT",
+                                                                           mat_[k].get()));
+                Teuchos::ParameterList prec_list;
+                prec_list.set("fact: drop tolerance", wrs_.options_.drop_tolerance);
+                // prec_list.set("fact: level-of-fill", wrs_.options_.level_of_fill);
+                prec_list.set("fact: ilut level-of-fill", wrs_.options_.level_of_fill);
+                prec_[k]->SetParameters(prec_list);
+                prec_[k]->Initialize();
+                prec_[k]->Compute();
+                Assert(prec_[k]->IsInitialized() == true);
+                Assert(prec_[k]->IsComputed() == true);
+            }
+            
             // Initialize solver
             solver_[k] = make_shared<AztecOO>(*problem_[k]);
             solver_[k]->SetAztecOption(AZ_solver, AZ_gmres);
             solver_[k]->SetAztecOption(AZ_kspace, wrs_.options_.kspace);
-            solver_[k]->SetPrecOperator(prec_[k].get());
+            if (wrs_.options_.use_preconditioner)
+            {
+                solver_[k]->SetPrecOperator(prec_[k].get());
+            }
             solver_[k]->SetAztecOption(AZ_output, AZ_warnings);
         }
     }
@@ -873,7 +885,6 @@ solve(vector<double> &x) const
             // Solve, putting result into LHS
             solver_[k]->Iterate(wrs_.options_.max_iterations,
                                 wrs_.options_.tolerance);
-            //std::cout << solver_[k]->NumIters() << std::endl;
             
             // Check to ensure solver converged
             check_aztec_convergence(solver_[k]);
@@ -902,7 +913,10 @@ Belos_Parallel_Solver(Weak_RBF_Sweep const &wrs):
     lhs_.resize(number_of_groups * number_of_ordinates);
     rhs_.resize(number_of_groups * number_of_ordinates);
     mat_.resize(number_of_groups * number_of_ordinates);
-    prec_.resize(number_of_groups * number_of_ordinates);
+    if (wrs_.options_.use_preconditioner)
+    {
+        prec_.resize(number_of_groups * number_of_ordinates);
+    }
     problem_.resize(number_of_groups * number_of_ordinates);
     solver_.resize(number_of_groups * number_of_ordinates);
     
@@ -912,6 +926,7 @@ Belos_Parallel_Solver(Weak_RBF_Sweep const &wrs):
         for (int g = 0; g < number_of_groups; ++g)
         {
             int k = g + number_of_groups * o;
+            string description = std::to_string(o) + "_" + std::to_string(g);
 
             // Get comm and map
             comm_[k] = make_shared<Epetra_SerialComm>();
@@ -927,6 +942,7 @@ Belos_Parallel_Solver(Weak_RBF_Sweep const &wrs):
                                  map_[k]);
 
             // Get preconditioner
+            if (wrs_.options_.use_preconditioner)
             {
                 Ifpack factory;
                 shared_ptr<Ifpack_Preconditioner> temp_prec
@@ -938,6 +954,8 @@ Belos_Parallel_Solver(Weak_RBF_Sweep const &wrs):
                 temp_prec->SetParameters(prec_list);
                 temp_prec->Initialize();
                 temp_prec->Compute();
+                AssertMsg(temp_prec->IsInitialized() == true, description);
+                AssertMsg(temp_prec->IsComputed() == true, description);
                 
                 prec_[k]
                     = make_shared<BelosPreconditioner>(Teuchos::rcp(temp_prec));
@@ -950,10 +968,13 @@ Belos_Parallel_Solver(Weak_RBF_Sweep const &wrs):
                     = make_shared<BelosLinearProblem>(Teuchos::rcp(mat_[k]),
                                                       Teuchos::rcp(lhs_[k]),
                                                       Teuchos::rcp(rhs_[k]));
-                problem_[k]->setLeftPrec(Teuchos::rcp(prec_[k]));
-                Assert(problem_[k]->setProblem());
+                if (wrs_.options_.use_preconditioner)
+                {
+                    problem_[k]->setLeftPrec(Teuchos::rcp(prec_[k]));
+                }
+                AssertMsg(problem_[k]->setProblem(), description);
             }
-
+            
             // Get solver
             shared_ptr<Teuchos::ParameterList> belos_list
                 = make_shared<Teuchos::ParameterList>();
@@ -986,6 +1007,7 @@ solve(vector<double> &x) const
         for (int g = 0; g < number_of_groups; ++g)
         {
             int k = g + number_of_groups * o;
+            string description = std::to_string(o) + "_" + std::to_string(g);
                 
             // Set current RHS value
             set_rhs(o,
@@ -997,14 +1019,22 @@ solve(vector<double> &x) const
             lhs_[k]->PutScalar(1.0);
 
             // Set up problem
-            Assert(problem_[k]->setProblem());
+            AssertMsg(problem_[k]->setProblem(), description);
             
             // Solve, putting result into LHS
-            Belos::ReturnType belos_result
-                = solver_[k]->solve();
-            if (wrs_.options_.quit_if_diverged)
+            try
             {
-                Assert(belos_result == Belos::Converged);
+                Belos::ReturnType belos_result
+                    = solver_[k]->solve();
+                
+                if (wrs_.options_.quit_if_diverged)
+                {
+                    AssertMsg(belos_result == Belos::Converged, description);
+                }
+            }
+            catch (Belos::StatusTestError const &error)
+            {
+                AssertMsg(false, "Belos status test failed, " + description);
             }
             // std::cout << solver_[k]->getNumIters() << std::endl;
             

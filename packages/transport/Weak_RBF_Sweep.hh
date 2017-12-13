@@ -49,6 +49,7 @@ public:
 
         // List of possible solver options
         bool quit_if_diverged = true;
+        bool use_preconditioner = true;
         int max_iterations = 1000;
         int kspace = 20;
         int max_restarts = 50;
