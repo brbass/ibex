@@ -82,6 +82,20 @@ apply(vector<double> &x) const
                 }
             }
             break;
+        case Cross_Section::Dependencies::Angular::MOMENTS:
+            for (int g = 0; g < number_of_groups; ++g)
+            {
+                for (int n = 0; n < number_of_nodes; ++n)
+                {
+                    for (int m = 0; m < number_of_moments; ++m)
+                    {
+                        int k_x = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
+                        int k_dat = d + number_of_dimensional_moments * (g + number_of_groups * m);
+                        x[k_x] = data[k_dat];
+                    }
+                }
+            }
+            break;
         default:
             AssertMsg(false, "internal source with given angular dependency not implemented");
             break;

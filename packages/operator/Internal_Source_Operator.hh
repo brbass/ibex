@@ -19,8 +19,8 @@ public:
     
     // Constructor
     Internal_Source_Operator(std::shared_ptr<Spatial_Discretization> spatial_discretization,
-            std::shared_ptr<Angular_Discretization> angular_discretization,
-            std::shared_ptr<Energy_Discretization> energy_discretization);
+                             std::shared_ptr<Angular_Discretization> angular_discretization,
+                             std::shared_ptr<Energy_Discretization> energy_discretization);
     
     // Input and output size should be the same
     virtual int size() const override
