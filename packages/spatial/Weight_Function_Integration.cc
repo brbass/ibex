@@ -11,6 +11,8 @@
 
 #include "Angular_Discretization.hh"
 #include "Basis_Function.hh"
+#include "Boundary_Source.hh"
+#include "Cartesian_Plane.hh"
 #include "Check.hh"
 #include "Cross_Section.hh"
 #include "Dimensional_Moments.hh"
@@ -99,8 +101,9 @@ perform_integration()
                                    local_materials);
 
         // Perform surface integration
-        perform_surface_integration(local_integrals);
-
+        perform_surface_integration(local_integrals,
+                                    local_materials);
+        
         // Sum integrals 
         for (int i = 1; i < number_of_threads; ++i)
         {
@@ -109,7 +112,7 @@ perform_integration()
             add_material_sets(extra_materials[i - 1],
                               materials);
         }
-
+        
         // Remove extra data
         #pragma omp single
         {
@@ -189,6 +192,8 @@ add_material_sets(vector<Material_Data> const &local_materials,
                             material.internal_source);
         add_vector_to_total(local_material.norm,
                             material.norm);
+        add_vector_to_total(local_material.boundary_sources,
+                            material.boundary_sources);
     }
 }
 
@@ -754,7 +759,8 @@ add_volume_material(shared_ptr<Integration_Mesh::Cell> const cell,
 }
 
 void Weight_Function_Integration::
-perform_surface_integration(vector<Weight_Function::Integrals> &integrals) const
+perform_surface_integration(vector<Weight_Function::Integrals> &integrals,
+                            std::vector<Material_Data> &materials) const
 {
     // Integral values should be initialized to zero in perform_integration()
     #pragma omp for schedule(dynamic, 1)
@@ -817,6 +823,11 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals) const
                                      weight_surface_indices,
                                      weight_basis_indices,
                                      integrals);
+            add_surface_source(surface,
+                               weights[q],
+                               w_val,
+                               weight_surface_indices,
+                               materials);
         }
     }
 }
@@ -874,6 +885,16 @@ add_surface_basis_weight(shared_ptr<Integration_Mesh::Surface> const surface,
 }
 
 void Weight_Function_Integration::
+add_surface_source(shared_ptr<Integration_Mesh::Surface> const surface,
+                   double quad_weight,
+                   vector<double> const &w_val,
+                   vector<int> const &weight_surface_indices,
+                   vector<Material_Data> &materials) const
+{
+    
+}
+
+void Weight_Function_Integration::
 put_integrals_into_weight(vector<Weight_Function::Integrals> const &integrals,
                           vector<Material_Data> const &material_data)
 {
@@ -885,10 +906,54 @@ put_integrals_into_weight(vector<Weight_Function::Integrals> const &integrals,
         get_material(i,
                      material_data[i],
                      material);
+
+        // Get boundary source from material data
+        vector<shared_ptr<Boundary_Source> > boundary_sources;
+        get_boundary_sources(i,
+                             material_data[i],
+                             boundary_sources);
         
         // Set the integrals to the weight functions
         weights_[i]->set_integrals(integrals[i],
-                                   material);
+                                   material,
+                                   boundary_sources);
+    }
+}
+
+void Weight_Function_Integration::
+get_boundary_sources(int index,
+                     Material_Data const &material_data,
+                     vector<shared_ptr<Boundary_Source> > &boundary_sources) const
+{
+    Boundary_Source::Dependencies deps;
+    deps.angular = Boundary_Source::Dependencies::Angular::ORDINATES;
+
+    shared_ptr<Weight_Function> weight = weights_[index];
+    int const number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
+    int const number_of_groups = energy_->number_of_groups();
+    int const number_of_ordinates = angular_->number_of_ordinates();
+
+    boundary_sources.resize(number_of_boundary_surfaces);
+    for (int s = 0; s < number_of_boundary_surfaces; ++s)
+    {
+        vector<double> local_data(number_of_groups * number_of_ordinates);
+        for (int o = 0; o < number_of_ordinates; ++o)
+        {
+            for (int g = 0; g < number_of_groups; ++g)
+            {
+                int data_ind = g + number_of_groups * (o + number_of_ordinates * s);
+                int source_ind = g + number_of_groups * o;
+                
+                local_data[source_ind] = material_data.boundary_sources[data_ind];
+            }
+        }
+        
+        boundary_sources[s] = make_shared<Boundary_Source>(s + number_of_boundary_surfaces * index,
+                                                           deps,
+                                                           angular_,
+                                                           energy_,
+                                                           local_data,
+                                                           weight->boundary_surface(s)->boundary_source()->alpha());
     }
 }
 
@@ -1036,6 +1101,7 @@ initialize_materials(vector<Material_Data> &materials) const
     int number_of_groups = energy_->number_of_groups();
     int number_of_scattering_moments = angular_->number_of_scattering_moments();
     int number_of_moments = angular_->number_of_moments();
+    int number_of_ordinates = angular_->number_of_ordinates();
     
     // Initialize materials
     materials.resize(number_of_points_);
@@ -1044,12 +1110,16 @@ initialize_materials(vector<Material_Data> &materials) const
         shared_ptr<Weight_Function> weight = weights_[i];
         int number_of_dimensional_moments = weight->dimensional_moments()->number_of_dimensional_moments();
         int number_of_basis_functions = weight->number_of_basis_functions();
+        int number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
         Material_Data &material = materials[i];
 
         material.nu.assign(1, 1.);
         material.chi.assign(1, 1.);
         material.internal_source.assign(number_of_dimensional_moments
                                         * number_of_groups, 0);
+        material.boundary_sources.assign(number_of_groups
+                                         * number_of_ordinates
+                                         * number_of_boundary_surfaces, 0);
         switch (options_->weighting)
         {
         case Weak_Spatial_Discretization_Options::Weighting::POINT:

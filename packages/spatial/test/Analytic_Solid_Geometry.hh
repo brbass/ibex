@@ -113,6 +113,13 @@ public:
                                           internal_source);
         
     }
+    virtual std::shared_ptr<Boundary_Source> boundary_source(int boundary_index,
+                                                             std::vector<double> const &position) const override
+    {
+        AssertMsg(false, "not implemented");
+
+        return std::shared_ptr<Boundary_Source>();
+    }
     virtual void check_class_invariants() const override
     {
         AssertMsg(false, "not implemented");

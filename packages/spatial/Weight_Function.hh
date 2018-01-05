@@ -7,6 +7,7 @@
 #include <unordered_map>
 
 class Basis_Function;
+class Boundary_Source;
 class Cartesian_Plane;
 template<class T1, class T2> class Conversion;
 class Dimensional_Moments;
@@ -152,7 +153,11 @@ public:
     }
     virtual std::shared_ptr<Cartesian_Plane> boundary_surface(int i) const
     {
-        return weighted_boundary_surfaces_[i];
+        return boundary_surfaces_[i];
+    }
+    virtual std::shared_ptr<Boundary_Source> boundary_source(int i) const
+    {
+        return boundary_sources_[i];
     }
 
     // Get values or integrals
@@ -181,7 +186,8 @@ public:
 
     // Set data
     virtual void set_integrals(Weight_Function::Integrals const &integrals,
-                               std::shared_ptr<Material> material);
+                               std::shared_ptr<Material> material,
+                               std::vector<std::shared_ptr<Boundary_Source>> boundary_sources);
     
     // Get local basis function index from from global basis function index
     // Returns Errors::DOES_NOT_EXIST if none found
@@ -244,7 +250,7 @@ private:
     std::shared_ptr<Solid_Geometry> solid_geometry_;
     std::shared_ptr<Dimensional_Moments> dimensional_moments_;
     std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces_;
-    std::vector<std::shared_ptr<Cartesian_Plane> > weighted_boundary_surfaces_;
+    std::vector<std::shared_ptr<Boundary_Source> > boundary_sources_;
     std::unordered_map<int, int> basis_global_indices_;
     std::vector<int> local_surface_indices_;
     

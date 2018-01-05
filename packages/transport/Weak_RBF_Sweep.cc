@@ -166,7 +166,7 @@ get_rhs(int i,
             double dot = normal * direction[surface_dimension];
             if (dot < 0)
             {
-                shared_ptr<Boundary_Source> source = surface->boundary_source();
+                shared_ptr<Boundary_Source> source = weight->boundary_source(s);
                 double local_sum = 0;
                 // Add reflection
                 if (has_reflection)

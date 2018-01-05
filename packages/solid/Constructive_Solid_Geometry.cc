@@ -562,3 +562,10 @@ material(vector<double> const &position) const
         return regions_[region]->material();
     }
 }
+
+shared_ptr<Boundary_Source> Constructive_Solid_Geometry::
+boundary_source(int boundary_index,
+                vector<double> const &position) const
+{
+    return boundary_surfaces_[boundary_index]->boundary_source();
+}

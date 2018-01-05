@@ -3,7 +3,6 @@
 
 #include "Solid_Geometry.hh"
 
-class Boundary_Source;
 class Cartesian_Plane;
 class Region;
 class Surface;
@@ -114,7 +113,8 @@ public:
                                   std::vector<double> const &final_position,
                                   std::vector<double> &optical_distance) const override;
     virtual std::shared_ptr<Material> material(std::vector<double> const &position) const override;
-    
+    virtual std::shared_ptr<Boundary_Source> boundary_source(int boundary_index,
+                                                             std::vector<double> const &position) const override;
     virtual void check_class_invariants() const override;
     virtual void output(XML_Node output_node) const override;
     

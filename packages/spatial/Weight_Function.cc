@@ -1252,7 +1252,7 @@ calculate_supg_weight_material()
 void Weight_Function::
 calculate_boundary_source()
 {
-    weighted_boundary_surfaces_.resize(number_of_boundary_surfaces_);
+    boundary_sources_.resize(number_of_boundary_surfaces_);
     for (int s = 0; s < number_of_boundary_surfaces_; ++s)
     {
         shared_ptr<Cartesian_Plane> surface = boundary_surfaces_[s];
@@ -1275,16 +1275,7 @@ calculate_boundary_source()
                                            source->energy_discretization(),
                                            new_data,
                                            source->alpha());
-        shared_ptr<Cartesian_Plane> new_surface
-            = make_shared<Cartesian_Plane>(s + number_of_boundary_surfaces_ * index_,
-                                           surface->dimension(),
-                                           surface->surface_type(),
-                                           surface->surface_dimension(),
-                                           surface->position(),
-                                           surface->normal());
-        new_surface->set_boundary_source(new_source);
-        
-        weighted_boundary_surfaces_[s] = new_surface;
+        boundary_sources_[s] = new_source;
     }
 }
 
@@ -1308,7 +1299,7 @@ check_class_invariants() const
     Assert(basis_functions_.size() == number_of_basis_functions_);
     Assert(solid_geometry_);
     Assert(boundary_surfaces_.size() == number_of_boundary_surfaces_);
-    Assert(weighted_boundary_surfaces_.size() == number_of_boundary_surfaces_);
+    Assert(boundary_sources_.size() == number_of_boundary_surfaces_);
     Assert(min_boundary_limits_.size() == dimension_);
     Assert(max_boundary_limits_.size() == dimension_);
     Assert(values_.v_b.size() == number_of_basis_functions_);
@@ -1372,14 +1363,15 @@ output(XML_Node output_node) const
 
 void Weight_Function::
 set_integrals(Weight_Function::Integrals const &integrals,
-              shared_ptr<Material> material)
+              shared_ptr<Material> material,
+              vector<shared_ptr<Boundary_Source> > boundary_sources)
 {
     // Set integral data
     integrals_ = integrals;
     material_ = material;
+    boundary_sources_ = boundary_sources;
     
     // Complete initialization
-    calculate_boundary_source();
     check_class_invariants();
 }
 

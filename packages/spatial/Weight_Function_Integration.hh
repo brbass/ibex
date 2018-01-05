@@ -26,6 +26,7 @@ public:
         std::vector<double> chi;
         std::vector<double> internal_source;
         std::vector<double> norm;
+        std::vector<double> boundary_sources;
     };
     
     Weight_Function_Integration(int number_of_points,
@@ -89,7 +90,15 @@ private:
                            std::vector<Material_Data> &materials);
     
     // Perform all surface integrals
-    void perform_surface_integration(std::vector<Weight_Function::Integrals> &integrals) const;
+    void perform_surface_integration(std::vector<Weight_Function::Integrals> &integrals,
+                                     std::vector<Material_Data> &materials) const;
+
+    // Add boundary source integral to global integrals
+    void add_surface_source(std::shared_ptr<Integration_Mesh::Surface> const surface,
+                            double quad_weight,
+                            std::vector<double> const &w_val,
+                            std::vector<int> const &weight_surface_indices,
+                            std::vector<Material_Data> &materials) const;
     
     // Add weight function surface values to global integrals
     void add_surface_weight(std::shared_ptr<Integration_Mesh::Surface> const surface,
@@ -119,6 +128,11 @@ private:
                       Material_Data const &material_data,
                       std::shared_ptr<Material> &material) const;
 
+    // Get boundary sources from the material data
+    void get_boundary_sources(int index,
+                              Material_Data const &material_data,
+                              std::vector<std::shared_ptr<Boundary_Source> > &boundary_sources) const;
+    
     // Get the flux for a specific point, given basis coefficients
     void get_flux(std::shared_ptr<Integration_Mesh::Cell> const cell,
                   std::vector<double> const &b_val,
