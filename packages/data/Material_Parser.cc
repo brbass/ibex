@@ -22,7 +22,8 @@ parse_from_xml(XML_Node input_node)
     // Get size data
     int number_of_materials = input_node.get_child_value<int>("number_of_materials");
     
-    int number_of_moments = angular_->number_of_scattering_moments();
+    int number_of_scattering_moments = angular_->number_of_scattering_moments();
+    int number_of_moments = angular_->number_of_moments();
     int number_of_groups = energy_->number_of_groups();
 
     // Get possible dependencies
@@ -31,6 +32,9 @@ parse_from_xml(XML_Node input_node)
     none_group.energy = Cross_Section::Dependencies::Energy::GROUP;
     Cross_Section::Dependencies none_group2;
     none_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
+    Cross_Section::Dependencies moment_group;
+    moment_group.angular = Cross_Section::Dependencies::Angular::MOMENTS;
+    moment_group.energy = Cross_Section::Dependencies::Energy::GROUP;
     Cross_Section::Dependencies scattering_group2;
     scattering_group2.angular = Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS;
     scattering_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
@@ -58,12 +62,14 @@ parse_from_xml(XML_Node input_node)
             = make_shared<Cross_Section>(scattering_group2,
                                          angular_,
                                          energy_,
-                                         material_node.get_child_vector<double>("sigma_s", number_of_groups * number_of_groups * number_of_moments));
+                                         material_node.get_child_vector<double>("sigma_s", number_of_groups * number_of_groups * number_of_scattering_moments));
+        vector<double> internal_source_data = material_node.get_child_vector<double>("internal_source", number_of_groups);
+        internal_source_data.resize(number_of_groups * number_of_moments, 0);
         shared_ptr<Cross_Section> internal_source
-            = make_shared<Cross_Section>(none_group,
+            = make_shared<Cross_Section>(moment_group,
                                          angular_,
                                          energy_,
-                                         material_node.get_child_vector<double>("internal_source", number_of_groups));
+                                         internal_source_data);
         
         // Get fission cross section, checking for full fission matrix
         shared_ptr<Cross_Section> nu;

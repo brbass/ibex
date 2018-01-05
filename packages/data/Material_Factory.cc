@@ -25,9 +25,16 @@ get_standard_material(int index,
                       vector<double> const &chi_data,
                       vector<double> const &internal_source_data) const
 {
+    // Get size info
+    int number_of_moments = angular_->number_of_moments();
+    int number_of_groups = energy_->number_of_groups();
+    
     // Get dependencies for standard cross section
     Cross_Section::Dependencies none_group;
     none_group.energy = Cross_Section::Dependencies::Energy::GROUP;
+    Cross_Section::Dependencies moment_group;
+    moment_group.angular = Cross_Section::Dependencies::Angular::MOMENTS;
+    moment_group.energy = Cross_Section::Dependencies::Energy::GROUP;
     Cross_Section::Dependencies scattering_group2;
     scattering_group2.angular = Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS;
     scattering_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
@@ -58,11 +65,16 @@ get_standard_material(int index,
                                      angular_,
                                      energy_,
                                      chi_data);
+    vector<double> internal_source_data_temp = internal_source_data;
+    if (internal_source_data.size() == number_of_groups)
+    {
+        internal_source_data_temp.resize(number_of_groups * number_of_moments, 0);
+    }
     shared_ptr<Cross_Section> internal_source
-        = make_shared<Cross_Section>(none_group,
+        = make_shared<Cross_Section>(moment_group,
                                      angular_,
                                      energy_,
-                                     internal_source_data);
+                                     internal_source_data_temp);
 
     // Return material
     return make_shared<Material>(index,

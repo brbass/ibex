@@ -8,6 +8,7 @@
 #include "Gauss_Legendre_Quadrature.hh"
 #include "LDFE_Quadrature.hh"
 #include "Material.hh"
+#include "Material_Factory.hh"
 #include "Moment_To_Discrete.hh"
 #include "Simple_Point.hh"
 #include "Random_Number_Generator.hh"
@@ -45,7 +46,7 @@ void get_discretization(int dimension,
                                                quadrature_rule);
         break;
     }
-
+    
     // Create dummy material
     Cross_Section::Dependencies none_group;
     none_group.energy = Cross_Section::Dependencies::Energy::GROUP;
@@ -59,48 +60,18 @@ void get_discretization(int dimension,
     vector<double> sigma_f_data(number_of_groups, 0);
     vector<double> chi_data(number_of_groups, 0);
     vector<double> internal_source_data(number_of_groups, 0);
-    
-    shared_ptr<Cross_Section> sigma_t
-        = make_shared<Cross_Section>(none_group,
-                                     angular,
-                                     energy,
-                                     sigma_t_data);
-    shared_ptr<Cross_Section> sigma_s
-        = make_shared<Cross_Section>(scattering_group2,
-                                     angular,
-                                     energy,
-                                     sigma_s_data);
-    shared_ptr<Cross_Section> nu
-        = make_shared<Cross_Section>(none_group,
-                                     angular,
-                                     energy,
-                                     nu_data);
-    shared_ptr<Cross_Section> sigma_f
-        = make_shared<Cross_Section>(none_group,
-                                     angular,
-                                     energy,
-                                     sigma_f_data);
-    shared_ptr<Cross_Section> chi
-        = make_shared<Cross_Section>(none_group,
-                                     angular,
-                                     energy,
-                                     chi_data);
-    shared_ptr<Cross_Section> internal_source
-        = make_shared<Cross_Section>(none_group,
-                                     angular,
-                                     energy,
-                                     internal_source_data);
+
+    Material_Factory factory(angular,
+                             energy);
     
     shared_ptr<Material> material
-        = make_shared<Material>(0,
-                                angular,
-                                energy,
-                                sigma_t,
-                                sigma_s,
-                                nu,
-                                sigma_f,
-                                chi,
-                                internal_source);
+        = factory.get_standard_material(0,
+                                        sigma_t_data,
+                                        sigma_s_data,
+                                        nu_data,
+                                        sigma_f_data,
+                                        chi_data,
+                                        internal_source_data);
     
     // Create dummy spatial discretization    
     vector<shared_ptr<Point> > points(number_of_points);

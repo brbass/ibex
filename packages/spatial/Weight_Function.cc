@@ -85,6 +85,7 @@ Weight_Function(int index,
     boundary_surfaces_(boundary_surfaces),
     integrals_(integrals)
 {
+    AssertMsg(false, "not tested");
     set_options_and_limits();
     calculate_values();
     calculate_boundary_source();
@@ -812,8 +813,9 @@ calculate_standard_point_material()
 
     // Get the weighted internal source
     vector<double> const internal_source_temp = test_material->internal_source()->data();
-    vector<double> internal_source_v(number_of_groups, 0.);
-    for (int g = 0; g < number_of_groups; ++g)
+    int internal_size = internal_source_temp.size();
+    vector<double> internal_source_v(internal_size, 0.);
+    for (int g = 0; g < internal_size; ++g)
     {
         internal_source_v[g] = integrals_.iv_w[0] * internal_source_temp[g];
     }
@@ -861,7 +863,7 @@ calculate_standard_weight_material()
     vector<double> nu_v(1, 0);
     vector<double> sigma_f_v(number_of_groups * number_of_groups, 0.);
     vector<double> chi_v(1, 0);
-    vector<double> internal_source_v(number_of_groups, 0.);
+    vector<double> internal_source_v(number_of_groups * number_of_moments, 0.);
 
     // Calculate numerator and denominator separately
     for (int i = 0; i < number_of_integration_ordinates; ++i)
@@ -879,7 +881,11 @@ calculate_standard_weight_material()
         for (int g = 0; g < number_of_groups; ++g)
         {
             sigma_t_v[g] += w * sigma_t_temp[g] * integration_weights[i];
-            internal_source_v[g] += w * internal_source_temp[g] * integration_weights[i];
+            for (int m = 0; m < number_of_moments; ++m)
+            {
+                int k = g + number_of_groups * m;
+                internal_source_v[k] += w * internal_source_temp[k] * integration_weights[i];
+            }
             
             for (int g2 = 0; g2 < number_of_groups; ++g2)
             {
@@ -924,6 +930,9 @@ calculate_standard_weight_material()
     none_group.energy = Cross_Section::Dependencies::Energy::GROUP;
     Cross_Section::Dependencies none_group2;
     none_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
+    Cross_Section::Dependencies moment_group;
+    moment_group.angular = Cross_Section::Dependencies::Angular::MOMENTS;
+    moment_group.energy = Cross_Section::Dependencies::Energy::GROUP;
     Cross_Section::Dependencies scattering_group2;
     scattering_group2.angular = Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS;
     scattering_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
@@ -954,7 +963,7 @@ calculate_standard_weight_material()
                                      energy_discretization,
                                      chi_v);
     shared_ptr<Cross_Section> internal_source
-        = make_shared<Cross_Section>(none_group,
+        = make_shared<Cross_Section>(moment_group,
                                      angular_discretization,
                                      energy_discretization,
                                      internal_source_v);
@@ -998,7 +1007,7 @@ calculate_supg_point_material()
     vector<double> nu_v(1, 0);
     vector<double> sigma_f_v(dimensionp1 * number_of_groups * number_of_groups, 0);
     vector<double> chi_v(1, 0);;
-    vector<double> internal_source_v(dimensionp1 * number_of_groups, 0);
+    vector<double> internal_source_v(dimensionp1 * number_of_groups * number_of_moments, 0);
     
     // Get function weight values
     vector<double> w(dimension_ + 1, 0);
@@ -1014,7 +1023,12 @@ calculate_supg_point_material()
         {
             int k1 = j + dimensionp1 * g;
             sigma_t_v[k1] = w[j] * sigma_t_temp[g];
-            internal_source_v[k1] = w[j] * internal_source_temp[g];
+            
+            for (int m = 0; m < number_of_moments; ++m)
+            {
+                int k = j + dimensionp1 * (g + number_of_groups * m);
+                internal_source_v[k] = w[j] * internal_source_temp[g + number_of_groups * m];
+            }
             
             for (int g2 = 0; g2 < number_of_groups; ++g2)
             {
@@ -1041,6 +1055,10 @@ calculate_supg_point_material()
     Cross_Section::Dependencies none_group2;
     none_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
     none_group2.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
+    Cross_Section::Dependencies moment_group;
+    moment_group.angular = Cross_Section::Dependencies::Angular::MOMENTS;
+    moment_group.energy = Cross_Section::Dependencies::Energy::GROUP;
+    moment_group.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
     Cross_Section::Dependencies scattering_group2;
     scattering_group2.angular = Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS;
     scattering_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
@@ -1071,7 +1089,7 @@ calculate_supg_point_material()
                                      energy_discretization,
                                      chi_v);
     shared_ptr<Cross_Section> internal_source
-        = make_shared<Cross_Section>(none_group,
+        = make_shared<Cross_Section>(moment_group,
                                      angular_discretization,
                                      energy_discretization,
                                      internal_source_v);
@@ -1114,7 +1132,7 @@ calculate_supg_weight_material()
     vector<double> nu_v(1, 0);
     vector<double> sigma_f_v(dimensionp1 * number_of_groups * number_of_groups, 0);
     vector<double> chi_v(1, 0);;
-    vector<double> internal_source_v(dimensionp1 * number_of_groups, 0);
+    vector<double> internal_source_v(dimensionp1 * number_of_groups * number_of_moments, 0);
 
     // Calculate numerator and denominator separately
     for (int i = 0; i < number_of_integration_ordinates; ++i)
@@ -1144,7 +1162,11 @@ calculate_supg_weight_material()
             {
                 int k1 = j + dimensionp1 * g;
                 sigma_t_v[k1] += w[j] * sigma_t_temp[g] * integration_weights[i];
-                internal_source_v[k1] += w[j] * internal_source_temp[g] * integration_weights[i];
+                for (int m = 0; m < number_of_moments; ++m)
+                {
+                    int k = j + dimensionp1 * (g + number_of_groups * m);
+                    internal_source_v[k] += w[j] * internal_source_temp[g + number_of_groups * m] * integration_weights[i];
+                }
 
                 for (int g2 = 0; g2 < number_of_groups; ++g2)
                 {
@@ -1201,6 +1223,10 @@ calculate_supg_weight_material()
     Cross_Section::Dependencies none_group2;
     none_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
     none_group2.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
+    Cross_Section::Dependencies moment_group;
+    moment_group.angular = Cross_Section::Dependencies::Angular::MOMENTS;
+    moment_group.energy = Cross_Section::Dependencies::Energy::GROUP;
+    moment_group.dimensional = Cross_Section::Dependencies::Dimensional::SUPG;
     Cross_Section::Dependencies scattering_group2;
     scattering_group2.angular = Cross_Section::Dependencies::Angular::SCATTERING_MOMENTS;
     scattering_group2.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
@@ -1232,7 +1258,7 @@ calculate_supg_weight_material()
                                      energy_discretization,
                                      chi_v);
     shared_ptr<Cross_Section> internal_source
-        = make_shared<Cross_Section>(none_group,
+        = make_shared<Cross_Section>(moment_group,
                                      angular_discretization,
                                      energy_discretization,
                                      internal_source_v);

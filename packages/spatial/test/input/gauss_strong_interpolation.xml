@@ -23,7 +23,7 @@
 
   <spatial_discretization input_format='full'
                           file='square_2.0_10_60_60.xml'>
-    <options weighting='weight'
+    <options weighting='flat'
              external_integral_calculation='true'
              supg='false'
              tau_scaling='none'

@@ -209,7 +209,7 @@
   
   <weight_functions>
     <options
-        weighting='weight'
+        weighting='flat'
         output='standard'
         external_integral_calculation='false'
         identical_basis_functions='false'

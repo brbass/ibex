@@ -39,6 +39,16 @@ check_class_invariants() const
     Assert(spatial_);
     Assert(angular_);
     Assert(energy_);
+    
+    int number_of_points = spatial_->number_of_points();
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        shared_ptr<Material> material = spatial_->point(i)->material();
+        Cross_Section::Dependencies dep = material->internal_source()->dependencies();
+        // Make sure angular and energy dependencies for each point are correct
+        Assert(dep.angular == Cross_Section::Dependencies::Angular::MOMENTS);
+        Assert(dep.energy == Cross_Section::Dependencies::Energy::GROUP);
+    }
 }
 
 void Internal_Source_Operator::
@@ -62,26 +72,6 @@ apply(vector<double> &x) const
         int d = 0;
         switch (deps.angular)
         {
-        case Cross_Section::Dependencies::Angular::NONE:
-            for (int g = 0; g < number_of_groups; ++g)
-            {
-                for (int n = 0; n < number_of_nodes; ++n)
-                {
-                    {
-                        int m = 0;
-                        int k_x = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
-                        int k_dat = d + number_of_dimensional_moments * g;
-                        x[k_x] = data[k_dat];
-                    }
-                        
-                    for (int m = 1; m < number_of_moments; ++m)
-                    {
-                        int k_x = n + number_of_nodes * (d + number_of_dimensional_moments * (g + number_of_groups * (m + number_of_moments * i)));
-                        x[k_x] = 0;
-                    }
-                }
-            }
-            break;
         case Cross_Section::Dependencies::Angular::MOMENTS:
             for (int g = 0; g < number_of_groups; ++g)
             {

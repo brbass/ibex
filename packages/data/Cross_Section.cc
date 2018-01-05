@@ -23,31 +23,15 @@ Cross_Section(Dependencies dependencies,
     data_(data)
 {
     check_class_invariants();
-
-    // if (zero_out_dimensional)
-    // {
-    //     int m_size = angular_size();
-    //     int g_size = energy_size();
-    //     int d_size = dimensional_size();
-    //     for (int m = 0; m < m_size; ++m)
-    //     {
-    //         for (int g = 0; g < g_size; ++g)
-    //         {
-    //             for (int d = 1; d < d_size; ++d)
-    //             {
-    //                 int k = d + d_size * (g + g_size * m);
-
-    //                 data_[k] = 0;
-    //             }
-    //         }
-    //     }
-    // }
 }
 
 int Cross_Section::
 size() const
 {
-    return angular_size() * energy_size();
+    return(angular_size()
+           * energy_size()
+           * dimensional_size()
+           * spatial_size());
 }
 
 int Cross_Section::

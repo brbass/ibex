@@ -513,7 +513,11 @@ add_volume_material(shared_ptr<Integration_Mesh::Cell> const cell,
                        sigma_s,
                        sigma_f,
                        internal_source);
-                       
+    int sigma_t_size = sigma_t.size();
+    int sigma_s_size = sigma_s.size();
+    int sigma_f_size = sigma_f.size();
+    int internal_size = internal_source.size();
+    
     // Get flux
     vector<double> flux;
     if (options_->weighting == Weak_Spatial_Discretization_Options::Weighting::FLUX)
@@ -545,31 +549,34 @@ add_volume_material(shared_ptr<Integration_Mesh::Cell> const cell,
 
                 // Norm 
                 material.norm[d] += wid * quad_weight;
-                
-                for (int g = 0; g < number_of_groups; ++g)
+
+                // Total cross section
+                for (int s = 0; s < sigma_t_size; ++s)
                 {
-                    // Total cross section and internal source
-                    int kt = d + number_of_dimensional_moments * g;
+                    int k = d + number_of_dimensional_moments * s;
+                    material.sigma_t[k] += sigma_t[s] * wid * quad_weight;
+                }
+                
+                // Scattering cross section
+                for (int s = 0; s < sigma_s_size; ++s)
+                {
+                    int k = d + number_of_dimensional_moments * s;
+                    material.sigma_s[k] += sigma_s[s] * wid * quad_weight;
+                }
+                
+                // Fission cross section
+                for (int s = 0; s < sigma_f_size; ++s)
+                {
+                    int k = d + number_of_dimensional_moments * s;
+                    material.sigma_f[k] += sigma_f[s] * wid * quad_weight;
+                }
+                
+                // Internal source
+                for (int s = 0; s < internal_size; ++s)
+                {
+                    int k = d + number_of_dimensional_moments * s;
                     
-                    material.sigma_t[kt] += sigma_t[g] * wid * quad_weight;
-                    material.internal_source[kt] += internal_source[g] * wid * quad_weight;
-                    
-                    for (int g2 = 0; g2 < number_of_groups; ++g2)
-                    {
-                        // Fission cross section
-                        int kf = d + number_of_dimensional_moments * (g2 + number_of_groups * g);
-                        int kg = g2 + number_of_groups * g;
-                        
-                        material.sigma_f[kf] += sigma_f[kg] * wid * quad_weight;
-                        
-                        for (int l = 0; l < number_of_scattering_moments; ++l)
-                        {
-                            // Scattering cross section
-                            int ks = d + number_of_dimensional_moments * (g2 + number_of_groups * (g + number_of_groups * l));
-                            int ks0 = g2 + number_of_groups * (g + number_of_groups * l);
-                            material.sigma_s[ks] += sigma_s[ks0] * wid * quad_weight;
-                        }
-                    }
+                    material.internal_source[k] += internal_source[s] * wid * quad_weight;
                 }
             }
         }
@@ -584,13 +591,16 @@ add_volume_material(shared_ptr<Integration_Mesh::Cell> const cell,
             for (int d = 0; d < number_of_dimensional_moments; ++d)
             {
                 double wid = d == 0 ? w_val[i] : w_grad[i][d - 1];
+
+                // Internal source
+                for (int s = 0; s < internal_size; ++s)
+                {
+                    int k = d + number_of_dimensional_moments * s;
+                    material.internal_source[k] += internal_source[s] * wid * quad_weight;                    
+                }
                 
                 for (int g = 0; g < number_of_groups; ++g)
                 {
-                    // Internal source
-                    int kn = d + number_of_dimensional_moments * g;
-                    material.internal_source[kn] += internal_source[g] * wid * quad_weight;
-
                     for (int g2 = 0; g2 < number_of_groups; ++g2)
                     {
                         // Fission cross section
@@ -639,13 +649,13 @@ add_volume_material(shared_ptr<Integration_Mesh::Cell> const cell,
                 double wid = d == 0 ? w_val[i] : w_grad[i][d - 1];
 
                 // Internal source (does not depend on basis functions)
-                for (int g = 0; g < number_of_groups; ++g)
+                for (int s = 0; s < internal_size; ++s)
                 {
-                    int kn = d + number_of_dimensional_moments * g;
+                    int k = d + number_of_dimensional_moments * s;
                     
-                    material.internal_source[kn] += internal_source[g] * wid * quad_weight;
+                    material.internal_source[k] += internal_source[s] * wid * quad_weight;
                 }
-
+                
                 // Material integrals that depend on basis function
                 for (int j = 0; j < cell->number_of_basis_functions; ++j)
                 {
@@ -655,37 +665,24 @@ add_volume_material(shared_ptr<Integration_Mesh::Cell> const cell,
                     if (w_b_ind != Weight_Function::Errors::DOES_NOT_EXIST)
                     {
                         // Total cross section
-                        for (int g = 0; g < number_of_groups; ++g)
+                        for (int s = 0; s < sigma_t_size; ++s)
                         {
-                            int kt = d + number_of_dimensional_moments * (g + number_of_groups * w_b_ind);
-                            material.sigma_t[kt] += sigma_t[g] * b_val[j] * wid * quad_weight;
+                            int k = d + number_of_dimensional_moments * (s + sigma_t_size * w_b_ind);
+                            material.sigma_t[k] += sigma_t[s] * b_val[j] * wid * quad_weight;
                         }
-                        
-                        // Fission cross section
-                        for (int g1 = 0; g1 < number_of_groups; ++g1)
-                        {
-                            for (int g2 = 0; g2 < number_of_groups; ++g2)
-                            {
-                                int kf = d + number_of_dimensional_moments * (g2 + number_of_groups * (g1 + number_of_groups * w_b_ind));
-                                int kg = g2 + number_of_groups * g1;
-                                
-                                material.sigma_f[kf] += sigma_f[kg] * b_val[j] * wid * quad_weight;
-                            }
-                        }
-                        
-                        // Scattering cross section
-                        for (int l = 0; l < number_of_scattering_moments; ++l)
-                        {
-                            for (int g1 = 0; g1 < number_of_groups; ++g1)
-                            {
-                                for (int g2 = 0; g2 < number_of_groups; ++g2)
-                                {
-                                    int ks = d + number_of_dimensional_moments * (g2 + number_of_groups * (g1 + number_of_groups * (l + number_of_scattering_moments * w_b_ind)));
-                                    int kg = g2 + number_of_groups * (g1 + number_of_groups * l);
 
-                                    material.sigma_s[ks] += sigma_s[kg] * b_val[j] * wid * quad_weight;
-                                }
-                            }
+                        // Fission cross section
+                        for (int s = 0; s < sigma_f_size; ++s)
+                        {
+                            int k = d + number_of_dimensional_moments * (s + sigma_f_size * w_b_ind);
+                            material.sigma_f[k] += sigma_f[s] * b_val[j] * wid * quad_weight;
+                        }
+
+                        // Scattering cross section
+                        for (int s = 0; s < sigma_s_size; ++s)
+                        {
+                            int k = d + number_of_dimensional_moments * (s + sigma_s_size * w_b_ind);
+                            material.sigma_s[k] += sigma_s[s] * b_val[j] * wid * quad_weight;
                         }
                     }
                 }
@@ -703,13 +700,13 @@ add_volume_material(shared_ptr<Integration_Mesh::Cell> const cell,
             for (int d = 0; d < number_of_dimensional_moments; ++d)
             {
                 double wid = d == 0 ? w_val[i] : w_grad[i][d - 1];
-                
-                for (int g = 0; g < number_of_groups; ++g)
+
+                // Internal source
+                for (int s = 0; s < internal_size; ++s)
                 {
-                    // Total cross section and internal source
-                    int kt = d + number_of_dimensional_moments * g;
+                    int k = d + number_of_dimensional_moments * s;
                     
-                    material.internal_source[kt] += internal_source[g] * wid * quad_weight;
+                    material.internal_source[k] += internal_source[s] * wid * quad_weight;
                 }
             }
         }
@@ -727,30 +724,29 @@ add_volume_material(shared_ptr<Integration_Mesh::Cell> const cell,
             for (int d = 0; d < number_of_dimensional_moments; ++d)
             {
                 material.norm[d] += bas * quad_weight;
-                
-                for (int g = 0; g < number_of_groups; ++g)
+
+                // Total cross section
+                for (int s = 0; s < sigma_t_size; ++s)
                 {
-                    // Total cross section and internal source
-                    int kt = d + number_of_dimensional_moments * g;
+                    int k = d + number_of_dimensional_moments * s;
                     
-                    material.sigma_t[kt] += sigma_t[g] * bas * quad_weight;
+                    material.sigma_t[k] += sigma_t[s] * bas * quad_weight;
+                }
+
+                // Fission cross section
+                for (int s = 0; s < sigma_f_size; ++s)
+                {
+                    int k = d + number_of_dimensional_moments * s;
                     
-                    for (int g2 = 0; g2 < number_of_groups; ++g2)
-                    {
-                        // Fission cross section
-                        int kf = d + number_of_dimensional_moments * (g2 + number_of_groups * g);
-                        int kg = g2 + number_of_groups * g;
-                        
-                        material.sigma_f[kf] += sigma_f[kg] * bas * quad_weight;
-                        
-                        for (int l = 0; l < number_of_scattering_moments; ++l)
-                        {
-                            // Scattering cross section
-                            int ks = d + number_of_dimensional_moments * (g2 + number_of_groups * (g + number_of_groups * l));
-                            int ks0 = g2 + number_of_groups * (g + number_of_groups * l);
-                            material.sigma_s[ks] += sigma_s[ks0] * bas * quad_weight;
-                        }
-                    }
+                    material.sigma_f[k] += sigma_f[s] * bas * quad_weight;
+                }
+
+                // Scattering cross section
+                for (int s = 0; s < sigma_s_size; ++s)
+                {
+                    int k = d + number_of_dimensional_moments * s;
+                    
+                    material.sigma_s[k] += sigma_s[s] * bas * quad_weight;
                 }
             }
         }
@@ -979,6 +975,7 @@ get_material(int index,
     sigma_s_deps.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
     sigma_f_deps.energy = Cross_Section::Dependencies::Energy::GROUP_TO_GROUP;
     internal_source_deps.energy = Cross_Section::Dependencies::Energy::GROUP;
+    internal_source_deps.angular = Cross_Section::Dependencies::Angular::MOMENTS;
 
     // Set weighting dependent dependencies
     switch (options_->weighting)
@@ -1116,7 +1113,8 @@ initialize_materials(vector<Material_Data> &materials) const
         material.nu.assign(1, 1.);
         material.chi.assign(1, 1.);
         material.internal_source.assign(number_of_dimensional_moments
-                                        * number_of_groups, 0);
+                                        * number_of_groups
+                                        * number_of_moments, 0);
         material.boundary_sources.assign(number_of_groups
                                          * number_of_ordinates
                                          * number_of_boundary_surfaces, 0);

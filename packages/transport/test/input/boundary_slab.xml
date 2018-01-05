@@ -34,7 +34,7 @@
   
   <spatial_discretization input_format='full'
                           file='slab_2.0_11_10_10.xml'>
-    <options weighting='weight'
+    <options weighting='flat'
              external_integral_calculation='true'
              supg='false'
              tau_scaling='none'
