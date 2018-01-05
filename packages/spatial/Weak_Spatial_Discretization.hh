@@ -64,13 +64,13 @@ struct Weak_Spatial_Discretization_Options
     // Parameters for the user to set
     bool include_supg = false;
     Identical_Basis_Functions identical_basis_functions = Identical_Basis_Functions::FALSE;
-    Weighting weighting = Weighting::FLAT; 
-    Total total = Total::ISOTROPIC;
-    Tau_Scaling tau_scaling = Tau_Scaling::LINEAR;
+    Weighting weighting = Weighting::FULL; 
+    Tau_Scaling tau_scaling = Tau_Scaling::NONE;
     
     // Automatically set parameters
     bool input_finalized = false;
     bool normalized = true;
+    Total total = Total::ISOTROPIC;
     
     // Check input and set automatic parameters
     void finalize_input();

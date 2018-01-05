@@ -139,7 +139,6 @@ find_region_including_surface(vector<double> const &position) const
     }
     
     // Check negative to the surface normal
-
     vector<double> direction;
 
     Surface::Normal normal
@@ -179,6 +178,25 @@ find_surface(vector<double> const &position) const
     {
         relation = surfaces_[i]->relation(position,
                                           true);
+        
+        if (relation == Surface::Relation::EQUAL)
+        {
+            return i;
+        }
+    }
+    
+    return NO_SURFACE; // particle not on a surface
+}
+
+int Constructive_Solid_Geometry::
+find_boundary_surface(vector<double> const &position) const
+{
+    Surface::Relation relation;
+    
+    for (int i = 0; i < boundary_surfaces_.size(); ++i)
+    {
+        relation = boundary_surfaces_[i]->relation(position,
+                                                   true);
         
         if (relation == Surface::Relation::EQUAL)
         {
@@ -564,8 +582,17 @@ material(vector<double> const &position) const
 }
 
 shared_ptr<Boundary_Source> Constructive_Solid_Geometry::
-boundary_source(int boundary_index,
-                vector<double> const &position) const
+boundary_source(vector<double> const &position) const
 {
-    return boundary_surfaces_[boundary_index]->boundary_source();
+    int boundary_index = find_boundary_surface(position);
+
+    if (boundary_index == NO_SURFACE)
+    {
+        AssertMsg(false, "point not found on problem boundary");
+        return shared_ptr<Boundary_Source>();
+    }
+    else
+    {
+        return boundary_surfaces_[boundary_index]->boundary_source();
+    }
 }

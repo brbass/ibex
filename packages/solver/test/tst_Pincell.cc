@@ -258,7 +258,7 @@ void get_pincell(bool basis_mls,
     
     // Get weak RBF sweep
     Weak_RBF_Sweep::Options options;
-    options.solver = Weak_RBF_Sweep::Options::Solver::AMESOS;
+    options.solver = Weak_RBF_Sweep::Options::Solver::AZTEC_IFPACK;
     sweeper
         = make_shared<Weak_RBF_Sweep>(options,
                                       spatial,
@@ -378,8 +378,7 @@ int run_tests(bool mls_basis,
               bool mls_weight,
               bool supg,
               string basis_type,
-              string weight_type,
-              double number_of_intervals)
+              string weight_type)
 {
     int checksum = 0;
 
@@ -391,6 +390,7 @@ int run_tests(bool mls_basis,
     
     // Test 1D eigenvalue
     {
+        double number_of_intervals = 3.0;
         weak_options->integration_ordinates = 16;
         weak_options->external_integral_calculation = true;
         weight_options->tau_const = 1.0;
@@ -403,7 +403,7 @@ int run_tests(bool mls_basis,
         description += to_string(number_of_intervals) + ", ";
         description += to_string(mls_basis) + ", ";
         description += to_string(mls_weight) + ", ";
-        vector<int> point_vals = {};//4, 8, 16, 32, 64, 128, 256, 512};
+        vector<int> point_vals = {256, 512};
         for (int number_of_points : point_vals)
         {
             cout << description << "eigenvalue, krylov, n = " << number_of_points << endl;
@@ -424,6 +424,7 @@ int run_tests(bool mls_basis,
     
     // Run 2D problems
     {
+        double number_of_intervals = 1.5;
         weak_options->integration_ordinates = 16;
         weak_options->external_integral_calculation = true;
         weight_options->tau_const = 1.0;
@@ -438,7 +439,7 @@ int run_tests(bool mls_basis,
         description += to_string(mls_weight) + ", ";
     
         // Test 2D eigenvalue
-        vector<int> point_vals = {4, 8, 16, 32, 64, 128};
+        vector<int> point_vals = {32, 48};
         for (int number_of_points : point_vals)
         {
             cout << description << "eigenvalue, krylov, n = " << number_of_points << endl;
@@ -453,7 +454,7 @@ int run_tests(bool mls_basis,
                                      2, // angular rule
                                      number_of_points, // number of points
                                      number_of_intervals, // number of intervals
-                                     1e-4); // tolerance
+                                     1e-3); // tolerance
         }
     }
     return checksum;
@@ -480,32 +481,28 @@ int main(int argc, char **argv)
                               false,
                               false,
                               "wendland11",
-                              "wendland11",
-                              3.);
+                              "wendland11");
         break;
     case 1:
         checksum += run_tests(false,
                               false,
                               true,
                               "wendland11",
-                              "wendland11",
-                              3.);
+                              "wendland11");
         break;
     case 2:
         checksum += run_tests(true,
                               true,
                               false,
                               "wendland11",
-                              "wendland11",
-                              3.);
+                              "wendland11");
         break;
     case 3:
         checksum += run_tests(true,
                               true,
                               true,
                               "wendland11",
-                              "wendland11",
-                              3.);
+                              "wendland11");
         break;
     }
     

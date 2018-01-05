@@ -1,6 +1,7 @@
 #include <functional>
 
 #include "Angular_Discretization.hh"
+#include "Boundary_Source.hh"
 #include "Check.hh"
 #include "Cross_Section.hh"
 #include "Energy_Discretization.hh"
@@ -113,12 +114,16 @@ public:
                                           internal_source);
         
     }
-    virtual std::shared_ptr<Boundary_Source> boundary_source(int boundary_index,
-                                                             std::vector<double> const &position) const override
+    virtual std::shared_ptr<Boundary_Source> boundary_source(std::vector<double> const &position) const override
     {
-        AssertMsg(false, "not implemented");
-
-        return std::shared_ptr<Boundary_Source>();
+        Boundary_Source::Dependencies deps;
+        std::vector<double> zero(1, 0.0);
+        return std::make_shared<Boundary_Source>(0,
+                                                 deps,
+                                                 angular_,
+                                                 energy_,
+                                                 zero,
+                                                 zero);
     }
     virtual void check_class_invariants() const override
     {

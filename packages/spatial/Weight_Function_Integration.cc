@@ -795,7 +795,7 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals,
         {
             // Get position
             vector<double> const &position = ordinates[q];
-
+            
             // Get basis/weight values at quadrature point
             vector<double> b_val;
             vector<double> w_val;
@@ -805,6 +805,8 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals,
                                       weight_centers,
                                       b_val,
                                       w_val);
+            shared_ptr<Boundary_Source> boundary_source
+                = solid_->boundary_source(position);
 
             // Perform integration
             add_surface_weight(surface,
@@ -823,6 +825,7 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals,
                                weights[q],
                                w_val,
                                weight_surface_indices,
+                               boundary_source,
                                materials);
         }
     }
@@ -885,9 +888,39 @@ add_surface_source(shared_ptr<Integration_Mesh::Surface> const surface,
                    double quad_weight,
                    vector<double> const &w_val,
                    vector<int> const &weight_surface_indices,
+                   shared_ptr<Boundary_Source> boundary_source,
                    vector<Material_Data> &materials) const
 {
-    
+    // Get size information
+    int number_of_groups = energy_->number_of_groups();
+    int number_of_ordinates = angular_->number_of_ordinates();
+
+    // Get data
+    vector<double> const &boundary_data = boundary_source->data();
+
+    // Perofrm integration
+    for (int i = 0; i < surface->number_of_weight_functions; ++i)
+    {
+        int w_ind = surface->weight_indices[i]; // global weight index
+        int w_s_ind = weight_surface_indices[i]; // local surface index for weight
+        Material_Data &material = materials[w_ind];
+        
+        // Check whether surface weight function includes this surface
+        if (w_s_ind != Weight_Function::Errors::DOES_NOT_EXIST)
+        {
+            for (int o = 0; o < number_of_ordinates; ++o)
+            {
+                for (int g = 0; g < number_of_groups; ++g)
+                {
+                    int k_data = g + number_of_groups * o;
+                    int k_source = g + number_of_groups * (o + number_of_ordinates * w_s_ind);
+
+                    material.boundary_sources[k_source]
+                        += quad_weight * w_val[i] * boundary_data[k_data];
+                }
+            }
+        }
+    }
 }
 
 void Weight_Function_Integration::

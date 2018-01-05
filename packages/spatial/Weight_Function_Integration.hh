@@ -98,6 +98,7 @@ private:
                             double quad_weight,
                             std::vector<double> const &w_val,
                             std::vector<int> const &weight_surface_indices,
+                            std::shared_ptr<Boundary_Source> boundary_source,
                             std::vector<Material_Data> &materials) const;
     
     // Add weight function surface values to global integrals

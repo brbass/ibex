@@ -37,8 +37,7 @@ public:
                                   std::vector<double> const &final_position,
                                   std::vector<double> &optical_distance) const = 0;
     virtual std::shared_ptr<Material> material(std::vector<double> const &position) const = 0;
-    virtual std::shared_ptr<Boundary_Source> boundary_source(int boundary_index,
-                                                             std::vector<double> const &position) const = 0;
+    virtual std::shared_ptr<Boundary_Source> boundary_source(std::vector<double> const &position) const = 0;
     virtual void check_class_invariants() const = 0;
     virtual void output(XML_Node output_node) const = 0;
 };

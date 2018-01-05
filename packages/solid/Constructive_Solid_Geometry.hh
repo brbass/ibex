@@ -79,6 +79,7 @@ public:
     virtual int find_region(std::vector<double> const &position) const override;
     virtual int find_region_including_surface(std::vector<double> const &position) const;
     virtual int find_surface(std::vector<double> const &position) const override;
+    virtual int find_boundary_surface(std::vector<double> const &position) const;
 
     virtual int next_intersection(std::vector<double> const &initial_position,
                                   std::vector<double> const &initial_direction,
@@ -113,8 +114,7 @@ public:
                                   std::vector<double> const &final_position,
                                   std::vector<double> &optical_distance) const override;
     virtual std::shared_ptr<Material> material(std::vector<double> const &position) const override;
-    virtual std::shared_ptr<Boundary_Source> boundary_source(int boundary_index,
-                                                             std::vector<double> const &position) const override;
+    virtual std::shared_ptr<Boundary_Source> boundary_source(std::vector<double> const &position) const override;
     virtual void check_class_invariants() const override;
     virtual void output(XML_Node output_node) const override;
     
