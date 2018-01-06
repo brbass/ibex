@@ -10,3 +10,4 @@ endmacro()
 
 include_test(tst_gauss tst_Gauss.cc)
 include_test(tst_ldfe tst_LDFE.cc)
+include_test(tst_manufactured_coefficients tst_Manufactured_Coefficients.cc)

@@ -66,6 +66,16 @@ public:
         return l_indices_;
     }
 
+    // Return the spherical harmonic indices
+    virtual std::vector<int> const &harmonic_degrees() const
+    {
+        return l_indices_;
+    }
+    virtual std::vector<int> const &harmonic_orders() const
+    {
+        return m_indices_;
+    }
+    
     // Output data to XML file
     virtual void output(XML_Node output_node) const = 0;
 
@@ -81,7 +91,14 @@ public:
 
     // Perform discrete-to-moment operation
     virtual void discrete_to_moment(std::vector<double> &data) const;
-    
+
+    // Get list of integration coefficients for a manufactured solution
+    // (2l'+1)/(4\pi) \int \Omega Y_m1 Y_m2 d\Omega
+    // Indexing:
+    //     coefficients[source moment][moment num][dimension]
+    //     indices[source moment][moment num]
+    virtual void manufactured_coefficients(std::vector<std::vector<int> > &indices,
+                                   std::vector<std::vector<std::vector<double> > > &coefficients) const;
 protected:
     
     int dimension_;

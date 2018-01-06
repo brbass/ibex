@@ -1,6 +1,7 @@
 #include "Angular_Discretization.hh"
 
 #include <cmath>
+#include <limits>
 #include <vector>
 
 #include "Check.hh"
@@ -29,14 +30,11 @@ initialize_moment_data()
         angular_normalization_ = 2;
         
         int m = 0;
-        int sum = 0;
         
         for (int l = 0; l < number_of_scattering_moments_; ++l)
         {
             l_indices_.push_back(l);
             m_indices_.push_back(m);
-
-            sum += 1;
         }
         
         number_of_moments_ = number_of_scattering_moments_;
@@ -187,5 +185,111 @@ discrete_to_moment(vector<double> &data) const
         }
 
         data[m] = sum;
+    }
+}
+
+void Angular_Discretization::
+manufactured_coefficients(vector<vector<int> > &indices,
+                          vector<vector<vector<double> > > &coefficients) const
+{
+    // Initialize full coefficient matrix to zero
+    vector<vector<double> > coeff_matrix(number_of_moments_ * number_of_moments_, vector<double>(dimension_, 0));
+
+    // Get moments in all directions
+    vector<double> moments(number_of_ordinates_ * number_of_moments_);
+    for (int o = 0; o < number_of_ordinates_; ++o)
+    {
+        for (int m = 0; m < number_of_moments_; ++m)
+        {
+            int k = m + number_of_moments_ * o;
+
+            moments[k] = moment(m, o);
+        }
+    }
+    
+    // Perform integration without normalization term
+    for (int o = 0; o < number_of_ordinates_; ++o)
+    {
+        vector<double> const dir = direction(o);
+        double const wei = weights()[o];
+        
+        for (int m1 = 0; m1 < number_of_moments_; ++m1)
+        {
+            int const k1 = m1 + number_of_moments_ * o;
+            
+            for (int m2 = 0; m2 <= m1; ++m2)
+            {
+                int const k2 = m2 + number_of_moments_ * o;
+                int const km = m1 + number_of_moments_ * m2;
+
+                for (int d = 0; d < dimension_; ++d)
+                {
+                    coeff_matrix[km][d] += wei * dir[d] * moments[k1] * moments[k2];
+                }
+            }
+        }
+    }
+
+    // Fill in lower triangle of matrix
+    for (int m1 = 0; m1 < number_of_moments_; ++m1)
+    {
+        for (int m2 = m1 + 1; m2 < number_of_moments_; ++m2)
+        {
+            int klo = m1 + number_of_moments_ * m2;
+            int kup = m2 + number_of_moments_ * m1;
+                
+            for (int d = 0; d < dimension_; ++d)
+            {
+                coeff_matrix[klo][d] = coeff_matrix[kup][d];
+            }
+        }
+    }
+
+    // Add in normalization term
+    for (int m1 = 0; m1 < number_of_moments_; ++m1)
+    {
+        int const l = scattering_indices()[m1];
+        double const mult = (2 * static_cast<double>(l) + 1) / angular_normalization_;
+        for (int m2 = 0; m2 < number_of_moments_; ++m2)
+        {
+            int k = m1 + number_of_moments_ * m2;
+            for (int d = 0; d < dimension_; ++d)
+            {
+                coeff_matrix[k][d] *= mult;
+            }
+        }
+    }
+    
+    // Get list of nonzero coefficients
+    double tolerance = 1e-12;
+    indices.resize(number_of_moments_);
+    coefficients.resize(number_of_moments_);
+    for (int m2 = 0; m2 < number_of_moments_; ++m2)
+    {
+        vector<int> moment_ind;
+        vector<vector<double> > moment_coeffs;
+        for (int m1 = 0; m1 < number_of_moments_; ++m1)
+        {
+            int k = m1 + number_of_moments_ * m2;
+
+            bool include = false;
+            for (int d = 0; d < dimension_; ++d)
+            {
+                if (abs(coeff_matrix[k][d]) > 1e-12)
+                {
+                    include = true;
+                    break;
+                }
+            }
+
+            if (include)
+            {
+                moment_ind.push_back(m1);
+                moment_coeffs.push_back(coeff_matrix[k]);
+            }
+        }
+
+        indices[m2] = moment_ind;
+        coefficients[m2] = moment_coeffs;
     }
 }
