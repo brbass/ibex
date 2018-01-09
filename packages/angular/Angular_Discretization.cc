@@ -189,8 +189,9 @@ discrete_to_moment(vector<double> &data) const
 }
 
 void Angular_Discretization::
-manufactured_coefficients(vector<vector<int> > &indices,
-                          vector<vector<vector<double> > > &coefficients) const
+manufactured_coefficients(vector<int> &size,
+                          vector<vector<int> > &indices,
+                          vector<vector<double> > &coefficients) const
 {
     // Initialize full coefficient matrix to zero
     vector<vector<double> > coeff_matrix(number_of_moments_ * number_of_moments_, vector<double>(dimension_, 0));
@@ -262,12 +263,13 @@ manufactured_coefficients(vector<vector<int> > &indices,
     
     // Get list of nonzero coefficients
     double tolerance = 1e-12;
+    size.resize(number_of_moments_);
     indices.resize(number_of_moments_);
     coefficients.resize(number_of_moments_);
     for (int m2 = 0; m2 < number_of_moments_; ++m2)
     {
         vector<int> moment_ind;
-        vector<vector<double> > moment_coeffs;
+        vector<double> moment_coeffs;
         for (int m1 = 0; m1 < number_of_moments_; ++m1)
         {
             int k = m1 + number_of_moments_ * m2;
@@ -285,10 +287,14 @@ manufactured_coefficients(vector<vector<int> > &indices,
             if (include)
             {
                 moment_ind.push_back(m1);
-                moment_coeffs.push_back(coeff_matrix[k]);
+                for (int d = 0; d < dimension_; ++d)
+                {
+                    moment_coeffs.push_back(coeff_matrix[k][d]);
+                }
             }
         }
-
+        
+        size[m2] = moment_ind.size();
         indices[m2] = moment_ind;
         coefficients[m2] = moment_coeffs;
     }

@@ -95,10 +95,12 @@ public:
     // Get list of integration coefficients for a manufactured solution
     // (2l'+1)/(4\pi) \int \Omega Y_m1 Y_m2 d\Omega
     // Indexing:
-    //     coefficients[source moment][moment num][dimension]
+    //     size[source moment]
     //     indices[source moment][moment num]
-    virtual void manufactured_coefficients(std::vector<std::vector<int> > &indices,
-                                   std::vector<std::vector<std::vector<double> > > &coefficients) const;
+    //     coefficients[source moment][moment num][dimension]
+    virtual void manufactured_coefficients(std::vector<int> &size,
+                                           std::vector<std::vector<int> > &indices,
+                                           std::vector<std::vector<double> > &coefficients) const;
 protected:
     
     int dimension_;

@@ -12,8 +12,7 @@ using namespace std;
 
 int check_coefficients(int dimension,
                        int number_of_scattering_moments,
-                       int angular_rule,
-                       vector<vector<vector<double> > > const &expected_coefficients)
+                       int angular_rule)
 {
     int checksum = 0;
     
@@ -26,9 +25,11 @@ int check_coefficients(int dimension,
     int number_of_moments = angular->number_of_moments();
     
     // Get coefficients
+    vector<int> size;
     vector<vector<int> > indices;
-    vector<vector<vector<double> > > coefficients;
-    angular->manufactured_coefficients(indices,
+    vector<vector<double> > coefficients;
+    angular->manufactured_coefficients(size,
+                                       indices,
                                        coefficients);
 
     // Print
@@ -39,7 +40,7 @@ int check_coefficients(int dimension,
         int l1 = l_vals[o1];
         int m1 = m_vals[o1];
 
-        int num_indices = indices[o1].size();
+        int num_indices = size[o1];
         cout << o1 << endl;
         for (int n = 0; n < num_indices; ++n)
         {
@@ -54,7 +55,7 @@ int check_coefficients(int dimension,
             cout << setw(w) << m2;
             for (int d = 0; d < dimension; ++d)
             {
-                cout << setw(12) << coefficients[o1][n][d];
+                cout << setw(12) << coefficients[o1][d + dimension * n];
             }
             cout << endl;
         }
@@ -71,43 +72,22 @@ int main()
     int dimension;
     int angular_rule;
     int scattering_order;
-    vector<vector<vector<double> > > coefficients;
     {
         dimension = 1;
         angular_rule = 16;
         scattering_order = 4;
-        // coefficients = {{{}}};
         checksum += check_coefficients(dimension,
                                        scattering_order,
-                                       angular_rule,
-                                       coefficients);
+                                       angular_rule);
     }
     {
         dimension = 3;
         angular_rule = 4;
         scattering_order = 3;
 
-        double n13 = 1./3.;
-        double n23 = 2./3.;
-        double s13 = 1./sqrt(3.);
-        // coefficients = {{{0, 0, 1},
-        //                  {1, 0, 0},
-        //                  {0, 1, 0}},
-        //                 {{0, 0, n13},
-        //                  {0, s13, 0},
-        //                  {s13, 0, 0},
-        //                  {0, 0, -third},
-        //                  {0., third, -s13}},
-        //                 {{third, 0, 0},
-        //                  {0, 0, s13},
-        //                  {n23, 0, 0},
-        //                  {0, s13, 0}},
-        //                 {{0, n13, 0},
-        //                  {};
         checksum += check_coefficients(dimension,
                                        scattering_order,
-                                       angular_rule,
-                                       coefficients);
+                                       angular_rule);
     }
 
     return checksum;
