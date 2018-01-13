@@ -10,6 +10,7 @@ endmacro()
 
 include_test(tst_surfaces tst_Surfaces.cc "")
 include_test(tst_regions tst_Regions.cc "")
+include_test(tst_manufactured_geometry tst_Manufactured_Geometry.cc "")
 include_test(tst_solid_geometry tst_Constructive_Solid_Geometry.cc ${CMAKE_CURRENT_SOURCE_DIR}/input)
 
 add_subdirectory(input)

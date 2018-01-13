@@ -33,10 +33,13 @@ public:
                                            std::vector<double> const &sigma_t,
                                            std::vector<double> const &sigma_s) const;
     
-private:
+protected:
 
     std::shared_ptr<Angular_Discretization> angular_;
     std::shared_ptr<Energy_Discretization> energy_;
+
+private:
+    
     std::vector<int> streaming_size_;
     std::vector<std::vector<int> > streaming_indices_;
     std::vector<std::vector<double> > streaming_coefficients_;

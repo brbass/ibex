@@ -14,6 +14,7 @@ Manufactured_Solid_Geometry::
 Manufactured_Solid_Geometry(shared_ptr<Angular_Discretization> angular,
                             shared_ptr<Energy_Discretization> energy,
                             shared_ptr<Manufactured_Solution> solution):
+    Solid_Geometry(),
     angular_(angular),
     energy_(energy),
     solution_(solution),
@@ -21,6 +22,12 @@ Manufactured_Solid_Geometry(shared_ptr<Angular_Discretization> angular,
                                                     energy))
 {
     check_class_invariants();
+}
+
+int Manufactured_Solid_Geometry::
+dimension() const
+{
+    return angular_->dimension();
 }
 
 shared_ptr<Material> Manufactured_Solid_Geometry::
@@ -38,7 +45,7 @@ material(vector<double> const &position) const
                                   sigma_s);
 
     // Get source
-    vector<double> source = solution_->get_source(position,
+    vector<double> source = solution_->get_source(solution,
                                                   grad_solution,
                                                   sigma_t,
                                                   sigma_s);

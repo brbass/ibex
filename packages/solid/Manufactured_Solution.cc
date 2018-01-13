@@ -38,16 +38,18 @@ get_source(vector<double> const &solution,
            vector<double> const &sigma_t,
            vector<double> const &sigma_s) const
 {
-    // Get size information
+    // Get size and indexing information
     int dimension = angular_->dimension();
     int number_of_moments = angular_->number_of_moments();
+    int number_of_scattering_moments = angular_->number_of_scattering_moments();
     int number_of_groups = energy_->number_of_groups();
+    vector<int> const scattering_indices = angular_->scattering_indices();
 
     // Check sizes
     Check(solution.size() == number_of_moments * number_of_groups);
     Check(grad_solution.size() == number_of_moments * number_of_groups * dimension);
     Check(sigma_t.size() == number_of_groups);
-    Check(sigma_s.size() == number_of_groups * number_of_groups * number_of_moments);
+    Check(sigma_s.size() == number_of_groups * number_of_groups * number_of_scattering_moments);
 
     // Initialize source to zero
     vector<double> source(number_of_groups * number_of_moments, 0);
@@ -55,6 +57,9 @@ get_source(vector<double> const &solution,
     // Calculate source from group and moment gf and mf to group and moment gt and mt
     for (int mt = 0; mt < number_of_moments; ++mt)
     {
+        // Get scattering index
+        int l = scattering_indices[mt];
+        
         // Get coefficient information for this moment
         int const &local_size = streaming_size_[mt];
         vector<int> const &local_indices = streaming_indices_[mt];
@@ -89,7 +94,7 @@ get_source(vector<double> const &solution,
             for (int gf = 0; gf < number_of_groups; ++gf)
             {
                 int k_sol = gf + number_of_groups * mt;
-                int k_ss = gf + number_of_groups * (gt + number_of_groups * mt);
+                int k_ss = gf + number_of_groups * (gt + number_of_groups * l);
                 sum -= sigma_s[k_ss] * solution[k_sol];
             }
         }
