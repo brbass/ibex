@@ -22,11 +22,6 @@ public:
     // Gradient of solution to problem for all groups and moments (d, g, m)
     virtual std::vector<double> get_grad_solution(std::vector<double> const &position) const = 0;
     
-    // Get cross sections (sigma_f is combined with sigma_s)
-    virtual void get_cross_sections(std::vector<double> const &position,
-                                    std::vector<double> &sigma_t,
-                                    std::vector<double> &sigma_s) const = 0;
-    
     // Get source
     virtual std::vector<double> get_source(std::vector<double> const &solution,
                                            std::vector<double> const &grad_solution,

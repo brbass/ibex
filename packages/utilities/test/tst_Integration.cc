@@ -35,7 +35,7 @@ int test_cartesian_1d(int order, int num_tests)
         {
             double x1 = rng.scalar();
             double x2 = rng.scalar() + x1;
-        
+            
             double integral = integration.integrate(func,
                                                     x1,
                                                     x2);
@@ -89,14 +89,14 @@ int test_cartesian_2d(int order, int num_tests)
     // Check volume
     {
         Integrand_2D func = [=](double x, double y){return 1;};
-        
+
         for (int i = 0; i < num_tests; ++i)
         {
             double x1 = rng.scalar();
             double x2 = rng.scalar() + x1;
             double y1 = rng.scalar();
             double y2 = rng.scalar() + y1;
-        
+            cout << x2 << "\t" << y2 << endl;
             double integral = integration.integrate(func,
                                                     x1,
                                                     x2,
@@ -358,9 +358,9 @@ int main()
     int num_tests = 100;
     
     checksum += test_cartesian_1d(16, num_tests);
-    checksum += test_cartesian_2d(16, num_tests);
+    // checksum += test_cartesian_2d(16, num_tests);
     checksum += test_cartesian_3d(16, num_tests);
-    checksum += test_cylindrical_2d(16, num_tests);
+    // checksum += test_cylindrical_2d(16, num_tests);
     checksum += test_spherical_3d(16, num_tests);
     
     return checksum;

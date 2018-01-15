@@ -293,6 +293,10 @@ get_weak_options(bool supg,
         weak_options->weighting = Weak_Spatial_Discretization_Options::Weighting::FLUX;
         weak_options->flux_coefficients.assign(number_of_groups * number_of_moments * number_of_points, 1.);
     }
+    else
+    {
+        weak_options->weighting = Weak_Spatial_Discretization_Options::Weighting::FLAT;
+    }
 
     return weak_options;
 }

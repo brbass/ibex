@@ -356,6 +356,7 @@ int run_tests()
         = make_shared<Weight_Function_Options>();
     shared_ptr<Weak_Spatial_Discretization_Options> weak_options
         = make_shared<Weak_Spatial_Discretization_Options>();
+    weak_options->weighting = Weak_Spatial_Discretization_Options::Weighting::FLAT;
     
     checksum += test_integration(false, // basis_mls
                                  false, // weight_mls

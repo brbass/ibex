@@ -7,6 +7,9 @@
 #include "Check_Equality.hh"
 #include "Cross_Section.hh"
 #include "Energy_Discretization.hh"
+#include "Manufactured_Constant_Cross_Sections.hh"
+#include "Manufactured_Constant_Solution.hh"
+#include "Manufactured_Cross_Sections.hh"
 #include "Manufactured_Solid_Geometry.hh"
 #include "Manufactured_Solution.hh"
 #include "Material.hh"
@@ -14,6 +17,25 @@
 
 using namespace std;
 namespace ce = Check_Equality;
+
+class Constant_Cross_Sections : public Manufactured_Cross_Sections
+{
+    Constant_Cross_Sections(shared_ptr<Angular_Discretization> angular,
+                            shared_ptr<Energy_Discretization> energy):
+        Manufactured_Cross_Sections(angular,
+                                   energy)
+    {
+    }
+    
+    virtual void get_cross_sections(vector<double> const &position,
+                                    vector<double> &sigma_t,
+                                    vector<double> &sigma_s) const override
+    {
+        sigma_t = {1.0, 2.0};
+        sigma_s = {0.5, 0.0, 0.0, 0.5};
+        sigma_s.resize(angular_->number_of_scattering_moments() * energy_->number_of_groups() * energy_->number_of_groups(), 0);
+    }
+};
 
 class Constant_Solution : public Manufactured_Solution
 {
@@ -38,14 +60,6 @@ public:
         return vector<double>(angular_->number_of_moments() * energy_->number_of_groups() * angular_->dimension(), 0);
     }
 
-    virtual void get_cross_sections(vector<double> const &position,
-                                    vector<double> &sigma_t,
-                                    vector<double> &sigma_s) const override
-    {
-        sigma_t = {1.0, 2.0};
-        sigma_s = {0.5, 0.0, 0.0, 0.5};
-        sigma_s.resize(angular_->number_of_scattering_moments() * energy_->number_of_groups() * energy_->number_of_groups(), 0);
-    }
 };
 
 int test_constant(int dimension)
@@ -70,15 +84,29 @@ int test_constant(int dimension)
         = make_shared<Energy_Discretization>(number_of_groups);
     
     // Get solution
+    vector<double> solution_data = {2, 1};
+    solution_data.resize(number_of_groups * number_of_moments, 0);
     shared_ptr<Manufactured_Solution> solution
-        = make_shared<Constant_Solution>(angular,
-                                         energy);
-
+        = make_shared<Manufactured_Constant_Solution>(angular,
+                                                      energy,
+                                                      solution_data);
+    
+    // Get cross sections
+    vector<double> sigma_t_data = {1.0, 2.0};
+    vector<double> sigma_s_data = {0.5, 0.0, 0.0, 0.5};
+    sigma_s_data.resize(number_of_scattering_moments * number_of_groups * number_of_groups);
+    shared_ptr<Manufactured_Cross_Sections> cross_sections
+        = make_shared<Manufactured_Constant_Cross_Sections>(angular,
+                                                            energy,
+                                                            sigma_t_data,
+                                                            sigma_s_data);
+    
     // Get geometry
     shared_ptr<Solid_Geometry> solid
         = make_shared<Manufactured_Solid_Geometry>(angular,
                                                    energy,
-                                                   solution);
+                                                   solution,
+                                                   cross_sections);
 
     // Setup data
     double tolerance = 1e-14;

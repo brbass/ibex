@@ -3,6 +3,7 @@
 #include "Angular_Discretization.hh"
 #include "Boundary_Source.hh"
 #include "Energy_Discretization.hh"
+#include "Manufactured_Cross_Sections.hh"
 #include "Manufactured_Solution.hh"
 #include "Material.hh"
 #include "Material_Factory.hh"
@@ -13,11 +14,13 @@ using namespace std;
 Manufactured_Solid_Geometry::
 Manufactured_Solid_Geometry(shared_ptr<Angular_Discretization> angular,
                             shared_ptr<Energy_Discretization> energy,
-                            shared_ptr<Manufactured_Solution> solution):
+                            shared_ptr<Manufactured_Solution> solution,
+                            shared_ptr<Manufactured_Cross_Sections> cross_sections):
     Solid_Geometry(),
     angular_(angular),
     energy_(energy),
     solution_(solution),
+    cross_sections_(cross_sections),
     material_factory_(make_shared<Material_Factory>(angular,
                                                     energy))
 {
@@ -40,9 +43,9 @@ material(vector<double> const &position) const
     // Get cross sections
     vector<double> sigma_t;
     vector<double> sigma_s;
-    solution_->get_cross_sections(position,
-                                  sigma_t,
-                                  sigma_s);
+    cross_sections_->get_cross_sections(position,
+                                        sigma_t,
+                                        sigma_s);
 
     // Get source
     vector<double> source = solution_->get_source(solution,
@@ -113,6 +116,7 @@ check_class_invariants() const
     Assert(angular_);
     Assert(energy_);
     Assert(solution_);
+    Assert(cross_sections_);
     Assert(material_factory_);
 }
 

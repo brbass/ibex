@@ -6,6 +6,7 @@
 
 class Angular_Discretization;
 class Energy_Discretization;
+class Manufactured_Cross_Sections;
 class Manufactured_Solution;
 class Material_Factory;
 
@@ -18,7 +19,8 @@ public:
 
     Manufactured_Solid_Geometry(std::shared_ptr<Angular_Discretization> angular,
                                 std::shared_ptr<Energy_Discretization> energy,
-                                std::shared_ptr<Manufactured_Solution> solution);
+                                std::shared_ptr<Manufactured_Solution> solution,
+                                std::shared_ptr<Manufactured_Cross_Sections> cross_sections);
 
     virtual int dimension() const override;
     virtual int find_region(std::vector<double> const &position) const override
@@ -65,6 +67,7 @@ private:
     std::shared_ptr<Angular_Discretization> angular_;
     std::shared_ptr<Energy_Discretization> energy_;
     std::shared_ptr<Manufactured_Solution> solution_;
+    std::shared_ptr<Manufactured_Cross_Sections> cross_sections_;
     std::shared_ptr<Material_Factory> material_factory_;
 };
 

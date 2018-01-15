@@ -191,8 +191,11 @@ int test_all_values(int order,
 {
     int checksum = 0;
 
+    cout << "dimension: " << dimension << "\t" << "order: " << order << endl;
+    
     // Set preliminary data
-    double tolerance = order == 1 ? 1e-10 : 1e-8;
+    double tolerance = order == 1 ? 1e-9 : 1e-8;
+    double grad_tolerance = order == 1 ? 1e-9 : 2e-8;
     double radius_num_intervals = 3.5;
     string rbf_type = "wendland11";
     
@@ -260,13 +263,18 @@ int test_all_values(int order,
                 {
                     cout << "MLS value failed for test " << t << " and value " << i << endl;
                     cout << "dimension: " << dimension << "\torder: " << order << endl;
-                    cout << "error: " << val - vals[i] << endl;
+                    cout << "\terror: " << val - vals[i] << endl;
                     checksum += 1;
                 }
-                if (!ce::approx(grad_val, grad_vals[i], tolerance))
+                if (!ce::approx(grad_val, grad_vals[i], grad_tolerance))
                 {
                     cout << "MLS grad value failed for test " << t << " and value " << i << endl;
-                    cout << "error in dx: " << grad_val[0] - grad_vals[i][0] << endl;
+                    cout << "\terror: ";
+                    for (int d = 0; d < dimension; ++d)
+                    {
+                        cout << grad_val[d] - grad_vals[i][d] << "\t";
+                    }
+                    cout << endl;
                     checksum += 1;
                 }
             }
@@ -274,7 +282,6 @@ int test_all_values(int order,
     }
     Assert(num_inside > 10);
 
-    cout << "dimension: " << dimension << "\t" << "order: " << order << endl;
     cout << "\told method time: " << old_time << endl;
     cout << "\tnew method time: " << new_time << endl;
     
