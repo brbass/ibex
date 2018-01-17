@@ -195,14 +195,17 @@ solve_steady_state()
         }
         
         integration_options->integration_ordinates
-            = error_node.get_attribute<int>("integration_ordinates");
+            = error_node.get_attribute<int>("integration_ordinates",
+                                            integration_options->integration_ordinates);
         integration_options->limits
             = error_node.get_child_matrix<double>("limits",
                                                   dimension,
-                                                  2);
+                                                  2,
+                                                  integration_options->limits);
         integration_options->dimensional_cells
             = error_node.get_child_vector<int>("dimensional_cells",
-                                               dimension);
+                                               dimension,
+                                               integration_options->dimensional_cells);
 
         // Get error operator
         shared_ptr<Manufactured_Integral_Operator> oper

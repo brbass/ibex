@@ -27,6 +27,10 @@
     <boundary_surfaces>
       <positions>0. 4.</positions>
     </boundary_surfaces>
+    <error integration_ordinates='16'>
+      <dimensional_cells>10</dimensional_cells>
+    </error>
+
   </manufactured>
   <spatial_discretization input_format='cartesian'>
     <options weighting='full'

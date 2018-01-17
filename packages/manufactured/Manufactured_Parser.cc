@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "Angular_Discretization.hh"
+#include "Boundary_Source.hh"
 #include "Cartesian_Plane.hh"
 #include "Check.hh"
 #include "Energy_Discretization.hh"
@@ -91,9 +92,29 @@ get_cross_sections(XML_Node input_node)
 vector<shared_ptr<Cartesian_Plane> > Manufactured_Parser::
 get_boundary_surfaces(XML_Node input_node)
 {
+    // Get positions
     int dimension = angular_->dimension();
     vector<double> positions = input_node.get_child_vector<double>("positions",
                                                                    2 * dimension);
+
+    // Make dummy boundary source without reflection
+    shared_ptr<Boundary_Source> boundary_source;
+    {
+        int number_of_groups = energy_->number_of_groups();
+        Boundary_Source::Dependencies source_dependencies;
+        source_dependencies.angular = Boundary_Source::Dependencies::Angular::ISOTROPIC;
+        vector<double> boundary_data(number_of_groups, 0);
+        vector<double> alpha(number_of_groups, 0);
+        boundary_source
+            = make_shared<Boundary_Source>(0, // index
+                                           source_dependencies,
+                                           angular_,
+                                           energy_,
+                                           boundary_data,
+                                           alpha);
+    }
+    
+    // Get surfaces
     vector<shared_ptr<Cartesian_Plane> > surfaces(2 * dimension);
     for (int d = 0; d < dimension; ++d)
     {
@@ -107,6 +128,7 @@ get_boundary_surfaces(XML_Node input_node)
                                                            d,
                                                            positions[index],
                                                            normal);
+            surfaces[index]->set_boundary_source(boundary_source);
         }
     }
 
