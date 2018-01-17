@@ -1,0 +1,74 @@
+<input type='manufactured'
+       print='true'
+       number_of_threads='1'>
+  <energy_discretization>
+    <number_of_groups>2</number_of_groups>
+  </energy_discretization>
+  <angular_discretization>
+    <dimension>1</dimension>
+    <number_of_moments>2</number_of_moments>
+    <number_of_ordinates>16</number_of_ordinates>
+  </angular_discretization>
+  <manufactured>
+    <solution type='constant'>
+      <values>1. 2. 0.1 0.3</values>
+    </solution>
+    <cross_sections type='constant'>
+      <sigma_t>
+        1.0 4.0
+      </sigma_t>
+      <sigma_s>
+        0.5 0.0
+        0.0 3.9
+        0.01 0.0
+        0.0 0.4
+      </sigma_s>
+    </cross_sections>
+    <boundary_surfaces>
+      <positions>0. 4.</positions>
+    </boundary_surfaces>
+  </manufactured>
+  <spatial_discretization input_format='cartesian'>
+    <options weighting='full'
+             external_integral_calculation='true'
+             supg='true'
+             tau_scaling='none'
+             identical_basis_functions='true'
+             output_material='false'
+             output_integrals='false'
+             adaptive_quadrature='false'>
+      <tau>1.0</tau>
+      <integration_ordinates>16</integration_ordinates>
+      <dimensional_cells>20</dimensional_cells>
+    </options>
+    <dimensional_points>21</dimensional_points>
+    <weight_functions>
+      <radius_calculation method='coverage'>
+        <number_of_neighbors>10</number_of_neighbors>
+        <radius_multiplier>1.0</radius_multiplier>
+      </radius_calculation>
+      <meshless_function type='linear_mls'
+                         function='wendland11'/>
+    </weight_functions>
+  </spatial_discretization>
+  <transport solver='aztec_ifpack'
+             level_of_fill='1.0'
+             drop_tolerance='1e-12'
+             tolerance='1e-12'
+             kspace='40'
+             max_restarts='40'
+             max_iterations='10000'/>
+  <solver type='krylov'
+          max_iterations='1000'
+          kspace='20'
+          solver_print='1'
+          tolerance='1e-10'>
+    <value type='centers'/>
+    <value type='integral'
+           adaptive_quadrature='false'
+           integration_ordinates='16'>
+      <limits>0. 4.</limits>
+      <dimensional_cells>20</dimensional_cells>
+    </value>
+  </solver>
+</input>

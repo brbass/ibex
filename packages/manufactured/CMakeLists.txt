@@ -2,7 +2,7 @@ set(library_name manufactured)
 
 set(library_include_directories ${global_include_directories} ${global_trilinos_include_directories})
 set(library_link_directories ${global_trilinos_link_directories})
-set(library_dependencies external utilities data solid_geometry ${global_trilinos_link_libraries})
+set(library_dependencies external utilities angular_discretization energy_discretization spatial_discretization data operator solid_geometry ${global_trilinos_link_libraries})
 
 file(GLOB src *.cc *.hh)
 

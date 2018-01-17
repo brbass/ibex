@@ -8,8 +8,10 @@
 #include "Constructive_Solid_Geometry_Parser.hh"
 #include "Energy_Discretization.hh"
 #include "Energy_Discretization_Parser.hh"
+#include "Integration_Mesh.hh"
 #include "Krylov_Eigenvalue.hh"
 #include "Krylov_Steady_State.hh"
+#include "Manufactured_Integral_Operator.hh"
 #include "Manufactured_Parser.hh"
 #include "Solver.hh"
 #include "Solver_Parser.hh"
@@ -77,12 +79,12 @@ get_weak_data(shared_ptr<Energy_Discretization> &energy,
     vector<shared_ptr<Cartesian_Plane> > boundary_surfaces;
     Manufactured_Parser manufactured_parser(angular,
                                             energy);
-    manufactured_parser.parse_from_xml(input_node_.get_child("solution"),
+    manufactured_parser.parse_from_xml(input_node_.get_child("manufactured"),
                                        solution,
                                        solid,
                                        boundary_surfaces);
     timer.stop();
-    times_.emplace_back(timer.time(), "material_initialization");
+    times_.emplace_back(timer.time(), "solution_initialization");
 
     // Get spatial discretization
     print_message("Parsing spatial discretization");
@@ -92,7 +94,7 @@ get_weak_data(shared_ptr<Energy_Discretization> &energy,
     spatial = spatial_parser.get_weak_discretization(input_node_.get_child("spatial_discretization"));
     timer.stop();
     times_.emplace_back(timer.time(), "spatial_initialization");
-
+    
     // Get transport discretization
     print_message("Creating transport discretization");
     timer.start();
@@ -172,9 +174,49 @@ solve_steady_state()
     solver->solve();
     timer.stop();
     times_.emplace_back(timer.time(), "solve");
-
+    
     // Compare results
-    AssertMsg(false, "not implemented");
+    XML_Node error_node = input_node_.get_child("manufactured").get_child("error", false);
+    vector<double> error;
+    if (error_node)
+    {
+        // Get integration options
+        int dimension = spatial->dimension();
+        std::shared_ptr<Integration_Mesh::Options> integration_options
+            = make_shared<Integration_Mesh::Options>();
+        integration_options->initialize_from_weak_options(spatial->options());
+        integration_options->adaptive_quadrature
+            = error_node.get_attribute<bool>("adaptive_quadrature",
+                                             false);
+        if (integration_options->adaptive_quadrature)
+        {
+            integration_options->minimum_radius_ordinates
+                = error_node.get_attribute<bool>("minimum_radius_ordinates");
+        }
+        
+        integration_options->integration_ordinates
+            = error_node.get_attribute<int>("integration_ordinates");
+        integration_options->limits
+            = error_node.get_child_matrix<double>("limits",
+                                                  dimension,
+                                                  2);
+        integration_options->dimensional_cells
+            = error_node.get_child_vector<int>("dimensional_cells",
+                                               dimension);
+
+        // Get error operator
+        shared_ptr<Manufactured_Integral_Operator> oper
+            = make_shared<Manufactured_Integral_Operator>(integration_options,
+                                                          spatial,
+                                                          angular,
+                                                          energy,
+                                                          solution);
+
+        // Find error
+        error = solver->result()->coefficients;
+
+        (*oper)(error);
+    }
     
     // Output data
     print_message("Output data");
@@ -186,6 +228,11 @@ solve_steady_state()
     solid->output(output_node_.append_child("solid_geometry"));
     sweep->output(output_node_.append_child("transport"));
     solver->output(output_node_.append_child("solver"));
+    if (error.size() > 0)
+    {
+        XML_Node error_node = output_node_.append_child("error");
+        error_node.set_child_vector<double>(error, "integral_error", "group-moment-point");
+    }
     timer.stop();
     times_.emplace_back(timer.time(), "output");
 }

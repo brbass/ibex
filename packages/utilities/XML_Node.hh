@@ -25,6 +25,12 @@ public:
     {
         return *xml_node_;
     }
+
+    // Get name
+    std::string name() const
+    {
+        return name_;
+    }
     
     // Find a child node
     XML_Node get_child(std::string name,

@@ -13,6 +13,7 @@ class Energy_Discretization;
 class Manufactured_Solution
 {
 public:
+    
     Manufactured_Solution(std::shared_ptr<Angular_Discretization> angular,
                           std::shared_ptr<Energy_Discretization> energy);
     

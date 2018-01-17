@@ -6,6 +6,7 @@
     inline void omp_set_num_threads(int i) {return;}
 #endif
 
+#include "Manufactured_Problem.hh"
 #include "Transport_Problem.hh"
 #include "XML_Document.hh"
 #include "XML_Node.hh"
@@ -51,6 +52,13 @@ run_problem()
     else if (problem_type == "integration")
     {
         AssertMsg(false, "integration not implemented");
+    }
+    else if (problem_type == "manufactured")
+    {
+        Manufactured_Problem manufactured_problem(input_node,
+                                                  output_node,
+                                                  print_progress);
+        manufactured_problem.solve();
     }
     else
     {
