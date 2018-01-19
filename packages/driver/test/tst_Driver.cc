@@ -39,17 +39,21 @@ int main(int argc, char **argv)
          result_node = result_node.get_sibling("result",
                                                false))
     {
-        string comparison_location = result_node.get_attribute<string>("location");
         int expected_size = result_node.get_attribute<int>("size");
         double tolerance = result_node.get_attribute<double>("tolerance");
+        vector<string> comparison_location = result_node.get_attribute_vector<string>("location");
+        XML_Node output_child = output_node;
+        for (string location : comparison_location)
+        {
+            output_child = output_child.get_child(location);
+        }
         vector<double> result_data = result_node.get_child_vector<double>("data",
                                                                           expected_size);
-        vector<double> output_data = output_node.get_child_vector<double>(comparison_location,
-                                                                          expected_size);
+        vector<double> output_data = output_child.get_vector<double>(expected_size);
         
         if (!Check_Equality::approx(result_data, output_data, tolerance))
         {
-            cout << "result in node (" << comparison_location << ") incorrect" << endl;
+            cout << "result in node (" << output_child.name() << ") incorrect" << endl;
             checksum += 1;
         }
     }

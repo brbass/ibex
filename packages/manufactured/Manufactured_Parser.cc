@@ -9,6 +9,8 @@
 #include "Energy_Discretization.hh"
 #include "Manufactured_Constant_Cross_Sections.hh"
 #include "Manufactured_Constant_Solution.hh"
+#include "Manufactured_Sinusoidal_Cross_Sections.hh"
+#include "Manufactured_Sinusoidal_Solution.hh"
 #include "Manufactured_Solid_Geometry.hh"
 #include "XML_Node.hh"
 
@@ -53,6 +55,23 @@ get_solution(XML_Node input_node)
                                                                energy_,
                                                                data);
     }
+    else if (solution_type == "sinusoidal")
+    {
+        int dimension = angular_->dimension();
+        int expected_size = (energy_->number_of_groups()
+                             * angular_->number_of_moments());
+        vector<double> data = input_node.get_child_vector<double>("values",
+                                                                  expected_size);
+        double relative_amplitude = input_node.get_child_value<double>("relative_amplitude");
+        vector<double> frequency = input_node.get_child_vector<double>("frequency",
+                                                                       dimension);
+        solution
+            = make_shared<Manufactured_Sinusoidal_Solution>(angular_,
+                                                            energy_,
+                                                            relative_amplitude,
+                                                            frequency,
+                                                            data);
+    }
     else
     {
         AssertMsg(false, "solution type (" + solution_type + ") not found");
@@ -80,6 +99,27 @@ get_cross_sections(XML_Node input_node)
                                                                 energy_,
                                                                 sigma_t,
                                                                 sigma_s);
+    }
+    else if (type == "sinusoidal")
+    {
+        int dimension = angular_->dimension();
+        int number_of_groups = energy_->number_of_groups();
+        int number_of_scattering_moments = angular_->number_of_scattering_moments();
+        vector<double> sigma_t = input_node.get_child_vector<double>("sigma_t",
+                                                                     number_of_groups);
+        vector<double> sigma_s = input_node.get_child_vector<double>("sigma_s",
+                                                                     number_of_groups * number_of_groups * number_of_scattering_moments);
+        double relative_amplitude = input_node.get_child_value<double>("relative_amplitude");
+        vector<double> frequency = input_node.get_child_vector<double>("frequency",
+                                                                       dimension);
+        cross_sections
+            = make_shared<Manufactured_Sinusoidal_Cross_Sections>(angular_,
+                                                                  energy_,
+                                                                  relative_amplitude,
+                                                                  frequency,
+                                                                  sigma_t,
+                                                                  sigma_s);
+                                                                  
     }
     else
     {

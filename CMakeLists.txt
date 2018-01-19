@@ -79,7 +79,7 @@ if(OPENMP_FOUND)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
   message("OpenMP found")
 else(OPENMP_FOUND)
-  message("ERROR: OpenMP could not be found.")
+  message("WARNING: OpenMP could not be found.")
 endif(OPENMP_FOUND)
 
 ##########################

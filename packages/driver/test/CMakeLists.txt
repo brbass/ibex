@@ -7,8 +7,8 @@ macro(include_executable test_exec test_src)
     install(TARGETS ${test_exec} DESTINATION ${CMAKE_INSTALL_PREFIX}/test)
 endmacro()
 
-macro(include_test test_exec test_args)
-    add_test(${test_exec} ${test_exec} ${test_args})
+macro(include_test test_name test_exec test_args)
+    add_test(${test_name} ${test_exec} ${test_args})
 endmacro()
 
 include_executable(tst_driver tst_Driver.cc)

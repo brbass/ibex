@@ -72,9 +72,9 @@ get_source(vector<double> const &solution,
             double &sum = source[k_src];
 
             // Add streaming term
-            for (int s = 0; s < streaming_size_[mt]; ++s)
+            for (int s = 0; s < local_size; ++s)
             {
-                int mf = streaming_indices_[mt][s];
+                int mf = local_indices[s];
                 
                 for (int d = 0; d < dimension; ++d)
                 {

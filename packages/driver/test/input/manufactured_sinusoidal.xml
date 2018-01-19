@@ -2,33 +2,37 @@
        print='true'
        number_of_threads='1'>
   <energy_discretization>
-    <number_of_groups>2</number_of_groups>
+    <number_of_groups>1</number_of_groups>
   </energy_discretization>
   <angular_discretization>
-    <dimension>1</dimension>
+    <dimension>2</dimension>
     <number_of_moments>2</number_of_moments>
-    <number_of_ordinates>16</number_of_ordinates>
+    <rule>2</rule>
   </angular_discretization>
   <manufactured>
-    <solution type='constant'>
-      <values>1. 2. 0.1 0.3</values>
+    <solution type='sinusoidal'>
+      <values>2. 0.0 0.0</values>
+      <relative_amplitude>1.0</relative_amplitude>
+      <frequency>0.25 0.25</frequency>
     </solution>
-    <cross_sections type='constant'>
+    <cross_sections type='sinusoidal'>
       <sigma_t>
-        1.0 4.0
+        3.0
       </sigma_t>
       <sigma_s>
-        0.5 0.0
-        0.0 3.9
-        0.01 0.0
-        0.0 0.4
+        2.9 0.2
       </sigma_s>
+      <relative_amplitude>1.0</relative_amplitude>
+      <frequency>0.25 0.5</frequency>
     </cross_sections>
     <boundary_surfaces>
-      <positions>0. 4.</positions>
+      <positions>
+        -2 2
+        -2 2
+      </positions>
     </boundary_surfaces>
-    <error integration_ordinates='64'>
-      <dimensional_cells>10</dimensional_cells>
+    <error integration_ordinates='16'>
+      <dimensional_cells>10 10</dimensional_cells>
     </error>
 
   </manufactured>
@@ -42,13 +46,13 @@
              output_integrals='false'
              adaptive_quadrature='false'>
       <tau>1.0</tau>
-      <integration_ordinates>128</integration_ordinates>
-      <dimensional_cells>40</dimensional_cells>
+      <integration_ordinates>16</integration_ordinates>
+      <dimensional_cells>10 10</dimensional_cells>
     </options>
-    <dimensional_points>41</dimensional_points>
+    <dimensional_points>11 11</dimensional_points>
     <weight_functions>
       <radius_calculation method='coverage'>
-        <number_of_neighbors>10</number_of_neighbors>
+        <number_of_neighbors>12</number_of_neighbors>
         <radius_multiplier>1.0</radius_multiplier>
       </radius_calculation>
       <meshless_function type='linear_mls'
@@ -66,13 +70,13 @@
           max_iterations='1000'
           kspace='20'
           solver_print='1'
-          tolerance='1e-10'>
+          tolerance='1e-11'>
     <value type='centers'/>
     <value type='integral'
            adaptive_quadrature='false'
            integration_ordinates='16'>
-      <limits>0. 4.</limits>
-      <dimensional_cells>20</dimensional_cells>
+      <limits>-2 2 -2 2</limits>
+      <dimensional_cells>10 10</dimensional_cells>
     </value>
   </solver>
 </input>
