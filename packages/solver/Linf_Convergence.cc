@@ -4,7 +4,6 @@
 
 #include "Check.hh"
 
-using std::abs;
 using std::vector;
 
 Linf_Convergence::
@@ -17,7 +16,7 @@ double Linf_Convergence::
 error(double val_new,
       double val_old) const
 {
-    return abs(val_new - val_old);
+    return std::abs(val_new - val_old);
 }
 
 double Linf_Convergence::
@@ -30,7 +29,7 @@ error(vector<double> const &val_new,
     double max = 0;
     for (int i = 0; i < size; ++i)
     {
-        double err = abs(val_new[i] - val_old[i]);
+        double err = std::abs(val_new[i] - val_old[i]);
         
         if (err > max)
         {

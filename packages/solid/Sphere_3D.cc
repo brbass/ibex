@@ -33,7 +33,7 @@ relation(vector<double> const &particle_position,
 
     if (check_equality)
     {
-        if (abs(dr) <= relation_tolerance_)
+        if (std::abs(dr) <= relation_tolerance_)
         {
             return Relation::EQUAL;
         }
@@ -57,7 +57,7 @@ distance(vector<double> const &position) const
     
     double const r = vf3::magnitude(k0);
     
-    return abs(r - radius_);
+    return std::abs(r - radius_);
 }
 
 Sphere_3D::Intersection Sphere_3D::
@@ -127,7 +127,7 @@ normal_direction(vector<double> const &position,
 
     if (check_normal)
     {
-        if (abs(vf3::magnitude_squared(k0) - radius_ * radius_) > normal_tolerance_ * radius_ * radius_)
+        if (std::abs(vf3::magnitude_squared(k0) - radius_ * radius_) > normal_tolerance_ * radius_ * radius_)
         {
             normal.exists = false;
             return normal;

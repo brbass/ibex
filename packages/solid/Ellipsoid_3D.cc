@@ -35,7 +35,7 @@ relation(vector<double> const &particle_position,
 
     if (check_equality)
     {
-        if (abs(l0) <= relation_tolerance_)
+        if (std::abs(l0) <= relation_tolerance_)
         {
             return Relation::EQUAL;
         }
@@ -133,7 +133,7 @@ normal_direction(vector<double> const &position,
     if (check_normal)
     {
         double const l0 = vf3::magnitude_squared(k0) - 1;
-        if (abs(l0) > normal_tolerance_)
+        if (std::abs(l0) > normal_tolerance_)
         {
             normal.exists = false;
             return normal;

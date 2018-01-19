@@ -30,7 +30,7 @@ relation(vector<double> const &particle_position,
 
     if (check_equality)
     {
-        if (abs(k) <= relation_tolerance_)
+        if (std::abs(k) <= relation_tolerance_)
         {
             return Relation::EQUAL;
         }
@@ -59,7 +59,7 @@ intersection(vector<double> const &particle_position,
     double const l1 = vf3::dot(particle_direction,
                                normal_);
     
-    if (abs(l1) <= intersection_tolerance_)
+    if (std::abs(l1) <= intersection_tolerance_)
     {
         intersection.type = Intersection::Type::PARALLEL;
         return intersection;

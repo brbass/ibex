@@ -29,7 +29,7 @@ Manufactured_Sinusoidal_Cross_Sections(shared_ptr<Angular_Discretization> angula
     Assert(sigma_t_.size() == number_of_groups);
     Assert(sigma_s_.size() == number_of_groups * number_of_groups * number_of_scattering_moments);
     Assert(frequency_.size() == dimension);
-    if (abs(relative_amplitude) > 1)
+    if (std::abs(relative_amplitude) > 1)
     {
         cout << "Manufactured_Sinusoidal_Cross_Sections: given relative amplitude may produce negative cross sections" << endl;
     }

@@ -10,20 +10,18 @@
     <number_of_ordinates>16</number_of_ordinates>
   </angular_discretization>
   <manufactured>
-    <solution type='sinusoidal'>
-      <values>2. 0.0</values>
-      <relative_amplitude>1.0</relative_amplitude>
-      <frequency>0.05</frequency>
+    <solution type='linear'>
+      <values>0. 0.5</values>
+      <origin>0</origin>
+      <slope>0.5</slope>
     </solution>
     <cross_sections type='constant'>
       <sigma_t>
-        3.0
+        0.0
       </sigma_t>
       <sigma_s>
-        2.9 0.0
+        0.0 0.0
       </sigma_s>
-      <relative_amplitude>1.0</relative_amplitude>
-      <frequency>0.25</frequency>
     </cross_sections>
     <boundary_surfaces>
       <positions>
@@ -38,7 +36,7 @@
   <spatial_discretization input_format='cartesian'>
     <options weighting='full'
              external_integral_calculation='true'
-             supg='true'
+             supg='false'
              tau_scaling='none'
              identical_basis_functions='true'
              output_material='false'
@@ -73,9 +71,9 @@
     <value type='centers'/>
     <value type='integral'
            adaptive_quadrature='false'
-           integration_ordinates='16'>
+           integration_ordinates='64'>
       <limits>-2 2</limits>
-      <dimensional_cells>20</dimensional_cells>
+      <dimensional_cells>1</dimensional_cells>
     </value>
   </solver>
 </input>

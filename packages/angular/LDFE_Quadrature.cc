@@ -171,7 +171,7 @@ reflect_ordinate(int o,
     switch(dimension_)
     {
     case 2:
-        if (abs(abs(normal[0]) - 1) < reflection_tolerance_)
+        if (std::abs(std::abs(normal[0]) - 1) < reflection_tolerance_)
         {
             if (mu_[o] > 0)
             {
@@ -182,7 +182,7 @@ reflect_ordinate(int o,
                 return o + 2;
             }
         }
-        else if (abs(abs(normal[1]) - 1) < reflection_tolerance_)
+        else if (std::abs(std::abs(normal[1]) - 1) < reflection_tolerance_)
         {
             if (eta_[o] > 0)
             {
@@ -200,7 +200,7 @@ reflect_ordinate(int o,
             return o;
         }
     case 3:
-        if (abs(abs(normal[0]) - 1) < reflection_tolerance_)
+        if (std::abs(std::abs(normal[0]) - 1) < reflection_tolerance_)
         {
             if (mu_[o] > 0)
             {
@@ -211,7 +211,7 @@ reflect_ordinate(int o,
                 return o + 4;
             }
         }
-        else if (abs(abs(normal[1]) - 1) < reflection_tolerance_)
+        else if (std::abs(std::abs(normal[1]) - 1) < reflection_tolerance_)
         {
             if (eta_[o] > 0)
             {
@@ -222,7 +222,7 @@ reflect_ordinate(int o,
                 return o + 2;
             }
         }
-        else if (abs(abs(normal[2]) - 1) < reflection_tolerance_)
+        else if (std::abs(std::abs(normal[2]) - 1) < reflection_tolerance_)
         {
             if (xi_[o] > 0)
             {

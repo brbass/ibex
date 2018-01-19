@@ -479,7 +479,7 @@ namespace Quadrature_Rule
             weights.resize(0);
             return false;
         }
-        else if (d < abs(r1 - r2) + 1e-15) // one circle contained in other
+        else if (d < std::abs(r1 - r2) + 1e-15) // one circle contained in other
         {
             if (r1 < r2) // first circle contained in second
             {
@@ -549,7 +549,7 @@ namespace Quadrature_Rule
                 {
                     double eta = ord_eta[j];
                     double y_tilde = r1 * eta;
-                    double a = (abs(y_tilde) > y_intercept
+                    double a = (std::abs(y_tilde) > y_intercept
                                 ? -sqrt(r1 * r1 - y_tilde * y_tilde)
                                 : d - sqrt(r2 * r2 - y_tilde * y_tilde));
                     double b = sqrt(r1 * r1 - y_tilde * y_tilde);
@@ -577,7 +577,7 @@ namespace Quadrature_Rule
                     double eta = ord_eta[j];
                     double y_tilde = r2 * eta;
                     double a = d - sqrt(r2 * r2 - y_tilde * y_tilde);
-                    double b = (abs(y_tilde) > y_intercept
+                    double b = (std::abs(y_tilde) > y_intercept
                                 ? d + sqrt(r2 * r2 - y_tilde * y_tilde)
                                 : sqrt(r1 * r1 - y_tilde * y_tilde));
                     

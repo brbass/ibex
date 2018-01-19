@@ -1249,6 +1249,6 @@ get_flux(shared_ptr<Integration_Mesh::Cell> const cell,
     for (int g = 0; g < number_of_groups; ++g)
     {
         int const k_sf = g + number_of_groups * m0;
-        flux[k_sf] = abs(flux[k_sf]);
+        flux[k_sf] = std::abs(flux[k_sf]);
     }
 }

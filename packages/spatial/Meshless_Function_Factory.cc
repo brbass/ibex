@@ -348,7 +348,7 @@ get_boundary_surfaces(shared_ptr<Meshless_Function> function,
     for (shared_ptr<Cartesian_Plane> boundary : boundaries)
     {
         // Get distance between boundary and center
-        double distance = abs(position[boundary->surface_dimension()] - boundary->position());
+        double distance = std::abs(position[boundary->surface_dimension()] - boundary->position());
         
         // If boundary is within the radius, add to local surfaces
         if (distance < radius)

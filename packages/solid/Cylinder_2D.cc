@@ -34,7 +34,7 @@ relation(vector<double> const &particle_position,
 
     if (check_equality)
     {
-        if (abs(dr) <= relation_tolerance_)
+        if (std::abs(dr) <= relation_tolerance_)
         {
             return Relation::EQUAL;
         }
@@ -57,7 +57,7 @@ distance(vector<double> const &position) const
     
     double const r = vf2::magnitude(x);
     
-    return abs(r - radius_);
+    return std::abs(r - radius_);
 }
 
 Cylinder_2D::Intersection Cylinder_2D::
@@ -134,7 +134,7 @@ normal_direction(vector<double> const &position,
     
     if (check_normal)
     {
-        if (abs(vf2::magnitude_squared(k0) - radius_ * radius_) > normal_tolerance_ * radius_ * radius_)
+        if (std::abs(vf2::magnitude_squared(k0) - radius_ * radius_) > normal_tolerance_ * radius_ * radius_)
         {
             normal.exists = false;
             return normal;

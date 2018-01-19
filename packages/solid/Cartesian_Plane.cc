@@ -32,7 +32,7 @@ relation(vector<double> const &position,
 
     if (check_equality)
     {
-        if (abs(k) <= relation_tolerance_)
+        if (std::abs(k) <= relation_tolerance_)
         {
             return Relation::EQUAL;
         }
@@ -53,7 +53,7 @@ intersection(vector<double> const &initial_position,
              vector<double> const &initial_direction) const
 {
     Intersection intersection;
-    if (abs(initial_direction[surface_dimension_]) <= intersection_tolerance_)
+    if (std::abs(initial_direction[surface_dimension_]) <= intersection_tolerance_)
     {
         intersection.type = Intersection::Type::PARALLEL;
         return intersection;
@@ -82,7 +82,7 @@ normal_direction(vector<double> const &position,
     
     if (check_normal)
     {
-        if (abs(position[surface_dimension_] - position_) > normal_tolerance_)
+        if (std::abs(position[surface_dimension_] - position_) > normal_tolerance_)
         {
             normal.exists = false;
             return normal;

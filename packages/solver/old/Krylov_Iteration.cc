@@ -209,7 +209,7 @@ check_phi_convergence(vector<double> const &x,
                 {
                     int k = n + number_of_nodes * (g + number_of_groups * (m + number_of_moments * i));
 
-                    error = abs(x[k] - x_old[k]) / (abs(x_old[k]) + tolerance_ * tolerance_);
+                    error = std::abs(x[k] - x_old[k]) / (std::abs(x_old[k]) + tolerance_ * tolerance_);
                     
                     if (error > tolerance_)
                     {

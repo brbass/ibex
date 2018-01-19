@@ -5,7 +5,6 @@
 
 #include "Check.hh"
 
-using std::abs;
 using std::pow;
 using std::to_string;
 
@@ -18,7 +17,7 @@ Wendland1_RBF(int order):
 double Wendland1_RBF::
 value(double r) const
 {
-    r = abs(r);
+    r = std::abs(r);
 
     if (r <= 1)
     {
@@ -42,7 +41,7 @@ value(double r) const
 double Wendland1_RBF::
 d_value(double r) const
 {
-    r = abs(r);
+    r = std::abs(r);
 
     if (r <= 1)
     {
@@ -67,7 +66,7 @@ d_value(double r) const
 double Wendland1_RBF::
 dd_value(double r) const
 {
-    r = abs(r);
+    r = std::abs(r);
     
     if (r <= 1)
     {

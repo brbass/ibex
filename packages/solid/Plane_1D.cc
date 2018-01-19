@@ -25,7 +25,7 @@ relation(vector<double> const &particle_position,
 
     if (check_equality)
     {
-        if (abs(k) <= relation_tolerance_)
+        if (std::abs(k) <= relation_tolerance_)
         {
             return Relation::EQUAL;
         }
@@ -46,7 +46,7 @@ intersection(vector<double> const &particle_position,
              vector<double> const &particle_direction) const
 {
     Intersection intersection;
-    if (abs(particle_direction[0]) <= intersection_tolerance_)
+    if (std::abs(particle_direction[0]) <= intersection_tolerance_)
     {
         intersection.type = Intersection::Type::PARALLEL;
         return intersection;
@@ -73,7 +73,7 @@ normal_direction(vector<double> const &position,
 
     if (check_normal)
     {
-        if (abs(position[0] - origin_[0]) > normal_tolerance_)
+        if (std::abs(position[0] - origin_[0]) > normal_tolerance_)
         {
             normal.exists = false;
             return normal;

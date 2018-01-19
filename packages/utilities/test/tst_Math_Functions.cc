@@ -156,7 +156,7 @@ int test_spherical_h()
         int l = rng_l.scalar();
         int m = rng_l.scalar();
         
-        while(abs(m) > l)
+        while(std::abs(m) > l)
         {
             m = rng_m.scalar();
         }

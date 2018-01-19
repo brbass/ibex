@@ -799,7 +799,7 @@ get_cell_at_position(vector<double> const &position) const
         // Check for points on the boundary
         if (num_intervals < 0)
         {
-            if (abs(num_intervals) < options_->boundary_tolerance)
+            if (std::abs(num_intervals) < options_->boundary_tolerance)
             {
                 dim_indices[d] = 0;
             }
@@ -810,7 +810,7 @@ get_cell_at_position(vector<double> const &position) const
         }
         else if (num_intervals >= options_->dimensional_cells[d])
         {
-            if (abs(num_intervals - options_->dimensional_cells[d]) < options_->boundary_tolerance)
+            if (std::abs(num_intervals - options_->dimensional_cells[d]) < options_->boundary_tolerance)
             {
                 dim_indices[d] = options_->dimensional_cells[d] - 1;
             }

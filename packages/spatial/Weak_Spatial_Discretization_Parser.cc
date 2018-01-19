@@ -726,7 +726,7 @@ get_boundary_surfaces(shared_ptr<Meshless_Function> function) const
         vector<double> function_position = function->position();
         double function_radius = function->radius();
 
-        if (abs(function_position[surface_dim] - surface_position) <= function_radius)
+        if (std::abs(function_position[surface_dim] - surface_position) <= function_radius)
         {
             surfaces.push_back(surface);
         }

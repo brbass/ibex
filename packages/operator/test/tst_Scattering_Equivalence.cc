@@ -568,7 +568,7 @@ print_error(shared_ptr<Angular_Discretization> angular,
                 double diff = val1[k] - val2[k];
 
                 // If difference is too large, print data
-                if (abs(diff) > tolerance)
+                if (std::abs(diff) > tolerance)
                 {
                     cout << setw(w1) << i;
                     cout << setw(w1) << g;

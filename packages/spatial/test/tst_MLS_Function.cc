@@ -76,8 +76,8 @@ int test_1d()
              [position](shared_ptr<Meshless_Function> func1,
                         shared_ptr<Meshless_Function> func2)
              {
-                 return (abs(func1->position()[0] - position)
-                         < abs(func2->position()[0] - position));
+                 return (std::abs(func1->position()[0] - position)
+                         < std::abs(func2->position()[0] - position));
              });
 
         // Create MLS function
@@ -138,7 +138,7 @@ int test_1d()
                                                          test_position);
                 test_value += value;
             }
-            double error = abs(test_value);
+            double error = std::abs(test_value);
             if (error > largest_error)
             {
                 largest_error = error;

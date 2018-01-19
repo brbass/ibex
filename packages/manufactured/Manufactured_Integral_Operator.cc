@@ -4,6 +4,7 @@
     #include <omp.h>
 #endif
 
+#include <cmath>
 #include <iostream>
 
 #include "Angular_Discretization.hh"
@@ -140,7 +141,7 @@ apply(vector<double> &x) const
                     int k_res = g + number_of_groups * (m + number_of_moments * i);
                     int k_flux = g + number_of_groups * m;
                     
-                    result[k_res] += abs(expected[k_flux] - flux[k_flux]) * weight;
+                    result[k_res] += std::abs(expected[k_flux] - flux[k_flux]) * weight;
                 }
             }
         }

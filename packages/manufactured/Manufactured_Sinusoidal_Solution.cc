@@ -27,7 +27,7 @@ Manufactured_Sinusoidal_Solution(shared_ptr<Angular_Discretization> angular,
     int number_of_groups = energy_->number_of_groups();
     Assert(solution_.size() == number_of_groups * number_of_moments);
     Assert(frequency_.size() == dimension);
-    if (abs(relative_amplitude) > 1)
+    if (std::abs(relative_amplitude) > 1)
     {
         cout << "Manufactured_Sinusoidal_Solution: given relative amplitude may produce negative solution" << endl;
     }

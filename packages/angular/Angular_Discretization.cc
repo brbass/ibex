@@ -277,7 +277,7 @@ manufactured_coefficients(vector<int> &size,
             bool include = false;
             for (int d = 0; d < dimension_; ++d)
             {
-                if (abs(coeff_matrix[k][d]) > 1e-12)
+                if (std::abs(coeff_matrix[k][d]) > 1e-12)
                 {
                     include = true;
                     break;

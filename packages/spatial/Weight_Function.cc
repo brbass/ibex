@@ -145,7 +145,7 @@ set_options_and_limits()
             {
                 int dim_sur = surface->surface_dimension();
                 double pos_sur = surface->position();
-                double dist = abs(pos_sur - position_[dim_sur]);
+                double dist = std::abs(pos_sur - position_[dim_sur]);
                 if (dist < min_distance)
                 {
                     closest_surface = surface;
@@ -172,7 +172,7 @@ set_options_and_limits()
                 break;
             case Weak_Spatial_Discretization_Options::Tau_Scaling::LINEAR:
             {
-                double dist = abs(closest_surface->position() - position_[closest_surface->surface_dimension()]);
+                double dist = std::abs(closest_surface->position() - position_[closest_surface->surface_dimension()]);
                 ratio = dist / radius_;
                 break;
             }
@@ -468,7 +468,7 @@ get_full_surface_quadrature_2d(int s,
     double pos_sur = surface->position();
 
     // Calculate bounds on surface integral
-    double dist = abs(pos_sur - position_[dim_sur]);
+    double dist = std::abs(pos_sur - position_[dim_sur]);
     double l = sqrt(radius_ * radius_ - dist * dist);
     double smin = position_[dim_other] - l;
     double smax = position_[dim_other] + l;
@@ -544,7 +544,7 @@ get_basis_surface_quadrature_2d(int i,
     vector<double> basis_position = basis_functions_[i]->position();
     double basis_radius = basis_functions_[i]->radius();
     int number_of_basis_boundary_surfaces = basis_functions_[i]->number_of_boundary_surfaces();
-    double distb = abs(pos_sur - basis_position[dim_sur]);
+    double distb = std::abs(pos_sur - basis_position[dim_sur]);
 
     // If basis function does not intersect, return empty quadrature
     if (number_of_basis_boundary_surfaces == 0 || distb > basis_radius)
@@ -560,7 +560,7 @@ get_basis_surface_quadrature_2d(int i,
     double sbmax = basis_position[dim_other] + lb;
 
     // Calculate bounds on surface integral
-    double dist = abs(pos_sur - position_[dim_sur]);
+    double dist = std::abs(pos_sur - position_[dim_sur]);
     double l = sqrt(radius_ * radius_ - dist * dist);
     double smin = max(position_[dim_other] - l, sbmin);
     double smax = min(position_[dim_other] + l, sbmax);
@@ -1314,7 +1314,7 @@ check_class_invariants() const
         double position = surface->position();
         int surface_dim = surface->surface_dimension();
         
-        Assert(abs(position_[surface_dim] - position) <= radius_);
+        Assert(std::abs(position_[surface_dim] - position) <= radius_);
     }
     
     // Check sizes

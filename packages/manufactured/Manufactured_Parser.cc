@@ -9,6 +9,7 @@
 #include "Energy_Discretization.hh"
 #include "Manufactured_Constant_Cross_Sections.hh"
 #include "Manufactured_Constant_Solution.hh"
+#include "Manufactured_Linear_Solution.hh"
 #include "Manufactured_Sinusoidal_Cross_Sections.hh"
 #include "Manufactured_Sinusoidal_Solution.hh"
 #include "Manufactured_Solid_Geometry.hh"
@@ -54,6 +55,24 @@ get_solution(XML_Node input_node)
         solution = make_shared<Manufactured_Constant_Solution>(angular_,
                                                                energy_,
                                                                data);
+    }
+    else if (solution_type == "linear")
+    {
+        int dimension = angular_->dimension();
+        int expected_size = (energy_->number_of_groups()
+                             * angular_->number_of_moments());
+        vector<double> data = input_node.get_child_vector<double>("values",
+                                                                  expected_size);
+        vector<double> origin = input_node.get_child_vector<double>("origin",
+                                                                    dimension);
+        vector<double> slope = input_node.get_child_vector<double>("slope",
+                                                                   dimension);
+        solution
+            = make_shared<Manufactured_Linear_Solution>(angular_,
+                                                        energy_,
+                                                        origin,
+                                                        slope,
+                                                        data);
     }
     else if (solution_type == "sinusoidal")
     {

@@ -62,7 +62,7 @@ Constructive_Solid_Geometry(int dimension,
             double normal_direction = 0;
             for (int d = 0; d < dimension_; ++d)
             {
-                if (abs(abs(normal.direction[d]) - 1) < 1e-14)
+                if (std::abs(std::abs(normal.direction[d]) - 1) < 1e-14)
                 {
                     surface_dimension = d;
                 }

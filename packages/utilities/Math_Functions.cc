@@ -94,11 +94,11 @@ namespace Math_Functions
     {
         double val = (m == 0) ? 1 : 0;
         
-        val = sqrt((2 - val) * factorial(l - abs(m)) / factorial(l + abs(m)));
+        val = sqrt((2 - val) * factorial(l - std::abs(m)) / factorial(l + std::abs(m)));
         
-        double t = (m >= 0) ? cos(m * phi) : sin(abs(m) * phi);
+        double t = (m >= 0) ? cos(m * phi) : sin(std::abs(m) * phi);
         
-        return val * legendre_polynomial(l, abs(m), mu) * t;
+        return val * legendre_polynomial(l, std::abs(m), mu) * t;
     }
 
     double spherical_harmonic_rec(int l,
