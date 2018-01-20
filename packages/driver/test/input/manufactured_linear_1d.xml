@@ -6,21 +6,21 @@
   </energy_discretization>
   <angular_discretization>
     <dimension>1</dimension>
-    <number_of_moments>2</number_of_moments>
+    <number_of_moments>3</number_of_moments>
     <number_of_ordinates>16</number_of_ordinates>
   </angular_discretization>
   <manufactured>
     <solution type='linear'>
-      <values>0. 0.5</values>
+      <values>1.0 0.1 0.0</values>
       <origin>0</origin>
       <slope>0.5</slope>
     </solution>
     <cross_sections type='constant'>
       <sigma_t>
-        0.0
+        1.0
       </sigma_t>
       <sigma_s>
-        0.0 0.0
+        1.0 0.1 0.0
       </sigma_s>
     </cross_sections>
     <boundary_surfaces>

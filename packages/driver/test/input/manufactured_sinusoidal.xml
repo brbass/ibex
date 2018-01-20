@@ -6,24 +6,24 @@
   </energy_discretization>
   <angular_discretization>
     <dimension>2</dimension>
-    <number_of_moments>2</number_of_moments>
+    <number_of_moments>3</number_of_moments>
     <rule>2</rule>
   </angular_discretization>
   <manufactured>
     <solution type='sinusoidal'>
-      <values>2. 0.0 0.0</values>
+      <values>2. 0.4 0.1 0.0 0.0 0.0</values>
       <relative_amplitude>1.0</relative_amplitude>
-      <frequency>0.25 0.25</frequency>
+      <frequency>0.1 0.2</frequency>
     </solution>
     <cross_sections type='sinusoidal'>
       <sigma_t>
         3.0
       </sigma_t>
       <sigma_s>
-        2.9 0.2
+        2.2 0.2 0.0
       </sigma_s>
       <relative_amplitude>1.0</relative_amplitude>
-      <frequency>0.25 0.5</frequency>
+      <frequency>0.25 0.2</frequency>
     </cross_sections>
     <boundary_surfaces>
       <positions>
@@ -46,17 +46,17 @@
              output_integrals='false'
              adaptive_quadrature='false'>
       <tau>1.0</tau>
-      <integration_ordinates>16</integration_ordinates>
-      <dimensional_cells>10 10</dimensional_cells>
+      <integration_ordinates>32</integration_ordinates>
+      <dimensional_cells>30 30</dimensional_cells>
     </options>
-    <dimensional_points>11 11</dimensional_points>
+    <dimensional_points>31 31</dimensional_points>
     <weight_functions>
       <radius_calculation method='coverage'>
-        <number_of_neighbors>12</number_of_neighbors>
+        <number_of_neighbors>8</number_of_neighbors>
         <radius_multiplier>1.0</radius_multiplier>
       </radius_calculation>
       <meshless_function type='linear_mls'
-                         function='wendland33'/>
+                         function='wendland11'/>
     </weight_functions>
   </spatial_discretization>
   <transport solver='aztec_ifpack'

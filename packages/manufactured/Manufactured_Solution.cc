@@ -1,5 +1,7 @@
 #include "Manufactured_Solution.hh"
 
+#include <cmath>
+
 #include "Angular_Discretization.hh"
 #include "Angular_Discretization_Factory.hh"
 #include "Check.hh"
@@ -30,6 +32,18 @@ Manufactured_Solution(shared_ptr<Angular_Discretization> angular,
     coeff_angular->manufactured_coefficients(streaming_size_,
                                              streaming_indices_,
                                              streaming_coefficients_);
+
+    // Get the moment indices that are expected to be zero for the solution to work correctly
+    int number_of_moments = angular_->number_of_moments();
+    vector<int> const scattering_indices = angular_->scattering_indices();
+    expected_zero_moments_.resize(0);
+    for (int m = 0; m < number_of_moments; ++m)
+    {
+        if (scattering_indices[m] == number_of_scattering_moments - 1)
+        {
+            expected_zero_moments_.push_back(m);
+        }
+    }
 }
 
 vector<double> Manufactured_Solution::
@@ -44,13 +58,25 @@ get_source(vector<double> const &solution,
     int number_of_scattering_moments = angular_->number_of_scattering_moments();
     int number_of_groups = energy_->number_of_groups();
     vector<int> const scattering_indices = angular_->scattering_indices();
-
+    
     // Check sizes
     Check(solution.size() == number_of_moments * number_of_groups);
     Check(grad_solution.size() == number_of_moments * number_of_groups * dimension);
     Check(sigma_t.size() == number_of_groups);
     Check(sigma_s.size() == number_of_groups * number_of_groups * number_of_scattering_moments);
 
+    // Check that solution does not include values in the last scattering moment
+    double expected_tolerance = 1e-14;
+    for (int m : expected_zero_moments_)
+    {
+        for (int g = 0; g < number_of_groups; ++g)
+        {
+            int k = g + number_of_groups * m;
+            AssertMsg(std::abs(solution[k]) < expected_tolerance,
+                      "manufactured solution contains nonzero value in last scattering moment");
+        }
+    }
+    
     // Initialize source to zero
     vector<double> source(number_of_groups * number_of_moments, 0);
 

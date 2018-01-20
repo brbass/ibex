@@ -39,6 +39,7 @@ private:
     std::vector<int> streaming_size_;
     std::vector<std::vector<int> > streaming_indices_;
     std::vector<std::vector<double> > streaming_coefficients_;
+    std::vector<int> expected_zero_moments_;
 };
     
 #endif
