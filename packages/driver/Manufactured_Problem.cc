@@ -6,6 +6,7 @@
 #include "Angular_Discretization_Parser.hh"
 #include "Constructive_Solid_Geometry.hh"
 #include "Constructive_Solid_Geometry_Parser.hh"
+#include "Conversion.hh"
 #include "Energy_Discretization.hh"
 #include "Energy_Discretization_Parser.hh"
 #include "Integration_Mesh.hh"
@@ -176,10 +177,16 @@ solve_steady_state()
     times_.emplace_back(timer.time(), "solve");
     
     // Compare results
-    XML_Node error_node = input_node_.get_child("manufactured").get_child("error", false);
-    vector<double> error;
-    if (error_node)
+    vector<string> error_types;
+    vector<vector<double> > errors;
+    XML_Node manufactured_node = input_node_.get_child("manufactured");
+    for (XML_Node error_node = manufactured_node.get_child("error");
+         error_node;
+         error_node = error_node.get_sibling("error",
+                                             false))
     {
+        vector<double> error;
+        
         // Get integration options
         int dimension = spatial->dimension();
         std::shared_ptr<Integration_Mesh::Options> integration_options
@@ -208,8 +215,12 @@ solve_steady_state()
                                                integration_options->dimensional_cells);
 
         // Get error operator
+        Manufactured_Integral_Operator::Options options;
+        string norm = error_node.get_attribute<string>("norm");
+        options.norm = options.norm_conversion()->convert(norm);
         shared_ptr<Manufactured_Integral_Operator> oper
-            = make_shared<Manufactured_Integral_Operator>(integration_options,
+            = make_shared<Manufactured_Integral_Operator>(options,
+                                                          integration_options,
                                                           spatial,
                                                           angular,
                                                           energy,
@@ -219,6 +230,10 @@ solve_steady_state()
         error = solver->result()->coefficients;
 
         (*oper)(error);
+
+        // Store results
+        error_types.push_back(norm);
+        errors.push_back(error);
     }
     
     // Output data
@@ -231,10 +246,13 @@ solve_steady_state()
     solid->output(output_node_.append_child("solid_geometry"));
     sweep->output(output_node_.append_child("transport"));
     solver->output(output_node_.append_child("solver"));
-    if (error.size() > 0)
+    if (errors.size() > 0)
     {
         XML_Node error_node = output_node_.append_child("error");
-        error_node.set_child_vector<double>(error, "integral_error", "group-moment-point");
+        for (int i = 0; i < errors.size(); ++i)
+        {
+            error_node.set_child_vector<double>(errors[i], error_types[i], "group-moment-cell");
+        }
     }
     timer.stop();
     times_.emplace_back(timer.time(), "output");

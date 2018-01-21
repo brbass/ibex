@@ -9,22 +9,27 @@
 
 #include "Angular_Discretization.hh"
 #include "Basis_Function.hh"
+#include "Conversion.hh"
 #include "Energy_Discretization.hh"
 #include "Manufactured_Solution.hh"
 #include "Weak_Spatial_Discretization.hh"
 
 using std::make_shared;
+using std::pair;
 using std::shared_ptr;
+using std::string;
 using std::vector;
 
 Manufactured_Integral_Operator::
-Manufactured_Integral_Operator(shared_ptr<Integration_Mesh::Options> options,
+Manufactured_Integral_Operator(Options options,
+                               shared_ptr<Integration_Mesh::Options> integration_options,
                                shared_ptr<Weak_Spatial_Discretization> spatial,
                                shared_ptr<Angular_Discretization> angular,
                                shared_ptr<Energy_Discretization> energy,
                                shared_ptr<Manufactured_Solution> solution):
     initialized_(false),
-    integration_options_(options),
+    options_(options),
+    integration_options_(integration_options),
     spatial_(spatial),
     angular_(angular),
     energy_(energy),
@@ -36,7 +41,7 @@ Manufactured_Integral_Operator(shared_ptr<Integration_Mesh::Options> options,
     int number_of_cells = 1;
     for (int d = 0; d < spatial->dimension(); ++d)
     {
-        number_of_cells *= options->dimensional_cells[d];
+        number_of_cells *= integration_options->dimensional_cells[d];
     }
     row_size_ = (number_of_cells
                  * angular->number_of_moments()
@@ -134,33 +139,98 @@ apply(vector<double> &x) const
                 = solution_->get_solution(position);
             
             // Add to integral
-            for (int m = 0; m < number_of_moments; ++m)
+            switch (options_.norm)
             {
-                for (int g = 0; g < number_of_groups; ++g)
+            case Options::Norm::INTEGRAL:
+                for (int m = 0; m < number_of_moments; ++m)
                 {
-                    int k_res = g + number_of_groups * (m + number_of_moments * i);
-                    int k_flux = g + number_of_groups * m;
+                    for (int g = 0; g < number_of_groups; ++g)
+                    {
+                        int k_res = g + number_of_groups * (m + number_of_moments * i);
+                        int k_flux = g + number_of_groups * m;
                     
-                    result[k_res] += std::abs(expected[k_flux] - flux[k_flux]) * weight;
+                        result[k_res] += (expected[k_flux] - flux[k_flux]) * weight;
+                    }
                 }
+                break;
+            case Options::Norm::L1:
+                for (int m = 0; m < number_of_moments; ++m)
+                {
+                    for (int g = 0; g < number_of_groups; ++g)
+                    {
+                        int k_res = g + number_of_groups * (m + number_of_moments * i);
+                        int k_flux = g + number_of_groups * m;
+                    
+                        result[k_res] += std::abs(expected[k_flux] - flux[k_flux]) * weight;
+                    }
+                }
+                break;
+            case Options::Norm::L2:
+                for (int m = 0; m < number_of_moments; ++m)
+                {
+                    for (int g = 0; g < number_of_groups; ++g)
+                    {
+                        int k_res = g + number_of_groups * (m + number_of_moments * i);
+                        int k_flux = g + number_of_groups * m;
+
+                        double val = expected[k_flux] - flux[k_flux];
+                        result[k_res] += val * val * weight;
+                    }
+                }
+                break;
+            case Options::Norm::LINF:
+                for (int m = 0; m < number_of_moments; ++m)
+                {
+                    for (int g = 0; g < number_of_groups; ++g)
+                    {
+                        int k_res = g + number_of_groups * (m + number_of_moments * i);
+                        int k_flux = g + number_of_groups * m;
+
+                        double val = std::abs(expected[k_flux] - flux[k_flux]);
+                        if (val > result[k_res])
+                        {
+                            result[k_res] = val;
+                        }
+                    }
+                }
+                break;
             }
         }
         
         // Get the volume (sum of weights)
         double volume = 0;
         for (double weight : weights)
-        {
+        { 
             volume += weight;
         }
         
-        // Normalize to account for the volume
-        for (int m = 0; m < number_of_moments; ++m)
+        // Normalize the result
+        switch (options_.norm)
         {
-            for (int g = 0; g < number_of_groups; ++g)
+        case Options::Norm::INTEGRAL: // fallthrough intentional
+        case Options::Norm::L1:
+            for (int m = 0; m < number_of_moments; ++m)
             {
-                int k = g + number_of_groups * (m + number_of_moments * i);
-                result[k] /= volume;
+                for (int g = 0; g < number_of_groups; ++g)
+                {
+                    int k = g + number_of_groups * (m + number_of_moments * i);
+                    result[k] /= volume;
+                }
             }
+            break;
+        case Options::Norm::L2:
+            for (int m = 0; m < number_of_moments; ++m)
+            {
+                for (int g = 0; g < number_of_groups; ++g)
+                {
+                    int k = g + number_of_groups * (m + number_of_moments * i);
+                    result[k] = sqrt(result[k]) / volume;
+                }
+            }
+            break;
+        case Options::Norm::LINF:
+            // do nothing
+            break;
         }
     }
     
@@ -194,4 +264,15 @@ get_flux(shared_ptr<Integration_Mesh::Cell> const cell,
             }
         }
     }
+}
+
+shared_ptr<Conversion<Manufactured_Integral_Operator::Options::Norm, string> > Manufactured_Integral_Operator::Options::
+norm_conversion() const
+{
+    vector<pair<Norm, string> > conversions
+        = {{Norm::INTEGRAL, "integral"},
+           {Norm::L1, "l1"},
+           {Norm::L2, "l2"},
+           {Norm::LINF, "linf"}};
+    return make_shared<Conversion<Norm, string> >(conversions);
 }

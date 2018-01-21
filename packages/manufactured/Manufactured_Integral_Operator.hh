@@ -5,9 +5,11 @@
 #include "Vector_Operator.hh"
 
 #include <memory>
+#include <string>
 #include <vector>
 
 class Angular_Discretization;
+template<class T1, class T2> class Conversion;
 class Energy_Discretization;
 class Manufactured_Solution;
 class Weak_Spatial_Discretization;
@@ -16,7 +18,23 @@ class Manufactured_Integral_Operator : public Vector_Operator
 {
 public:
 
-    Manufactured_Integral_Operator(std::shared_ptr<Integration_Mesh::Options> options,
+    struct Options
+    {
+        enum class Norm
+        {
+            INTEGRAL,
+            L1,
+            L2,
+            LINF
+        };
+
+        std::shared_ptr<Conversion<Norm, std::string> > norm_conversion() const;
+        
+        Norm norm;
+    };
+    
+    Manufactured_Integral_Operator(Options options,
+                                   std::shared_ptr<Integration_Mesh::Options> integration_options,
                                    std::shared_ptr<Weak_Spatial_Discretization> spatial,
                                    std::shared_ptr<Angular_Discretization> angular,
                                    std::shared_ptr<Energy_Discretization> energy,
@@ -48,7 +66,8 @@ private:
     
     int row_size_;
     int column_size_;
-    
+
+    Options options_;
     std::shared_ptr<Integration_Mesh::Options> integration_options_;
     std::shared_ptr<Weak_Spatial_Discretization> spatial_;
     std::shared_ptr<Angular_Discretization> angular_;
