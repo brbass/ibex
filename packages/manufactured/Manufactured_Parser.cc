@@ -12,6 +12,8 @@
 #include "Manufactured_Linear_Solution.hh"
 #include "Manufactured_Sinusoidal_Cross_Sections.hh"
 #include "Manufactured_Sinusoidal_Solution.hh"
+#include "Manufactured_Slab_Cross_Sections.hh"
+#include "Manufactured_Slab_Solution.hh"
 #include "Manufactured_Solid_Geometry.hh"
 #include "XML_Node.hh"
 
@@ -44,12 +46,13 @@ shared_ptr<Manufactured_Solution> Manufactured_Parser::
 get_solution(XML_Node input_node)
 {
     shared_ptr<Manufactured_Solution> solution;
+    int dimension = angular_->dimension();
+    int expected_size = (energy_->number_of_groups()
+                         * angular_->number_of_moments());
     
     string solution_type = input_node.get_attribute<string>("type");
     if (solution_type == "constant")
     {
-        int expected_size = (energy_->number_of_groups()
-                             * angular_->number_of_moments());
         vector<double> data = input_node.get_child_vector<double>("values",
                                                                   expected_size);
         solution = make_shared<Manufactured_Constant_Solution>(angular_,
@@ -58,9 +61,6 @@ get_solution(XML_Node input_node)
     }
     else if (solution_type == "linear")
     {
-        int dimension = angular_->dimension();
-        int expected_size = (energy_->number_of_groups()
-                             * angular_->number_of_moments());
         vector<double> data = input_node.get_child_vector<double>("values",
                                                                   expected_size);
         vector<double> origin = input_node.get_child_vector<double>("origin",
@@ -76,9 +76,6 @@ get_solution(XML_Node input_node)
     }
     else if (solution_type == "sinusoidal")
     {
-        int dimension = angular_->dimension();
-        int expected_size = (energy_->number_of_groups()
-                             * angular_->number_of_moments());
         vector<double> data = input_node.get_child_vector<double>("values",
                                                                   expected_size);
         double relative_amplitude = input_node.get_child_value<double>("relative_amplitude");
@@ -91,6 +88,19 @@ get_solution(XML_Node input_node)
                                                             frequency,
                                                             data);
     }
+    else if (solution_type == "slab")
+    {
+        int number_of_regions = input_node.get_child_value<int>("number_of_regions");
+        vector<vector<double> > data = input_node.get_child_matrix<double>("values",
+                                                                               number_of_regions,
+                                                                               expected_size);
+        vector<double> interface_positions = input_node.get_child_vector<double>("interface_positions",
+                                                                                 number_of_regions - 1);
+        solution = make_shared<Manufactured_Slab_Solution>(angular_,
+                                                           energy_,
+                                                           interface_positions,
+                                                           data);
+    }
     else
     {
         AssertMsg(false, "solution type (" + solution_type + ") not found");
@@ -102,13 +112,16 @@ get_solution(XML_Node input_node)
 shared_ptr<Manufactured_Cross_Sections> Manufactured_Parser::
 get_cross_sections(XML_Node input_node)
 {
+    // Get size data
+    int dimension = angular_->dimension();
+    int number_of_groups = energy_->number_of_groups();
+    int number_of_scattering_moments = angular_->number_of_scattering_moments();
+
+    // Get cross sections of appropriate type
     shared_ptr<Manufactured_Cross_Sections> cross_sections;
-    
     string type = input_node.get_attribute<string>("type");
     if (type == "constant")
     {
-        int number_of_groups = energy_->number_of_groups();
-        int number_of_scattering_moments = angular_->number_of_scattering_moments();
         vector<double> sigma_t = input_node.get_child_vector<double>("sigma_t",
                                                                      number_of_groups);
         vector<double> sigma_s = input_node.get_child_vector<double>("sigma_s",
@@ -121,9 +134,6 @@ get_cross_sections(XML_Node input_node)
     }
     else if (type == "sinusoidal")
     {
-        int dimension = angular_->dimension();
-        int number_of_groups = energy_->number_of_groups();
-        int number_of_scattering_moments = angular_->number_of_scattering_moments();
         vector<double> sigma_t = input_node.get_child_vector<double>("sigma_t",
                                                                      number_of_groups);
         vector<double> sigma_s = input_node.get_child_vector<double>("sigma_s",
@@ -139,6 +149,23 @@ get_cross_sections(XML_Node input_node)
                                                                   sigma_t,
                                                                   sigma_s);
                                                                   
+    }
+    else if (type == "slab")
+    {
+        int number_of_regions = input_node.get_child_value<int>("number_of_regions");
+        vector<vector<double> > sigma_t = input_node.get_child_matrix<double>("sigma_t",
+                                                                              number_of_regions,
+                                                                              number_of_groups);
+        vector<vector<double> > sigma_s = input_node.get_child_matrix<double>("sigma_s",
+                                                                              number_of_regions,
+                                                                              number_of_groups * number_of_groups * number_of_scattering_moments);
+        vector<double> interface_positions = input_node.get_child_vector<double>("interface_positions",
+                                                                                 number_of_regions - 1);
+        cross_sections = make_shared<Manufactured_Slab_Cross_Sections>(angular_,
+                                                                       energy_,
+                                                                       interface_positions,
+                                                                       sigma_t,
+                                                                       sigma_s);
     }
     else
     {
