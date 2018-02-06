@@ -202,15 +202,39 @@ expansion_value(int i,
     int number_of_basis_functions = weight->number_of_basis_functions();
     vector<int> const basis_indices = weight->basis_function_indices();
 
+    // Get the basis function values at the position
+    vector<double> basis_vals(number_of_basis_functions);
+    for (int j = 0; j < number_of_basis_functions; ++j)
+    {
+        basis_vals[j] = weight->basis_function(j)->function()->base_function()->value(position);
+    }
+
+    // Normalize if applicable
+    if (basis_depends_on_neighbors_)
+    {
+        vector<vector<double> > center_positions(number_of_basis_functions);
+        for (int j = 0; j < number_of_basis_functions; ++j)
+        {
+            center_positions[j] = weight->basis_function(j)->position();
+        }
+        shared_ptr<Meshless_Normalization> norm
+            = weight->basis_function(0)->function()->normalization();
+        norm->get_values(position,
+                         center_positions,
+                         basis_vals,
+                         basis_vals);
+    }
+
     // Get value of function at a specific point
-    double sum = 0;
+    double val = 0;
     for (int j = 0; j < number_of_basis_functions; ++j)
     {
         int index = basis_indices[j];
-        double val = weight->basis_function(j)->function()->value(position);
-        sum += val * coefficients[index];
+        double val = basis_vals[j];
+        val += val * coefficients[index];
     }
-    return sum;
+    
+    return val;
 }
 
 double Weak_Spatial_Discretization::

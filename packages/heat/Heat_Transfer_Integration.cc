@@ -1,6 +1,7 @@
 #include "Heat_Transfer_Integration.hh"
 
 #include <limits>
+#include <iostream>
 
 #include "Check.hh"
 #include "Heat_Transfer_Data.hh"
@@ -15,6 +16,7 @@ Heat_Transfer_Integration(shared_ptr<Heat_Transfer_Integration_Options> options,
                           shared_ptr<Integration_Mesh_Options> integration_options,
                           shared_ptr<Heat_Transfer_Data> data,
                           shared_ptr<Weak_Spatial_Discretization> spatial):
+    options_(options),
     mesh_(make_shared<Integration_Mesh>(spatial->dimension(),
                                         spatial->number_of_points(),
                                         integration_options,
@@ -23,6 +25,12 @@ Heat_Transfer_Integration(shared_ptr<Heat_Transfer_Integration_Options> options,
     data_(data),
     spatial_(spatial)
 {
+    Assert(options_);
+    Assert(data_);
+    Assert(spatial_);
+    Assert(mesh_);
+
+    initialize_integrals();
     perform_integration();
 }
 
@@ -137,7 +145,7 @@ perform_integration()
             }
         }
     }
-
+    
     // Skip interior surface for cylindrical geometry
     int number_of_surfaces = mesh_->number_of_surfaces();
     int first_surface;

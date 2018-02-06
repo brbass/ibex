@@ -17,7 +17,7 @@ struct Heat_Transfer_Integration_Options
         CARTESIAN
     };
 
-    Geometry geometry;
+    Geometry geometry = Geometry::CYLINDRICAL_1D;
 };
 
 class Heat_Transfer_Integration
@@ -30,11 +30,11 @@ public:
                               std::shared_ptr<Weak_Spatial_Discretization> spatial);
 
     // Data access
-    std::vector<std::vector<double> > const &matrix() const
+    std::vector<std::vector<double> > &matrix()
     {
         return matrix_;
     }
-    std::vector<double> const &rhs() const
+    std::vector<double> &rhs()
     {
         return rhs_;
     }
