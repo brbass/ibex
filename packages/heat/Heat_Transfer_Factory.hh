@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 class Cartesian_Plane;
 class Heat_Transfer_Data;

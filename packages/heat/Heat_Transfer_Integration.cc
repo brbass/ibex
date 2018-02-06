@@ -107,7 +107,7 @@ perform_integration()
             for (int w = 0; w < cell->number_of_weight_functions; ++w)
             {
                 // Get global weight function index
-                int w_ind = cell->weight_indices[i];
+                int w_ind = cell->weight_indices[w];
 
                 // Add source to rhs
                 switch (options_->geometry)
