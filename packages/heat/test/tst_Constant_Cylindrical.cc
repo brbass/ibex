@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -18,52 +19,65 @@ class Constant_Heat_Transfer_Data : public Heat_Transfer_Data
 {
 public:
     
-    Constant_Heat_Transfer_Data(double length1,
-                                double length2,
-                                double conduction1,
-                                double conduction2,
-                                double convection,
-                                double source1,
-                                double source2,
-                                double temperature_inf):
+    Constant_Heat_Transfer_Data(double r1,
+                                double r2,
+                                double k1,
+                                double k2,
+                                double h,
+                                double q1,
+                                double q2,
+                                double tinf):
         Heat_Transfer_Data(),
-        length1_(length1),
-        length2_(length2),
-        conduction1_(conduction1),
-        conduction2_(conduction2),
-        convection_(convection),
-        source1_(source1),
-        source2_(source2),
-        temperature_inf_(temperature_inf)
+        r1_(r1),
+        r2_(r2),
+        k1_(k1),
+        k2_(k2),
+        h_(h),
+        q1_(q1),
+        q2_(q2),
+        tinf_(tinf)
     {
     }
     virtual double conduction(std::vector<double> const &position) const override
     {
-        return position[0] < length1_ ? conduction1_ : conduction2_;
+        return position[0] < r1_ ? k1_ : k2_;
     }
     virtual double convection(std::vector<double> const &position) const override
     {
-        return convection_;
+        return h_;
     }
     virtual double source(std::vector<double> const &position) const override
     {
-        return position[0] < length1_ ? source1_ : source2_;
+        return position[0] < r1_ ? q1_ : q2_;
     }
     virtual double temperature_inf(std::vector<double> const &position) const override
     {
-        return temperature_inf_;
+        return tinf_;
     }
 
+    double solution(std::vector<double> const &position) const
+    {
+        double r = position[0];
+        if (r < r1_)
+        {
+            return (2*k1_*k2_*q1_*pow(r1_,2) - 2*k1_*k2_*q2_*pow(r1_,2) - h_*k2_*q1_*pow(r,2)*r2_ + h_*k2_*q1_*pow(r1_,2)*r2_ - h_*k1_*q2_*pow(r1_,2)*r2_ + 2*k1_*k2_*q2_*pow(r2_,2) + h_*k1_*q2_*pow(r2_,3) + 4*h_*k1_*k2_*r2_*tinf_ + 2*h_*k1_*(-q1_ + q2_)*pow(r1_,2)*r2_*log(r1_) + 2*h_*k1_*(q1_ - q2_)*pow(r1_,2)*r2_*log(r2_))/(4.*h_*k1_*k2_*r2_);
+        }
+        else
+        {
+            return (2*k2_*q1_*pow(r1_,2) - 2*k2_*q2_*pow(r1_,2) - h_*q2_*pow(r,2)*r2_ + 2*k2_*q2_*pow(r2_,2) + h_*q2_*pow(r2_,3) + 4*h_*k2_*r2_*tinf_ + 2*h_*(-q1_ + q2_)*pow(r1_,2)*r2_*log(r) + 2*h_*(q1_ - q2_)*pow(r1_,2)*r2_*log(r2_))/(4.*h_*k2_*r2_);
+        }
+    }
+    
 private:
     
-    double length1_;
-    double length2_;
-    double conduction1_;
-    double conduction2_;
-    double convection_;
-    double source1_;
-    double source2_;
-    double temperature_inf_;
+    double r1_;
+    double r2_;
+    double k1_;
+    double k2_;
+    double h_;
+    double q1_;
+    double q2_;
+    double tinf_;
 };
 
 int test_constant(int number_of_points,
@@ -80,7 +94,7 @@ int test_constant(int number_of_points,
     int checksum = 0;
     
     // Get data
-    shared_ptr<Heat_Transfer_Data> data
+    shared_ptr<Constant_Heat_Transfer_Data> data
         = make_shared<Constant_Heat_Transfer_Data>(length1,
                                                    length2,
                                                    conduction1,
@@ -105,6 +119,10 @@ int test_constant(int number_of_points,
     // Solve problem
     shared_ptr<Heat_Transfer_Solution> solution
         = solver->solve();
+    
+    vector<double> test_position(1, 0.5);
+    cout << solution->solution(test_position) << endl;
+    cout << data->solution(test_position) << endl;
 
     return checksum;
 }

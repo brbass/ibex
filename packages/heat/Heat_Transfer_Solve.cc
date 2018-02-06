@@ -84,6 +84,7 @@ solve()
     for (int i = 0; i < number_of_points; ++i)
     {
         coefficients[i] = (*lhs)[i];
+        cout << coefficients[i] << endl;
     }
 
     return make_shared<Heat_Transfer_Solution>(spatial_,
