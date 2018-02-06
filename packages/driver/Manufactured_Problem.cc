@@ -189,8 +189,8 @@ solve_steady_state()
         
         // Get integration options
         int dimension = spatial->dimension();
-        std::shared_ptr<Integration_Mesh::Options> integration_options
-            = make_shared<Integration_Mesh::Options>();
+        std::shared_ptr<Integration_Mesh_Options> integration_options
+            = make_shared<Integration_Mesh_Options>();
         integration_options->initialize_from_weak_options(spatial->options());
         integration_options->adaptive_quadrature
             = error_node.get_attribute<bool>("adaptive_quadrature",

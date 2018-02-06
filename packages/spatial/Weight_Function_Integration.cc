@@ -18,6 +18,7 @@
 #include "Dimensional_Moments.hh"
 #include "Energy_Discretization.hh"
 #include "Material.hh"
+#include "Meshless_Function.hh"
 #include "Solid_Geometry.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weight_Function.hh"
@@ -31,7 +32,6 @@ Weight_Function_Integration(int number_of_points,
                             vector<shared_ptr<Weight_Function> > const &weights):
     options_(options),
     number_of_points_(number_of_points),
-    bases_(bases),
     weights_(weights),
     solid_(options->solid)
 {
@@ -40,8 +40,8 @@ Weight_Function_Integration(int number_of_points,
     Assert(solid_);
     
     // Create mesh
-    shared_ptr<Integration_Mesh::Options> integration_options
-        = make_shared<Integration_Mesh::Options>();
+    shared_ptr<Integration_Mesh_Options> integration_options
+        = make_shared<Integration_Mesh_Options>();
     integration_options->initialize_from_weak_options(options);
     mesh_ = make_shared<Integration_Mesh>(solid_->dimension(),
                                           number_of_points,
@@ -898,7 +898,7 @@ add_surface_source(shared_ptr<Integration_Mesh::Surface> const surface,
     // Get data
     vector<double> const &boundary_data = boundary_source->data();
 
-    // Perofrm integration
+    // Perform integration
     for (int i = 0; i < surface->number_of_weight_functions; ++i)
     {
         int w_ind = surface->weight_indices[i]; // global weight index

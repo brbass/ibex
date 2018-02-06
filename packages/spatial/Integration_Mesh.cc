@@ -20,7 +20,7 @@ using namespace std;
 Integration_Mesh::
 Integration_Mesh(int dimension,
                  int number_of_points,
-                 shared_ptr<Options> options,
+                 shared_ptr<Integration_Mesh_Options> options,
                  vector<shared_ptr<Basis_Function> > const &bases,
                  vector<shared_ptr<Weight_Function> > const &weights):
     dimension_(dimension),
@@ -1377,7 +1377,7 @@ get_basis_weight_centers(shared_ptr<Surface> const surface,
     }
 }
 
-void Integration_Mesh::Options::
+void Integration_Mesh_Options::
 initialize_from_weak_options(std::shared_ptr<Weak_Spatial_Discretization_Options> weak_options)
 {
     identical_basis_functions = (weak_options->identical_basis_functions == Weak_Spatial_Discretization_Options::Identical_Basis_Functions::TRUE);

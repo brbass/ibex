@@ -10,25 +10,24 @@ class Meshless_Normalization;
 class Weak_Spatial_Discretization_Options;
 class Weight_Function;
 
+struct Integration_Mesh_Options
+{
+    bool identical_basis_functions = false;
+    bool adaptive_quadrature = false;
+    int minimum_radius_ordinates = 12;
+    int integration_ordinates = 8;
+    int maximum_integration_ordinates = 128;
+    double boundary_tolerance = 1e-10;
+    std::vector<std::vector<double> > limits;
+    std::vector<int> dimensional_cells;
+        
+    void initialize_from_weak_options(std::shared_ptr<Weak_Spatial_Discretization_Options> weak_options);
+};
+    
 class Integration_Mesh
 {
 public:
 
-    // Options
-    struct Options
-    {
-        bool identical_basis_functions = false;
-        bool adaptive_quadrature = false;
-        int minimum_radius_ordinates = 12;
-        int integration_ordinates = 8;
-        int maximum_integration_ordinates = 128;
-        double boundary_tolerance = 1e-10;
-        std::vector<std::vector<double> > limits;
-        std::vector<int> dimensional_cells;
-        
-        void initialize_from_weak_options(std::shared_ptr<Weak_Spatial_Discretization_Options> weak_options);
-    };
-    
     // Cartesian cell
     struct Cell
     {
@@ -81,7 +80,7 @@ public:
         
     Integration_Mesh(int dimension,
                      int number_of_points,
-                     std::shared_ptr<Options> options,
+                     std::shared_ptr<Integration_Mesh_Options> options,
                      std::vector<std::shared_ptr<Basis_Function> > const &bases,
                      std::vector<std::shared_ptr<Weight_Function> > const &weights);
 
@@ -180,7 +179,7 @@ private:
     // Input data
     int dimension_;
     int number_of_points_;
-    std::shared_ptr<Options> options_;
+    std::shared_ptr<Integration_Mesh_Options> options_;
     std::vector<std::shared_ptr<Basis_Function> > bases_;
     std::vector<std::shared_ptr<Weight_Function> > weights_;
     

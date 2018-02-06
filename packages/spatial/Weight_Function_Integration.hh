@@ -12,6 +12,7 @@ class Basis_Function;
 class Energy_Discretization;
 class Material;
 class Weak_Spatial_Discretization_Options;
+class Weight_Function;
 
 class Weight_Function_Integration
 {

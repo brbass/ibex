@@ -68,12 +68,12 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
         if (number_of_boundary_surfaces > 0)
         {
             boundary_bases_[j] = bases[i];
-            bases[i]->set_boundary_index(j);
+            bases_[i]->set_boundary_index(j);
             j += 1;
 
             for (int s = 0; s < number_of_boundary_surfaces; ++s)
             {
-                if (bases[i]->boundary_surface(s)->boundary_source()->has_reflection())
+                if (bases_[i]->boundary_surface(s)->boundary_source()->has_reflection())
                 {
                     has_reflection_ = true;
                 }
@@ -103,8 +103,8 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
     {
         Weight_Function_Integration integrator(number_of_points_,
                                                options_,
-                                               bases,
-                                               weights);
+                                               bases_,
+                                               weights_);
         integrator.perform_integration();
     }
     

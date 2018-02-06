@@ -9,6 +9,7 @@
 #include "Angular_Discretization.hh"
 #include "Basis_Function.hh"
 #include "Energy_Discretization.hh"
+#include "Integration_Mesh.hh"
 #include "Weak_Spatial_Discretization.hh"
 
 using std::make_shared;
@@ -16,7 +17,7 @@ using std::shared_ptr;
 using std::vector;
 
 Integral_Value_Operator::
-Integral_Value_Operator(shared_ptr<Integration_Mesh::Options> options,
+Integral_Value_Operator(shared_ptr<Integration_Mesh_Options> options,
                         shared_ptr<Weak_Spatial_Discretization> spatial,
                         shared_ptr<Angular_Discretization> angular,
                         shared_ptr<Energy_Discretization> energy):

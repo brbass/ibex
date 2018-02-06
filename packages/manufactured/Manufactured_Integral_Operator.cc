@@ -11,6 +11,7 @@
 #include "Basis_Function.hh"
 #include "Conversion.hh"
 #include "Energy_Discretization.hh"
+#include "Integration_Mesh.hh"
 #include "Manufactured_Solution.hh"
 #include "Weak_Spatial_Discretization.hh"
 
@@ -22,7 +23,7 @@ using std::vector;
 
 Manufactured_Integral_Operator::
 Manufactured_Integral_Operator(Options options,
-                               shared_ptr<Integration_Mesh::Options> integration_options,
+                               shared_ptr<Integration_Mesh_Options> integration_options,
                                shared_ptr<Weak_Spatial_Discretization> spatial,
                                shared_ptr<Angular_Discretization> angular,
                                shared_ptr<Energy_Discretization> energy,

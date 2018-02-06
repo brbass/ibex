@@ -34,7 +34,7 @@ public:
     };
     
     Manufactured_Integral_Operator(Options options,
-                                   std::shared_ptr<Integration_Mesh::Options> integration_options,
+                                   std::shared_ptr<Integration_Mesh_Options> integration_options,
                                    std::shared_ptr<Weak_Spatial_Discretization> spatial,
                                    std::shared_ptr<Angular_Discretization> angular,
                                    std::shared_ptr<Energy_Discretization> energy,
@@ -68,7 +68,7 @@ private:
     int column_size_;
 
     Options options_;
-    std::shared_ptr<Integration_Mesh::Options> integration_options_;
+    std::shared_ptr<Integration_Mesh_Options> integration_options_;
     std::shared_ptr<Weak_Spatial_Discretization> spatial_;
     std::shared_ptr<Angular_Discretization> angular_;
     std::shared_ptr<Energy_Discretization> energy_;
