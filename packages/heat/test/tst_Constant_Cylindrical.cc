@@ -112,15 +112,15 @@ int test_constant(int number_of_points,
                                      length2,
                                      true, // basis mls
                                      true, // weight mls
-                                     "wendland12",
-                                     "wendland12",
+                                     "wendland11",
+                                     "wendland11",
                                      data);
     
     // Solve problem
     shared_ptr<Heat_Transfer_Solution> solution
         = solver->solve();
     
-    vector<double> test_position(1, 0.5);
+    vector<double> test_position(1, 0.046);
     cout << solution->solution(test_position) << endl;
     cout << data->solution(test_position) << endl;
 
@@ -134,16 +134,16 @@ int main(int argc, char **argv)
     
     MPI_Init(&argc, &argv);
 
-    int number_of_points = 100;
-    double radius_num_intervals = 3;
+    int number_of_points = 400;
+    double radius_num_intervals = 3.1;
     double length1 = 1;
-    double length2 = 1;
-    double conduction1 = 0.5;
-    double conduction2 = 1.0;
-    double convection = 2.0;
-    double source1 = 1.0;
-    double source2 = 2.0;
-    double temperature_inf = 500;
+    double length2 = 2;
+    double conduction1 = 0.0347 / 2;
+    double conduction2 = 0.2158 / 100;
+    double convection = 3.;
+    double source1 = 3.;
+    double source2 = 0.;
+    double temperature_inf = 600;
     checksum += test_constant(number_of_points,
                               radius_num_intervals,
                               length1,

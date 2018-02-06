@@ -1,7 +1,6 @@
 #include "Heat_Transfer_Integration.hh"
 
 #include <limits>
-#include <iostream>
 
 #include "Check.hh"
 #include "Heat_Transfer_Data.hh"
@@ -145,7 +144,7 @@ perform_integration()
             }
         }
     }
-    
+
     // Skip interior surface for cylindrical geometry
     int number_of_surfaces = mesh_->number_of_surfaces();
     int first_surface;
@@ -236,7 +235,7 @@ perform_integration()
                             matrix_[w_ind][w_b_ind] += quad_weight * w_val[w] * b_val[b] * convection;
                             break;
                         case Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_1D:
-                            matrix_[w_ind][w_b_ind] += quad_weight * w_val[w] * b_val[b] * position[0];
+                            matrix_[w_ind][w_b_ind] += quad_weight * w_val[w] * b_val[b] * convection * position[0];
                             break;
                         }
                     }

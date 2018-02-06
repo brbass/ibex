@@ -34,17 +34,17 @@
       </positions>
     </boundary_surfaces>
     
-    <error integration_ordinates='256'
+    <error integration_ordinates='16'
            norm='linf'>
-      <dimensional_cells>1 1</dimensional_cells>
+      <dimensional_cells>10 10</dimensional_cells>
     </error>
-    <error integration_ordinates='256'
+    <error integration_ordinates='16'
            norm='l1'>
-      <dimensional_cells>1 1</dimensional_cells>
+      <dimensional_cells>10 10</dimensional_cells>
     </error>
-    <error integration_ordinates='256'
+    <error integration_ordinates='16'
            norm='integral'>
-      <dimensional_cells>1 1</dimensional_cells>
+      <dimensional_cells>10 10</dimensional_cells>
     </error>
   </manufactured>
   <spatial_discretization input_format='cartesian'>
@@ -57,10 +57,10 @@
              output_integrals='false'
              adaptive_quadrature='false'>
       <tau>1.0</tau>
-      <integration_ordinates>32</integration_ordinates>
-      <dimensional_cells>20 20</dimensional_cells>
+      <integration_ordinates>16</integration_ordinates>
+      <dimensional_cells>150 150</dimensional_cells>
     </options>
-    <dimensional_points>21 21</dimensional_points>
+    <dimensional_points>151 151</dimensional_points>
     <weight_functions>
       <radius_calculation method='coverage'>
         <number_of_neighbors>12</number_of_neighbors>

@@ -230,8 +230,8 @@ expansion_value(int i,
     for (int j = 0; j < number_of_basis_functions; ++j)
     {
         int index = basis_indices[j];
-        double val = basis_vals[j];
-        val += val * coefficients[index];
+        double basis_val = basis_vals[j];
+        val += basis_val * coefficients[index];
     }
     
     return val;
@@ -288,11 +288,11 @@ expansion_values(int i,
     for (int j = 0; j < number_of_basis_functions; ++j)
     {
         int basis_index = basis_indices[j];
-        double val = basis_vals[j];
+        double basis_val = basis_vals[j];
         for (int g = 0; g < number_of_groups; ++g)
         {
             int index = g + number_of_groups * basis_index;
-            vals[g] += val * coefficients[index];
+            vals[g] += basis_val * coefficients[index];
         }
     }
     
