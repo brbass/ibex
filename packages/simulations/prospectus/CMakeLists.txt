@@ -4,9 +4,10 @@ macro(include_test test_exec test_src test_args)
     
     add_executable(${test_exec} ${test_src})
     target_link_libraries(${test_exec} ${test_dependencies})
-    add_test(${test_exec} ${test_exec} ${test_args})
+    if(${is_test})
+        add_test(${test_exec} ${test_exec} ${test_args})
+    endif()
     install(TARGETS ${test_exec} DESTINATION ${CMAKE_INSTALL_PREFIX}/test)
 endmacro()
 
-include_test(tst_infinite_medium tst_Infinite_Medium.cc "")
-include_test(tst_pincell tst_Pincell.cc "2")
+include_test(tst_prospectus tst_Prospectus.cc "" false)

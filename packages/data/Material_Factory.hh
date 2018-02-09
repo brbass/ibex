@@ -27,6 +27,11 @@ public:
                                                     std::vector<double> const &sigma_f_data,
                                                     std::vector<double> const &chi_data,
                                                     std::vector<double> const &internal_source_data) const;
+    std::shared_ptr<Material> get_full_fission_material(int index,
+                                                        std::vector<double> const &sigma_t_data,
+                                                        std::vector<double> const &sigma_s_data,
+                                                        std::vector<double> const &sigma_f_data,
+                                                        std::vector<double> const &internal_source_data) const;
     
 private:
     

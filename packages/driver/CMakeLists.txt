@@ -1,5 +1,5 @@
 set(library_name driver)
-set(library_dependencies external utilities angular_discretization energy_discretization spatial_discretization data operator solver manufactured)
+set(library_dependencies external utilities angular_discretization energy_discretization spatial_discretization data operator solver manufactured heat)
 
 include_directories(${global_include_directories})
 

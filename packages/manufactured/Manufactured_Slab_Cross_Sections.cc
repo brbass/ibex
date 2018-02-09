@@ -16,7 +16,7 @@ Manufactured_Slab_Cross_Sections(shared_ptr<Angular_Discretization> angular,
                                  vector<vector<double> > const &sigma_s):
     Manufactured_Cross_Sections(angular,
                                 energy),
-    number_of_regions_(sigma_t_.size()),
+    number_of_regions_(sigma_t.size()),
     interface_positions_(interface_positions),
     sigma_t_(sigma_t),
     sigma_s_(sigma_s)

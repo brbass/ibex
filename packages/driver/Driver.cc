@@ -49,10 +49,6 @@ run_problem()
                                             print_progress);
         transport_problem.solve();
     }
-    else if (problem_type == "integration")
-    {
-        AssertMsg(false, "integration not implemented");
-    }
     else if (problem_type == "manufactured")
     {
         Manufactured_Problem manufactured_problem(input_node,
