@@ -23,7 +23,8 @@ public:
                         std::function<double(std::vector<double> const &)> temperature,
                         std::shared_ptr<Angular_Discretization> angular,
                         std::shared_ptr<Energy_Discretization> energy,
-                        std::vector<std::shared_ptr<Material> > materials);
+                        std::vector<std::shared_ptr<Material> > materials,
+                        std::shared_ptr<Boundary_Source> boundary_source);
 
     virtual int dimension() const override;
     virtual int find_region(std::vector<double> const &position) const override
@@ -114,6 +115,7 @@ private:
     int number_of_problem_types_;
     int number_of_temperature_types_;
     std::vector<std::shared_ptr<Material> > materials_;
+    std::shared_ptr<Boundary_Source> boundary_source_;
 };
 
 #endif

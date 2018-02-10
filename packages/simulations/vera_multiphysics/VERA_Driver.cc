@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "Angular_Discretization_Parser.hh"
+#include "Boundary_Source_Parser.hh"
 #include "Energy_Discretization.hh"
 #include "Energy_Discretization_Parser.hh"
 #include "LDFE_Quadrature.hh"
@@ -34,14 +35,24 @@ void run_problem(string filename)
                                     energy);
     vector<shared_ptr<Material> > materials
         = material_parser.parse_from_xml(input_node.get_child("materials"));
-
+    
+    // Get boundary source
+    Boundary_Source_Parser boundary_parser(angular,
+                                           energy);
+    vector<shared_ptr<Boundary_Source> > boundary_sources
+        = boundary_parser.parse_from_xml(input_node.get_child("boundary_sources"));
+    Assert(boundary_sources.size() == 1);
+    
     // Get solid geometry
     shared_ptr<VERA_Solid_Geometry> solid
         = make_shared<VERA_Solid_Geometry>(false,
                                            [](vector<double> const &){return 600;},
                                            angular,
                                            energy,
-                                           materials);
+                                           materials,
+                                           boundary_sources[0]);
+
+    
 }
 
 int main(int argc, char **argv)

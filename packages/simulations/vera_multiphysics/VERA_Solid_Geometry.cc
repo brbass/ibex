@@ -16,7 +16,8 @@ VERA_Solid_Geometry(bool include_ifba,
                     function<double(vector<double> const &)> temperature,
                     shared_ptr<Angular_Discretization> angular,
                     shared_ptr<Energy_Discretization> energy,
-                    std::vector<std::shared_ptr<Material> > materials):
+                    vector<shared_ptr<Material> > materials,
+                    shared_ptr<Boundary_Source> boundary_source):
     include_ifba_(include_ifba),
     temperature_(temperature),
     angular_(angular),
@@ -26,7 +27,8 @@ VERA_Solid_Geometry(bool include_ifba,
     number_of_material_types_(5),
     number_of_problem_types_(2),
     number_of_temperature_types_(2),
-    materials_(materials)
+    materials_(materials),
+    boundary_source_(boundary_source)
 {
     material_radii2_
         = {0.4096, 0.4106, 0.418, 0.475, 10};
@@ -144,17 +146,21 @@ weighted_material(double temperature,
         = weighted_cross_section(temperature,
                                  mat600->sigma_f()->data(),
                                  mat1000->sigma_f()->data());
+    vector<double> internal_source
+        = weighted_cross_section(temperature,
+                                 mat600->internal_source()->data(),
+                                 mat1000->internal_source()->data());
 
     // Get material
     return material_factory_->get_full_fission_material(0, // index
                                                         sigma_t,
                                                         sigma_s,
                                                         sigma_f,
-                                                        {0, 0}); // internal source
+                                                        internal_source);
 }
 
 shared_ptr<Boundary_Source> VERA_Solid_Geometry::
 boundary_source(vector<double> const &position) const
 {
-    Assert(false);
+    return boundary_source_;
 }
