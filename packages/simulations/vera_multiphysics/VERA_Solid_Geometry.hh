@@ -22,7 +22,8 @@ public:
     VERA_Solid_Geometry(bool include_ifba,
                         std::function<double(std::vector<double> const &)> temperature,
                         std::shared_ptr<Angular_Discretization> angular,
-                        std::shared_ptr<Energy_Discretization> energy);
+                        std::shared_ptr<Energy_Discretization> energy,
+                        std::vector<std::shared_ptr<Material> > materials);
 
     virtual int dimension() const override;
     virtual int find_region(std::vector<double> const &position) const override
@@ -69,39 +70,50 @@ public:
     
 private:
 
-    void initialize_materials();
-    void get_cross_sections(double temperature,
-                            std::vector<double> const &position,
-                            std::vector<double> &sigma_t,
-                            std::vector<double> &sigma_s,
-                            std::vector<double> &sigma_f) const;
-
-    // Data
-    bool include_ifba_;
-    std::function<double(std::vector<double> const &)> temperature_;
-    std::shared_ptr<Angular_Discretization> angular_;
-    std::shared_ptr<Energy_Discretization> energy_;
-    std::shared_ptr<Material_Factory> material_factory_;
-
-    // Cross sections
     enum Material_Type
     {
+        NONE = -1,
         FUEL = 0,
         IFBA = 1,
         GAP = 2,
         CLAD = 3,
         MOD = 4
     };
-    enum XS_Type
+    enum Problem_Type
     {
-        NORM_600 = 0,
-        NORM_1000 = 1,
-        IFBA_600 = 2,
-        IFBA_1000 = 3
+        V1B = 0,
+        V1E = 1
     };
+    enum Temperature_Type
+    {
+        K600 = 0,
+        K1000 = 1
+    };
+    
+    double radial_distance2(std::vector<double> const &position) const;
+    std::shared_ptr<Material> get_material_by_index(Material_Type mat_type,
+                                                    Problem_Type prob_type,
+                                                    Temperature_Type temp_type) const;
+    std::vector<double> weighted_cross_section(double temperature,
+                                               std::vector<double> const &xs600,
+                                               std::vector<double> const &xs1000) const;
+    std::shared_ptr<Material> weighted_material(double temperature,
+                                                std::shared_ptr<Material> mat600,
+                                                std::shared_ptr<Material> mat1000) const;
+    
+    // Data
+    bool include_ifba_;
+    std::function<double(std::vector<double> const &)> temperature_;
+    std::shared_ptr<Angular_Discretization> angular_;
+    std::shared_ptr<Energy_Discretization> energy_;
+    std::shared_ptr<Material_Factory> material_factory_;
+    std::vector<double> material_radii2_;
+
+    // Cross sections
     int number_of_material_types_;
-    int number_of_xs_types_;
-    std::vector<std::vector<std::shared_ptr<Material> > > materials_;
+    int number_of_problem_types_;
+    int number_of_temperature_types_;
+    std::vector<std::shared_ptr<Material> > materials_;
 };
 
 #endif
