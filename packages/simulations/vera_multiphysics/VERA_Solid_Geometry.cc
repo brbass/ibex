@@ -56,6 +56,7 @@ VERA_Solid_Geometry(bool include_ifba,
                                                d, // surface dimension
                                                position,
                                                normal);
+            boundary_surfaces_[index]->set_boundary_source(boundary_source);
         }
     }
     
@@ -85,7 +86,7 @@ get_material_by_index(Material_Type mat_type,
                       Problem_Type prob_type,
                       Temperature_Type temp_type) const
 {
-    int index = mat_type + number_of_material_types_ * (prob_type * number_of_problem_types_ * temp_type);
+    int index = static_cast<int>(mat_type) + number_of_material_types_ * (static_cast<int>(prob_type) + number_of_problem_types_ * static_cast<int>(temp_type));
     
     return materials_[index];
 }
