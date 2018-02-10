@@ -11,6 +11,7 @@
 
 class Angular_Discretization;
 class Boundary_Source;
+class Cartesian_Plane;
 class Energy_Discretization;
 class Material;
 class Material_Factory;
@@ -69,6 +70,11 @@ public:
         AssertMsg(false, "not implemented");
     }
     
+    std::vector<std::shared_ptr<Cartesian_Plane> > cartesian_boundary_surfaces() const
+    {
+        return boundary_surfaces_;
+    }
+    
 private:
 
     enum Material_Type
@@ -88,7 +94,7 @@ private:
     enum Temperature_Type
     {
         K600 = 0,
-        K1000 = 1
+        K1200 = 1
     };
     
     double radial_distance2(std::vector<double> const &position) const;
@@ -97,10 +103,10 @@ private:
                                                     Temperature_Type temp_type) const;
     std::vector<double> weighted_cross_section(double temperature,
                                                std::vector<double> const &xs600,
-                                               std::vector<double> const &xs1000) const;
+                                               std::vector<double> const &xs1200) const;
     std::shared_ptr<Material> weighted_material(double temperature,
                                                 std::shared_ptr<Material> mat600,
-                                                std::shared_ptr<Material> mat1000) const;
+                                                std::shared_ptr<Material> mat1200) const;
     
     // Data
     bool include_ifba_;
@@ -109,6 +115,7 @@ private:
     std::shared_ptr<Energy_Discretization> energy_;
     std::shared_ptr<Material_Factory> material_factory_;
     std::vector<double> material_radii2_;
+    std::vector<std::shared_ptr<Cartesian_Plane> > boundary_surfaces_;
 
     // Cross sections
     int number_of_material_types_;

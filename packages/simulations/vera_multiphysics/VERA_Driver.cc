@@ -5,17 +5,26 @@
 
 #include "Angular_Discretization_Parser.hh"
 #include "Boundary_Source_Parser.hh"
+#include "Cartesian_Plane.hh"
 #include "Energy_Discretization.hh"
 #include "Energy_Discretization_Parser.hh"
+#include "Krylov_Eigenvalue.hh"
 #include "LDFE_Quadrature.hh"
 #include "Material_Parser.hh"
+#include "Solver.hh"
+#include "Solver_Parser.hh"
+#include "Transport_Discretization.hh"
 #include "VERA_Solid_Geometry.hh"
+#include "Weak_RBF_Sweep.hh"
+#include "Weak_Spatial_Discretization.hh"
+#include "Weak_Spatial_Discretization_Parser.hh"
+#include "Weak_Sweep_Parser.hh"
 #include "XML_Document.hh"
 #include "XML_Node.hh"
 
 using namespace std;
 
-void run_problem(string filename)
+void test_problem(string filename)
 {
     XML_Document input_file(filename);
     XML_Node input_node = input_file.get_child("input");
@@ -52,6 +61,41 @@ void run_problem(string filename)
                                            materials,
                                            boundary_sources[0]);
 
+    // Get boundary surfaces
+    vector<shared_ptr<Cartesian_Plane> > boundary_surfaces
+        = solid->cartesian_boundary_surfaces();
+    
+    // Get spatial discretization
+    Weak_Spatial_Discretization_Parser spatial_parser(solid,
+                                                      boundary_surfaces);
+    shared_ptr<Weak_Spatial_Discretization> spatial
+        = spatial_parser.get_weak_discretization(input_node.get_child("spatial_discretization"));
+    
+    // Get transport discretization
+    shared_ptr<Transport_Discretization> transport
+        = make_shared<Transport_Discretization>(spatial,
+                                                angular,
+                                                energy);
+
+    // Get sweep
+    Weak_Sweep_Parser sweep_parser(spatial,
+                                   angular,
+                                   energy,
+                                   transport);
+    shared_ptr<Weak_RBF_Sweep> sweep
+        = sweep_parser.get_weak_rbf_sweep(input_node.get_child("transport"));
+    
+    // Get solver
+    Solver_Parser solver_parser(spatial,
+                                angular,
+                                energy,
+                                transport);
+    shared_ptr<Solver> solver
+        = solver_parser.get_krylov_eigenvalue(input_node.get_child("solver"),
+                                              sweep);
+    solver->solve();
+    
+    
     
 }
 
@@ -63,12 +107,15 @@ int main(int argc, char **argv)
     if (argc != 2)
     {
         cerr << "need input file" << endl;
+        return 1;
     }
 
     string filename = argv[1];
 
-    run_problem(filename);
+    test_problem(filename);
         
     // Close MPI
     MPI_Finalize();
+
+    return 0;
 }

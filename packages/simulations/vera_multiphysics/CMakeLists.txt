@@ -5,9 +5,11 @@ macro(include_executable test_exec test_src)
     message(${test_src})
     add_executable(${test_exec} ${test_src})
     target_link_libraries(${test_exec} ${test_dependencies})
-    install(TARGETS ${test_exec} DESTINATION ${CMAKE_INSTALL_PREFIX}/simulations)
+    install(TARGETS ${test_exec} DESTINATION ${CMAKE_INSTALL_PREFIX}/simulations/vera_multiphysics)
 endmacro()
 
 file(GLOB src *.cc *.hh)
 
-include_executable(vera_multiphysics "${src}")
+include_executable(vera "${src}")
+
+add_subdirectory(input)

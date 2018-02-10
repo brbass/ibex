@@ -5,6 +5,7 @@
 #include "Angular_Discretization.hh"
 #include "Energy_Discretization.hh"
 #include "Boundary_Source.hh"
+#include "Cartesian_Plane.hh"
 #include "Cross_Section.hh"
 #include "Material.hh"
 #include "Material_Factory.hh"
@@ -30,11 +31,32 @@ VERA_Solid_Geometry(bool include_ifba,
     materials_(materials),
     boundary_source_(boundary_source)
 {
+    // Set up radii
     material_radii2_
-        = {0.4096, 0.4106, 0.418, 0.475, 10};
+        = {0.4096, 0.4106, 0.418, 0.475, 0.891};
     for (double &radius : material_radii2_)
     {
         radius = radius * radius;
+    }
+
+    // Get boundary surfaces
+    double prob_radius = 0.63;
+    boundary_surfaces_.resize(4);
+    for (int d = 0; d < 2; ++d)
+    {
+        for (int n = 0; n < 2; ++n)
+        {
+            double normal = n == 0 ? -1 : 1;
+            double position = n == 0 ? -prob_radius : prob_radius;
+            int index = n + 2 * d;
+            boundary_surfaces_[index]
+                = make_shared<Cartesian_Plane>(index,
+                                               2, // dimension
+                                               Surface::Surface_Type::BOUNDARY,
+                                               d, // surface dimension
+                                               position,
+                                               normal);
+        }
     }
     
     check_class_invariants();
@@ -97,32 +119,32 @@ material(vector<double> const &position) const
     shared_ptr<Material> mat600 = get_material_by_index(mat_type,
                                                         prob_type,
                                                         K600);
-    shared_ptr<Material> mat1000 = get_material_by_index(mat_type,
+    shared_ptr<Material> mat1200 = get_material_by_index(mat_type,
                                                          prob_type,
-                                                         K1000);
+                                                         K1200);
     
     // Weight materials according to temperature
     double const temperature = temperature_(position);
     
     return weighted_material(temperature,
                              mat600,
-                             mat1000);
+                             mat1200);
 }
 
 vector<double> VERA_Solid_Geometry::
 weighted_cross_section(double temperature,
                        vector<double> const &xs600,
-                       vector<double> const &xs1000) const
+                       vector<double> const &xs1200) const
 {
     double const t600 = 600;
-    double const t1000 = 1000;
-    double const tconst = sqrt(t600 / temperature) - sqrt(t600 / t1000);
+    double const t1200 = 1200;
+    double const tconst = sqrt(t600 / temperature) - sqrt(t600 / t1200);
     
     int size = xs600.size();
     vector<double> xsnew(size);
     for (int i = 0; i < size; ++i)
     {
-        xsnew[i] = xs1000[i] + tconst * xs600[i];
+        xsnew[i] = xs1200[i] + tconst * xs600[i];
     }
 
     return xsnew;
@@ -131,25 +153,25 @@ weighted_cross_section(double temperature,
 shared_ptr<Material> VERA_Solid_Geometry::
 weighted_material(double temperature,
                   shared_ptr<Material> mat600,
-                  shared_ptr<Material> mat1000) const
+                  shared_ptr<Material> mat1200) const
 {
     // Get weighted cross sections
     vector<double> sigma_t
         = weighted_cross_section(temperature,
                                  mat600->sigma_t()->data(),
-                                 mat1000->sigma_t()->data());
+                                 mat1200->sigma_t()->data());
     vector<double> sigma_s
         = weighted_cross_section(temperature,
                                  mat600->sigma_s()->data(),
-                                 mat1000->sigma_s()->data());
+                                 mat1200->sigma_s()->data());
     vector<double> sigma_f
         = weighted_cross_section(temperature,
                                  mat600->sigma_f()->data(),
-                                 mat1000->sigma_f()->data());
+                                 mat1200->sigma_f()->data());
     vector<double> internal_source
         = weighted_cross_section(temperature,
                                  mat600->internal_source()->data(),
-                                 mat1000->internal_source()->data());
+                                 mat1200->internal_source()->data());
 
     // Get material
     return material_factory_->get_full_fission_material(0, // index
