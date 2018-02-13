@@ -2,8 +2,7 @@
        print='true'
        number_of_threads='8'>
   <heat>
-    <spatial_discretization input_format='cartesian'
-                            points_file='square_1.26_16.xml'>
+    <spatial_discretization input_format='cartesian'>
       <options weighting='flat'
                external_integral_calculation='true'
                supg='false'
@@ -397,7 +396,7 @@
       </boundary_source>
     </boundary_sources>
     <spatial_discretization input_format='galerkin_points'
-                            points_file='square_1.26_6.xml'>
+                            points_file='square_1.26_16.xml'>
       <options weighting='full'
                external_integral_calculation='true'
                supg='true'
@@ -410,7 +409,7 @@
                maximum_integration_ordinates='1024'>
         <tau>1.0</tau>
         <integration_ordinates>16</integration_ordinates>
-        <dimensional_cells>5 5</dimensional_cells>
+        <dimensional_cells>15 15</dimensional_cells>
       </options>
       <weight_functions>
         <radius_calculation method='coverage'>
@@ -433,7 +432,7 @@
             explicit_inverse='false'
             max_iterations='400'
             kspace='20'
-            solver_print='1'
+            solver_print='0'
             eigenvalue_tolerance='1e-8'>
     </solver>
   </transport>

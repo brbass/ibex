@@ -21,6 +21,8 @@ Heat_Transfer_Solve(shared_ptr<Heat_Transfer_Integration> integration,
     integration_(integration),
     spatial_(spatial)
 {
+    Assert(integration_);
+    Assert(spatial_);
 }
 
 shared_ptr<Heat_Transfer_Solution> Heat_Transfer_Solve::

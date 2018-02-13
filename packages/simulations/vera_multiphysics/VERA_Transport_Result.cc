@@ -1,5 +1,7 @@
 #include "VERA_Transport_Result.hh"
 
+#include <cmath>
+
 #include "Angular_Discretization.hh"
 #include "Cross_Section.hh"
 #include "Energy_Discretization.hh"
@@ -122,7 +124,7 @@ normalize()
     sum *= 2 * M_PI;
         
     // Normalize flux coefficients
-    double const desired_power = 66945.4;
+    double const desired_power = 173.884;
     vector<double> &coefficients = result_->coefficients;
     for (double &coefficient : coefficients)
     {

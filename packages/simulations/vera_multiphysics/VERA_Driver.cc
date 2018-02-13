@@ -150,8 +150,8 @@ run_heat(XML_Node input_node,
     shared_ptr<Heat_Transfer_Solution> solution
         = solver->solve();
 
-    return make_shared<VERA_Temperature>([&solution](vector<double> const & position)
-                                         {return solution->solution(position); });
+    return make_shared<VERA_Temperature>([solution](vector<double> const & position)
+                                         {return solution->solution({sqrt(position[0] * position[0] + position[1] * position[1])});});
 }
 
 void run_test(XML_Node input_node)
@@ -172,7 +172,19 @@ void run_test(XML_Node input_node)
 
     for (double r = 0; r < 0.475; r += 0.01)
     {
-        vector<double> position = {r};
+        vector<double> position = {r, 0};
+        
+        cout << r << "\t" << (*temperature)(position) << endl;
+    }
+    
+    result = run_transport(input_node.get_child("transport"),
+                           temperature);
+    temperature = run_heat(input_node.get_child("heat"),
+                           result);
+    
+    for (double r = 0; r < 0.475; r += 0.01)
+    {
+        vector<double> position = {r, 0};
 
         cout << r << "\t" << (*temperature)(position) << endl;
     }

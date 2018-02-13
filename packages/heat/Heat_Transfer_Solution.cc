@@ -11,6 +11,7 @@ Heat_Transfer_Solution(shared_ptr<Weak_Spatial_Discretization> spatial,
     spatial_(spatial),
     coefficients_(coefficients)
 {
+    Assert(spatial);
 }
 
 double Heat_Transfer_Solution::
