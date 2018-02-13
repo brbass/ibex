@@ -159,9 +159,19 @@ run_heat(XML_Node input_node,
                                            spatial);
     shared_ptr<Heat_Transfer_Solution> solution
         = solver->solve();
-
-    return make_shared<VERA_Temperature>([solution](vector<double> const & position)
-                                         {return solution->solution({sqrt(position[0] * position[0] + position[1] * position[1])});});
+    
+    return make_shared<VERA_Temperature>([solution](vector<double> const & position) -> double
+                                         {
+                                             double radius = sqrt(position[0] * position[0] + position[1] * position[1]);
+                                             if (radius > 0.475)
+                                             {
+                                                 return 600.0;
+                                             }
+                                             else
+                                             {
+                                                 return solution->solution({radius});
+                                             }
+                                         });
 }
 
 void run_test(XML_Node input_node)
