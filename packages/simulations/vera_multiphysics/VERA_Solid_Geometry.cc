@@ -139,15 +139,19 @@ weighted_cross_section(double temperature,
 {
     double const t600 = 600;
     double const t1200 = 1200;
-    double const tconst = sqrt(t600 / temperature) - sqrt(t600 / t1200);
+    double const t600_t = sqrt(t600 / temperature);
+    double const t600_1200 = sqrt(t600 / t1200);
+    double const mult600 = t600_1200 - t600_t;
+    double const mult1200 = t600_t - 1;
+    double const multden = 1. / (t600_1200 - 1);
     
     int size = xs600.size();
     vector<double> xsnew(size);
     for (int i = 0; i < size; ++i)
     {
-        xsnew[i] = xs1200[i] + tconst * xs600[i];
+        xsnew[i] = (xs600[i] * mult600 + xs1200[i] * mult1200) * multden;
     }
-
+    
     return xsnew;
 }
 

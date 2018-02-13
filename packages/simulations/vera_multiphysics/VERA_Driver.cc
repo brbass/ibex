@@ -70,6 +70,16 @@ run_transport(XML_Node input_node,
                                            materials,
                                            boundary_sources[0]);
 
+    {
+        vector<double> const sigma_t_test
+            = solid->material({0, 0})->sigma_t()->data();
+
+        for (int g = 0; g < 2; ++g)
+        {
+            cout << sigma_t_test[g] << endl;
+        }
+    }
+    
     // Get boundary surfaces
     vector<shared_ptr<Cartesian_Plane> > boundary_surfaces
         = solid->cartesian_boundary_surfaces();
@@ -158,7 +168,7 @@ void run_test(XML_Node input_node)
 {
     // Get initial temperature
     shared_ptr<VERA_Temperature> temperature
-        = make_shared<VERA_Temperature>([](vector<double> const &){return 600;});
+        = make_shared<VERA_Temperature>([](vector<double> const &){return 120;});
 
     // Run transport calculation
     shared_ptr<VERA_Transport_Result> result
