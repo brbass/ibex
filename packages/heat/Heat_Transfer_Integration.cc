@@ -12,23 +12,26 @@ using namespace std;
 
 Heat_Transfer_Integration::
 Heat_Transfer_Integration(shared_ptr<Heat_Transfer_Integration_Options> options,
-                          shared_ptr<Integration_Mesh_Options> integration_options,
                           shared_ptr<Heat_Transfer_Data> data,
                           shared_ptr<Weak_Spatial_Discretization> spatial):
     options_(options),
-    mesh_(make_shared<Integration_Mesh>(spatial->dimension(),
-                                        spatial->number_of_points(),
-                                        integration_options,
-                                        spatial->bases(),
-                                        spatial->weights())),
     data_(data),
     spatial_(spatial)
 {
+    // Get integration mesh
+    shared_ptr<Integration_Mesh_Options> integration_options
+        = make_shared<Integration_Mesh_Options>();
+    integration_options->initialize_from_weak_options(spatial->options());
+    mesh_ = make_shared<Integration_Mesh>(spatial->dimension(),
+                                          spatial->number_of_points(),
+                                          integration_options,
+                                          spatial->bases(),
+                                          spatial->weights());
     Assert(options_);
     Assert(data_);
     Assert(spatial_);
     Assert(mesh_);
-
+    
     initialize_integrals();
     perform_integration();
 }

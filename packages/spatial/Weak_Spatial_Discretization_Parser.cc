@@ -623,6 +623,8 @@ get_weak_options(XML_Node input_node) const
     options->integration_ordinates = input_node.get_child_value<int>("integration_ordinates");
     options->external_integral_calculation = input_node.get_attribute<bool>("external_integral_calculation",
                                                                             options->external_integral_calculation);
+    options->perform_integration = input_node.get_attribute<bool>("perform_integration",
+options->perform_integration);
     if (options->external_integral_calculation)
     {
         options->adaptive_quadrature = input_node.get_attribute<bool>("adaptive_quadrature", options->adaptive_quadrature);

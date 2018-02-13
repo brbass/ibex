@@ -123,7 +123,8 @@ get_spatial_discretization_1d(int number_of_points,
     weight_options->tau_const = 0.0;
     shared_ptr<Weak_Spatial_Discretization_Options> weak_options
         = make_shared<Weak_Spatial_Discretization_Options>();
-    weak_options->integration_ordinates = 2;
+    weak_options->dimensional_cells = {number_of_points - 1};
+    weak_options->integration_ordinates = 32;
     weak_options->include_supg = false;
     
     Weak_Spatial_Discretization_Factory factory(solid,
@@ -159,13 +160,8 @@ get_cylindrical_1d(int number_of_points,
     shared_ptr<Heat_Transfer_Integration_Options> options
         = make_shared<Heat_Transfer_Integration_Options>();
     options->geometry = Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_1D;
-    shared_ptr<Integration_Mesh_Options> integration_options
-        = make_shared<Integration_Mesh_Options>();
-    integration_options->initialize_from_weak_options(spatial->options());
-    integration_options->integration_ordinates = 64;
     shared_ptr<Heat_Transfer_Integration> integration
         = make_shared<Heat_Transfer_Integration>(options,
-                                                 integration_options,
                                                  data,
                                                  spatial);
     

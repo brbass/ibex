@@ -25,7 +25,6 @@ class Heat_Transfer_Integration
 public:
     
     Heat_Transfer_Integration(std::shared_ptr<Heat_Transfer_Integration_Options> options,
-                              std::shared_ptr<Integration_Mesh_Options> integration_options,
                               std::shared_ptr<Heat_Transfer_Data> data,
                               std::shared_ptr<Weak_Spatial_Discretization> spatial);
 

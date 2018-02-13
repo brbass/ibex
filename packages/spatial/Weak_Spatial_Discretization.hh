@@ -50,6 +50,7 @@ struct Weak_Spatial_Discretization_Options
     std::shared_ptr<Conversion<Identical_Basis_Functions, std::string> > identical_basis_functions_conversion() const;
         
     // External integration parameters: must be set for external calculation
+    bool perform_integration = true;
     bool external_integral_calculation = true;
     bool adaptive_quadrature = false;
     int integration_ordinates = 8; // Dimensional integration quadrature

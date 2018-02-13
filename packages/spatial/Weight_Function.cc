@@ -48,7 +48,8 @@ Weight_Function(int index,
 {
     set_options_and_limits();
     calculate_values();
-    if (!weak_options_->external_integral_calculation)
+    if (!weak_options_->external_integral_calculation
+        && weak_options_->perform_integration)
     {
         calculate_integrals();
         calculate_material();

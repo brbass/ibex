@@ -99,7 +99,8 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
     }
 
     // Perform external integrals, if applicable
-    if (options_->external_integral_calculation)
+    if (options_->external_integral_calculation
+        && options_->perform_integration)
     {
         Weight_Function_Integration integrator(number_of_points_,
                                                options_,

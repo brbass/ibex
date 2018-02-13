@@ -9,6 +9,10 @@
 #include "Cross_Section.hh"
 #include "Energy_Discretization.hh"
 #include "Energy_Discretization_Parser.hh"
+#include "Heat_Transfer_Integration.hh"
+#include "Heat_Transfer_Factory.hh"
+#include "Heat_Transfer_Solve.hh"
+#include "Heat_Transfer_Solution.hh"
 #include "Krylov_Eigenvalue.hh"
 #include "LDFE_Quadrature.hh"
 #include "Material.hh"
@@ -17,7 +21,9 @@
 #include "Solver.hh"
 #include "Solver_Parser.hh"
 #include "Transport_Discretization.hh"
+#include "VERA_Heat_Data.hh"
 #include "VERA_Solid_Geometry.hh"
+#include "VERA_Transport_Result.hh"
 #include "Weak_RBF_Sweep.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weak_Spatial_Discretization_Parser.hh"
@@ -27,111 +33,10 @@
 
 using namespace std;
 
-class VERA_Result
-{
-public:
-    
-    VERA_Result(shared_ptr<Solid_Geometry> solid,
-                shared_ptr<Angular_Discretization> angular,
-                shared_ptr<Energy_Discretization> energy,
-                shared_ptr<Weak_Spatial_Discretization> spatial,
-                shared_ptr<Solver::Result> result):
-        solid_(solid),
-        angular_(angular),
-        energy_(energy),
-        spatial_(spatial),
-        result_(result)
-    {
-        number_of_ordinates_ = 4;
-        Quadrature_Rule::cartesian_1d(Quadrature_Rule::Quadrature_Type::GAUSS_LEGENDRE,
-                                      number_of_ordinates_,
-                                      0,
-                                      M_PI / 4,
-                                      ordinates_,
-                                      weights_);
-    }
-
-    double get_radial_fission_energy(double radius)
-    {
-        // Check whether position is inside the fuel
-        if (radius > 0.4096)
-        {
-            return 0;
-        }
-        
-        // Get size information
-        int number_of_groups = energy_->number_of_groups();
-        int number_of_moments = angular_->number_of_moments();
-
-        // Get angle-independent material at this radius
-        double const mev_to_joule = 1.6021766e-13;
-        shared_ptr<Material> const material
-            = solid_->material({radius, 0});
-        vector<double> const chi_nu_sigma_f
-            = material->sigma_f()->data();
-        vector<double> const nu = {2.66457, 2.44118};
-        vector<double> const kappa = {195.8, 193.4};
-        vector<double> kappa_sigma_f(number_of_groups, 0);
-        for (int gf = 0; gf < number_of_groups; ++gf)
-        {
-            for (int gt = 0; gt < number_of_groups; ++gt)
-            {
-                kappa_sigma_f[gf] += chi_nu_sigma_f[gf + number_of_groups * gt];
-            }
-            
-            kappa_sigma_f[gf] *= kappa[gf] / nu[gf] * mev_to_joule;
-        }
-        
-        // Integrate source radially from 0 to pi/4
-        double source = 0;
-        for (int q = 0; q < number_of_ordinates_; ++q)
-        {
-            // Get position
-            double const theta = ordinates_[q];
-            vector<double> const position
-                = {radius * cos(theta),
-                   radius * sin(theta)};
-            
-            // Get flux values
-            vector<double> const flux
-                = spatial_->expansion_values(number_of_groups * number_of_moments,
-                                             position,
-                                             result_->coefficients);
-            
-            // Get fission source values
-            int const m = 0;
-            for (int g = 0; g < number_of_groups; ++g)
-            {
-                int const k_flux = g + number_of_groups * m;
-                source += flux[k_flux] * kappa_sigma_f[g] * weights_[q];
-            }
-        }
-        
-        // Normalize integral
-        source *= 4 / M_PI;
-        
-        return source;
-    }
-
-private:
-
-    shared_ptr<Solid_Geometry> solid_;
-    shared_ptr<Angular_Discretization> angular_;
-    shared_ptr<Energy_Discretization> energy_;
-    shared_ptr<Weak_Spatial_Discretization> spatial_;
-    shared_ptr<Solver::Result> result_;
-    int number_of_ordinates_;
-    vector<double> ordinates_;
-    vector<double> weights_;
-};
-
-shared_ptr<VERA_Result>
-run_transport(string filename,
+shared_ptr<VERA_Transport_Result>
+run_transport(XML_Node input_node,
               shared_ptr<VERA_Temperature> temperature)
 {
-    XML_Document input_file(filename);
-    XML_Node input_node = input_file.get_child("input");
-    
     // Get energy discretization
     Energy_Discretization_Parser energy_parser;
     shared_ptr<Energy_Discretization> energy
@@ -199,18 +104,78 @@ run_transport(string filename,
                                               sweep);
     solver->solve();
     
-    return make_shared<VERA_Result>(solid,
-                                    angular,
-                                    energy,
-                                    spatial,
-                                    solver->result());
+    return make_shared<VERA_Transport_Result>(solid,
+                                              angular,
+                                              energy,
+                                              spatial,
+                                              solver->result());
 }
 
 shared_ptr<VERA_Temperature> 
-run_heat(string filename,
-         shared_ptr<VERA_Result> result)
+run_heat(XML_Node input_node,
+         shared_ptr<VERA_Transport_Result> result)
 {
+    // Get solid geometry
+    double length = 0.475;
+    shared_ptr<Solid_Geometry> solid;
+    vector<shared_ptr<Cartesian_Plane> > surfaces;
+    Heat_Transfer_Factory factory;
+    factory.get_solid_1d(length,
+                         solid,
+                         surfaces);
+
+    // Get weak spatial discretization
+    Weak_Spatial_Discretization_Parser spatial_parser(solid,
+                                                      surfaces);
+    shared_ptr<Weak_Spatial_Discretization> spatial
+        = spatial_parser.get_weak_discretization(input_node.get_child("spatial_discretization"));
     
+    // Get heat transfer data
+    shared_ptr<VERA_Heat_Data> data
+        = make_shared<VERA_Heat_Data>(result);
+
+    // Get heat transfer integration
+    shared_ptr<Heat_Transfer_Integration_Options> integration_options
+        = make_shared<Heat_Transfer_Integration_Options>();
+    integration_options->geometry = Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_1D;
+    shared_ptr<Heat_Transfer_Integration> integration
+        = make_shared<Heat_Transfer_Integration>(integration_options,
+                                                 data,
+                                                 spatial);
+    
+    // Get heat transfer solver
+    shared_ptr<Heat_Transfer_Solve> solver
+        = make_shared<Heat_Transfer_Solve>(integration,
+                                           spatial);
+    shared_ptr<Heat_Transfer_Solution> solution
+        = solver->solve();
+
+    return make_shared<VERA_Temperature>([&solution](vector<double> const & position)
+                                         {return solution->solution(position); });
+}
+
+void run_test(XML_Node input_node)
+{
+    // Get initial temperature
+    shared_ptr<VERA_Temperature> temperature
+        = make_shared<VERA_Temperature>([](vector<double> const &){return 600;});
+
+    // Run transport calculation
+    shared_ptr<VERA_Transport_Result> result
+        = run_transport(input_node.get_child("transport"),
+                        temperature);
+
+    // Run heat transfer calculation
+    temperature
+        = run_heat(input_node.get_child("heat"),
+                   result);
+
+    for (double r = 0; r < 0.475; r += 0.01)
+    {
+        vector<double> position = {r};
+
+        cout << r << "\t" << (*temperature)(position) << endl;
+    }
 }
 
 int main(int argc, char **argv)
@@ -224,15 +189,12 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    // Get base XML node
     string filename = argv[1];
+    XML_Document input_file(filename);
+    XML_Node input_node = input_file.get_child("input");
 
-    shared_ptr<VERA_Temperature> temperature
-        =                         make_shared<VERA_Temperature>([](vector<double> const &){return 600;});
-    shared_ptr<VERA_Result> result
-        = run_transport(filename,
-                        temperature);
-    
-
+    run_test(input_node);
     
     // Close MPI
     MPI_Finalize();

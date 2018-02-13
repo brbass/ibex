@@ -1,421 +1,440 @@
 <input type='transport'
        print='true'
        number_of_threads='8'>
-  <energy_discretization>
-    <number_of_groups>2</number_of_groups>
-  </energy_discretization>
-  <angular_discretization>
-    <dimension>2</dimension>
-    <number_of_moments>2</number_of_moments>
-    <rule>1</rule>
-  </angular_discretization>
-  <materials include_ifba='false'>
-   <number_of_materials>20</number_of_materials>
-    <material index='0'
-              name='v1b600fuel'>
-      <sigma_t>
-        0.399697649 0.581826884
-      </sigma_t>
-      <sigma_s>
-        0.383829618 0.0
-        0.000830382 0.405420306
-        0.049482651 0.0
-        -0.000261476 0.006013128
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.013687612 0.255838918
-        0.000000015 0.000000189
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='1'
-              name='v1b600ifba'>
-      <sigma_t>
-        0.000060070 0.000021458
-      </sigma_t>
-      <sigma_s>
-        0.000059744 0.0
-        0.000000396 0.000021460
-        0.000011213 0.0
-        -0.000000063 -0.000000063
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='2'
-              name='v1b600gap'>
-      <sigma_t>
-        0.000060070 0.000021458
-      </sigma_t>
-      <sigma_s>
-        0.000059744 0.0
-        0.000000396 0.000021460
-        0.000011213 0.0
-        -0.000000063 -0.000000063
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='3'
-              name='v1b600clad'>
-      <sigma_t>
-        0.319205599 0.297115812
-      </sigma_t>
-      <sigma_s>
-        0.317083075 0.0
-        0.000287583 0.294003048
-        0.052759371 0.0
-        -0.000078648 0.002146731
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='4'
-              name='v1b600moderator'>
-      <sigma_t>
-        0.528320878 1.316352822
-      </sigma_t>
-      <sigma_s>
-        0.486251066 0.000000031
-        0.041923677 1.301429236
-        0.290403747 0.000000031
-        0.018069833 0.523147177
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='5'
-              name='v1e600fuel'>
-      <sigma_t>
-        0.398430149 0.566537670
-      </sigma_t>
-      <sigma_s>
-        0.382535056 0.0
-        0.000821017 0.408203703
-        0.049926556 0.0
-        -0.000258533 0.006196203
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.013877940 0.208179836
-        0.000000015 0.000000160
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='6'
-              name='v1e600ifba'>
-      <sigma_t>
-        0.400687673 18.807866148
-      </sigma_t>
-      <sigma_s>
-        0.272518929 0.0
-        0.001179693 0.284174375
-        0.038021479 0.0
-        -0.000343355 0.009850593
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='7'
-              name='v1e600gap'>
-      <sigma_t>
-        0.000060712 0.000021233
-      </sigma_t>
-      <sigma_s>
-        0.000060487 0.0
-        0.000000400 0.000021243
-        0.000011767 0.0
-        -0.000000079 0.000003495
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='8'
-              name='v1e600clad'>
-      <sigma_t>
-        0.318128762 0.296467308
-      </sigma_t>
-      <sigma_s>
-        0.316009612 0.0
-        0.000284867 0.293736124
-        0.052994156 0.0
-        -0.000078583 0.002164244
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='9'
-              name='v1e600moderator'>
-      <sigma_t>
-        0.589533143 1.404056519
-      </sigma_t>
-      <sigma_s>
-        0.542576514 0.000000034
-        0.046780637 1.389920798
-        0.323899243 0.000000034
-        0.020173486 0.598442391
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='10'
-              name='v1b1200fuel'>
-      <sigma_t>
-        0 0
-      </sigma_t>
-      <sigma_s>
-        0 0 0 0 0 0 0 0
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='11'
-              name='v1b1200ifba'>
-      <sigma_t>
-        0 0
-      </sigma_t>
-      <sigma_s>
-        0 0 0 0 0 0 0 0
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='12'
-              name='v1b1200gap'>
-      <sigma_t>
-        0 0
-      </sigma_t>
-      <sigma_s>
-        0 0 0 0 0 0 0 0
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='13'
-              name='v1b1200clad'>
-      <sigma_t>
-        0 0
-      </sigma_t>
-      <sigma_s>
-        0 0 0 0 0 0 0 0
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='14'
-              name='v1b1200moderator'>
-      <sigma_t>
-        0 0
-      </sigma_t>
-      <sigma_s>
-        0 0 0 0 0 0 0 0
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='15'
-              name='v1e1200fuel'>
-      <sigma_t>
-        0 0
-      </sigma_t>
-      <sigma_s>
-        0 0 0 0 0 0 0 0
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0 0 0 0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='16'
-              name='v1e1200ifba'>
-      <sigma_t>
-        0 0
-      </sigma_t>
-      <sigma_s>
-        0 0 0 0 0 0 0 0
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='17'
-              name='v1e1200gap'>
-      <sigma_t>
-        0 0
-      </sigma_t>
-      <sigma_s>
-        0 0 0 0 0 0 0 0
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='18'
-              name='v1e1200clad'>
-      <sigma_t>
-        0 0
-      </sigma_t>
-      <sigma_s>
-        0 0 0 0 0 0 0 0
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-    <material index='19'
-              name='v1e1200moderator'>
-      <sigma_t>
-        0 0
-      </sigma_t>
-      <sigma_s>
-        0 0 0 0 0 0 0 0
-      </sigma_s>
-      <chi_nu_sigma_f>
-        0.0 0.0
-        0.0 0.0
-      </chi_nu_sigma_f>
-      <internal_source>
-        0.0 0.0
-      </internal_source>
-    </material>
-  </materials>
-  <boundary_sources>
-    <number_of_boundary_sources>1</number_of_boundary_sources>
-    <boundary_source index='0'>
-      <alpha>1.0 1.0</alpha>
-      <isotropic_source>0.0 0.0</isotropic_source>
-    </boundary_source>
-  </boundary_sources>
-  <spatial_discretization input_format='galerkin_points'
-                          points_file='square_1.26_16.xml'>
-    <options weighting='full'
-             external_integral_calculation='true'
-             supg='true'
-             tau_scaling='none'
-             identical_basis_functions='true'
-             output_material='false'
-             output_integrals='false'
-             adaptive_quadrature='true'
-             minimum_radius_ordinates='32'
-             maximum_integration_ordinates='1024'>
-      <tau>1.0</tau>
-      <integration_ordinates>16</integration_ordinates>
-      <dimensional_cells>16 16</dimensional_cells>
-    </options>
-    <weight_functions>
-      <radius_calculation method='coverage'>
-        <number_of_neighbors>8</number_of_neighbors>
-        <radius_multiplier>1.0</radius_multiplier>
-      </radius_calculation>
-      <meshless_function type='linear_mls'
-                         function='wendland11'/>
-    </weight_functions>
-  </spatial_discretization>
-  <problem type='eigenvalue'/>
-  <transport solver='belos'
-             level_of_fill='1.0'
-             drop_tolerance='1e-12'
-             tolerance='1e-10'
-             kspace='40'
-             max_restarts='200'
-             max_iterations='8000'/>
-  <solver type='krylov'
-          explicit_inverse='false'
-          max_iterations='400'
-          kspace='20'
-          solver_print='1'
-          eigenvalue_tolerance='1e-8'>
-    <value type='centers'/>
-    <value type='integral'
-           adaptive_quadrature='false'
-           integration_ordinates='32'>
-      <limits>
-        -0.63 0.63
-        -0.63 0.63
-      </limits>
-      <dimensional_cells>100 100</dimensional_cells>
-    </value>
-  </solver>
+  <heat>
+    <spatial_discretization input_format='cartesian'
+                            points_file='square_1.26_16.xml'>
+      <options weighting='flat'
+               external_integral_calculation='true'
+               supg='false'
+               tau_scaling='none'
+               identical_basis_functions='true'
+               perform_integration='false'
+               output_material='false'
+               output_integrals='false'
+               adaptive_quadrature='false'>
+        <tau>0.0</tau>
+        <integration_ordinates>16</integration_ordinates>
+        <dimensional_cells>160</dimensional_cells>
+      </options>
+      <dimensional_points>161</dimensional_points>
+      <weight_functions>
+        <radius_calculation method='coverage'>
+          <number_of_neighbors>8</number_of_neighbors>
+          <radius_multiplier>1.0</radius_multiplier>
+        </radius_calculation>
+        <meshless_function type='linear_mls'
+                           function='wendland11'/>
+      </weight_functions>
+    </spatial_discretization>
+  </heat>
+  <transport>
+    <energy_discretization>
+      <number_of_groups>2</number_of_groups>
+    </energy_discretization>
+    <angular_discretization>
+      <dimension>2</dimension>
+      <number_of_moments>2</number_of_moments>
+      <rule>1</rule>
+    </angular_discretization>
+    <materials include_ifba='false'>
+      <number_of_materials>20</number_of_materials>
+      <material index='0'
+                name='v1b600fuel'>
+        <sigma_t>
+          0.399697649 0.581826884
+        </sigma_t>
+        <sigma_s>
+          0.383829618 0.0
+          0.000830382 0.405420306
+          0.049482651 0.0
+          -0.000261476 0.006013128
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.013687612 0.255838918
+          0.000000015 0.000000189
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='1'
+                name='v1b600ifba'>
+        <sigma_t>
+          0.000060070 0.000021458
+        </sigma_t>
+        <sigma_s>
+          0.000059744 0.0
+          0.000000396 0.000021460
+          0.000011213 0.0
+          -0.000000063 -0.000000063
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='2'
+                name='v1b600gap'>
+        <sigma_t>
+          0.000060070 0.000021458
+        </sigma_t>
+        <sigma_s>
+          0.000059744 0.0
+          0.000000396 0.000021460
+          0.000011213 0.0
+          -0.000000063 -0.000000063
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='3'
+                name='v1b600clad'>
+        <sigma_t>
+          0.319205599 0.297115812
+        </sigma_t>
+        <sigma_s>
+          0.317083075 0.0
+          0.000287583 0.294003048
+          0.052759371 0.0
+          -0.000078648 0.002146731
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='4'
+                name='v1b600moderator'>
+        <sigma_t>
+          0.528320878 1.316352822
+        </sigma_t>
+        <sigma_s>
+          0.486251066 0.000000031
+          0.041923677 1.301429236
+          0.290403747 0.000000031
+          0.018069833 0.523147177
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='5'
+                name='v1e600fuel'>
+        <sigma_t>
+          0.398430149 0.566537670
+        </sigma_t>
+        <sigma_s>
+          0.382535056 0.0
+          0.000821017 0.408203703
+          0.049926556 0.0
+          -0.000258533 0.006196203
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.013877940 0.208179836
+          0.000000015 0.000000160
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='6'
+                name='v1e600ifba'>
+        <sigma_t>
+          0.400687673 18.807866148
+        </sigma_t>
+        <sigma_s>
+          0.272518929 0.0
+          0.001179693 0.284174375
+          0.038021479 0.0
+          -0.000343355 0.009850593
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='7'
+                name='v1e600gap'>
+        <sigma_t>
+          0.000060712 0.000021233
+        </sigma_t>
+        <sigma_s>
+          0.000060487 0.0
+          0.000000400 0.000021243
+          0.000011767 0.0
+          -0.000000079 0.000003495
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='8'
+                name='v1e600clad'>
+        <sigma_t>
+          0.318128762 0.296467308
+        </sigma_t>
+        <sigma_s>
+          0.316009612 0.0
+          0.000284867 0.293736124
+          0.052994156 0.0
+          -0.000078583 0.002164244
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='9'
+                name='v1e600moderator'>
+        <sigma_t>
+          0.589533143 1.404056519
+        </sigma_t>
+        <sigma_s>
+          0.542576514 0.000000034
+          0.046780637 1.389920798
+          0.323899243 0.000000034
+          0.020173486 0.598442391
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='10'
+                name='v1b1200fuel'>
+        <sigma_t>
+          0 0
+        </sigma_t>
+        <sigma_s>
+          0 0 0 0 0 0 0 0
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='11'
+                name='v1b1200ifba'>
+        <sigma_t>
+          0 0
+        </sigma_t>
+        <sigma_s>
+          0 0 0 0 0 0 0 0
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='12'
+                name='v1b1200gap'>
+        <sigma_t>
+          0 0
+        </sigma_t>
+        <sigma_s>
+          0 0 0 0 0 0 0 0
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='13'
+                name='v1b1200clad'>
+        <sigma_t>
+          0 0
+        </sigma_t>
+        <sigma_s>
+          0 0 0 0 0 0 0 0
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='14'
+                name='v1b1200moderator'>
+        <sigma_t>
+          0 0
+        </sigma_t>
+        <sigma_s>
+          0 0 0 0 0 0 0 0
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='15'
+                name='v1e1200fuel'>
+        <sigma_t>
+          0 0
+        </sigma_t>
+        <sigma_s>
+          0 0 0 0 0 0 0 0
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0 0 0 0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='16'
+                name='v1e1200ifba'>
+        <sigma_t>
+          0 0
+        </sigma_t>
+        <sigma_s>
+          0 0 0 0 0 0 0 0
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='17'
+                name='v1e1200gap'>
+        <sigma_t>
+          0 0
+        </sigma_t>
+        <sigma_s>
+          0 0 0 0 0 0 0 0
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='18'
+                name='v1e1200clad'>
+        <sigma_t>
+          0 0
+        </sigma_t>
+        <sigma_s>
+          0 0 0 0 0 0 0 0
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+      <material index='19'
+                name='v1e1200moderator'>
+        <sigma_t>
+          0 0
+        </sigma_t>
+        <sigma_s>
+          0 0 0 0 0 0 0 0
+        </sigma_s>
+        <chi_nu_sigma_f>
+          0.0 0.0
+          0.0 0.0
+        </chi_nu_sigma_f>
+        <internal_source>
+          0.0 0.0
+        </internal_source>
+      </material>
+    </materials>
+    <boundary_sources>
+      <number_of_boundary_sources>1</number_of_boundary_sources>
+      <boundary_source index='0'>
+        <alpha>1.0 1.0</alpha>
+        <isotropic_source>0.0 0.0</isotropic_source>
+      </boundary_source>
+    </boundary_sources>
+    <spatial_discretization input_format='galerkin_points'
+                            points_file='square_1.26_6.xml'>
+      <options weighting='full'
+               external_integral_calculation='true'
+               supg='true'
+               tau_scaling='none'
+               identical_basis_functions='true'
+               output_material='false'
+               output_integrals='false'
+               adaptive_quadrature='true'
+               minimum_radius_ordinates='32'
+               maximum_integration_ordinates='1024'>
+        <tau>1.0</tau>
+        <integration_ordinates>16</integration_ordinates>
+        <dimensional_cells>5 5</dimensional_cells>
+      </options>
+      <weight_functions>
+        <radius_calculation method='coverage'>
+          <number_of_neighbors>8</number_of_neighbors>
+          <radius_multiplier>1.0</radius_multiplier>
+        </radius_calculation>
+        <meshless_function type='linear_mls'
+                           function='wendland11'/>
+      </weight_functions>
+    </spatial_discretization>
+    <problem type='eigenvalue'/>
+    <transport solver='belos'
+               level_of_fill='1.0'
+               drop_tolerance='1e-12'
+               tolerance='1e-10'
+               kspace='40'
+               max_restarts='200'
+               max_iterations='8000'/>
+    <solver type='krylov'
+            explicit_inverse='false'
+            max_iterations='400'
+            kspace='20'
+            solver_print='1'
+            eigenvalue_tolerance='1e-8'>
+    </solver>
+  </transport>
 </input>
