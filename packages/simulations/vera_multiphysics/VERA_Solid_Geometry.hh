@@ -9,6 +9,8 @@
 #include "Solid_Geometry.hh"
 #include "XML_Node.hh"
 
+typedef std::function<double(std::vector<double> const &)> VERA_Temperature;
+
 class Angular_Discretization;
 class Boundary_Source;
 class Cartesian_Plane;
@@ -21,7 +23,7 @@ class VERA_Solid_Geometry : public Solid_Geometry
 public:
 
     VERA_Solid_Geometry(bool include_ifba,
-                        std::function<double(std::vector<double> const &)> temperature,
+                        std::shared_ptr<VERA_Temperature> temperature,
                         std::shared_ptr<Angular_Discretization> angular,
                         std::shared_ptr<Energy_Discretization> energy,
                         std::vector<std::shared_ptr<Material> > materials,
@@ -110,7 +112,7 @@ private:
     
     // Data
     bool include_ifba_;
-    std::function<double(std::vector<double> const &)> temperature_;
+    std::shared_ptr<VERA_Temperature> temperature_;
     std::shared_ptr<Angular_Discretization> angular_;
     std::shared_ptr<Energy_Discretization> energy_;
     std::shared_ptr<Material_Factory> material_factory_;

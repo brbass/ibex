@@ -14,7 +14,7 @@ using namespace std;
 
 VERA_Solid_Geometry::
 VERA_Solid_Geometry(bool include_ifba,
-                    function<double(vector<double> const &)> temperature,
+                    std::shared_ptr<VERA_Temperature> temperature,
                     shared_ptr<Angular_Discretization> angular,
                     shared_ptr<Energy_Discretization> energy,
                     vector<shared_ptr<Material> > materials,
@@ -125,7 +125,7 @@ material(vector<double> const &position) const
                                                          K1200);
     
     // Weight materials according to temperature
-    double const temperature = temperature_(position);
+    double const temperature = (*temperature_)(position);
     
     return weighted_material(temperature,
                              mat600,

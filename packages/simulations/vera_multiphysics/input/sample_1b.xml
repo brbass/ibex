@@ -9,7 +9,7 @@
     <number_of_moments>2</number_of_moments>
     <rule>1</rule>
   </angular_discretization>
-  <materials>
+  <materials include_ifba='false'>
    <number_of_materials>20</number_of_materials>
     <material index='0'
               name='v1b600fuel'>
