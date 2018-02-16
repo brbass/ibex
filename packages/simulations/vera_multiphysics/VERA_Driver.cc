@@ -69,16 +69,6 @@ run_transport(XML_Node input_node,
                                            energy,
                                            materials,
                                            boundary_sources[0]);
-
-    {
-        vector<double> const sigma_t_test
-            = solid->material({0, 0})->sigma_t()->data();
-
-        for (int g = 0; g < 2; ++g)
-        {
-            cout << sigma_t_test[g] << endl;
-        }
-    }
     
     // Get boundary surfaces
     vector<shared_ptr<Cartesian_Plane> > boundary_surfaces
@@ -113,6 +103,8 @@ run_transport(XML_Node input_node,
         = solver_parser.get_krylov_eigenvalue(input_node.get_child("solver"),
                                               sweep);
     solver->solve();
+
+    cout << "eigenvalue: " << "\t" << solver->result()->k_eigenvalue << endl;
     
     return make_shared<VERA_Transport_Result>(solid,
                                               angular,
@@ -181,32 +173,25 @@ void run_test(XML_Node input_node)
         = make_shared<VERA_Temperature>([](vector<double> const &){return 120;});
 
     // Run transport calculation
-    shared_ptr<VERA_Transport_Result> result
-        = run_transport(input_node.get_child("transport"),
-                        temperature);
+    shared_ptr<VERA_Transport_Result> result;
 
-    // Run heat transfer calculation
-    temperature
-        = run_heat(input_node.get_child("heat"),
-                   result);
-
-    for (double r = 0; r < 0.475; r += 0.01)
+    for (int i = 0; i < 4; ++i)
     {
-        vector<double> position = {r, 0};
+        result
+            = run_transport(input_node.get_child("transport"),
+                            temperature);
         
-        cout << r << "\t" << (*temperature)(position) << endl;
-    }
-    
-    result = run_transport(input_node.get_child("transport"),
-                           temperature);
-    temperature = run_heat(input_node.get_child("heat"),
-                           result);
-    
-    for (double r = 0; r < 0.475; r += 0.01)
-    {
-        vector<double> position = {r, 0};
-
-        cout << r << "\t" << (*temperature)(position) << endl;
+        // Run heat transfer calculation
+        temperature
+            = run_heat(input_node.get_child("heat"),
+                       result);
+        
+        for (double r = 0; r < 0.476; r += 0.025)
+        {
+            vector<double> position = {r, 0};
+            
+            cout << r << "\t" << (*temperature)(position) << endl;
+        }
     }
 }
 
