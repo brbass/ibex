@@ -48,7 +48,14 @@ struct Weak_Spatial_Discretization_Options
         FALSE
     };
     std::shared_ptr<Conversion<Identical_Basis_Functions, std::string> > identical_basis_functions_conversion() const;
-        
+
+    // Type of sweep
+    enum class Discretization
+    {
+        WEAK,
+        STRONG
+    };
+    
     // External integration parameters: must be set for external calculation
     bool perform_integration = true;
     bool external_integral_calculation = true;
@@ -67,6 +74,7 @@ struct Weak_Spatial_Discretization_Options
     Identical_Basis_Functions identical_basis_functions = Identical_Basis_Functions::FALSE;
     Weighting weighting = Weighting::FULL; 
     Tau_Scaling tau_scaling = Tau_Scaling::NONE;
+    Discretization discretization = Discretization::WEAK;
     
     // Automatically set parameters
     bool input_finalized = false;
@@ -195,7 +203,7 @@ public:
                                                  std::vector<double> const &position,
                                                  std::vector<double> const &coefficients) const;
 
-private:
+protected:
 
     // Data
     bool has_reflection_;

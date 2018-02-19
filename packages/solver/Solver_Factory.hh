@@ -42,6 +42,9 @@ public:
     void get_supg_full_source_operators(std::shared_ptr<Sweep_Operator> Linv,
                                         std::shared_ptr<Vector_Operator> &source_operator,
                                         std::shared_ptr<Vector_Operator> &flux_operator) const;
+    void get_strong_source_operators(std::shared_ptr<Sweep_Operator> Linv,
+                                     std::shared_ptr<Vector_Operator> &source_operator,
+                                     std::shared_ptr<Vector_Operator> &flux_operator) const;
     
     // Get combined eigenvalue operators
     void get_eigenvalue_operators(std::shared_ptr<Sweep_Operator> Linv,
@@ -62,6 +65,9 @@ public:
     void get_supg_full_eigenvalue_operators(std::shared_ptr<Sweep_Operator> Linv,
                                             std::shared_ptr<Vector_Operator> &fission_operator,
                                             std::shared_ptr<Vector_Operator> &flux_operator) const;
+    void get_strong_eigenvalue_operators(std::shared_ptr<Sweep_Operator> Linv,
+                                         std::shared_ptr<Vector_Operator> &fission_operator,
+                                         std::shared_ptr<Vector_Operator> &flux_operator) const;
     
     // Get iteration methods
     std::shared_ptr<Source_Iteration> get_source_iteration(std::shared_ptr<Sweep_Operator> Linv,

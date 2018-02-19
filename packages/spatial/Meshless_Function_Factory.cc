@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <numeric>
 
 #include "Cartesian_Distance.hh"
 #include "Cartesian_Plane.hh"
@@ -157,6 +158,64 @@ get_radii_coverage(shared_ptr<KD_Tree> kd_tree,
 }
 
 void Meshless_Function_Factory::
+get_point_neighbors(shared_ptr<KD_Tree> kd_tree,
+                    int dimension,
+                    int number_of_points,
+                    vector<double> const &radii,
+                    vector<vector<double> > const &positions,
+                    vector<vector<int> > &neighbors,
+                    vector<vector<double> > &squared_distances) const
+{
+    Assert(radii.size() == number_of_points);
+    
+    // Find overlapping points
+    neighbors.resize(number_of_points);
+    squared_distances.resize(number_of_points);
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        // Find overlapping points
+        double const search_radius = radii[i];
+        vector<double> const &position = positions[i];
+        vector<int> local_neighbors;
+        vector<double> local_squared_distances;
+        kd_tree->radius_search(search_radius,
+                               position,
+                               local_neighbors,
+                               local_squared_distances);
+        int number_of_neighbors = local_neighbors.size();
+        Assert(number_of_neighbors > 0);
+
+        for (int j = 0; j < number_of_neighbors; ++j)
+        {
+            int k = local_neighbors[j];
+            neighbors[k].push_back(i);
+            squared_distances[k].push_back(local_squared_distances[j]);
+        }
+    }
+
+    // Sort index array in order of ascending distance
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        // Get indices that sort the vectors
+        vector<int> local_neighbors = neighbors[i];
+        vector<double> local_distances = squared_distances[i];
+        int number_of_neighbors = local_neighbors.size();
+        vector<int> indices(number_of_neighbors);
+        iota(indices.begin(), indices.end(), 0);
+        sort(indices.begin(), indices.end(),
+             [&local_distances](int k1, int k2){return local_distances[k1] < local_distances[k2];});
+
+        // Replace neighbors appropriately
+        for (int j = 0; j < number_of_neighbors; ++j)
+        {
+            neighbors[i][j] = local_neighbors[indices[j]];
+            squared_distances[i][j] = local_distances[indices[j]];
+        }
+    }
+}
+    
+
+void Meshless_Function_Factory::
 get_neighbors(shared_ptr<KD_Tree> kd_tree,
               int dimension,
               int number_of_points,
@@ -167,7 +226,7 @@ get_neighbors(shared_ptr<KD_Tree> kd_tree,
               vector<vector<double> > &squared_distances) const
 {
     Assert(radii.size() == number_of_points);
-    Assert(radii.size() == number_of_points);
+    Assert(other_radii.size() == number_of_points);
     
     // Get maximum possible radius for neighboring points
     double max_radius = 0;

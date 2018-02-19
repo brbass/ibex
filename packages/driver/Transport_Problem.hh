@@ -31,15 +31,16 @@ public:
     
 private:
 
-    void get_weak_data(std::shared_ptr<Energy_Discretization> &energy,
+    void get_weak_data(std::string discretization_method,
+                       std::shared_ptr<Energy_Discretization> &energy,
                        std::shared_ptr<Angular_Discretization> &angular,
                        std::shared_ptr<Solid_Geometry> &solid,
                        std::shared_ptr<Weak_Spatial_Discretization> &spatial,
                        std::shared_ptr<Transport_Discretization> &transport,
                        std::shared_ptr<Weak_RBF_Sweep> &sweep);
     
-    void solve_eigenvalue();
-    void solve_steady_state();
+    void solve_eigenvalue(std::string discretization_method);
+    void solve_steady_state(std::string discretization_method);
 
     XML_Node input_node_;
     XML_Node output_node_;

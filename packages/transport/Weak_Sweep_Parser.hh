@@ -20,6 +20,7 @@ public:
                       std::shared_ptr<Transport_Discretization> transport);
     
     std::shared_ptr<Weak_RBF_Sweep> get_weak_rbf_sweep(XML_Node input_node) const;
+    std::shared_ptr<Weak_RBF_Sweep> get_strong_rbf_sweep(XML_Node input_node) const;
 
 private:
     

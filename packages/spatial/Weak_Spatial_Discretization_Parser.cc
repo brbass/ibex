@@ -600,6 +600,7 @@ get_weak_options(XML_Node input_node) const
     int dimension = solid_geometry_->dimension();
     shared_ptr<Weak_Spatial_Discretization_Options> options
         = make_shared<Weak_Spatial_Discretization_Options>();
+    options->discretization = Weak_Spatial_Discretization_Options::Discretization::WEAK;
     Meshless_Function_Factory meshless_factory;
     
     // Get weighting method

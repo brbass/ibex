@@ -1,5 +1,17 @@
 #include "Strong_RBF_Sweep.hh"
 
+#include "Angular_Discretization.hh"
+#include "Basis_Function.hh"
+#include "Boundary_Source.hh"
+#include "Cartesian_Plane.hh"
+#include "Check.hh"
+#include "Conversion.hh"
+#include "Cross_Section.hh"
+#include "Dimensional_Moments.hh"
+#include "Energy_Discretization.hh"
+#include "Material.hh"
+#include "Transport_Discretization.hh"
+
 using namespace std;
 
 Strong_RBF_Sweep::
@@ -27,9 +39,9 @@ get_matrix_row(int i, // weight function index (row)
     shared_ptr<Weight_Function> weight = spatial_discretization_->weight(i);
     int number_of_boundary_surfaces = weight->number_of_basis_functions();
     bool boundary_point = number_of_boundary_surfaces > 0;
-    Weight_Function::Values const values = weight->values();
-    vector<double> const &v_b = values.v_b;
-    vector<double> const &v_db = values.v_db;
+    Weight_Function::Values const weight_values = weight->values();
+    vector<double> const &v_b = weight_values.v_b;
+    vector<double> const &v_db = weight_values.v_db;
     vector<double> const direction = angular_discretization_->direction(o);
     int const number_of_basis_functions = weight->number_of_basis_functions();
     vector<int> const basis_indices = weight->basis_function_indices();
@@ -48,8 +60,8 @@ get_matrix_row(int i, // weight function index (row)
     {
         Assert(number_of_boundary_surfaces < 2);
         shared_ptr<Cartesian_Plane> boundary_surface = weight->boundary_surface(0);
-        int surface_dimension = surface->surface_dimension();
-        double const normal = surface->normal();
+        int surface_dimension = boundary_surface->surface_dimension();
+        double const normal = boundary_surface->normal();
 
         // Only for incoming surfaces
         double dot = normal * direction[surface_dimension];
@@ -94,12 +106,13 @@ get_rhs(int i,
 {
    // Get data
     shared_ptr<Weight_Function> weight = spatial_discretization_->weight(i);
+    vector<double> const direction = angular_discretization_->direction(o);
     int number_of_boundary_surfaces = weight->number_of_basis_functions();
     bool boundary_point = number_of_boundary_surfaces > 0;
     int number_of_ordinates = angular_discretization_->number_of_ordinates();
     int number_of_groups = energy_discretization_->number_of_groups();
     int dimension = spatial_discretization_->dimension();
-    int psi_size = row_size() - number_of_augments;
+    int psi_size = transport_discretization_->psi_size();
     
     value = 0;
     if (boundary_point)
@@ -107,8 +120,8 @@ get_rhs(int i,
         Assert(number_of_boundary_surfaces < 2);
         shared_ptr<Cartesian_Plane> boundary_surface = weight->boundary_surface(0);
         shared_ptr<Boundary_Source> boundary_source = weight->boundary_source(0);
-        int surface_dimension = surface->surface_dimension();
-        double const normal = surface->normal();
+        int surface_dimension = boundary_surface->surface_dimension();
+        double const normal = boundary_surface->normal();
         
         // Only for incoming surfaces
         double dot = normal * direction[surface_dimension];
@@ -141,7 +154,7 @@ get_rhs(int i,
                     value += alpha * v_b[j] * x[index];
                 }
             }
-            break;
+            return;
         }
         // else consider as internal point below
     }

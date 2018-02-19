@@ -49,7 +49,7 @@ public:
                             double radius_multiplier,
                             std::vector<double> &radii) const;
     
-    // Get neighbors for each point, given a radius
+    // Get neighbors for each circular region, given a radius
     // Assumes points for the main set and the neighbor set
     // share center positions and therefore kd_tree.
     void get_neighbors(std::shared_ptr<KD_Tree> kd_tree,
@@ -60,6 +60,15 @@ public:
                        std::vector<std::vector<double> > const &positions,
                        std::vector<std::vector<int> > &neighbors,
                        std::vector<std::vector<double> > &distances) const;
+
+    // Get functions that intersect each point, given a radius
+    void get_point_neighbors(std::shared_ptr<KD_Tree> kd_tree,
+                             int dimension,
+                             int number_of_points,
+                             std::vector<double> const &radii,
+                             std::vector<std::vector<double> > const &positions,
+                             std::vector<std::vector<int> > &neighbors,
+                             std::vector<std::vector<double> > &distances) const;
     
     // Get independent meshless functions
     void get_rbf_functions(int number_of_points,

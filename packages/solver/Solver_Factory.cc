@@ -53,51 +53,61 @@ get_source_operators(shared_ptr<Sweep_Operator> Linv,
                      shared_ptr<Vector_Operator> &source_operator,
                      shared_ptr<Vector_Operator> &flux_operator) const
 {
-    // Check if problem includes SUPG terms
-    bool include_supg = spatial_->options()->include_supg;
-    switch (spatial_->options()->weighting)
+    switch(spatial_->options()->discretization)
     {
-    case Weak_Spatial_Discretization_Options::Weighting::FLUX:
-        if (include_supg)
+    case Weak_Spatial_Discretization_Options::Discretization::WEAK:
+    {
+        // Check if problem includes SUPG terms
+        bool include_supg = spatial_->options()->include_supg;
+        switch (spatial_->options()->weighting)
         {
-            return get_supg_combined_source_operators(Linv,
+        case Weak_Spatial_Discretization_Options::Weighting::FLUX:
+            if (include_supg)
+            {
+                return get_supg_combined_source_operators(Linv,
+                                                          source_operator,
+                                                          flux_operator);
+            }
+            else
+            {
+                return get_standard_source_operators(Linv,
+                                                     source_operator,
+                                                     flux_operator);
+            }
+        case Weak_Spatial_Discretization_Options::Weighting::FULL:
+            // Fallthrough intentional
+        case Weak_Spatial_Discretization_Options::Weighting::BASIS:
+            if (include_supg)
+            {
+                return get_supg_full_source_operators(Linv,
                                                       source_operator,
                                                       flux_operator);
-        }
-        else
-        {
-            return get_standard_source_operators(Linv,
+            }
+            else
+            {
+                return get_full_source_operators(Linv,
                                                  source_operator,
                                                  flux_operator);
-        }
-    case Weak_Spatial_Discretization_Options::Weighting::FULL:
-        // Fallthrough intentional
-    case Weak_Spatial_Discretization_Options::Weighting::BASIS:
-        if (include_supg)
-        {
-            return get_supg_full_source_operators(Linv,
-                                                  source_operator,
-                                                  flux_operator);
-        }
-        else
-        {
-            return get_full_source_operators(Linv,
-                                             source_operator,
-                                             flux_operator);
-        }
-    default:
-        if (include_supg)
-        {
-            return get_supg_source_operators(Linv,
-                                             source_operator,
-                                             flux_operator);
-        }
-        else
-        {
-            return get_standard_source_operators(Linv,
+            }
+        default:
+            if (include_supg)
+            {
+                return get_supg_source_operators(Linv,
                                                  source_operator,
                                                  flux_operator);
+            }
+            else
+            {
+                return get_standard_source_operators(Linv,
+                                                     source_operator,
+                                                     flux_operator);
+            }
         }
+    }
+    case Weak_Spatial_Discretization_Options::Discretization::STRONG:
+        return get_strong_source_operators(Linv,
+                                           source_operator,
+                                           flux_operator);
     }
 }
 
@@ -574,52 +584,63 @@ get_eigenvalue_operators(shared_ptr<Sweep_Operator> Linv,
                          shared_ptr<Vector_Operator> &fission_operator,
                          shared_ptr<Vector_Operator> &flux_operator) const
 {
-    // Check if problem includes SUPG terms
-    bool include_supg = spatial_->options()->include_supg;
-    switch (spatial_->options()->weighting)
+    switch(spatial_->options()->discretization)
     {
-    case Weak_Spatial_Discretization_Options::Weighting::FLUX:
-        if (include_supg)
+    case Weak_Spatial_Discretization_Options::Discretization::WEAK:
+    {
+        // Check if problem includes SUPG terms
+        bool include_supg = spatial_->options()->include_supg;
+        switch (spatial_->options()->weighting)
         {
-            return get_supg_combined_eigenvalue_operators(Linv,
+        case Weak_Spatial_Discretization_Options::Weighting::FLUX:
+            if (include_supg)
+            {
+                return get_supg_combined_eigenvalue_operators(Linv,
+                                                              fission_operator,
+                                                              flux_operator);
+            }
+            else
+            {
+                return get_standard_eigenvalue_operators(Linv,
+                                                         fission_operator,
+                                                         flux_operator);
+            }
+        case Weak_Spatial_Discretization_Options::Weighting::FULL:
+            // Fallthrough intentional
+        case Weak_Spatial_Discretization_Options::Weighting::BASIS:
+            if (include_supg)
+            {
+                return get_supg_full_eigenvalue_operators(Linv,
                                                           fission_operator,
                                                           flux_operator);
-        }
-        else
-        {
-            return get_standard_eigenvalue_operators(Linv,
+            }
+            else
+            {
+                return get_full_eigenvalue_operators(Linv,
                                                      fission_operator,
                                                      flux_operator);
-        }
-    case Weak_Spatial_Discretization_Options::Weighting::FULL:
-        // Fallthrough intentional
-    case Weak_Spatial_Discretization_Options::Weighting::BASIS:
-        if (include_supg)
-        {
-            return get_supg_full_eigenvalue_operators(Linv,
-                                                      fission_operator,
-                                                      flux_operator);
-        }
-        else
-        {
-            return get_full_eigenvalue_operators(Linv,
-                                                 fission_operator,
-                                                 flux_operator);
-        }
-    default:
-        if (include_supg)
-        {
-            return get_supg_eigenvalue_operators(Linv,
-                                                 fission_operator,
-                                                 flux_operator);
-        }
-        else
-        {
-            return get_standard_eigenvalue_operators(Linv,
+            }
+        default:
+            if (include_supg)
+            {
+                return get_supg_eigenvalue_operators(Linv,
                                                      fission_operator,
                                                      flux_operator);
+            }
+            else
+            {
+                return get_standard_eigenvalue_operators(Linv,
+                                                         fission_operator,
+                                                         flux_operator);
+            }
         }
     }
+    case Weak_Spatial_Discretization_Options::Discretization::STRONG:
+        return get_strong_eigenvalue_operators(Linv,
+                                               fission_operator,
+                                               flux_operator);
+    }
+    
 }
 
 void Solver_Factory::
@@ -1114,4 +1135,160 @@ get_krylov_eigenvalue(shared_ptr<Sweep_Operator> Linv) const
                                           fission_operator,
                                           flux_operator,
                                           value_operators); 
+}
+
+void Solver_Factory::
+get_strong_source_operators(shared_ptr<Sweep_Operator> Linv,
+                            shared_ptr<Vector_Operator> &source_operator,
+                            shared_ptr<Vector_Operator> &flux_operator) const
+{
+    // Get size data
+    int phi_size = transport_->phi_size();
+    int number_of_augments = transport_->number_of_augments();
+    
+    // Get moment-to-discrete and discrete-to-moment operators
+    shared_ptr<Vector_Operator> M
+        = make_shared<Moment_To_Discrete>(spatial_,
+                                          angular_,
+                                          energy_);
+    shared_ptr<Vector_Operator> D
+        = make_shared<Discrete_To_Moment>(spatial_,
+                                          angular_,
+                                          energy_);
+    
+    // Get Scattering operators
+    Scattering_Operator::Options scattering_options;
+    shared_ptr<Vector_Operator> S
+        = make_shared<Scattering>(spatial_,
+                                  angular_,
+                                  energy_,
+                                  scattering_options);
+    shared_ptr<Vector_Operator> F
+        = make_shared<Fission>(spatial_,
+                               angular_,
+                               energy_,
+                               scattering_options);
+    
+    // Get weighting operator
+    Weighting_Operator::Options weighting_options;
+    shared_ptr<Vector_Operator> Wm
+        = make_shared<Moment_Value_Operator>(spatial_,
+                                             angular_,
+                                             energy_,
+                                             false); // not weighted
+    
+    // Get source operator
+    shared_ptr<Vector_Operator> Q
+        = make_shared<Internal_Source_Operator>(spatial_,
+                                                angular_,
+                                                energy_);
+    
+    // Add augments to operators
+    if (number_of_augments > 0)
+    {
+        M = make_shared<Augmented_Operator>(number_of_augments,
+                                            M,
+                                            false);
+        D = make_shared<Augmented_Operator>(number_of_augments,
+                                            D,
+                                            false);
+        S = make_shared<Augmented_Operator>(number_of_augments,
+                                            S,
+                                            false);
+        F = make_shared<Augmented_Operator>(number_of_augments,
+                                            F,
+                                            true);
+        Wm = make_shared<Augmented_Operator>(number_of_augments,
+                                             Wm,
+                                             false);
+        Q = make_shared<Augmented_Operator>(number_of_augments,
+                                            Q,
+                                            false);
+    }
+    
+    // Get sweep operator with boundary source off/on
+    shared_ptr<Vector_Operator> LinvB
+        = make_shared<Boundary_Source_Toggle>(true,
+                                              Linv);
+    shared_ptr<Vector_Operator> LinvI
+        = make_shared<Boundary_Source_Toggle>(false,
+                                              Linv);
+    
+    // Get combined operators
+    source_operator
+        = D * LinvB * M * Q;
+    flux_operator
+        = D * LinvI * M * (S + F) * Wm;
+}
+
+void Solver_Factory::
+get_strong_eigenvalue_operators(shared_ptr<Sweep_Operator> Linv,
+                                  shared_ptr<Vector_Operator> &fission_operator,
+                                  shared_ptr<Vector_Operator> &flux_operator) const
+{
+    // Get size data
+    int phi_size = transport_->phi_size();
+    int number_of_augments = transport_->number_of_augments();
+    
+    // Get moment-to-discrete and discrete-to-moment operators
+    shared_ptr<Vector_Operator> M
+        = make_shared<Moment_To_Discrete>(spatial_,
+                                          angular_,
+                                          energy_);
+    shared_ptr<Vector_Operator> D
+        = make_shared<Discrete_To_Moment>(spatial_,
+                                          angular_,
+                                          energy_);
+    
+    // Get Scattering operators
+    Scattering_Operator::Options scattering_options;
+    shared_ptr<Vector_Operator> S
+        = make_shared<Scattering>(spatial_,
+                                  angular_,
+                                  energy_,
+                                  scattering_options);
+    shared_ptr<Vector_Operator> F
+        = make_shared<Fission>(spatial_,
+                               angular_,
+                               energy_,
+                               scattering_options);
+    
+    // Get weighting operator
+    Weighting_Operator::Options weighting_options;
+    shared_ptr<Vector_Operator> W
+        = make_shared<Moment_Value_Operator>(spatial_,
+                                             angular_,
+                                             energy_,
+                                             false); // not weighted
+    
+    // Add augments to operators
+    if (number_of_augments > 0)
+    {
+        M = make_shared<Augmented_Operator>(number_of_augments,
+                                            M,
+                                            false);
+        D = make_shared<Augmented_Operator>(number_of_augments,
+                                            D,
+                                            false);
+        S = make_shared<Augmented_Operator>(number_of_augments,
+                                            S,
+                                            false);
+        F = make_shared<Augmented_Operator>(number_of_augments,
+                                            F,
+                                            true);
+        W = make_shared<Augmented_Operator>(number_of_augments,
+                                            W,
+                                            false);
+    }
+    
+    // Get sweep operator with boundary source off
+    shared_ptr<Vector_Operator> LinvI
+        = make_shared<Boundary_Source_Toggle>(false,
+                                              Linv);
+    
+    // Get combined operators
+    fission_operator
+        = D * LinvI * M * F * W;
+    flux_operator
+        = D * LinvI * M * S * W;
 }

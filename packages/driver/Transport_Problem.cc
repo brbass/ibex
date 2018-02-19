@@ -15,6 +15,8 @@
 #include "Solver.hh"
 #include "Solver_Parser.hh"
 #include "Source_Iteration.hh"
+#include "Strong_Spatial_Discretization.hh"
+#include "Strong_Spatial_Discretization_Parser.hh"
 #include "Timer.hh"
 #include "Transport_Discretization.hh"
 #include "Weak_RBF_Sweep.hh"
@@ -40,15 +42,17 @@ solve()
     Timer timer;
     XML_Node problem_node = input_node_.get_child("problem");
     string type = problem_node.get_attribute<string>("type");
-
+    string discretization_method = problem_node.get_attribute<string>("discretization",
+                                                               "weak");
+    
     timer.start();
     if (type == "eigenvalue")
     {
-        solve_eigenvalue();
+        solve_eigenvalue(discretization_method);
     }
     else if (type == "steady_state")
     {
-        solve_steady_state();
+        solve_steady_state(discretization_method);
     }
     else
     {
@@ -60,7 +64,8 @@ solve()
 }
 
 void Transport_Problem::
-get_weak_data(shared_ptr<Energy_Discretization> &energy,
+get_weak_data(string discretization_method,
+              shared_ptr<Energy_Discretization> &energy,
               shared_ptr<Angular_Discretization> &angular,
               shared_ptr<Solid_Geometry> &solid,
               shared_ptr<Weak_Spatial_Discretization> &spatial,
@@ -122,9 +127,23 @@ get_weak_data(shared_ptr<Energy_Discretization> &energy,
     // Get spatial discretization
     print_message("Parsing spatial discretization");
     timer.start();
+    if (discretization_method == "weak")
+    {
     Weak_Spatial_Discretization_Parser spatial_parser(solid,
                                                       boundary_surfaces);
     spatial = spatial_parser.get_weak_discretization(input_node_.get_child("spatial_discretization"));
+    }
+    else if (discretization_method == "strong")
+    {
+        Strong_Spatial_Discretization_Parser spatial_parser(solid,
+                                                            boundary_surfaces);
+        spatial = spatial_parser.get_strong_discretization(input_node_.get_child("spatial_discretization"));
+    }
+    else
+    {
+        AssertMsg(false, "discretization method (" + discretization_method + ") not found");
+    }
+        
     timer.stop();
     times_.emplace_back(timer.time(), "spatial_initialization");
 
@@ -144,13 +163,25 @@ get_weak_data(shared_ptr<Energy_Discretization> &energy,
                                    angular,
                                    energy,
                                    transport);
-    sweep = sweep_parser.get_weak_rbf_sweep(input_node_.get_child("transport"));
+    if (discretization_method == "weak")
+    {
+        sweep = sweep_parser.get_weak_rbf_sweep(input_node_.get_child("transport"));
+    }
+    else if (discretization_method == "strong")
+    {
+        sweep = sweep_parser.get_strong_rbf_sweep(input_node_.get_child("transport"));
+    }
+    else
+    {
+        AssertMsg(false, "discretization method (" + discretization_method + ") not found");
+    }
+    
     timer.stop();
     times_.emplace_back(timer.time(), "sweep_initialization");
 }
 
 void Transport_Problem::
-solve_steady_state()
+solve_steady_state(string discretization_method)
 {
     Timer timer;
     
@@ -163,7 +194,8 @@ solve_steady_state()
     shared_ptr<Weak_Spatial_Discretization> spatial;
     shared_ptr<Transport_Discretization> transport;
     shared_ptr<Weak_RBF_Sweep> sweep;
-    get_weak_data(energy,
+    get_weak_data(discretization_method,
+                  energy,
                   angular,
                   solid,
                   spatial,
@@ -221,7 +253,7 @@ solve_steady_state()
 }
 
 void Transport_Problem::
-solve_eigenvalue()
+solve_eigenvalue(string discretization_method)
 {
     Timer timer;
     
@@ -234,7 +266,8 @@ solve_eigenvalue()
     shared_ptr<Weak_Spatial_Discretization> spatial;
     shared_ptr<Transport_Discretization> transport;
     shared_ptr<Weak_RBF_Sweep> sweep;
-    get_weak_data(energy,
+    get_weak_data(discretization_method,
+                  energy,
                   angular,
                   solid,
                   spatial,
