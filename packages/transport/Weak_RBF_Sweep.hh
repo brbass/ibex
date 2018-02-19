@@ -91,23 +91,23 @@ public:
                             int g,
                             XML_Node output_node) const;
     
-private:
+protected:
 
     // Vector_Operator function
     virtual void apply(std::vector<double> &x) const override;
 
     // Weak_RBF_Sweep functions
     void update_augments(std::vector<double> &x) const;
-    void get_matrix_row(int i, // weight function index (row)
-                        int o, // ordinate
-                        int g, // group
-                        std::vector<int> &indices, // global basis (column indices)
-                        std::vector<double> &values) const; // column values
-    void get_rhs(int i, // weight function index (row)
-                 int o, // ordinate
-                 int g, // group
-                 std::vector<double> const &x, // angular flux w/ augments
-                 double &value) const; // rhs value
+    virtual void get_matrix_row(int i, // weight function index (row)
+                                int o, // ordinate
+                                int g, // group
+                                std::vector<int> &indices, // global basis (column indices)
+                                std::vector<double> &values) const; // column values
+    virtual void get_rhs(int i, // weight function index (row)
+                         int o, // ordinate
+                         int g, // group
+                         std::vector<double> const &x, // angular flux w/ augments
+                         double &value) const; // rhs value
     
     // Generalized solver
     class Sweep_Solver
