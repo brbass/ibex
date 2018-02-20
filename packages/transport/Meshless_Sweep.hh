@@ -80,8 +80,8 @@ public:
         return energy_discretization_;
     }
     virtual void output(XML_Node output_node) const override;
-    virtual void check_class_invariants() const = 0;
-    virtual std::string description() const = 0;
+    virtual void check_class_invariants() const override = 0;
+    virtual std::string description() const override = 0;
     
     // Save matrix to specified XML output file
     void save_matrix_as_xml(int o,
