@@ -1,21 +1,21 @@
-#include "Weak_Sweep_Parser.hh"
+#include "Meshless_Sweep_Parser.hh"
 
 #include "Angular_Discretization.hh"
 #include "Conversion.hh"
 #include "Energy_Discretization.hh"
-#include "Strong_RBF_Sweep.hh"
+#include "Strong_Meshless_Sweep.hh"
 #include "Transport_Discretization.hh"
-#include "Weak_RBF_Sweep.hh"
+#include "Weak_Meshless_Sweep.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "XML_Node.hh"
 
 using namespace std;
 
-Weak_Sweep_Parser::
-Weak_Sweep_Parser(shared_ptr<Weak_Spatial_Discretization> spatial,
-                  shared_ptr<Angular_Discretization> angular,
-                  shared_ptr<Energy_Discretization> energy,
-                  shared_ptr<Transport_Discretization> transport):
+Meshless_Sweep_Parser::
+Meshless_Sweep_Parser(shared_ptr<Weak_Spatial_Discretization> spatial,
+                      shared_ptr<Angular_Discretization> angular,
+                      shared_ptr<Energy_Discretization> energy,
+                      shared_ptr<Transport_Discretization> transport):
     spatial_(spatial),
     angular_(angular),
     energy_(energy),
@@ -23,10 +23,23 @@ Weak_Sweep_Parser(shared_ptr<Weak_Spatial_Discretization> spatial,
 {
 }
 
-shared_ptr<Weak_RBF_Sweep> Weak_Sweep_Parser::
-get_weak_rbf_sweep(XML_Node input_node) const
+shared_ptr<Meshless_Sweep> Meshless_Sweep_Parser::
+get_meshless_sweep(XML_Node input_node) const
 {
-    Weak_RBF_Sweep::Options options;
+    switch (spatial_->options()->discretization)
+    {
+    case Weak_Spatial_Discretization_Options::Discretization::WEAK:
+        return get_weak_sweep(input_node);
+    case Weak_Spatial_Discretization_Options::Discretization::STRONG:
+        return get_strong_sweep(input_node);
+    }
+    
+}
+
+shared_ptr<Meshless_Sweep> Meshless_Sweep_Parser::
+get_weak_sweep(XML_Node input_node) const
+{
+    Meshless_Sweep::Options options;
     options.quit_if_diverged = input_node.get_attribute<bool>("quit_if_diverged",
                                                               options.quit_if_diverged);
     options.use_preconditioner = input_node.get_attribute<bool>("use_preconditioner",
@@ -48,17 +61,17 @@ get_weak_rbf_sweep(XML_Node input_node) const
                                                      "amesos");
     options.solver = options.solver_conversion()->convert(solver);
     
-    return make_shared<Weak_RBF_Sweep>(options,
+    return make_shared<Weak_Meshless_Sweep>(options,
                                        spatial_,
                                        angular_,
                                        energy_,
                                        transport_);
 }
 
-shared_ptr<Weak_RBF_Sweep> Weak_Sweep_Parser::
-get_strong_rbf_sweep(XML_Node input_node) const
+shared_ptr<Meshless_Sweep> Meshless_Sweep_Parser::
+get_strong_sweep(XML_Node input_node) const
 {
-    Weak_RBF_Sweep::Options options;
+    Meshless_Sweep::Options options;
     options.quit_if_diverged = input_node.get_attribute<bool>("quit_if_diverged",
                                                               options.quit_if_diverged);
     options.use_preconditioner = input_node.get_attribute<bool>("use_preconditioner",
@@ -80,9 +93,9 @@ get_strong_rbf_sweep(XML_Node input_node) const
                                                      "amesos");
     options.solver = options.solver_conversion()->convert(solver);
     
-    return make_shared<Strong_RBF_Sweep>(options,
-                                         spatial_,
-                                         angular_,
-                                         energy_,
-                                         transport_);
+    return make_shared<Strong_Meshless_Sweep>(options,
+                                              spatial_,
+                                              angular_,
+                                              energy_,
+                                              transport_);
 }

@@ -18,10 +18,10 @@
 #include "Material_Parser.hh"
 #include "Region.hh"
 #include "Transport_Discretization.hh"
+#include "Weak_Meshless_Sweep.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weak_Spatial_Discretization_Factory.hh"
 #include "Weak_Spatial_Discretization_Parser.hh"
-#include "Weak_RBF_Sweep.hh"
 #include "XML_Document.hh"
 #include "XML_Node.hh"
 
@@ -75,7 +75,7 @@ void get_one_region(bool basis_mls,
                     shared_ptr<Constructive_Solid_Geometry> &solid,
                     vector<shared_ptr<Material> > &materials,
                     vector<shared_ptr<Boundary_Source> > &boundary_sources,
-                    shared_ptr<Weak_RBF_Sweep> &sweeper)
+                    shared_ptr<Meshless_Sweep> &sweeper)
 {
     // Get angular discretization
     int number_of_moments = 1;
@@ -172,13 +172,13 @@ void get_one_region(bool basis_mls,
                                                 energy);
     
     // Get weak RBF sweep
-    Weak_RBF_Sweep::Options options;
+    Meshless_Sweep::Options options;
     sweeper
-        = make_shared<Weak_RBF_Sweep>(options,
-                                      spatial,
-                                      angular,
-                                      energy,
-                                      transport);
+        = make_shared<Weak_Meshless_Sweep>(options,
+                                           spatial,
+                                           angular,
+                                           energy,
+                                           transport);
 }
 
 
@@ -190,7 +190,7 @@ void get_transport_from_xml(string input_filename,
                             shared_ptr<Constructive_Solid_Geometry> &solid,
                             vector<shared_ptr<Material> > &materials,
                             vector<shared_ptr<Boundary_Source> > &boundary_sources,
-                            shared_ptr<Weak_RBF_Sweep> &sweeper)
+                            shared_ptr<Meshless_Sweep> &sweeper)
 {
     // Get input document
     XML_Document input_file = get_xml_document(input_filename);
@@ -237,13 +237,13 @@ void get_transport_from_xml(string input_filename,
                                                 energy);
     
     // Get weak RBF sweep
-    Weak_RBF_Sweep::Options options;
+    Meshless_Sweep::Options options;
     sweeper
-        = make_shared<Weak_RBF_Sweep>(options,
-                                      spatial,
-                                      angular,
-                                      energy,
-                                      transport);
+        = make_shared<Weak_Meshless_Sweep>(options,
+                                           spatial,
+                                           angular,
+                                           energy,
+                                           transport);
 }
 
 double get_solution(double sigma_t,
@@ -264,7 +264,7 @@ int run_test(shared_ptr<Weak_Spatial_Discretization> spatial,
              shared_ptr<Constructive_Solid_Geometry> solid,
              vector<shared_ptr<Material> > materials,
              vector<shared_ptr<Boundary_Source> > sources,
-             shared_ptr<Weak_RBF_Sweep> sweeper,
+             shared_ptr<Meshless_Sweep> sweeper,
              bool print)
 {
     shared_ptr<Material> material = materials[0];
@@ -401,7 +401,7 @@ int main(int argc, char **argv)
     shared_ptr<Constructive_Solid_Geometry> solid;
     vector<shared_ptr<Material> > materials;
     vector<shared_ptr<Boundary_Source> > sources;
-    shared_ptr<Weak_RBF_Sweep> sweeper;
+    shared_ptr<Meshless_Sweep> sweeper;
     bool print = false;
     
     if (argc == 2)

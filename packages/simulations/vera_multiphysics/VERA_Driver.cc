@@ -17,6 +17,8 @@
 #include "LDFE_Quadrature.hh"
 #include "Material.hh"
 #include "Material_Parser.hh"
+#include "Meshless_Sweep.hh"
+#include "Meshless_Sweep_Parser.hh"
 #include "Quadrature_Rule.hh"
 #include "Solver.hh"
 #include "Solver_Parser.hh"
@@ -24,10 +26,8 @@
 #include "VERA_Heat_Data.hh"
 #include "VERA_Solid_Geometry.hh"
 #include "VERA_Transport_Result.hh"
-#include "Weak_RBF_Sweep.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weak_Spatial_Discretization_Parser.hh"
-#include "Weak_Sweep_Parser.hh"
 #include "XML_Document.hh"
 #include "XML_Node.hh"
 
@@ -87,12 +87,12 @@ run_transport(XML_Node input_node,
                                                 energy);
 
     // Get sweep
-    Weak_Sweep_Parser sweep_parser(spatial,
+    Meshless_Sweep_Parser sweep_parser(spatial,
                                    angular,
                                    energy,
                                    transport);
-    shared_ptr<Weak_RBF_Sweep> sweep
-        = sweep_parser.get_weak_rbf_sweep(input_node.get_child("transport"));
+    shared_ptr<Meshless_Sweep> sweep
+        = sweep_parser.get_meshless_sweep(input_node.get_child("transport"));
     
     // Get solver
     Solver_Parser solver_parser(spatial,

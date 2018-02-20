@@ -1,4 +1,5 @@
 from mesh_functions import *
+import argparse
 
 # Get points and find connectivity for pincell
 def get_square_discretization(length,
@@ -17,10 +18,12 @@ def get_square_discretization(length,
                             use_constant_radius)
 
 def output_square_discretization_points(length,
-                                        num_points_xy):
+                                        num_points_xy,
+                                        exclude_corners = False):
     output_path = "square_{}_{}.xml".format(length, num_points_xy)
     num_points, points = get_square(length,
-                                    num_points_xy)
+                                    num_points_xy,
+                                    exclude_corners)
     node = xml_points(2, # dimension
                       num_points,
                       points)
@@ -99,14 +102,15 @@ def output_square_discretization(length,
 
     
 if __name__ == '__main__':
-    if (len(sys.argv) != 3):
-        print("square_functions.py [length num_points_xy]")
-        sys.exit()
-    length = float(sys.argv[1])
-    num_points_xy = int(sys.argv[2])
-    
-    output_square_discretization_points(length,
-                                        num_points_xy)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--length", type=float, required=True, help="square side length")
+    parser.add_argument("--points", type=int, required=True, help="number of points in x/y")
+    parser.add_argument("--exclude_corners", action='store_true', default=False,
+                        help="exclude corner points")
+    args = parser.parse_args()
+    output_square_discretization_points(args.length,
+                                        args.points,
+                                        args.exclude_corners)
     
     # if (len(sys.argv) != 5):
     #     print("square_functions.py [length num_points_xy num_neighbors_basis num_neighbors_weight]")

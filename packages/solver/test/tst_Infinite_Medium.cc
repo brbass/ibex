@@ -26,10 +26,10 @@
 #include "Solver_Factory.hh"
 #include "Source_Iteration.hh"
 #include "Transport_Discretization.hh"
+#include "Weak_Meshless_Sweep.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weak_Spatial_Discretization_Factory.hh"
 #include "Weak_Spatial_Discretization_Parser.hh"
-#include "Weak_RBF_Sweep.hh"
 
 namespace ce = Check_Equality;
 using namespace std;
@@ -59,7 +59,7 @@ void get_one_region(bool basis_mls,
                     shared_ptr<Constructive_Solid_Geometry> &solid,
                     vector<shared_ptr<Material> > &materials,
                     vector<shared_ptr<Boundary_Source> > &boundary_sources,
-                    shared_ptr<Weak_RBF_Sweep> &sweeper,
+                    shared_ptr<Meshless_Sweep> &sweeper,
                     shared_ptr<Convergence_Measure> &convergence,
                     shared_ptr<Solver> &solver)
 {
@@ -158,13 +158,13 @@ void get_one_region(bool basis_mls,
                                                 energy);
     
     // Get weak RBF sweep
-    Weak_RBF_Sweep::Options sweep_options;
+    Meshless_Sweep::Options sweep_options;
     sweeper
-        = make_shared<Weak_RBF_Sweep>(sweep_options,
-                                      spatial,
-                                      angular,
-                                      energy,
-                                      transport);
+        = make_shared<Weak_Meshless_Sweep>(sweep_options,
+                                           spatial,
+                                           angular,
+                                           energy,
+                                           transport);
 
     // Get convergence method
     convergence
@@ -229,7 +229,7 @@ int test_infinite(bool basis_mls,
     shared_ptr<Constructive_Solid_Geometry> solid;
     vector<shared_ptr<Material> > materials;
     vector<shared_ptr<Boundary_Source> > boundary_sources;
-    shared_ptr<Weak_RBF_Sweep> sweeper;
+    shared_ptr<Meshless_Sweep> sweeper;
     shared_ptr<Convergence_Measure> convergence;
     shared_ptr<Solver> solver;
 

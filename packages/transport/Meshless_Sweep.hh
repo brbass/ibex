@@ -1,5 +1,5 @@
-#ifndef Weak_RBF_Sweep_hh
-#define Weak_RBF_Sweep_hh
+#ifndef Meshless_Sweep_hh
+#define Meshless_Sweep_hh
 
 #include "Sweep_Operator.hh"
 #include "Weak_Spatial_Discretization.hh"
@@ -27,7 +27,7 @@ typedef Belos::EpetraPrecOp BelosPreconditioner;
 typedef Belos::LinearProblem<double, Epetra_MultiVector, Epetra_Operator> BelosLinearProblem;
 typedef Belos::PseudoBlockGmresSolMgr<double, Epetra_MultiVector, Epetra_Operator> BelosSolver;
 
-class Weak_RBF_Sweep : public Sweep_Operator
+class Meshless_Sweep : public Sweep_Operator
 {
 public:
 
@@ -60,7 +60,7 @@ public:
     };
 
     // Constructor
-    Weak_RBF_Sweep(Options options,
+    Meshless_Sweep(Options options,
                    std::shared_ptr<Weak_Spatial_Discretization> spatial_discretization,
                    std::shared_ptr<Angular_Discretization> angular_discretization,
                    std::shared_ptr<Energy_Discretization> energy_discretization,
@@ -80,12 +80,9 @@ public:
         return energy_discretization_;
     }
     virtual void output(XML_Node output_node) const override;
-    virtual void check_class_invariants() const override;
-    virtual std::string description() const override
-    {
-        return "Weak_RBF_Sweep";
-    }
-
+    virtual void check_class_invariants() const = 0;
+    virtual std::string description() const = 0;
+    
     // Save matrix to specified XML output file
     void save_matrix_as_xml(int o,
                             int g,
@@ -96,32 +93,33 @@ protected:
     // Vector_Operator function
     virtual void apply(std::vector<double> &x) const override;
 
-    // Weak_RBF_Sweep functions
-    void update_augments(std::vector<double> &x) const;
+    // Meshless_Sweep functions
+    virtual void initialize_solver();
+    virtual void update_augments(std::vector<double> &x) const;
     virtual void get_matrix_row(int i, // weight function index (row)
                                 int o, // ordinate
                                 int g, // group
                                 std::vector<int> &indices, // global basis (column indices)
-                                std::vector<double> &values) const; // column values
+                                std::vector<double> &values) const = 0; // column values
     virtual void get_rhs(int i, // weight function index (row)
                          int o, // ordinate
                          int g, // group
                          std::vector<double> const &x, // angular flux w/ augments
-                         double &value) const; // rhs value
+                         double &value) const = 0; // rhs value
     
     // Generalized solver
     class Sweep_Solver
     {
     public:
         // Constructor
-        Sweep_Solver(Weak_RBF_Sweep const &wrs);
+        Sweep_Solver(Meshless_Sweep const &wrs);
 
         // Solve problem
         virtual void solve(std::vector<double> &x) const = 0;
 
     protected:
         // Data
-        Weak_RBF_Sweep const &wrs_;
+        Meshless_Sweep const &wrs_;
     };
     
     // Generalized trilinos solver
@@ -129,7 +127,7 @@ protected:
     {
     public:
         // Constructor
-        Trilinos_Solver(Weak_RBF_Sweep const &wrs);
+        Trilinos_Solver(Meshless_Sweep const &wrs);
 
         // Solve problem
         virtual void solve(std::vector<double> &x) const = 0;
@@ -156,7 +154,7 @@ protected:
     {
     public:
         // Constructor
-        Amesos_Solver(Weak_RBF_Sweep const &wrs);
+        Amesos_Solver(Meshless_Sweep const &wrs);
 
         // Solve problem
         virtual void solve(std::vector<double> &x) const override;
@@ -178,7 +176,7 @@ protected:
     {
     public:
         // Constructor
-        Amesos_Parallel_Solver(Weak_RBF_Sweep const &wrs);
+        Amesos_Parallel_Solver(Meshless_Sweep const &wrs);
 
         // Solve problem
         virtual void solve(std::vector<double> &x) const override;
@@ -208,7 +206,7 @@ protected:
         };
         
         // Constructor
-        Aztec_Solver(Weak_RBF_Sweep const &wrs);
+        Aztec_Solver(Meshless_Sweep const &wrs);
         
         // Solve problem
         virtual void solve(std::vector<double> &x) const override;
@@ -228,7 +226,7 @@ protected:
     public:
         
         // Constructor
-        Aztec_Ifpack_Solver(Weak_RBF_Sweep const &wrs);
+        Aztec_Ifpack_Solver(Meshless_Sweep const &wrs);
         
         // Solve problem
         virtual void solve(std::vector<double> &x) const override;
@@ -250,7 +248,7 @@ protected:
     public:
         
         // Constructor
-        Belos_Solver(Weak_RBF_Sweep const &wrs);
+        Belos_Solver(Meshless_Sweep const &wrs);
         
         // Solve problem
         virtual void solve(std::vector<double> &x) const override;
@@ -270,7 +268,7 @@ protected:
     public:
         
         // Constructor
-        Belos_Ifpack_Solver(Weak_RBF_Sweep const &wrs);
+        Belos_Ifpack_Solver(Meshless_Sweep const &wrs);
         
         // Solve problem
         virtual void solve(std::vector<double> &x) const override;

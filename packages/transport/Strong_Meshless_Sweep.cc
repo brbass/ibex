@@ -1,4 +1,4 @@
-#include "Strong_RBF_Sweep.hh"
+#include "Strong_Meshless_Sweep.hh"
 
 #include "Angular_Discretization.hh"
 #include "Basis_Function.hh"
@@ -11,24 +11,38 @@
 #include "Energy_Discretization.hh"
 #include "Material.hh"
 #include "Transport_Discretization.hh"
+#include "Weak_Spatial_Discretization.hh"
 
 using namespace std;
 
-Strong_RBF_Sweep::
-Strong_RBF_Sweep(Options options,
+Strong_Meshless_Sweep::
+Strong_Meshless_Sweep(Options options,
                  shared_ptr<Weak_Spatial_Discretization> spatial_discretization,
                  shared_ptr<Angular_Discretization> angular_discretization,
                  shared_ptr<Energy_Discretization> energy_discretization,
                  shared_ptr<Transport_Discretization> transport_discretization):
-    Weak_RBF_Sweep(options,
+    Meshless_Sweep(options,
                    spatial_discretization,
                    angular_discretization,
                    energy_discretization,
                    transport_discretization)
 {
+    initialize_solver();
+    check_class_invariants();
 }
 
-void Strong_RBF_Sweep::
+void  Strong_Meshless_Sweep::
+check_class_invariants() const
+{
+    Assert(spatial_discretization_);
+    Assert(angular_discretization_);
+    Assert(energy_discretization_);
+    Assert(solver_);
+    Assert(spatial_discretization_->options()->discretization
+           == Weak_Spatial_Discretization_Options::Discretization::STRONG);
+}
+
+void Strong_Meshless_Sweep::
 get_matrix_row(int i, // weight function index (row)
                int o, // ordinate
                int g, // group
@@ -36,9 +50,9 @@ get_matrix_row(int i, // weight function index (row)
                vector<double> &values) const // column values
 {
     // Get data
-    shared_ptr<Weight_Function> weight = spatial_discretization_->weight(i);
-    int number_of_boundary_surfaces = weight->number_of_basis_functions();
-    bool boundary_point = number_of_boundary_surfaces > 0;
+    shared_ptr<Weight_Function> const weight = spatial_discretization_->weight(i);
+    int const number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
+    bool const boundary_point = number_of_boundary_surfaces > 0;
     Weight_Function::Values const weight_values = weight->values();
     vector<double> const &v_b = weight_values.v_b;
     vector<double> const &v_db = weight_values.v_db;
@@ -97,7 +111,7 @@ get_matrix_row(int i, // weight function index (row)
     }
 }
 
-void Strong_RBF_Sweep::
+void Strong_Meshless_Sweep::
 get_rhs(int i,
         int o,
         int g,
@@ -105,26 +119,26 @@ get_rhs(int i,
         double &value) const
 {
    // Get data
-    shared_ptr<Weight_Function> weight = spatial_discretization_->weight(i);
+    shared_ptr<Weight_Function> const weight = spatial_discretization_->weight(i);
     vector<double> const direction = angular_discretization_->direction(o);
-    int number_of_boundary_surfaces = weight->number_of_basis_functions();
-    bool boundary_point = number_of_boundary_surfaces > 0;
-    int number_of_ordinates = angular_discretization_->number_of_ordinates();
-    int number_of_groups = energy_discretization_->number_of_groups();
-    int dimension = spatial_discretization_->dimension();
-    int psi_size = transport_discretization_->psi_size();
+    int const number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
+    bool const boundary_point = number_of_boundary_surfaces > 0;
+    int const number_of_ordinates = angular_discretization_->number_of_ordinates();
+    int const number_of_groups = energy_discretization_->number_of_groups();
+    int const dimension = spatial_discretization_->dimension();
+    int const psi_size = transport_discretization_->psi_size();
     
     value = 0;
     if (boundary_point)
     {
         Assert(number_of_boundary_surfaces < 2);
-        shared_ptr<Cartesian_Plane> boundary_surface = weight->boundary_surface(0);
-        shared_ptr<Boundary_Source> boundary_source = weight->boundary_source(0);
-        int surface_dimension = boundary_surface->surface_dimension();
+        shared_ptr<Cartesian_Plane> const boundary_surface = weight->boundary_surface(0);
+        shared_ptr<Boundary_Source> const boundary_source = weight->boundary_source(0);
+        int const surface_dimension = boundary_surface->surface_dimension();
         double const normal = boundary_surface->normal();
         
         // Only for incoming surfaces
-        double dot = normal * direction[surface_dimension];
+        double const dot = normal * direction[surface_dimension];
         if (dot < 0)
         {
             // Add external source contribution
@@ -159,6 +173,6 @@ get_rhs(int i,
         // else consider as internal point below
     }
     
-    int k = g + number_of_groups * (o + number_of_ordinates * i);
+    int const k = g + number_of_groups * (o + number_of_ordinates * i);
     value = x[k];
 }

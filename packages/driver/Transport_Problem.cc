@@ -12,6 +12,8 @@
 #include "Krylov_Eigenvalue.hh"
 #include "Krylov_Steady_State.hh"
 #include "Material_Parser.hh"
+#include "Meshless_Sweep.hh"
+#include "Meshless_Sweep_Parser.hh"
 #include "Solver.hh"
 #include "Solver_Parser.hh"
 #include "Source_Iteration.hh"
@@ -19,10 +21,8 @@
 #include "Strong_Spatial_Discretization_Parser.hh"
 #include "Timer.hh"
 #include "Transport_Discretization.hh"
-#include "Weak_RBF_Sweep.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weak_Spatial_Discretization_Parser.hh"
-#include "Weak_Sweep_Parser.hh"
 
 using namespace std;
 
@@ -43,7 +43,7 @@ solve()
     XML_Node problem_node = input_node_.get_child("problem");
     string type = problem_node.get_attribute<string>("type");
     string discretization_method = problem_node.get_attribute<string>("discretization",
-                                                               "weak");
+                                                                      "weak");
     
     timer.start();
     if (type == "eigenvalue")
@@ -70,7 +70,7 @@ get_weak_data(string discretization_method,
               shared_ptr<Solid_Geometry> &solid,
               shared_ptr<Weak_Spatial_Discretization> &spatial,
               shared_ptr<Transport_Discretization> &transport,
-              shared_ptr<Weak_RBF_Sweep> &sweep)
+              shared_ptr<Meshless_Sweep> &sweep)
 {
     Timer timer;
     
@@ -159,23 +159,11 @@ get_weak_data(string discretization_method,
     // Get sweep
     print_message("Parsing sweep");
     timer.start();
-    Weak_Sweep_Parser sweep_parser(spatial,
-                                   angular,
-                                   energy,
-                                   transport);
-    if (discretization_method == "weak")
-    {
-        sweep = sweep_parser.get_weak_rbf_sweep(input_node_.get_child("transport"));
-    }
-    else if (discretization_method == "strong")
-    {
-        sweep = sweep_parser.get_strong_rbf_sweep(input_node_.get_child("transport"));
-    }
-    else
-    {
-        AssertMsg(false, "discretization method (" + discretization_method + ") not found");
-    }
-    
+    Meshless_Sweep_Parser sweep_parser(spatial,
+                                       angular,
+                                       energy,
+                                       transport);
+    sweep = sweep_parser.get_meshless_sweep(input_node_.get_child("transport"));
     timer.stop();
     times_.emplace_back(timer.time(), "sweep_initialization");
 }
@@ -193,7 +181,7 @@ solve_steady_state(string discretization_method)
     shared_ptr<Solid_Geometry> solid;
     shared_ptr<Weak_Spatial_Discretization> spatial;
     shared_ptr<Transport_Discretization> transport;
-    shared_ptr<Weak_RBF_Sweep> sweep;
+    shared_ptr<Meshless_Sweep> sweep;
     get_weak_data(discretization_method,
                   energy,
                   angular,
@@ -265,7 +253,7 @@ solve_eigenvalue(string discretization_method)
     shared_ptr<Solid_Geometry> solid;
     shared_ptr<Weak_Spatial_Discretization> spatial;
     shared_ptr<Transport_Discretization> transport;
-    shared_ptr<Weak_RBF_Sweep> sweep;
+    shared_ptr<Meshless_Sweep> sweep;
     get_weak_data(discretization_method,
                   energy,
                   angular,

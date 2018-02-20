@@ -26,15 +26,16 @@
 #include "Material_Factory.hh"
 #include "Material_Parser.hh"
 #include "Meshless_Function_Factory.hh"
+#include "Meshless_Sweep.hh"
 #include "Region.hh"
 #include "Solver_Factory.hh"
 #include "Source_Iteration.hh"
 #include "Timer.hh"
 #include "Transport_Discretization.hh"
+#include "Weak_Meshless_Sweep.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weak_Spatial_Discretization_Factory.hh"
 #include "Weak_Spatial_Discretization_Parser.hh"
-#include "Weak_RBF_Sweep.hh"
 #include "XML_Document.hh"
 #include "XML_Node.hh"
 
@@ -48,7 +49,7 @@ void get_one_region(bool basis_mls,
                     string method,
                     shared_ptr<Weight_Function_Options> weight_options,
                     shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
-                    Weak_RBF_Sweep::Options sweep_options,
+                    Meshless_Sweep::Options sweep_options,
                     int dimension,
                     int angular_rule,
                     int number_of_groups,
@@ -211,13 +212,13 @@ void get_one_region(bool basis_mls,
                                                 energy);
     
     // Get weak RBF sweep
-    Weak_RBF_Sweep::Options options;
-    shared_ptr<Weak_RBF_Sweep> sweeper
-        = make_shared<Weak_RBF_Sweep>(options,
-                                      spatial,
-                                      angular,
-                                      energy,
-                                      transport);
+    Meshless_Sweep::Options options;
+    shared_ptr<Meshless_Sweep> sweeper
+        = make_shared<Weak_Meshless_Sweep>(options,
+                                           spatial,
+                                           angular,
+                                           energy,
+                                           transport);
 
     // Get convergence method
     shared_ptr<Convergence_Measure> convergence
@@ -259,7 +260,7 @@ void get_pincell(bool basis_mls,
                  string method,
                  shared_ptr<Weight_Function_Options> weight_options,
                  shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
-                 Weak_RBF_Sweep::Options sweep_options,
+                 Meshless_Sweep::Options sweep_options,
                  int dimension,
                  int angular_rule,
                  int number_of_groups,
@@ -493,8 +494,8 @@ void get_pincell(bool basis_mls,
                                                 energy);
     
     // Get weak RBF sweep
-    shared_ptr<Weak_RBF_Sweep> sweeper
-        = make_shared<Weak_RBF_Sweep>(sweep_options,
+    shared_ptr<Meshless_Sweep> sweeper
+        = make_shared<Weak_Meshless_Sweep>(sweep_options,
                                       spatial,
                                       angular,
                                       energy,
@@ -624,7 +625,7 @@ void run_problem(int test_num,
                  string method,
                  shared_ptr<Weight_Function_Options> weight_options,
                  shared_ptr<Weak_Spatial_Discretization_Options> weak_options,
-                 Weak_RBF_Sweep::Options sweep_options,
+                 Meshless_Sweep::Options sweep_options,
                  string output_path,
                  int dimension,
                  int angular_rule,
@@ -737,8 +738,8 @@ void run_test(string input_path)
     weak_options->include_supg = supg;
     weak_options->integration_ordinates = num_integration_ordinates;
     
-    Weak_RBF_Sweep::Options sweep_options;
-    sweep_options.solver = Weak_RBF_Sweep::Options::Solver::AZTEC_IFPACK;
+    Meshless_Sweep::Options sweep_options;
+    sweep_options.solver = Meshless_Sweep::Options::Solver::AZTEC_IFPACK;
 
     // Run problem
     run_problem(test_num,

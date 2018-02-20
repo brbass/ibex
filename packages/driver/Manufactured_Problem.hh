@@ -11,9 +11,9 @@
 class Angular_Discretization;
 class Energy_Discretization;
 class Manufactured_Solution;
+class Meshless_Sweep;
 class Solid_Geometry;
 class Transport_Discretization;
-class Weak_RBF_Sweep;
 class Weak_Spatial_Discretization;
 
 /*
@@ -38,7 +38,7 @@ private:
                        std::shared_ptr<Solid_Geometry> &solid,
                        std::shared_ptr<Weak_Spatial_Discretization> &spatial,
                        std::shared_ptr<Transport_Discretization> &transport,
-                       std::shared_ptr<Weak_RBF_Sweep> &sweep);
+                       std::shared_ptr<Meshless_Sweep> &sweep);
     
     void solve_steady_state();
     

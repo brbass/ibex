@@ -32,6 +32,8 @@ Strong_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
         AssertMsg(false, "strong discretization not compatible with given weighting");
         break;
     }
+
+    options_->normalized = true;
 }
 
 void Strong_Spatial_Discretization::

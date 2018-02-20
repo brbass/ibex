@@ -71,7 +71,8 @@ def get_slab(length,
 
 # Get a square with automatic min/max
 def get_square(length, # Length of a single side
-               num_points_xy): # Number of points in one dimension
+               num_points_xy, # Number of points in one dimension
+               exclude_corners = False): # Exclude points in corners
     # Get total number of points and the actual points
     num_points = num_points_xy**2
     points_x = np.linspace(-length/2, length/2, num_points_xy, endpoint=True)
@@ -83,6 +84,11 @@ def get_square(length, # Length of a single side
     for i, x in enumerate(points_x):
         for j, y in enumerate(points_y):
                 points[i + num_points_xy * j, :] = [x, y]
+    if exclude_corners:
+        k = num_points_xy - 1
+        corner_indices = [0, k, 0 + num_points_xy * k, k + num_points_xy * k]
+        points = np.delete(points, corner_indices)
+        num_points = num_points - 4
     return num_points, points
     
 # Get a Cartesian mesh with a cylindrical cutout
