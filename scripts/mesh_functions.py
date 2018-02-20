@@ -87,7 +87,7 @@ def get_square(length, # Length of a single side
     if exclude_corners:
         k = num_points_xy - 1
         corner_indices = [0, k, 0 + num_points_xy * k, k + num_points_xy * k]
-        points = np.delete(points, corner_indices)
+        points = np.delete(points, corner_indices, axis=0)
         num_points = num_points - 4
     return num_points, points
     
