@@ -34,7 +34,7 @@ Manufactured_Slab_Cross_Sections(shared_ptr<Angular_Discretization> angular,
 
     for (int i = 0; i < number_of_regions_ - 1; ++i)
     {
-        Assert(interface_positions_[i] < interface_positions[i + 1]);
+        Assert(interface_positions_[i] < interface_positions_[i + 1]);
     }
 }
 

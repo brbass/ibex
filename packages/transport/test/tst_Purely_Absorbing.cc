@@ -180,8 +180,6 @@ void get_one_region(bool basis_mls,
                                            energy,
                                            transport);
 }
-
-
 void get_transport_from_xml(string input_filename,
                             shared_ptr<Weak_Spatial_Discretization> &spatial,
                             shared_ptr<Angular_Discretization> &angular,
