@@ -1,3 +1,5 @@
+#include <iostream>
+#include <fstream>
 #include <memory>
 #include <mpi.h>
 #include <string>
@@ -185,12 +187,18 @@ void run_test(XML_Node input_node)
         temperature
             = run_heat(input_node.get_child("heat"),
                        result);
-        
-        for (double r = 0; r < 0.476; r += 0.025)
+
+        if (i == 3)
         {
-            vector<double> position = {r, 0};
+            ofstream output_file;
+            output_file.open("temperature.txt", ios::trunc);
+            for (double r = 0; r < 0.476; r += 0.005)
+            {
+                vector<double> position = {r, 0};
             
-            cout << r << "\t" << (*temperature)(position) << endl;
+                output_file << r << "\t" << (*temperature)(position) << endl;
+            }
+            output_file.close();
         }
     }
 }
