@@ -116,6 +116,7 @@ get_matrix_row(int i, // weight function index (row)
             shared_ptr<Cross_Section> const basis_sigma_t_cs = basis_material->sigma_t();
             vector<double> const basis_sigma_t_data = basis_sigma_t_cs->data();
             value += basis_sigma_t_data[g] * v_b[j];
+            break;
         }
         case Cross_Section::Dependencies::Spatial::WEIGHT:
             value += sigma_t_data[g] * v_b[j];
