@@ -95,7 +95,7 @@ get_grad_solution(vector<double> const &position) const
                 double cdpow = cval_[k] * pow(ddist, 2);
                 double mult
                     = (aval_[k] * exp(adist)
-                       * (1 + bval_[k] * exp(cdpow) * grad_dist[d])
+                       * (1 + bval_[k] * exp(cdpow)) * grad_dist[d]
                        + 2 * bval_[k] * cval_[k] * exp(adist + cdpow)
                        * ddist * grad_dist[d]);
                 
