@@ -60,7 +60,7 @@ get_solution(vector<double> const &position) const
 
             double mult
                 = (exp(aval_[k] * dist)
-                   * (1 + bval_[k] * exp(-cval_[k] * pow(dist + dval_[k], 2))));
+                   * (1 + bval_[k] * exp(cval_[k] * pow(dist + dval_[k], 2))));
             
             vals[k] = solution_[k] * mult;
         }
