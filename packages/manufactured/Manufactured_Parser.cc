@@ -9,6 +9,7 @@
 #include "Energy_Discretization.hh"
 #include "Manufactured_Constant_Cross_Sections.hh"
 #include "Manufactured_Constant_Solution.hh"
+#include "Manufactured_Gaussian_Pincell.hh"
 #include "Manufactured_Linear_Solution.hh"
 #include "Manufactured_Sinusoidal_Cross_Sections.hh"
 #include "Manufactured_Sinusoidal_Solution.hh"
@@ -92,14 +93,35 @@ get_solution(XML_Node input_node)
     {
         int number_of_regions = input_node.get_child_value<int>("number_of_regions");
         vector<vector<double> > data = input_node.get_child_matrix<double>("values",
-                                                                               number_of_regions,
-                                                                               expected_size);
+                                                                           number_of_regions,
+                                                                           expected_size);
         vector<double> interface_positions = input_node.get_child_vector<double>("interface_positions",
                                                                                  number_of_regions - 1);
         solution = make_shared<Manufactured_Slab_Solution>(angular_,
                                                            energy_,
                                                            interface_positions,
                                                            data);
+    }
+    else if (solution_type == "gaussian_pincell")
+    {
+        vector<double> data = input_node.get_child_vector<double>("values",
+                                                                  expected_size);
+        vector<double> aval = input_node.get_child_vector<double>("a",
+                                                                  expected_size);
+        vector<double> bval = input_node.get_child_vector<double>("b",
+                                                                  expected_size);
+        vector<double> cval = input_node.get_child_vector<double>("c",
+                                                                  expected_size);
+        vector<double> dval = input_node.get_child_vector<double>("d",
+                                                                  expected_size);
+        
+        solution = make_shared<Manufactured_Gaussian_Pincell>(angular_,
+                                                              energy_,
+                                                              data,
+                                                              aval,
+                                                              bval,
+                                                              cval,
+                                                              dval);
     }
     else
     {

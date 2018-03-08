@@ -21,7 +21,8 @@ def get_cartesian_points_2d(xmin,
                             ymin,
                             ymax,
                             numx,
-                            numy):
+                            numy,
+                            exclude_corners = False):
     # Get total number of points and the actual points
     num_points = numx * numy;
     points_x = np.linspace(xmin, xmax, numx, endpoint=True)
@@ -33,6 +34,13 @@ def get_cartesian_points_2d(xmin,
     for i, x in enumerate(points_x):
         for j, y in enumerate(points_y):
                 points[i + numx * j, :] = [x, y]
+    if exclude_corners:
+        xc = numx - 1
+        yc = numy - 1
+        corner_indices = [0, xc, numx * yc, xc + numx * yc]
+        points = np.delete(points, corner_indices, axis=0)
+        num_points = num_points - 4
+        
     return num_points, points
     
 # Get a 3D Cartesian mesh
@@ -44,12 +52,13 @@ def get_cartesian_points_3d(xmin,
                             zmax,
                             numx,
                             numy,
-                            numz):
+                            numz,
+                            exclude_corners = False):
     # Get total number of points and the actual points
-    num_points = num_points_xyz**3
-    points_x = np.linspace(-length/2, length/2, num_points_xyz, endpoint=True)
-    points_y = np.linspace(-length/2, length/2, num_points_xyz, endpoint=True)
-    points_z = np.linspace(-length/2, length/2, num_points_xyz, endpoint=True)
+    num_points = numx * numy * numz
+    points_x = np.linspace(xmin, xmax, numx, endpoint=True)
+    points_y = np.linspace(ymin, ymax, numy, endpoint=True)
+    points_z = np.linspace(zmin, zmax, numz, endpoint=True)
     
     # Create array of points outside cutout circle
     points = np.zeros((num_points, 3))
@@ -57,7 +66,30 @@ def get_cartesian_points_3d(xmin,
     for i, x in enumerate(points_x):
         for j, y in enumerate(points_y):
             for k, z in enumerate(points_z):
-                points[i + num_points_xyz * (j + num_points_xyz * k), :] = [x, y, z]
+                points[i + numx * (j + numy * k), :] = [x, y, z]
+    if exclude_corners:
+        corner_indices = []
+        xc = numx - 1
+        yc = numy - 1
+        zc = numz - 1
+        for i, x in enumerate(points_x):
+            corner_indices.append(i + numx * (0 + numy * 0))
+            corner_indices.append(i + numx * (yc + numy * 0))
+            corner_indices.append(i + numx * (0 + numy * zc))
+            corner_indices.append(i + numx * (yc + numy * zc))
+        for j, y in enumerate(points_y):
+            corner_indices.append(0 + numx * (j + numy * 0)) 
+            corner_indices.append(xc + numx * (j + numy * 0))
+            corner_indices.append(0 + numx * (j + numy * zc))
+            corner_indices.append(xc + numx * (j + numy * zc))
+        for k, z in enumerate(points_z):
+            corner_indices.append(0 + numx * (0 + numy * k)) 
+            corner_indices.append(xc + numx * (0 + numy * k))
+            corner_indices.append(0 + numx * (yc + numy * k))
+            corner_indices.append(xc + numx * (yc + numy * k))
+        corner_indices = np.unique(corner_indices)
+        points = np.delete(points, corner_indices, axis=0)
+        num_points = num_points - len(corner_indices)
     return num_points, points
     
 # Get slab with automatic min/max
