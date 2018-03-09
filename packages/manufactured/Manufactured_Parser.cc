@@ -11,6 +11,7 @@
 #include "Manufactured_Constant_Solution.hh"
 #include "Manufactured_Gaussian_Pincell.hh"
 #include "Manufactured_Linear_Solution.hh"
+#include "Manufactured_Radial_Cross_Sections.hh"
 #include "Manufactured_Sinusoidal_Cross_Sections.hh"
 #include "Manufactured_Sinusoidal_Solution.hh"
 #include "Manufactured_Slab_Cross_Sections.hh"
@@ -172,7 +173,7 @@ get_cross_sections(XML_Node input_node)
                                                                   sigma_s);
                                                                   
     }
-    else if (type == "slab")
+    else if (type == "slab" || type == "radial")
     {
         int number_of_regions = input_node.get_child_value<int>("number_of_regions");
         vector<vector<double> > sigma_t = input_node.get_child_matrix<double>("sigma_t",
@@ -183,11 +184,23 @@ get_cross_sections(XML_Node input_node)
                                                                               number_of_groups * number_of_groups * number_of_scattering_moments);
         vector<double> interface_positions = input_node.get_child_vector<double>("interface_positions",
                                                                                  number_of_regions - 1);
-        cross_sections = make_shared<Manufactured_Slab_Cross_Sections>(angular_,
-                                                                       energy_,
-                                                                       interface_positions,
-                                                                       sigma_t,
-                                                                       sigma_s);
+
+        if (type == "slab")
+        {
+            cross_sections = make_shared<Manufactured_Slab_Cross_Sections>(angular_,
+                                                                           energy_,
+                                                                           interface_positions,
+                                                                           sigma_t,
+                                                                           sigma_s);
+        }
+        else
+        {
+            cross_sections = make_shared<Manufactured_Radial_Cross_Sections>(angular_,
+                                                                             energy_,
+                                                                             interface_positions,
+                                                                             sigma_t,
+                                                                             sigma_s);
+        }
     }
     else
     {
