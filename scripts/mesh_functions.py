@@ -205,7 +205,8 @@ def get_annular_points(r1, # inside radius
     points = np.zeros((max_points, 2))
     point = 0
     for r in radius_vals:
-        points_temp = get_ring_points(r)
+        points_temp = get_ring_points(r,
+                                      dr)
         for point_temp in points_temp:
             points[point, :] = point_temp
             point += 1
