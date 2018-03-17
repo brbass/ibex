@@ -6,6 +6,7 @@
     inline void omp_set_num_threads(int i) {return;}
 #endif
 
+#include "Heat_Problem.hh"
 #include "Manufactured_Problem.hh"
 #include "Transport_Problem.hh"
 #include "XML_Document.hh"
@@ -55,6 +56,13 @@ run_problem()
                                                   output_node,
                                                   print_progress);
         manufactured_problem.solve();
+    }
+    else if (problem_type == "heat")
+    {
+        Heat_Problem heat_problem(input_node,
+                                  output_node,
+                                  print_progress);
+        heat_problem.solve();
     }
     else
     {
