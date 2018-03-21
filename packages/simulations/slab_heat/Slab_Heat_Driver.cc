@@ -75,7 +75,7 @@ void output_error(XML_Node output_node,
         benchmark[i] = data->get_solution(position);
     }
     output_node.set_child_vector(values, "solution");
-    output_node.set_child_vector(values, "benchmark");
+    output_node.set_child_vector(benchmark, "benchmark");
 }
 
 void run_test(XML_Node input_node,
@@ -112,7 +112,7 @@ void run_test(XML_Node input_node,
                                              2);
     vector<double> source
         = heat_node.get_child_vector<double>("source",
-                                             2);
+                                             3);
     vector<double> temperature_inf
         = heat_node.get_child_vector<double>("temperature_inf",
                                              2);
@@ -124,7 +124,7 @@ void run_test(XML_Node input_node,
                                       limits[0]);
     
     // Get heat transfer integration
-    string geometry = heat_node.get_child_value<string>("geometry");
+    string geometry = heat_node.get_attribute<string>("geometry");
     shared_ptr<Heat_Transfer_Integration_Options> integration_options
         = make_shared<Heat_Transfer_Integration_Options>();
     if (geometry == "cylindrical")

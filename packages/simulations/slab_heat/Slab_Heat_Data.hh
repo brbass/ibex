@@ -8,7 +8,7 @@
 /*
   Represents a problem with:
   k(x,y,z) = {k[0], x < 0; k[0], otherwise}
-  q(x,y,z) = q[0] + sin^2(q[1] * x)
+  q(x,y,z) = q[0] + q[1] * sin^2(q[2] * x)
   h(x,y,z) = {h[0], x==xlim[0]; h[1], x==xlim[1]; 0, otherwise}
   tinf(x,y,z) = {tinf[0], x==xlim[0]; tinf[1], x==xlim[1]; 0, otherwise}
 */

@@ -62,7 +62,7 @@ get_solid(int dimension,
                                            dimension,
                                            Surface::Surface_Type::BOUNDARY,
                                            d, // surface dimension
-                                           limits[d][0], // position
+                                           limits[d][1], // position
                                            1); // normal
     }
     
