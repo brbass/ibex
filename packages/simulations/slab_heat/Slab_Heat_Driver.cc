@@ -102,28 +102,7 @@ void run_test(XML_Node input_node,
     shared_ptr<Weak_Spatial_Discretization> spatial
         = spatial_parser.get_weak_discretization(input_node.get_child("spatial_discretization"));
 
-    // Get heat transfer data
-    XML_Node heat_node = input_node.get_child("heat");
-    vector<double> conduction
-        = heat_node.get_child_vector<double>("conduction",
-                                             2);
-    vector<double> convection
-        = heat_node.get_child_vector<double>("convection",
-                                             2);
-    vector<double> source
-        = heat_node.get_child_vector<double>("source",
-                                             3);
-    vector<double> temperature_inf
-        = heat_node.get_child_vector<double>("temperature_inf",
-                                             2);
-    shared_ptr<Slab_Heat_Data> data
-        = make_shared<Slab_Heat_Data>(conduction,
-                                      source,
-                                      convection,
-                                      temperature_inf,
-                                      limits[0]);
-    
-    // Get heat transfer integration
+    // Get heat transfer integration options
     string geometry = heat_node.get_attribute<string>("geometry");
     shared_ptr<Heat_Transfer_Integration_Options> integration_options
         = make_shared<Heat_Transfer_Integration_Options>();
@@ -139,12 +118,36 @@ void run_test(XML_Node input_node,
     {
         AssertMsg(false, "geometry (" + geometry + ") not found");
     }
+    
+    // Get heat transfer data
+    XML_Node heat_node = input_node.get_child("heat");
+    vector<double> conduction
+        = heat_node.get_child_vector<double>("conduction",
+                                             2);
+    vector<double> convection
+        = heat_node.get_child_vector<double>("convection",
+                                             2);
+    vector<double> source
+        = heat_node.get_child_vector<double>("source",
+                                             3);
+    vector<double> temperature_inf
+        = heat_node.get_child_vector<double>("temperature_inf",
+                                             2);
+    shared_ptr<Slab_Heat_Data> data
+        = make_shared<Slab_Heat_Data>(integration_options,
+                                      conduction,
+                                      source,
+                                      convection,
+                                      temperature_inf,
+                                      limits[0]);
+
+    // Perform integration
     shared_ptr<Heat_Transfer_Integration> integration
         = make_shared<Heat_Transfer_Integration>(integration_options,
                                                  data,
                                                  spatial);
 
-    // Get heat transfer solver
+    // Initialize heat transfer solver
     shared_ptr<Heat_Transfer_Solve> solver
         = make_shared<Heat_Transfer_Solve>(integration,
                                            spatial);

@@ -4,15 +4,18 @@
 #include <limits>
 
 #include "Check.hh"
+#include "Heat_Transfer_Integration.hh"
 
 using namespace std;
 
 Slab_Heat_Data::
-Slab_Heat_Data(std::vector<double> k,
+Slab_Heat_Data(shared_ptr<Heat_Transfer_Integration_Options> int_options,
+               std::vector<double> k,
                std::vector<double> q,
                std::vector<double> h,
                std::vector<double> tinf,
                std::vector<double> xlim):
+    int_options_(int_options),
     k_(k),
     q_(q),
     h_(h),

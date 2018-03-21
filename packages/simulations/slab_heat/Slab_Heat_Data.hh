@@ -1,9 +1,12 @@
 #ifndef Slab_Heat_Data_hh
 #define Slab_Heat_Data_hh
 
+#include <memory>
 #include <vector>
 
 #include "Heat_Transfer_Data.hh"
+
+class Heat_Transfer_Integration_Options;
 
 /*
   Represents a problem with:
@@ -16,7 +19,8 @@ class Slab_Heat_Data : public Heat_Transfer_Data
 {
 public:
     
-    Slab_Heat_Data(std::vector<double> k,
+    Slab_Heat_Data(std::shared_ptr<Heat_Transfer_Integration_Options> int_options,
+                   std::vector<double> k,
                    std::vector<double> q,
                    std::vector<double> h,
                    std::vector<double> tinf,
@@ -31,6 +35,7 @@ public:
     
 private:
 
+    std::shared_ptr<Heat_Transfer_Integration_Options> int_options_;
     double boundary_tol_;
     std::vector<double> k_;
     std::vector<double> q_;
