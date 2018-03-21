@@ -17,9 +17,10 @@ public:
     
     Heat_Transfer_Factory();
 
-    void get_solid_1d(double length,
-                      std::shared_ptr<Solid_Geometry> &solid,
-                      std::vector<std::shared_ptr<Cartesian_Plane> > &boundary_surfaces) const;
+    void get_solid(int dimension,
+                   std::vector<std::vector<double> > limits,
+                   std::shared_ptr<Solid_Geometry> &solid,
+                   std::vector<std::shared_ptr<Cartesian_Plane> > &boundary_surfaces) const;
     std::shared_ptr<Weak_Spatial_Discretization> get_spatial_discretization_1d(int number_of_points,
                                                                                double radius_num_intervals,
                                                                                double length,

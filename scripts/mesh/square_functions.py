@@ -20,7 +20,11 @@ def get_square_discretization(length,
 def output_square_discretization_points(length,
                                         num_points_xy,
                                         exclude_corners = False):
-    output_path = "square_{}_{}.xml".format(length, num_points_xy)
+    if exclude_corners:
+        corner_string = "_exclude"
+    else:
+        corner_string = ""
+    output_path = "square_{}_{}{}.xml".format(length, num_points_xy, corner_string)
     num_points, points = get_square(length,
                                     num_points_xy,
                                     exclude_corners)

@@ -9,19 +9,24 @@
 #include "Quadrature_Rule.hh"
 #include "Solid_Geometry.hh"
 #include "Weak_Spatial_Discretization.hh"
+#include "XML_Node.hh"
 
 using namespace std;
 
 VERA_Transport_Result::
-VERA_Transport_Result(shared_ptr<Solid_Geometry> solid,
+VERA_Transport_Result(double pincell_power,
+                      shared_ptr<Solid_Geometry> solid,
                       shared_ptr<Angular_Discretization> angular,
                       shared_ptr<Energy_Discretization> energy,
                       shared_ptr<Weak_Spatial_Discretization> spatial,
+                      shared_ptr<Solver> solver,
                       shared_ptr<Solver::Result> result):
+    pincell_power_(pincell_power),
     solid_(solid),
     angular_(angular),
     energy_(energy),
     spatial_(spatial),
+    solver_(solver),
     result_(result)
 {
     fuel_radius_ = 0.4096;
@@ -124,11 +129,21 @@ normalize()
     sum *= 2 * M_PI;
         
     // Normalize flux coefficients
-    double const desired_power = 173.884;
+    // double const desired_power = 173.884;
     vector<double> &coefficients = result_->coefficients;
     for (double &coefficient : coefficients)
     {
-        coefficient *= desired_power / sum;
+        coefficient *= pincell_power_ / sum;
     }
 }
 
+void VERA_Transport_Result::
+output_data(XML_Node output_node)
+{
+    solid_->output(output_node.append_child("solid_geometry"));
+    angular_->output(output_node.append_child("angular_discretization"));
+    energy_->output(output_node.append_child("energy_discretization"));
+    spatial_->output(output_node.append_child("spatial_discretization"));
+    solver_->output_result(output_node.append_child("result"),
+                           result_);
+}

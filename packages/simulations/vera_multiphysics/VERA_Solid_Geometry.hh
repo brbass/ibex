@@ -69,7 +69,7 @@ public:
     virtual void check_class_invariants() const override;
     virtual void output(XML_Node output_node) const override
     {
-        AssertMsg(false, "not implemented");
+        output_node.set_attribute("VERA_Solid_Geometry", "type");
     }
     
     std::vector<std::shared_ptr<Cartesian_Plane> > cartesian_boundary_surfaces() const

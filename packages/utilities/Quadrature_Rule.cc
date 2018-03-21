@@ -58,7 +58,75 @@ namespace Quadrature_Rule
         }
         return true;
     }
-    
+
+    bool cartesian_nd(int dimension,
+                      Quadrature_Type quadrature_type,
+                      vector<int> num_points,
+                      vector<vector<double> > limits,
+                      vector<vector<double> > &ordinates,
+                      vector<double> &weights)
+    {
+        bool available;
+        vector<double> ordinates_x;
+        vector<double> ordinates_y;
+        vector<double> ordinates_z;
+        switch (dimension)
+        {
+        case 1:
+            available = cartesian_1d(quadrature_type,
+                                     num_points[0],
+                                     limits[0][0],
+                                     limits[0][1],
+                                     ordinates_x,
+                                     weights);
+            convert_to_position_1d(ordinates_x,
+                                   ordinates);
+            break;
+        case 2:
+            available = cartesian_2d(quadrature_type,
+                                     quadrature_type,
+                                     num_points[0],
+                                     num_points[1],
+                                     limits[0][0],
+                                     limits[0][1],
+                                     limits[1][0],
+                                     limits[1][1],
+                                     ordinates_x,
+                                     ordinates_y,
+                                     weights);
+            convert_to_position_2d(ordinates_x,
+                                   ordinates_y,
+                                   ordinates);
+            break;
+        case 3:
+            available = cartesian_3d(quadrature_type,
+                                     quadrature_type,
+                                     quadrature_type,
+                                     num_points[0],
+                                     num_points[1],
+                                     num_points[2],
+                                     limits[0][0],
+                                     limits[0][1],
+                                     limits[1][0],
+                                     limits[1][1],
+                                     limits[2][0],
+                                     limits[2][1],
+                                     ordinates_x,
+                                     ordinates_y,
+                                     ordinates_z,
+                                     weights);
+            convert_to_position_3d(ordinates_x,
+                                   ordinates_y,
+                                   ordinates_z,
+                                   ordinates);
+            break;
+        default:
+            AssertMsg(false, "dimension not found");
+            break;
+        }
+        return available;
+    }
+                      
     bool cartesian_1d(Quadrature_Type quadrature_type,
                       int n,
                       double x1,

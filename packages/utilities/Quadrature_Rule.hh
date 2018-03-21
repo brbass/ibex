@@ -30,6 +30,16 @@ namespace Quadrature_Rule
                        int n,
                        std::vector<double> &ordinates,
                        std::vector<double> &weights);
+
+    /*
+      Cartesian quadrature for 1D/2D/3D
+    */
+    bool cartesian_nd(int dimension,
+                      Quadrature_Type quadrature_type,
+                      std::vector<int> num_points,
+                      std::vector<std::vector<double> > limits,
+                      std::vector<std::vector<double> > &ordinates,
+                      std::vector<double> &weights);
     
     /*
       1D Cartesian quadrature

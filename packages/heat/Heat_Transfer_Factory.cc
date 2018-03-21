@@ -9,6 +9,7 @@
 #include "Heat_Transfer_Integration.hh"
 #include "Heat_Transfer_Solve.hh"
 #include "Integration_Mesh.hh"
+#include "LDFE_Quadrature.hh"
 #include "Material_Factory.hh"
 #include "Region.hh"
 #include "Weak_Spatial_Discretization.hh"
@@ -23,34 +24,47 @@ Heat_Transfer_Factory()
 }
 
 void Heat_Transfer_Factory::
-get_solid_1d(double length,
-             shared_ptr<Solid_Geometry> &solid,
-             vector<shared_ptr<Cartesian_Plane> > &cartesian_surfaces) const
+get_solid(int dimension,
+          vector<vector<double> > limits,
+          shared_ptr<Solid_Geometry> &solid,
+          vector<shared_ptr<Cartesian_Plane> > &cartesian_surfaces) const
 {
-    int dimension = 1;
-    
     // Get placeholder energy and angular discretizations
     shared_ptr<Energy_Discretization> energy
         = make_shared<Energy_Discretization>(1); // number of groups
-    shared_ptr<Angular_Discretization> angular
-        = make_shared<Gauss_Legendre_Quadrature>(dimension,
-                                                 1, // number of moments
-                                                 2); // number of ordinates
+    shared_ptr<Angular_Discretization> angular;
+    if (dimension == 1)
+    {
+        angular = make_shared<Gauss_Legendre_Quadrature>(dimension,
+                                                         1, // number of moments
+                                                         2); // number of ordinates
+    }
+    else
+    {
+        angular = make_shared<LDFE_Quadrature>(dimension,
+                                               1, // number of moments,
+                                               1); // rule
+    }
     
     // Get surfaces
-    cartesian_surfaces.resize(2);
-    cartesian_surfaces[0] = make_shared<Cartesian_Plane>(0, // index
-                                               dimension,
-                                               Surface::Surface_Type::BOUNDARY,
-                                               0, // surface dimension
-                                               0, // position
-                                               -1); // normal
-    cartesian_surfaces[1] = make_shared<Cartesian_Plane>(1, // index
-                                               dimension,
-                                               Surface::Surface_Type::BOUNDARY,
-                                               0, // surface dimension
-                                               length, // position
-                                               1); // normal
+    cartesian_surfaces.resize(2 * dimension);
+    for (int d = 0; d < dimension; ++d)
+    {
+        cartesian_surfaces[0 + 2 * d]
+            = make_shared<Cartesian_Plane>(0 + 2 * d, // index
+                                           dimension,
+                                           Surface::Surface_Type::BOUNDARY,
+                                           d, // surface dimension
+                                           limits[d][0], // position
+                                           -1); // normal
+        cartesian_surfaces[1 + 2 * d]
+            = make_shared<Cartesian_Plane>(1 + 2 * d, // index
+                                           dimension,
+                                           Surface::Surface_Type::BOUNDARY,
+                                           d, // surface dimension
+                                           limits[d][0], // position
+                                           1); // normal
+    }
     
     // Get boundary source
     Boundary_Source::Dependencies deps;
@@ -73,6 +87,7 @@ get_solid_1d(double length,
     {
         surfaces.push_back(surface);
     }
+    
     // Get material
     Material_Factory mat_factory(angular,
                                  energy); 
@@ -87,7 +102,7 @@ get_solid_1d(double length,
                                             {0}); // source
     
     // Get region
-    vector<Surface::Relation> surface_relations(2, Surface::Relation::NEGATIVE);
+    vector<Surface::Relation> surface_relations(2 * dimension, Surface::Relation::NEGATIVE);
     vector<shared_ptr<Region> > regions(1);
     regions[0] = make_shared<Region>(0, // index
                                      materials[0],
@@ -114,9 +129,10 @@ get_spatial_discretization_1d(int number_of_points,
 
     shared_ptr<Solid_Geometry> solid;
     vector<shared_ptr<Cartesian_Plane> > boundary_surfaces;
-    get_solid_1d(length,
-                 solid,
-                 boundary_surfaces);
+    get_solid(1, // dimension
+              {{0, length}},
+              solid,
+              boundary_surfaces);
 
     shared_ptr<Weight_Function_Options> weight_options
         = make_shared<Weight_Function_Options>();

@@ -111,6 +111,7 @@ def get_data(file_path):
     timing["spatial_initialization"] = get_scalar("spatial_initialization", float, child_node)
     timing["sweep_initialization"] = get_scalar("sweep_initialization", float, child_node)
     timing["solve"] = get_scalar("solve", float, child_node)
+    timing["total"] = get_scalar("total", float, child_node)
     data["timing"] = timing
     
     return data
@@ -273,8 +274,9 @@ def full_save_from_template(data,
         # Get input filename and string
         input_string = template_string
         input_filename = prefix
-        for parameter, value, description in zip(parameters, value_perm, description_perm):
+        for parameter, value in zip(parameters, value_perm):
             input_string = input_string.replace(parameter, str(value))
+        for description in description_perm:
             input_filename += "_{}".format(description)
         input_filename += postfix
         input_filenames.append(input_filename)

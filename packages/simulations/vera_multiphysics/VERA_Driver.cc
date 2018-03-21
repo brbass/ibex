@@ -24,6 +24,7 @@
 #include "Quadrature_Rule.hh"
 #include "Solver.hh"
 #include "Solver_Parser.hh"
+#include "Timer.hh"
 #include "Transport_Discretization.hh"
 #include "VERA_Heat_Data.hh"
 #include "VERA_Solid_Geometry.hh"
@@ -36,7 +37,8 @@
 using namespace std;
 
 shared_ptr<VERA_Transport_Result>
-run_transport(XML_Node input_node,
+run_transport(double pincell_power,
+              XML_Node input_node,
               shared_ptr<VERA_Temperature> temperature)
 {
     // Get energy discretization
@@ -106,12 +108,12 @@ run_transport(XML_Node input_node,
                                               sweep);
     solver->solve();
 
-    cout << "eigenvalue: " << "\t" << solver->result()->k_eigenvalue << endl;
-    
-    return make_shared<VERA_Transport_Result>(solid,
+    return make_shared<VERA_Transport_Result>(pincell_power,
+                                              solid,
                                               angular,
                                               energy,
                                               spatial,
+                                              solver,
                                               solver->result());
 }
 
@@ -124,9 +126,10 @@ run_heat(XML_Node input_node,
     shared_ptr<Solid_Geometry> solid;
     vector<shared_ptr<Cartesian_Plane> > surfaces;
     Heat_Transfer_Factory factory;
-    factory.get_solid_1d(length,
-                         solid,
-                         surfaces);
+    factory.get_solid(1, // dimension
+                      {{0, length}}, // limits
+                      solid,
+                      surfaces);
 
     // Get weak spatial discretization
     Weak_Spatial_Discretization_Parser spatial_parser(solid,
@@ -168,39 +171,77 @@ run_heat(XML_Node input_node,
                                          });
 }
 
-void run_test(XML_Node input_node)
+void output_temperature(shared_ptr<VERA_Temperature> temperature,
+                        XML_Node output_node)
+{
+    double dr = 0.001 - 1e-12;
+    vector<double> positions;
+    vector<double> values;
+    double maxr = 0.475 + 0.5 * dr;
+    int num_values = floor(maxr/dr) + 1;
+    for (int i = 0; i < num_values; ++i)
+    {
+        double r = i * dr;
+        vector<double> position = {r, 0};
+        positions.push_back(r);
+        values.push_back((*temperature)(position));
+    }
+    // for (double r = 0; r < maxr; r += dr)
+    // {
+    //     vector<double> position = {r, 0};
+    //     positions.push_back(r);
+    //     values.push_back((*temperature)(position));
+    // }
+
+    output_node.set_child_vector(positions, "points");
+    output_node.set_child_vector(values, "values");
+}
+
+void run_test(XML_Node input_node,
+              XML_Node output_node)
 {
     // Get initial temperature
     shared_ptr<VERA_Temperature> temperature
         = make_shared<VERA_Temperature>([](vector<double> const &){return 120;});
 
-    // Run transport calculation
+    // Get result pointer
     shared_ptr<VERA_Transport_Result> result;
 
-    for (int i = 0; i < 4; ++i)
+    // Get total desired power
+    double pincell_power
+        = input_node.get_child("heat").get_child_value<double>("pincell_power");
+    
+    Timer timer;
+    timer.start();
+    int num_iters = 4;
+    vector<double> eigenvalue_history;
+    for (int i = 0; i < num_iters; ++i)
     {
+        // Run transport calculation
+        cout << "start transport calculation " << i << endl;
         result
-            = run_transport(input_node.get_child("transport"),
+            = run_transport(pincell_power,
+                            input_node.get_child("transport"),
                             temperature);
+        eigenvalue_history.push_back(result->result()->k_eigenvalue);
+        cout << "end transport calculation " << i << endl;
         
         // Run heat transfer calculation
+        cout << "start heat transfer calculation " << i << endl;
         temperature
             = run_heat(input_node.get_child("heat"),
                        result);
-
-        if (i == 3)
-        {
-            ofstream output_file;
-            output_file.open("temperature.txt", ios::trunc);
-            for (double r = 0; r < 0.476; r += 0.005)
-            {
-                vector<double> position = {r, 0};
-            
-                output_file << r << "\t" << (*temperature)(position) << endl;
-            }
-            output_file.close();
-        }
+        cout << "end heat transfer calculation " << i << endl;
     }
+    
+    // Output data
+    timer.stop();
+    output_temperature(temperature,
+                       output_node.append_child("temperature"));
+    output_node.append_child("timing").set_child_value(timer.time(), "total");
+    output_node.set_child_value(pincell_power, "pincell_power");
+    output_node.set_child_vector(eigenvalue_history, "eigenvalue_by_iteration");
+    result->output_data(output_node);
 }
 
 int main(int argc, char **argv)
@@ -215,11 +256,15 @@ int main(int argc, char **argv)
     }
 
     // Get base XML node
-    string filename = argv[1];
-    XML_Document input_file(filename);
+    string input_filename = argv[1];
+    string output_filename = input_filename + ".out";
+    XML_Document input_file(input_filename);
     XML_Node input_node = input_file.get_child("input");
-
-    run_test(input_node);
+    XML_Document output_file;
+    XML_Node output_node = output_file.append_child("output");
+    run_test(input_node,
+             output_node);
+    output_file.save(output_filename);
     
     // Close MPI
     MPI_Finalize();

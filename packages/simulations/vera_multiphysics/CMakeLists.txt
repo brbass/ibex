@@ -10,6 +10,6 @@ endmacro()
 
 file(GLOB src *.cc *.hh)
 
-include_executable(vera "${src}")
+include_executable(vera_heat "${src}")
 
 add_subdirectory(input)
