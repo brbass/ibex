@@ -1,0 +1,36 @@
+<input type='transport'
+       print='true'
+       number_of_threads='8'>
+  <dimension>2</dimension>
+  <limits>-2 2 -1 1</limits>
+  <spatial_discretization input_format='cartesian'>
+    <options weighting='flat'
+             external_integral_calculation='true'
+             supg='false'
+             tau_scaling='none'
+             identical_basis_functions='true'
+             perform_integration='false'
+             output_material='false'
+             output_integrals='false'
+             adaptive_quadrature='false'>
+      <tau>0.0</tau>
+      <integration_ordinates>16 16</integration_ordinates>
+      <dimensional_cells>16 16</dimensional_cells>
+    </options>
+    <dimensional_points>16 16</dimensional_points>
+    <weight_functions>
+      <radius_calculation method='coverage'>
+        <number_of_neighbors>8</number_of_neighbors>
+        <radius_multiplier>1.0</radius_multiplier>
+      </radius_calculation>
+      <meshless_function type='linear_mls'
+                         function='wendland11'/>
+    </weight_functions>
+  </spatial_discretization>
+  <heat>
+    <conduction>2 2</conduction>
+    <convection>2 2</convection>
+    <source>1 0</source>
+    <temperature_inf>500 500</temperature_inf>
+  </heat>
+</input>
