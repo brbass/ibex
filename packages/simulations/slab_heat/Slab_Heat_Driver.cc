@@ -103,12 +103,14 @@ void run_test(XML_Node input_node,
         = spatial_parser.get_weak_discretization(input_node.get_child("spatial_discretization"));
 
     // Get heat transfer integration options
+    XML_Node heat_node = input_node.get_child("heat");
     string geometry = heat_node.get_attribute<string>("geometry");
     shared_ptr<Heat_Transfer_Integration_Options> integration_options
         = make_shared<Heat_Transfer_Integration_Options>();
     if (geometry == "cylindrical")
     {
         integration_options->geometry = Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_1D;
+        AssertMsg(false, "analytic solution not implemented for cylindrical");
     }
     else if (geometry == "cartesian")
     {
@@ -120,7 +122,6 @@ void run_test(XML_Node input_node,
     }
     
     // Get heat transfer data
-    XML_Node heat_node = input_node.get_child("heat");
     vector<double> conduction
         = heat_node.get_child_vector<double>("conduction",
                                              2);
