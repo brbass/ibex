@@ -119,7 +119,8 @@ run_transport(double pincell_power,
 
 shared_ptr<VERA_Temperature> 
 run_heat(XML_Node input_node,
-         shared_ptr<VERA_Transport_Result> result)
+         shared_ptr<VERA_Transport_Result> result,
+         shared_ptr<VERA_Temperature> weighting_temperature)
 {
     // Get solid geometry
     double length = 0.475;
@@ -139,7 +140,8 @@ run_heat(XML_Node input_node,
     
     // Get heat transfer data
     shared_ptr<VERA_Heat_Data> data
-        = make_shared<VERA_Heat_Data>(result);
+        = make_shared<VERA_Heat_Data>(result,
+                                      weighting_temperature);
 
     // Get heat transfer integration
     shared_ptr<Heat_Transfer_Integration_Options> integration_options
@@ -228,9 +230,11 @@ void run_test(XML_Node input_node,
         
         // Run heat transfer calculation
         cout << "start heat transfer calculation " << i << endl;
+        shared_ptr<VERA_Temperature> old_temperature = temperature;
         temperature
             = run_heat(input_node.get_child("heat"),
-                       result);
+                       result,
+                       old_temperature);
         cout << "end heat transfer calculation " << i << endl;
     }
     
