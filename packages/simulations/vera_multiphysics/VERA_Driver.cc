@@ -204,7 +204,7 @@ void run_test(XML_Node input_node,
 {
     // Get initial temperature
     shared_ptr<VERA_Temperature> temperature
-        = make_shared<VERA_Temperature>([](vector<double> const &){return 120;});
+        = make_shared<VERA_Temperature>([](vector<double> const &){return 600;});
 
     // Get result pointer
     shared_ptr<VERA_Transport_Result> result;
