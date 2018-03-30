@@ -82,6 +82,9 @@ initialize_solver()
     case Options::Solver::BELOS_IFPACK:
         solver_ = make_shared<Belos_Ifpack_Solver>(*this);
         break;
+    case Options::Solver::BELOS_IFPACK_RIGHT:
+        solver_ = make_shared<Belos_Ifpack_Right_Solver>(*this);
+        break;
     }
 }
 
@@ -201,6 +204,35 @@ get_matrix(int o,
                             g,
                             indices,
                             values);
+        mat->InsertGlobalValues(i, // Row
+                                number_of_basis_functions[i], // Num entries
+                                &values[0],
+                                &indices[0]);
+    }
+    mat->FillComplete();
+    mat->OptimizeStorage();
+    
+    return mat;
+}
+
+shared_ptr<Epetra_CrsMatrix> Meshless_Sweep::Trilinos_Solver::
+get_prec_matrix(shared_ptr<Epetra_Map> map) const
+{
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    vector<int> const number_of_basis_functions = wrs_.spatial_discretization_->number_of_basis_functions();
+    
+    shared_ptr<Epetra_CrsMatrix> mat
+        = make_shared<Epetra_CrsMatrix>(Copy, // Data access
+                                        *map,
+                                        &number_of_basis_functions[0], // Num entries per row
+                                        true); // Static profile
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        vector<int> indices;
+        vector<double> values;
+        wrs_.get_prec_matrix_row(i,
+                                 indices,
+                                 values);
         mat->InsertGlobalValues(i, // Row
                                 number_of_basis_functions[i], // Num entries
                                 &values[0],
@@ -892,6 +924,158 @@ solve(vector<double> &x) const
     }
 }
 
+Meshless_Sweep::Belos_Ifpack_Right_Solver::
+Belos_Ifpack_Right_Solver(Meshless_Sweep const &wrs):
+    Trilinos_Solver(wrs)
+{
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    
+    #pragma omp parallel
+    {
+        int number_of_threads = omp_get_num_threads();
+        int t = omp_get_thread_num();
+
+        #pragma omp single
+        {
+            // Initialize data pointers
+            comm_.resize(number_of_threads);
+            map_.resize(number_of_threads);
+            lhs_.resize(number_of_threads);
+            rhs_.resize(number_of_threads);
+            prec_.resize(number_of_threads);
+            prec_mat_.resize(number_of_threads);
+            problem_.resize(number_of_threads);
+            solver_.resize(number_of_threads);
+        }
+        
+        // Get comm and map
+        comm_[t] = make_shared<Epetra_SerialComm>();
+        map_[t] = make_shared<Epetra_Map>(number_of_points, 0, *comm_[t]);
+        
+        // Get vectors
+        lhs_[t] = make_shared<Epetra_Vector>(*map_[t]);
+        rhs_[t] = make_shared<Epetra_Vector>(*map_[t]);
+        lhs_[t]->PutScalar(1.0);
+        rhs_[t]->PutScalar(1.0);
+        
+        // Get preconditioner
+        if (wrs_.options_.use_preconditioner)
+        {
+            prec_mat_[t] = get_prec_matrix(map_[t]);
+
+            Ifpack factory;
+            shared_ptr<Ifpack_Preconditioner> temp_prec
+                = shared_ptr<Ifpack_Preconditioner>(factory.Create("ILUT",
+                                                                   prec_mat_[t].get()));
+            Teuchos::ParameterList prec_list;
+            prec_list.set("fact: drop tolerance", wrs_.options_.drop_tolerance);
+            prec_list.set("fact: ilut level-of-fill", wrs_.options_.level_of_fill);
+            temp_prec->SetParameters(prec_list);
+            temp_prec->Initialize();
+            temp_prec->Compute();
+            AssertMsg(temp_prec->IsInitialized() == true, std::to_string(t));
+            AssertMsg(temp_prec->IsComputed() == true, std::to_string(t));
+                
+            prec_[t]
+                = make_shared<BelosPreconditioner>(Teuchos::rcp(temp_prec));
+        }
+        
+        // Get problem and solver
+        shared_ptr<Teuchos::ParameterList> belos_list
+            = make_shared<Teuchos::ParameterList>();
+        belos_list->set("Num Blocks", wrs_.options_.kspace);
+        belos_list->set("Maximum Iterations", wrs_.options_.max_iterations);
+        belos_list->set("Maximum Restarts", wrs_.options_.max_restarts);
+        belos_list->set("Convergence Tolerance", wrs_.options_.tolerance);
+        belos_list->set("Verbosity", Belos::Errors + Belos::Warnings);
+        #pragma omp critical
+        {
+            problem_[t] = make_shared<BelosLinearProblem>();
+            if (wrs_.options_.use_preconditioner)
+            {
+                problem_[t]->setRightPrec(Teuchos::rcp(prec_[t]));
+            }
+            problem_[t]->setLHS(Teuchos::rcp(lhs_[t]));
+            problem_[t]->setRHS(Teuchos::rcp(rhs_[t]));
+            solver_[t] = make_shared<BelosSolver>(Teuchos::rcp(problem_[t]),
+                                                  Teuchos::rcp(belos_list));
+        }
+    }
+}
+
+void Meshless_Sweep::Belos_Ifpack_Right_Solver::
+solve(vector<double> &x) const
+{
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
+    int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
+
+    // Solve independently for each ordinate and group
+    #pragma omp parallel
+    {
+        int number_of_threads = omp_get_num_threads();
+        int t = omp_get_thread_num();
+        Assert(problem_.size() == number_of_threads);
+        
+        #pragma omp for
+        for (int o = 0; o < number_of_ordinates; ++o)
+        {
+            for (int g = 0; g < number_of_groups; ++g)
+            {
+                int k = g + number_of_groups * o;
+                string description = std::to_string(o) + "_" + std::to_string(g);
+                
+                // Set current RHS value
+                set_rhs(o,
+                        g,
+                        rhs_[t],
+                        x);
+                
+                // Initialize LHS to 1.0 to avoid implicit residual problems
+                lhs_[t]->PutScalar(1.0);
+
+                // Get matrix
+                shared_ptr<Epetra_CrsMatrix> mat
+                    = get_matrix(o,
+                                 g,
+                                 map_[t]);
+                
+                // Set up problem
+                #pragma omp critical
+                {
+                    problem_[t]->setOperator(Teuchos::rcp(mat));
+                    AssertMsg(problem_[t]->setProblem(), description);
+                }
+                
+                // Solve, putting result into LHS
+                try
+                {
+                    Belos::ReturnType belos_result
+                        = solver_[t]->solve();
+                
+                    if (wrs_.options_.quit_if_diverged)
+                    {
+                        AssertMsg(belos_result == Belos::Converged, description);
+                    }
+                }
+                catch (Belos::StatusTestError const &error)
+                {
+                    AssertMsg(false, "Belos status test failed, " + description);
+                }
+                // std::cout << solver_[k]->getNumIters() << std::endl;
+            
+                // Update solution value (overwrite x for this o and g)
+                for (int i = 0; i < number_of_points; ++i)
+                {
+                    int k_x = g + number_of_groups * (o + number_of_ordinates * i);
+                    x[k_x] = (*lhs_[t])[i];
+                }
+            }
+        }
+
+    }
+}
+
 shared_ptr<Conversion<Meshless_Sweep::Options::Solver, string> > Meshless_Sweep::Options::
 solver_conversion() const
 {
@@ -901,7 +1085,8 @@ solver_conversion() const
            {Solver::AZTEC, "aztec"},
            {Solver::AZTEC_IFPACK, "aztec_ifpack"},
            {Solver::BELOS, "belos"},
-           {Solver::BELOS_IFPACK, "belos_ifpack"}};
+           {Solver::BELOS_IFPACK, "belos_ifpack"},
+           {Solver::BELOS_IFPACK_RIGHT, "belos_ifpack_right"}};
            
     return make_shared<Conversion<Solver, string> >(conversions);
 }

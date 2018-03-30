@@ -27,6 +27,9 @@ protected:
                                 int g, // group
                                 std::vector<int> &indices, // global basis (column indices)
                                 std::vector<double> &values) const override; // column values
+    virtual void get_prec_matrix_row(int i, // weight function index (row)
+                                     std::vector<int> &indices, // global basis (column indices)
+                                     std::vector<double> &values) const override; // column values
     virtual void get_rhs(int i, // weight function index (row)
                          int o, // ordinate
                          int g, // group

@@ -350,3 +350,41 @@ get_matrix_row(int i, // weight function index (row)
     } // basis functions
 }
 
+void Weak_Meshless_Sweep::
+get_prec_matrix_row(int i, // weight function index (row)
+                    vector<int> &indices, // column indices (global basis)
+                    vector<double> &values) const // column values
+{
+    // Get data
+    shared_ptr<Weight_Function> weight = spatial_discretization_->weight(i);
+    Weight_Function::Integrals const weight_integrals = weight->integrals();
+    Weight_Function::Values const weight_values = weight->values();
+    vector<double> const &v_b = weight_values.v_b;
+    vector<double> const &iv_w = weight_integrals.iv_w;
+    vector<double> const &iv_b_w = weight_integrals.iv_b_w;
+    int const number_of_basis_functions = weight->number_of_basis_functions();
+    vector<int> const basis_indices = weight->basis_function_indices();
+    
+    // Get indices
+    {
+        vector<int> const indices_data = weight->basis_function_indices();
+        indices = indices_data;
+    }
+    
+    // Get values
+    values.assign(number_of_basis_functions, 0);
+    for (int j = 0; j < number_of_basis_functions; ++j) // basis function index
+    {
+        double &value = values[j];
+
+        if (options_.weighted_preconditioner)
+        {
+            value = iv_b_w[j] / iv_w[0];
+        }
+        else
+        {
+            value = v_b[j];
+        }
+    } // basis functions
+}
+

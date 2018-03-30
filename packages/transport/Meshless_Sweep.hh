@@ -42,7 +42,8 @@ public:
             AZTEC,
             AZTEC_IFPACK,
             BELOS,
-            BELOS_IFPACK
+            BELOS_IFPACK,
+            BELOS_IFPACK_RIGHT
         };
         std::shared_ptr<Conversion<Solver, std::string> > solver_conversion() const;
         
@@ -51,6 +52,8 @@ public:
         // List of possible solver options
         bool quit_if_diverged = true;
         bool use_preconditioner = true;
+        bool weighted_preconditioner = false;
+        bool store_matrices = false;
         int max_iterations = 1000;
         int kspace = 20;
         int max_restarts = 50;
@@ -101,6 +104,9 @@ protected:
                                 int g, // group
                                 std::vector<int> &indices, // global basis (column indices)
                                 std::vector<double> &values) const = 0; // column values
+    virtual void get_prec_matrix_row(int i, // weight function index (row)
+                                     std::vector<int> &indices, // global basis (column indices)
+                                     std::vector<double> &values) const = 0; // column values
     virtual void get_rhs(int i, // weight function index (row)
                          int o, // ordinate
                          int g, // group
@@ -138,6 +144,9 @@ protected:
         std::shared_ptr<Epetra_CrsMatrix> get_matrix(int o,
                                                      int g,
                                                      std::shared_ptr<Epetra_Map> map) const;
+
+        // Get preconditioner matrix that is independent of o and g
+        std::shared_ptr<Epetra_CrsMatrix> get_prec_matrix(std::shared_ptr<Epetra_Map> map) const;
         
         // Set rhs_ to current source
         void set_rhs(int o,
@@ -280,6 +289,29 @@ protected:
         std::vector<std::shared_ptr<Epetra_CrsMatrix> > mat_;
         mutable std::vector<std::shared_ptr<Epetra_Vector> > lhs_;
         mutable std::vector<std::shared_ptr<Epetra_Vector> > rhs_;
+        std::vector<std::shared_ptr<BelosPreconditioner> > prec_;
+        std::vector<std::shared_ptr<BelosLinearProblem> > problem_;
+        std::vector<std::shared_ptr<BelosSolver> > solver_;
+    };
+
+    class Belos_Ifpack_Right_Solver : public Trilinos_Solver
+    {
+    public:
+        
+        // Constructor
+        Belos_Ifpack_Right_Solver(Meshless_Sweep const &wrs);
+        
+        // Solve problem
+        virtual void solve(std::vector<double> &x) const override;
+
+    protected:
+        
+        std::vector<std::shared_ptr<Epetra_Comm> > comm_;
+        std::vector<std::shared_ptr<Epetra_Map> > map_;
+        std::vector<std::shared_ptr<Epetra_CrsMatrix> > mat_;
+        mutable std::vector<std::shared_ptr<Epetra_Vector> > lhs_;
+        mutable std::vector<std::shared_ptr<Epetra_Vector> > rhs_;
+        std::vector<std::shared_ptr<Epetra_CrsMatrix> > prec_mat_;
         std::vector<std::shared_ptr<BelosPreconditioner> > prec_;
         std::vector<std::shared_ptr<BelosLinearProblem> > problem_;
         std::vector<std::shared_ptr<BelosSolver> > solver_;
