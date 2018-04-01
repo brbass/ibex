@@ -160,6 +160,7 @@ get_points_discretization(XML_Node input_node) const
         vector<vector<int> > neighbors;
         vector<vector<double> > squared_distances;
         meshless_factory.get_neighbors(kd_tree,
+                                       rbf->range() == RBF::Range::GLOBAL,
                                        dimension,
                                        number_of_points,
                                        radii,

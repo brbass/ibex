@@ -162,7 +162,7 @@ int test_gaussian_2d(int order,
     // Cylindrical-Cartesian 2D
     double cylc2d = 0;
     {
-        double max_value = numeric_limits<double>::max();
+        double max_value = 0.5 * numeric_limits<double>::max();
         vector<double> ordinates_x;
         vector<double> ordinates_y;
         vector<double> weights;
@@ -519,7 +519,7 @@ int test_boundary_gaussian_2d(int order,
     // Cylindrical-Cartesian 2D
     double cylc2d = 0;
     {
-        double max_value = numeric_limits<double>::max();
+        double max_value = 0.5 * numeric_limits<double>::max();
         vector<double> ordinates_x;
         vector<double> ordinates_y;
         vector<double> weights;

@@ -85,6 +85,9 @@ initialize_solver()
     case Options::Solver::BELOS_IFPACK_RIGHT:
         solver_ = make_shared<Belos_Ifpack_Right_Solver>(*this);
         break;
+    case Options::Solver::BELOS_IFPACK_RIGHT2:
+        solver_ = make_shared<Belos_Ifpack_Right2_Solver>(*this);
+        break;
     }
 }
 
@@ -520,7 +523,14 @@ solve(vector<double> &x) const
             solver->SetAztecOption(AZ_solver, AZ_gmres);
             solver->SetAztecOption(AZ_kspace, wrs_.options_.kspace);
             solver->SetAztecOption(AZ_precond, AZ_none);
-            solver->SetAztecOption(AZ_output, AZ_warnings);
+            if (wrs_.options_.print)
+            {
+                solver->SetAztecOption(AZ_output, AZ_all);
+            }
+            else
+            {
+                solver->SetAztecOption(AZ_output, AZ_warnings);
+            }
             
             // Solve, putting result into LHS
             solver->Iterate(wrs_.options_.max_iterations,
@@ -607,7 +617,14 @@ Aztec_Ifpack_Solver(Meshless_Sweep const &wrs):
             {
                 solver_[k]->SetPrecOperator(prec_[k].get());
             }
-            solver_[k]->SetAztecOption(AZ_output, AZ_warnings);
+            if (wrs_.options_.print)
+            {
+                solver_[k]->SetAztecOption(AZ_output, AZ_all);
+            }
+            else
+            {
+                solver_[k]->SetAztecOption(AZ_output, AZ_warnings);
+            }
         }
     }
 }
@@ -693,7 +710,14 @@ Belos_Solver(Meshless_Sweep const &wrs):
         belos_list->set("Maximum Iterations", wrs_.options_.max_iterations);
         belos_list->set("Maximum Restarts", wrs_.options_.max_restarts);
         belos_list->set("Convergence Tolerance", wrs_.options_.tolerance);
-        belos_list->set("Verbosity", Belos::Errors + Belos::Warnings);
+        if (wrs_.options_.print)
+        {
+            belos_list->set("Verbosity", Belos::IterationDetails + Belos::TimingDetails + Belos::FinalSummary);
+        }
+        else
+        {
+            belos_list->set("Verbosity", Belos::Errors + Belos::Warnings);
+        }
         #pragma omp critical
         {
             problem_[t] = make_shared<BelosLinearProblem>();
@@ -858,7 +882,14 @@ Belos_Ifpack_Solver(Meshless_Sweep const &wrs):
             belos_list->set("Maximum Iterations", wrs_.options_.max_iterations);
             belos_list->set("Maximum Restarts", wrs_.options_.max_restarts);
             belos_list->set("Convergence Tolerance", wrs_.options_.tolerance);
-            belos_list->set("Verbosity", Belos::Errors + Belos::Warnings);
+            if (wrs_.options_.print)
+            {
+                belos_list->set("Verbosity", Belos::IterationDetails + Belos::TimingDetails + Belos::FinalSummary);
+            }
+            else
+            {
+                belos_list->set("Verbosity", Belos::Errors + Belos::Warnings);
+            }
             #pragma omp critical
             {
                 solver_[k]
@@ -987,13 +1018,27 @@ Belos_Ifpack_Right_Solver(Meshless_Sweep const &wrs):
         belos_list->set("Maximum Iterations", wrs_.options_.max_iterations);
         belos_list->set("Maximum Restarts", wrs_.options_.max_restarts);
         belos_list->set("Convergence Tolerance", wrs_.options_.tolerance);
-        belos_list->set("Verbosity", Belos::Errors + Belos::Warnings);
+        if (wrs_.options_.print)
+        {
+            belos_list->set("Verbosity", Belos::IterationDetails + Belos::TimingDetails + Belos::FinalSummary);
+        }
+        else
+        {
+            belos_list->set("Verbosity", Belos::Errors + Belos::Warnings);
+        }
         #pragma omp critical
         {
             problem_[t] = make_shared<BelosLinearProblem>();
             if (wrs_.options_.use_preconditioner)
             {
-                problem_[t]->setRightPrec(Teuchos::rcp(prec_[t]));
+                if (wrs_.options_.force_left)
+                {
+                    problem_[t]->setLeftPrec(Teuchos::rcp(prec_[t]));
+                }
+                else
+                {
+                    problem_[t]->setRightPrec(Teuchos::rcp(prec_[t]));
+                }
             }
             problem_[t]->setLHS(Teuchos::rcp(lhs_[t]));
             problem_[t]->setRHS(Teuchos::rcp(rhs_[t]));
@@ -1041,11 +1086,8 @@ solve(vector<double> &x) const
                                  map_[t]);
                 
                 // Set up problem
-                #pragma omp critical
-                {
-                    problem_[t]->setOperator(Teuchos::rcp(mat));
-                    AssertMsg(problem_[t]->setProblem(), description);
-                }
+                problem_[t]->setOperator(Teuchos::rcp(mat));
+                AssertMsg(problem_[t]->setProblem(), description);
                 
                 // Solve, putting result into LHS
                 try
@@ -1076,6 +1118,181 @@ solve(vector<double> &x) const
     }
 }
 
+Meshless_Sweep::Belos_Ifpack_Right2_Solver::
+Belos_Ifpack_Right2_Solver(Meshless_Sweep const &wrs):
+    Trilinos_Solver(wrs)
+{
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
+    int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
+
+    #pragma omp parallel
+    {
+        int number_of_threads = omp_get_num_threads();
+        int t = omp_get_thread_num();
+
+        #pragma omp single
+        {
+            // Initialize data pointers
+            comm_.resize(number_of_threads);
+            map_.resize(number_of_threads);
+            lhs_.resize(number_of_threads);
+            rhs_.resize(number_of_threads);
+            prec_.resize(number_of_threads);
+            prec_mat_.resize(number_of_threads);
+            mat_.resize(number_of_groups * number_of_ordinates);
+            problem_.resize(number_of_groups * number_of_ordinates);
+            solver_.resize(number_of_groups * number_of_ordinates);
+        }
+        
+        // Get comm and map
+        comm_[t] = make_shared<Epetra_SerialComm>();
+        map_[t] = make_shared<Epetra_Map>(number_of_points, 0, *comm_[t]);
+        
+        // Get vectors
+        lhs_[t] = make_shared<Epetra_Vector>(*map_[t]);
+        rhs_[t] = make_shared<Epetra_Vector>(*map_[t]);
+        lhs_[t]->PutScalar(1.0);
+        rhs_[t]->PutScalar(1.0);
+        
+        // Get preconditioner
+        if (wrs_.options_.use_preconditioner)
+        {
+            prec_mat_[t] = get_prec_matrix(map_[t]);
+
+            Ifpack factory;
+            shared_ptr<Ifpack_Preconditioner> temp_prec
+                = shared_ptr<Ifpack_Preconditioner>(factory.Create("ILUT",
+                                                                   prec_mat_[t].get()));
+            Teuchos::ParameterList prec_list;
+            prec_list.set("fact: drop tolerance", wrs_.options_.drop_tolerance);
+            prec_list.set("fact: ilut level-of-fill", wrs_.options_.level_of_fill);
+            temp_prec->SetParameters(prec_list);
+            temp_prec->Initialize();
+            temp_prec->Compute();
+            AssertMsg(temp_prec->IsInitialized() == true, std::to_string(t));
+            AssertMsg(temp_prec->IsComputed() == true, std::to_string(t));
+                
+            prec_[t]
+                = make_shared<BelosPreconditioner>(Teuchos::rcp(temp_prec));
+        }
+        
+        // Get problem and solver
+        shared_ptr<Teuchos::ParameterList> belos_list
+            = make_shared<Teuchos::ParameterList>();
+        belos_list->set("Num Blocks", wrs_.options_.kspace);
+        belos_list->set("Maximum Iterations", wrs_.options_.max_iterations);
+        belos_list->set("Maximum Restarts", wrs_.options_.max_restarts);
+        belos_list->set("Convergence Tolerance", wrs_.options_.tolerance);
+        if (wrs_.options_.print)
+        {
+            belos_list->set("Verbosity", Belos::IterationDetails + Belos::TimingDetails + Belos::FinalSummary);
+        }
+        else
+        {
+            belos_list->set("Verbosity", Belos::Errors + Belos::Warnings);
+        }
+        
+        #pragma omp for schedule(static)
+        for (int o = 0; o < number_of_ordinates; ++o)
+        {
+            for (int g = 0; g < number_of_groups; ++g)
+            {
+                string description = std::to_string(o) + "_" + std::to_string(g);
+                int k = g + number_of_groups * o;
+                
+                mat_[k] = get_matrix(o,
+                                     g,
+                                     map_[t]);
+                
+                #pragma omp critical
+                {
+                    problem_[k] = make_shared<BelosLinearProblem>(Teuchos::rcp(mat_[k]),
+                                                                  Teuchos::rcp(lhs_[t]),
+                                                                  Teuchos::rcp(rhs_[t]));
+                    if (wrs_.options_.use_preconditioner)
+                    {
+                        if (wrs_.options_.force_left)
+                        {
+                            problem_[k]->setLeftPrec(Teuchos::rcp(prec_[t]));
+                        }
+                        else
+                        {
+                            problem_[k]->setRightPrec(Teuchos::rcp(prec_[t]));
+                        }
+                    }
+                    AssertMsg(problem_[k]->setProblem(), description);
+                    
+                    solver_[k] = make_shared<BelosSolver>(Teuchos::rcp(problem_[k]),
+                                                          Teuchos::rcp(belos_list));
+                }
+            }
+        }
+    }
+}
+
+void Meshless_Sweep::Belos_Ifpack_Right2_Solver::
+solve(vector<double> &x) const
+{
+    int number_of_points = wrs_.spatial_discretization_->number_of_points();
+    int number_of_groups = wrs_.energy_discretization_->number_of_groups();
+    int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
+
+    // Solve independently for each ordinate and group
+    #pragma omp parallel
+    {
+        int number_of_threads = omp_get_num_threads();
+        int t = omp_get_thread_num();
+        
+        #pragma omp for schedule(static)
+        for (int o = 0; o < number_of_ordinates; ++o)
+        {
+            for (int g = 0; g < number_of_groups; ++g)
+            {
+                int k = g + number_of_groups * o;
+                string description = std::to_string(o) + "_" + std::to_string(g);
+                
+                // Set current RHS value
+                set_rhs(o,
+                        g,
+                        rhs_[t],
+                        x);
+                
+                // Initialize LHS to 1.0 to avoid implicit residual problems
+                lhs_[t]->PutScalar(1.0);
+
+                // Set up problem
+                AssertMsg(problem_[k]->setProblem(), description);
+                
+                // Solve, putting result into LHS
+                try
+                {
+                    Belos::ReturnType belos_result
+                        = solver_[k]->solve();
+                
+                    if (wrs_.options_.quit_if_diverged)
+                    {
+                        AssertMsg(belos_result == Belos::Converged, description);
+                    }
+                }
+                catch (Belos::StatusTestError const &error)
+                {
+                    AssertMsg(false, "Belos status test failed, " + description);
+                }
+
+                // std::cout << solver_[k]->getNumIters() << std::endl;
+            
+                // Update solution value (overwrite x for this o and g)
+                for (int i = 0; i < number_of_points; ++i)
+                {
+                    int k_x = g + number_of_groups * (o + number_of_ordinates * i);
+                    x[k_x] = (*lhs_[t])[i];
+                }
+            }
+        }
+    }
+}
+
 shared_ptr<Conversion<Meshless_Sweep::Options::Solver, string> > Meshless_Sweep::Options::
 solver_conversion() const
 {
@@ -1086,7 +1303,8 @@ solver_conversion() const
            {Solver::AZTEC_IFPACK, "aztec_ifpack"},
            {Solver::BELOS, "belos"},
            {Solver::BELOS_IFPACK, "belos_ifpack"},
-           {Solver::BELOS_IFPACK_RIGHT, "belos_ifpack_right"}};
+           {Solver::BELOS_IFPACK_RIGHT, "belos_ifpack_right"},
+           {Solver::BELOS_IFPACK_RIGHT2, "belos_ifpack_right2"}};
            
     return make_shared<Conversion<Solver, string> >(conversions);
 }

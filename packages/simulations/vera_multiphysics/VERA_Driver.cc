@@ -212,12 +212,12 @@ void run_test(XML_Node input_node,
     // Get total desired power
     double pincell_power
         = input_node.get_child("heat").get_child_value<double>("pincell_power");
-    
+    int number_of_iterations
+        = input_node.get_child("heat").get_child_value<int>("number_of_iterations");
     Timer timer;
     timer.start();
-    int num_iters = 4;
     vector<double> eigenvalue_history;
-    for (int i = 0; i < num_iters; ++i)
+    for (int i = 0; i < number_of_iterations; ++i)
     {
         // Run transport calculation
         cout << "start transport calculation " << i << endl;

@@ -217,6 +217,7 @@ get_point_neighbors(shared_ptr<KD_Tree> kd_tree,
 
 void Meshless_Function_Factory::
 get_neighbors(shared_ptr<KD_Tree> kd_tree,
+              bool global_rbf,
               int dimension,
               int number_of_points,
               vector<double> const &radii,
@@ -230,11 +231,18 @@ get_neighbors(shared_ptr<KD_Tree> kd_tree,
     
     // Get maximum possible radius for neighboring points
     double max_radius = 0;
-    for (double radius: other_radii)
+    if (global_rbf)
     {
-        if (radius > max_radius)
+        max_radius = 0.5 * numeric_limits<double>::max();
+    }
+    else
+    {
+        for (double radius: other_radii)
         {
-            max_radius = radius;
+            if (radius > max_radius)
+            {
+                max_radius = radius;
+            }
         }
     }
     
@@ -254,32 +262,40 @@ get_neighbors(shared_ptr<KD_Tree> kd_tree,
                                local_neighbors,
                                local_squared_distances);
         Assert(local_neighbors.size() > 0);
-        
-        // Check to see if points actually overlap
-        int number_of_local_neighbors = local_neighbors.size();
-        vector<int> checked_indices;
-        vector<double> checked_distances;
-        checked_indices.reserve(number_of_local_neighbors);
-        checked_distances.reserve(number_of_local_neighbors);
-        for (int j = 0; j < number_of_local_neighbors; ++j)
-        {
-            int index = local_neighbors[j];
-            double distance_squared = local_squared_distances[j];
-            
-            // Get total basis + weight radius
-            double total_radius = radius + radii[index];
 
-            // Check whether point falls inside radius
-            if (total_radius * total_radius > distance_squared)
-            {
-                checked_indices.push_back(index);
-                checked_distances.push_back(distance_squared);
-            }
+        if (global_rbf)
+        {
+            neighbors[i] = local_neighbors;
+            squared_distances[i] = local_squared_distances;
         }
-        checked_indices.shrink_to_fit();
-        checked_distances.shrink_to_fit();
-        neighbors[i] = checked_indices;
-        squared_distances[i] = checked_distances;
+        else
+        {
+            // Check to see if points actually overlap
+            int number_of_local_neighbors = local_neighbors.size();
+            vector<int> checked_indices;
+            vector<double> checked_distances;
+            checked_indices.reserve(number_of_local_neighbors);
+            checked_distances.reserve(number_of_local_neighbors);
+            for (int j = 0; j < number_of_local_neighbors; ++j)
+            {
+                int index = local_neighbors[j];
+                double distance_squared = local_squared_distances[j];
+            
+                // Get total basis + weight radius
+                double total_radius = radius + radii[index];
+
+                // Check whether point falls inside radius
+                if (total_radius * total_radius > distance_squared)
+                {
+                    checked_indices.push_back(index);
+                    checked_distances.push_back(distance_squared);
+                }
+            }
+            checked_indices.shrink_to_fit();
+            checked_distances.shrink_to_fit();
+            neighbors[i] = checked_indices;
+            squared_distances[i] = checked_distances;
+        }
     }
 }
 
@@ -447,6 +463,13 @@ get_cartesian_mls_functions(int order,
                                number_of_points,
                                points);
     
+    // Get RBF and distance
+    RBF_Factory rbf_factory;
+    shared_ptr<RBF> rbf = rbf_factory.get_rbf(rbf_type); 
+    shared_ptr<Distance> distance
+        = make_shared<Cartesian_Distance>(dimension);
+    bool global_rbf = rbf->range() == RBF::Range::GLOBAL;
+    
     // Get neighbors
     double interval = points[1][0] - points[0][0];
     double radius = interval * radius_num_intervals;
@@ -454,6 +477,7 @@ get_cartesian_mls_functions(int order,
     vector<vector<int> > neighbors;
     vector<vector<double> > squared_distances;
     get_neighbors(kd_tree,
+                  global_rbf,
                   dimension,
                   number_of_points,
                   radii,
@@ -461,12 +485,6 @@ get_cartesian_mls_functions(int order,
                   points,
                   neighbors,
                   squared_distances);
-    
-    // Get RBF and distance
-    RBF_Factory rbf_factory;
-    shared_ptr<RBF> rbf = rbf_factory.get_rbf(rbf_type); 
-    shared_ptr<Distance> distance
-        = make_shared<Cartesian_Distance>(dimension);
     
     // Get weighting functions
     vector<shared_ptr<Meshless_Function> > simple_functions;

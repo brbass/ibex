@@ -173,7 +173,8 @@ def get_cylindrical_points(radius, # Radius of mesh
 
 # Get a ring of points
 def get_ring_points(r,
-                    dr):
+                    dr,
+                    randomize_start=False):
     if r == 0.0:
         points = [[0, 0]]
     else:
@@ -183,7 +184,14 @@ def get_ring_points(r,
         num_theta = int(np.ceil(2 * np.pi / dt))
         if num_theta < 4:
             num_theta = 4
-        theta_vals = np.linspace(0, 2* np.pi, num_theta, endpoint=False)
+        
+        if randomize_start:
+            theta0 = np.random.rand() * 2 * np.pi
+            theta1 = theta0 + 2 * np.pi
+        else:
+            theta0 = 0.
+            theta1 = 2 * np.pi
+        theta_vals = np.linspace(theta0, theta1, num_theta, endpoint=False)
         points = [[r * np.cos(t), r * np.sin(t)] for t in theta_vals]
 
     return points

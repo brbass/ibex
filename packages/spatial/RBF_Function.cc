@@ -34,7 +34,7 @@ radius() const
     case RBF::Range::LOCAL:
         return rbf_->radius() / shape_;
     case RBF::Range::GLOBAL:
-        return numeric_limits<double>::max();
+        return 0.5 * numeric_limits<double>::max();
     }
 }
 

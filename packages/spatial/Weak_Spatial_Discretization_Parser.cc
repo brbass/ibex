@@ -176,10 +176,25 @@ get_galerkin_points_discretization(XML_Node input_node) const
         AssertMsg(false, "radii method (" + radii_method + ") not found");
     }
     
+    // Get RBFp
+    shared_ptr<RBF> rbf = rbf_parser.parse_from_xml(weights_node.get_child("meshless_function"));
+    shared_ptr<Distance> distance = make_shared<Cartesian_Distance>(dimension);
+    bool global_rbf = rbf->range() == RBF::Range::GLOBAL;
+    
+    // Get independent meshless functions
+    vector<shared_ptr<Meshless_Function> > meshless_functions;
+    meshless_factory.get_rbf_functions(number_of_points,
+                                       radii,
+                                       points,
+                                       rbf,
+                                       distance,
+                                       meshless_functions);
+    
     // Find neighbors
     vector<vector<int> > neighbors;
     vector<vector<double> > squared_distances;
     meshless_factory.get_neighbors(kd_tree,
+                                   global_rbf,
                                    dimension,
                                    number_of_points,
                                    radii,
@@ -192,19 +207,6 @@ get_galerkin_points_discretization(XML_Node input_node) const
                                                      neighbors,
                                                      squared_distances));
     
-    // Get RBFp
-    shared_ptr<RBF> rbf = rbf_parser.parse_from_xml(weights_node.get_child("meshless_function"));
-    shared_ptr<Distance> distance = make_shared<Cartesian_Distance>(dimension);
-    
-    // Get independent meshless functions
-    vector<shared_ptr<Meshless_Function> > meshless_functions;
-    meshless_factory.get_rbf_functions(number_of_points,
-                                       radii,
-                                       points,
-                                       rbf,
-                                       distance,
-                                       meshless_functions);
-
     // Get MLS
     string meshless_type = weights_node.get_child("meshless_function").get_attribute<string>("type");
     if (meshless_type == "rbf")
@@ -334,10 +336,25 @@ get_cartesian_discretization(XML_Node input_node) const
         AssertMsg(false, "radii method (" + radii_method + ") not found");
     }
     
+    // Get RBF
+    shared_ptr<RBF> rbf = rbf_parser.parse_from_xml(weights_node.get_child("meshless_function"));
+    shared_ptr<Distance> distance = make_shared<Cartesian_Distance>(dimension);
+    bool global_rbf = rbf->range() == RBF::Range::GLOBAL;
+    
+    // Get independent meshless functions
+    vector<shared_ptr<Meshless_Function> > meshless_functions;
+    meshless_factory.get_rbf_functions(number_of_points,
+                                       radii,
+                                       points,
+                                       rbf,
+                                       distance,
+                                       meshless_functions);
+    
     // Find neighbors
     vector<vector<int> > neighbors;
     vector<vector<double> > squared_distances;
     meshless_factory.get_neighbors(kd_tree,
+                                   global_rbf,
                                    dimension,
                                    number_of_points,
                                    radii,
@@ -350,19 +367,6 @@ get_cartesian_discretization(XML_Node input_node) const
                                                      neighbors,
                                                      squared_distances));
     
-    // Get RBF
-    shared_ptr<RBF> rbf = rbf_parser.parse_from_xml(weights_node.get_child("meshless_function"));
-    shared_ptr<Distance> distance = make_shared<Cartesian_Distance>(dimension);
-    
-    // Get independent meshless functions
-    vector<shared_ptr<Meshless_Function> > meshless_functions;
-    meshless_factory.get_rbf_functions(number_of_points,
-                                       radii,
-                                       points,
-                                       rbf,
-                                       distance,
-                                       meshless_functions);
-
     // Get MLS
     string meshless_type = weights_node.get_child("meshless_function").get_attribute<string>("type");
     if (meshless_type == "rbf")

@@ -158,6 +158,15 @@ get_simple_discretization(int num_dimensional_points,
                                number_of_points,
                                points);
     
+    // Get RBF and distance
+    RBF_Factory rbf_factory;
+    shared_ptr<RBF> basis_rbf = rbf_factory.get_rbf(basis_type); 
+    shared_ptr<RBF> weight_rbf = rbf_factory.get_rbf(basis_type);
+    shared_ptr<Distance> distance
+        = make_shared<Cartesian_Distance>(dimension);
+    bool global_rbf = (basis_rbf->range() == RBF::Range::GLOBAL
+                       || weight_rbf->range() == RBF::Range::GLOBAL);
+    
     // Get neighbors
     double interval = points[1][0] - points[0][0];
     double radius = interval * radius_num_intervals;
@@ -165,6 +174,7 @@ get_simple_discretization(int num_dimensional_points,
     vector<vector<int> > neighbors;
     vector<vector<double> > squared_distances;
     meshless_factory_.get_neighbors(kd_tree,
+                                    global_rbf,
                                     dimension,
                                     number_of_points,
                                     radii,
@@ -176,13 +186,6 @@ get_simple_discretization(int num_dimensional_points,
                                                       radii,
                                                       neighbors,
                                                       squared_distances));
-    
-    // Get RBF and distance
-    RBF_Factory rbf_factory;
-    shared_ptr<RBF> basis_rbf = rbf_factory.get_rbf(basis_type); 
-    shared_ptr<RBF> weight_rbf = rbf_factory.get_rbf(basis_type);
-    shared_ptr<Distance> distance
-        = make_shared<Cartesian_Distance>(dimension);
     
     // Get RBF functions
     vector<shared_ptr<Meshless_Function> > meshless_basis;

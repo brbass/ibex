@@ -53,6 +53,7 @@ public:
     // Assumes points for the main set and the neighbor set
     // share center positions and therefore kd_tree.
     void get_neighbors(std::shared_ptr<KD_Tree> kd_tree,
+                       bool global_rbf,
                        int dimension,
                        int number_of_points,
                        std::vector<double> const &radii,

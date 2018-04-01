@@ -54,7 +54,6 @@ get_spatial(XML_Node input_node)
                                            energy);
     vector<shared_ptr<Boundary_Source> > boundary_sources
         = boundary_parser.parse_from_xml(input_node.get_child("boundary_sources"));
-    Assert(boundary_sources.size() == 1);
     
     // Get solid geometry
     Constructive_Solid_Geometry_Parser solid_parser(materials,

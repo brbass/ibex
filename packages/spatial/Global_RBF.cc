@@ -10,5 +10,5 @@ Global_RBF()
 double Global_RBF::
 radius() const
 {
-    return std::numeric_limits<double>::max();
+    return 0.5 * std::numeric_limits<double>::max();
 }

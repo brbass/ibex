@@ -615,7 +615,7 @@ initialize_connectivity()
             shared_ptr<Cell> cell = cells_[i];
             
             // Find minimum radius
-            double min_radius = numeric_limits<double>::max();
+            double min_radius = 0.5 * numeric_limits<double>::max();
             for (int j = 0; j < cell->number_of_weight_functions; ++j)
             {
                 int const k = cell->weight_indices[j];
@@ -688,7 +688,7 @@ initialize_connectivity()
             shared_ptr<Surface> surface = surfaces_[i];
             
             // Find minimum radius
-            double min_radius = numeric_limits<double>::max();
+            double min_radius = 0.5 * numeric_limits<double>::max();
             for (int j = 0; j < surface->number_of_weight_functions; ++j)
             {
                 int const k = surface->weight_indices[j];
@@ -717,7 +717,7 @@ initialize_connectivity()
             
             // Find min surface length
             shared_ptr<Cell> cell = cells_[surface->neighboring_cell];
-            double min_length = numeric_limits<double>::max();
+            double min_length = 0.5 * numeric_limits<double>::max();
             for (int d = 0; d < dimension_; ++d)
             {
                 if (d != surface->dimension)

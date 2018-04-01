@@ -107,7 +107,7 @@ set_options_and_limits()
     }
     
     // Calculate boundary limits
-    double lim = numeric_limits<double>::max();
+    double lim = 0.5 * numeric_limits<double>::max();
     min_boundary_limits_.assign(dimension_, -lim);
     max_boundary_limits_.assign(dimension_, lim);
     local_surface_indices_.assign(dimension_ * 2, Errors::DOES_NOT_EXIST);
@@ -141,7 +141,7 @@ set_options_and_limits()
         {
             // Find closest surface
             shared_ptr<Cartesian_Plane> closest_surface;
-            double min_distance = numeric_limits<double>::max();
+            double min_distance = 0.5 * numeric_limits<double>::max();
             for (shared_ptr<Cartesian_Plane> surface : boundary_surfaces_)
             {
                 int dim_sur = surface->surface_dimension();

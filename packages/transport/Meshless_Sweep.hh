@@ -43,7 +43,8 @@ public:
             AZTEC_IFPACK,
             BELOS,
             BELOS_IFPACK,
-            BELOS_IFPACK_RIGHT
+            BELOS_IFPACK_RIGHT,
+            BELOS_IFPACK_RIGHT2
         };
         std::shared_ptr<Conversion<Solver, std::string> > solver_conversion() const;
         
@@ -52,14 +53,17 @@ public:
         // List of possible solver options
         bool quit_if_diverged = true;
         bool use_preconditioner = true;
-        bool weighted_preconditioner = false;
-        bool store_matrices = false;
+        bool print = false;
         int max_iterations = 1000;
         int kspace = 20;
         int max_restarts = 50;
         double level_of_fill = 1.0;
         double tolerance = 1e-8;
         double drop_tolerance = 1e-12;
+
+        // Options specific to right preconditioners
+        bool weighted_preconditioner = false; 
+        bool force_left = false;
     };
 
     // Constructor
@@ -300,6 +304,29 @@ protected:
         
         // Constructor
         Belos_Ifpack_Right_Solver(Meshless_Sweep const &wrs);
+        
+        // Solve problem
+        virtual void solve(std::vector<double> &x) const override;
+
+    protected:
+        
+        std::vector<std::shared_ptr<Epetra_Comm> > comm_;
+        std::vector<std::shared_ptr<Epetra_Map> > map_;
+        std::vector<std::shared_ptr<Epetra_CrsMatrix> > mat_;
+        mutable std::vector<std::shared_ptr<Epetra_Vector> > lhs_;
+        mutable std::vector<std::shared_ptr<Epetra_Vector> > rhs_;
+        std::vector<std::shared_ptr<Epetra_CrsMatrix> > prec_mat_;
+        std::vector<std::shared_ptr<BelosPreconditioner> > prec_;
+        std::vector<std::shared_ptr<BelosLinearProblem> > problem_;
+        std::vector<std::shared_ptr<BelosSolver> > solver_;
+    };
+
+    class Belos_Ifpack_Right2_Solver : public Trilinos_Solver
+    {
+    public:
+        
+        // Constructor
+        Belos_Ifpack_Right2_Solver(Meshless_Sweep const &wrs);
         
         // Solve problem
         virtual void solve(std::vector<double> &x) const override;

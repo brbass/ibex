@@ -56,8 +56,12 @@ get_weak_sweep(XML_Node input_node) const
                                                          options.tolerance);
     options.drop_tolerance = input_node.get_attribute<double>("drop_tolerance",
                                                               options.drop_tolerance);
+    options.print = input_node.get_attribute<bool>("print",
+                                                   options.print);
     options.weighted_preconditioner = input_node.get_attribute<bool>("weighted_preconditioner",
                                                                      options.weighted_preconditioner);
+    options.force_left = input_node.get_attribute<bool>("force_left",
+                                                        options.force_left);
     
     string solver = input_node.get_attribute<string>("solver",
                                                      "amesos");
