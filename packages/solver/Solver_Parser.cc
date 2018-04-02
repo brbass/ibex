@@ -185,7 +185,6 @@ get_krylov_steady_state(XML_Node input_node,
     iteration_options.kspace = input_node.get_attribute<int>("kspace", 10);
     iteration_options.solver_print = input_node.get_attribute<int>("solver_print", 0);
     iteration_options.tolerance = input_node.get_attribute<double>("tolerance", 1e-10);
-    iteration_options.perform_solve = input_node.get_attribute<bool>("perform_solve", true);
     
     // Create solver
     return make_shared<Krylov_Steady_State>(iteration_options,

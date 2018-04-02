@@ -6,6 +6,7 @@
     inline void omp_set_num_threads(int i) {return;}
 #endif
 
+#include "Integration_Problem.hh"
 #include "Heat_Problem.hh"
 #include "Manufactured_Problem.hh"
 #include "Transport_Problem.hh"
@@ -63,6 +64,13 @@ run_problem()
                                   output_node,
                                   print_progress);
         heat_problem.solve();
+    }
+    else if (problem_type == "integration")
+    {
+        Integration_Problem int_problem(input_node,
+                                        output_node,
+                                        print_progress);
+        int_problem.solve();
     }
     else
     {

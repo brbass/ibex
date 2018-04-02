@@ -41,11 +41,6 @@ Krylov_Steady_State(Options options,
 void Krylov_Steady_State::
 solve()
 {
-    if (!options_.perform_solve)
-    {
-        return;
-    }
-    
     int phi_size = transport_discretization_->phi_size();
     int number_of_augments = transport_discretization_->number_of_augments();
     
