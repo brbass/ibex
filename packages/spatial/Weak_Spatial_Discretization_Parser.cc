@@ -441,6 +441,7 @@ get_rbf_functions(XML_Node input_node,
                                  false))
     {
         int index = node.get_attribute<int>("index");
+        Assert(index < number_of_points);
         double radius = node.get_child_value<double>("radius");
         vector<double> position = node.get_child_vector<double>("position",
                                                                 dimension);
