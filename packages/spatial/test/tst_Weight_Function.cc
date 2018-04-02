@@ -26,10 +26,11 @@ using namespace std;
 namespace ce = Check_Equality;
 
 int check_results(vector<double> const &vec,
-                   vector<double> const &ana,
-                   string description,
-                   int index,
-                   double tolerance)
+                  vector<double> const &ana,
+                  string description,
+                  int index,
+                  double tolerance,
+                  double &err)
 {
     int checksum = 0;
     int w = 15;
@@ -45,13 +46,18 @@ int check_results(vector<double> const &vec,
     cout << setw(w) << "expected";
     cout << setw(w) << "error";
     cout << endl;
+    double num = 0;
+    double den = 0;
     for (int i = 0; i < size; ++i)
     {
         cout << setw(w) << vec[i];
         cout << setw(w) << ana[i];
         cout << setw(w) << vec[i] - ana[i];
         cout << endl;
+        num += (vec[i] - ana[i]) * (vec[i] - ana[i]);
+        den += ana[i] * ana[i];
     }
+    err = sqrt(num / den);
     cout << endl;
     
     return checksum;
@@ -129,12 +135,14 @@ int test_integrals(string input_filename)
     // Get XML document
     XML_Document input_file(input_filename);
     XML_Node input_node = input_file.get_child("input");
-
+    XML_Document output_file;
+    XML_Node output_node = output_file.append_child("output");
     // Get weight functions
     vector<shared_ptr<Weight_Function> > weight_functions
         = get_weight_functions(input_node);
 
     // Loop through weight functions to compare results
+    double err;
     XML_Node results_node = input_node.get_child("expected_integrals");
     for (XML_Node node = results_node.get_child("weight");
          node;
@@ -142,14 +150,17 @@ int test_integrals(string input_filename)
                                  false))
     {
         int index = node.get_attribute<int>("index");
-
+        
         // Get weight function information
         shared_ptr<Weight_Function> weight = weight_functions[index];
         Weight_Function::Integrals const integrals = weight->integrals();
         int number_of_basis_functions = weight->number_of_basis_functions();
         int dimension = weight->dimension();
         int number_of_boundary_surfaces = weight->number_of_boundary_surfaces();
-
+        XML_Node weight_node = output_node.append_child("weight");
+        weight->output(weight_node);
+        vector<double> err_store;
+        
         // Check volume results
         vector<double> const &iv_w = integrals.iv_w;
         vector<double> const ana_iv_w = node.get_child_vector<double>("iv_w", 1);
@@ -157,7 +168,9 @@ int test_integrals(string input_filename)
                                   ana_iv_w,
                                   "iv_w",
                                   index,
-                                  1e-7);
+                                  1e-7,
+                                  err);
+        err_store.push_back(err);
         
         vector<double> const &iv_dw = integrals.iv_dw;
         vector<double> const ana_iv_dw = node.get_child_vector<double>("iv_dw", dimension);
@@ -165,7 +178,9 @@ int test_integrals(string input_filename)
                                   ana_iv_dw,
                                   "iv_dw",
                                   index,
-                                  1e-7);
+                                  1e-7,
+                                  err);
+        err_store.push_back(err);
 
         vector<double> const &iv_b_w = integrals.iv_b_w;
         vector<double> const ana_iv_b_w = node.get_child_vector<double>("iv_b_w", number_of_basis_functions);
@@ -173,7 +188,9 @@ int test_integrals(string input_filename)
                                   ana_iv_b_w,
                                   "iv_b_w",
                                   index,
-                                  1e-7);
+                                  1e-7,
+                                  err);
+        err_store.push_back(err);
 
         vector<double> const &iv_b_dw = integrals.iv_b_dw;
         vector<double> const ana_iv_b_dw = node.get_child_vector<double>("iv_b_dw", number_of_basis_functions * dimension);
@@ -181,7 +198,9 @@ int test_integrals(string input_filename)
                                   ana_iv_b_dw,
                                   "iv_b_dw",
                                   index,
-                                  1e-7);
+                                  1e-7,
+                                  err);
+        err_store.push_back(err);
 
         vector<double> const &iv_db_w = integrals.iv_db_w;
         vector<double> const ana_iv_db_w = node.get_child_vector<double>("iv_db_w", number_of_basis_functions * dimension);
@@ -189,7 +208,9 @@ int test_integrals(string input_filename)
                                   ana_iv_db_w,
                                   "iv_db_w",
                                   index,
-                                  1e-7);
+                                  1e-7,
+                                  err);
+        err_store.push_back(err);
 
         vector<double> const &iv_db_dw = integrals.iv_db_dw;
         vector<double> const ana_iv_db_dw = node.get_child_vector<double>("iv_db_dw", number_of_basis_functions * dimension * dimension);
@@ -197,7 +218,8 @@ int test_integrals(string input_filename)
                                   ana_iv_db_dw,
                                   "iv_db_dw",
                                   index,
-                                  1e-7);
+                                  1e-7,
+                                  err);
         
         // Check surface results
         if (number_of_boundary_surfaces > 0)
@@ -208,7 +230,9 @@ int test_integrals(string input_filename)
                                       ana_is_w,
                                       "is_w",
                                       index,
-                                      1e-12);
+                                      1e-12,
+                                      err);
+            err_store.push_back(err);
             
             vector<double> const &is_b_w = integrals.is_b_w;
             vector<double> const ana_is_b_w = node.get_child_vector<double>("is_b_w", number_of_boundary_surfaces * number_of_basis_functions);
@@ -216,9 +240,14 @@ int test_integrals(string input_filename)
                                       ana_is_b_w,
                                       "is_b_w",
                                       index,
-                                      1e-12);
+                                      1e-12,
+                                      err);
+            err_store.push_back(err);
         }
+        weight_node.set_child_vector(err_store, "error");
     }
+
+    output_file.save(input_filename + ".out");
     
     return checksum;
 }
@@ -233,13 +262,9 @@ int main(int argc, char **argv)
         return 1;
     }
     
-    string input_folder = argv[1];
-    input_folder += "/";
-    {
-        string input_filename = input_folder + "/weight_function.xml";
-        
-        checksum += test_integrals(input_filename);
-    }
+    string input_filename = argv[1];
+    
+    checksum += test_integrals(input_filename);
     
     return checksum;
 }

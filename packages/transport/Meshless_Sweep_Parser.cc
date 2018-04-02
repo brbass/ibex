@@ -64,7 +64,7 @@ get_weak_sweep(XML_Node input_node) const
                                                         options.force_left);
     
     string solver = input_node.get_attribute<string>("solver",
-                                                     "amesos");
+                                                     "belos_ifpack");
     options.solver = options.solver_conversion()->convert(solver);
     
     return make_shared<Weak_Meshless_Sweep>(options,

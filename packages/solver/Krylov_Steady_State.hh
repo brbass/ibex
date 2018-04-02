@@ -18,6 +18,7 @@ public:
 
     struct Options
     {
+        bool perform_solve = true;
         int max_source_iterations = 5000;
         int max_iterations = 1000;
         int kspace = 20; // Number of past guesses to store

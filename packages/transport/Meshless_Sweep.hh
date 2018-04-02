@@ -48,7 +48,7 @@ public:
         };
         std::shared_ptr<Conversion<Solver, std::string> > solver_conversion() const;
         
-        Solver solver = Solver::AMESOS;
+        Solver solver = Solver::BELOS_IFPACK;
 
         // List of possible solver options
         bool quit_if_diverged = true;

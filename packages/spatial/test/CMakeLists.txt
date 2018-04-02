@@ -12,7 +12,7 @@ include_test(tst_rbf tst_RBF.cc "")
 include_test(tst_distance tst_Distance.cc ${CMAKE_CURRENT_SOURCE_DIR}/../../solid/test/input)
 include_test(tst_meshless_function tst_Meshless_Function.cc "")
 include_test(tst_mls_function tst_MLS_Function.cc "")
-include_test(tst_weight_function tst_Weight_Function.cc ${CMAKE_CURRENT_SOURCE_DIR}/input)
+include_test(tst_weight_function tst_Weight_Function.cc ${CMAKE_CURRENT_SOURCE_DIR}/input/weight_function.xml)
 include_test(tst_interpolation tst_Interpolation.cc ${CMAKE_CURRENT_SOURCE_DIR}/input)
 include_test(tst_weight_integration tst_Weight_Integration.cc "")
 

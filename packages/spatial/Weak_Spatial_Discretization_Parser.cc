@@ -587,7 +587,8 @@ get_weight_options(XML_Node input_node) const
         = make_shared<Weight_Function_Options>();
     
     options->tau_const
-        = input_node.get_child_value<double>("tau");
+        = input_node.get_child_value<double>("tau",
+                                             options->tau_const);
     options->output_material
         = input_node.get_attribute<bool>("output_material",
                                          options->output_material);
