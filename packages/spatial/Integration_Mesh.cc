@@ -1394,17 +1394,23 @@ get_total_max_points() const
 {
     int ind_tv = 0;
     int ind_ts = 1;
-    int ind_mv = 2;
-    int ind_ms = 3;
+    int ind_mxv = 2;
+    int ind_mxs = 3;
+    int ind_mnv = 4;
+    int ind_mns = 5;
     
-    vector<int> values(4, 0);
+    vector<int> values(6, 0);
     for (shared_ptr<Cell> cell : cells_)
     {
         int num = pow(cell->number_of_integration_ordinates, dimension_);
         values[ind_tv] += num;
-        if (num > values[ind_mv])
+        if (num > values[ind_mxv])
         {
-            values[ind_mv] = num;
+            values[ind_mxv] = num;
+        }
+        if (num < values[ind_mnv])
+        {
+            values[ind_mnv] = num;
         }
     }
     
@@ -1412,9 +1418,13 @@ get_total_max_points() const
     {
         int num = pow(surface->number_of_integration_ordinates, dimension_ - 1);
         values[ind_ts] += num;
-        if (num > values[ind_ms])
+        if (num > values[ind_mxs])
         {
-            values[ind_ms] = num;
+            values[ind_mxs] = num;
+        }
+        if (num < values[ind_mns])
+        {
+            values[ind_mns] = num;
         }
     }
 }
