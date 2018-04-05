@@ -107,6 +107,7 @@ Weak_Spatial_Discretization(vector<shared_ptr<Basis_Function> > &bases,
                                                bases_,
                                                weights_);
         integrator.perform_integration();
+        // integration_numbers_ = integrator.get_total_max_points();
     }
     
     check_class_invariants();
@@ -349,6 +350,9 @@ output(XML_Node output_node) const
 
     // Output options
     options_->output(output_node.append_child("options"));
+
+    // Output integration information
+    output_node.set_child_vector(integration_numbers_, "integration_values");
     
     // Output point positions
     vector<double> points(dimension_ * number_of_points_);

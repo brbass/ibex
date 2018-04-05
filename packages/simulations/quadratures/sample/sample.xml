@@ -1,0 +1,7 @@
+<input>
+  <geometry>double_cylindrical</geometry>
+  <num>10 10</num>
+  <centers>0 0 1 1</centers>
+  <radii>2 2</radii>
+  <boundaries>-5 5 -5 5</boundaries>
+</input>

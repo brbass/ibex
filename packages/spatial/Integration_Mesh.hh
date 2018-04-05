@@ -168,6 +168,9 @@ public:
 
     // Get the cell index for a certain position
     int get_cell_at_position(std::vector<double> const &position) const;
+
+    // Get the number of volume integration points, surface integration points and max of each
+    std::vector<int> get_total_max_points() const;
     
 private:
 
