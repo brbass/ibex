@@ -1400,6 +1400,8 @@ get_total_max_points() const
     int ind_mns = 5;
     
     vector<int> values(6, 0);
+    values[ind_mnv] = 100000000;
+    values[ind_mns] = 100000000;
     for (shared_ptr<Cell> cell : cells_)
     {
         int num = pow(cell->number_of_integration_ordinates, dimension_);
@@ -1427,4 +1429,6 @@ get_total_max_points() const
             values[ind_mns] = num;
         }
     }
+    
+    return values;
 }
