@@ -222,6 +222,7 @@ protected:
     std::vector<std::shared_ptr<Basis_Function> > boundary_bases_;
     std::shared_ptr<Dimensional_Moments> dimensional_moments_;
     std::shared_ptr<KD_Tree> kd_tree_;
+    std::vector<int> integration_numbers_;
 };
 
 #endif

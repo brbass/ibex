@@ -1388,3 +1388,47 @@ initialize_from_weak_options(std::shared_ptr<Weak_Spatial_Discretization_Options
     limits = weak_options->limits;
     dimensional_cells = weak_options->dimensional_cells;
 }
+
+vector<int> Integration_Mesh::
+get_total_max_points() const
+{
+    int ind_tv = 0;
+    int ind_ts = 1;
+    int ind_mxv = 2;
+    int ind_mxs = 3;
+    int ind_mnv = 4;
+    int ind_mns = 5;
+    
+    vector<int> values(6, 0);
+    values[ind_mnv] = 100000000;
+    values[ind_mns] = 100000000;
+    for (shared_ptr<Cell> cell : cells_)
+    {
+        int num = pow(cell->number_of_integration_ordinates, dimension_);
+        values[ind_tv] += num;
+        if (num > values[ind_mxv])
+        {
+            values[ind_mxv] = num;
+        }
+        if (num < values[ind_mnv])
+        {
+            values[ind_mnv] = num;
+        }
+    }
+    
+    for (shared_ptr<Surface> surface : surfaces_)
+    {
+        int num = pow(surface->number_of_integration_ordinates, dimension_ - 1);
+        values[ind_ts] += num;
+        if (num > values[ind_mxs])
+        {
+            values[ind_mxs] = num;
+        }
+        if (num < values[ind_mns])
+        {
+            values[ind_mns] = num;
+        }
+    }
+    
+    return values;
+}

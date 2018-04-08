@@ -38,6 +38,9 @@ public:
     // Perform integration and put result into weight functions
     void perform_integration();
     
+    // Get data from integration mesh
+    std::vector<int> get_total_max_points() const;
+    
 private:
 
     // Put volume, surface and material integrals into weight functions

@@ -1252,3 +1252,9 @@ get_flux(shared_ptr<Integration_Mesh::Cell> const cell,
         flux[k_sf] = std::abs(flux[k_sf]);
     }
 }
+
+vector<int> Weight_Function_Integration::
+get_total_max_points() const
+{
+    return mesh_->get_total_max_points();
+}
