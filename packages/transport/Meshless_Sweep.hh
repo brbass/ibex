@@ -162,7 +162,9 @@ protected:
         void check_aztec_convergence(std::shared_ptr<AztecOO> const solver) const;
     };
     
-    // Amesos solver: stores LU decompositions of all matrices
+    // Amesos solver
+    // Stores LU decompositions of all matrices
+    // Only serial
     class Amesos_Solver : public Trilinos_Solver
     {
     public:
@@ -184,7 +186,8 @@ protected:
         std::vector<std::shared_ptr<Amesos_BaseSolver> > solver_;
     };
 
-    // Amesos parallel solver: solves ordinates in parallel
+    // Amesos parallel solver
+    // Solves ordinates in parallel
     class Amesos_Parallel_Solver : public Trilinos_Solver
     {
     public:
@@ -206,7 +209,9 @@ protected:
         std::vector<std::shared_ptr<Amesos_BaseSolver> > solver_;
     };
     
-    // Aztec solver: iterative, does not store matrices
+    // Aztec solver
+    // Iterative, does not store matrices
+    // Only in serial
     class Aztec_Solver : public Trilinos_Solver
     {
     public:
@@ -233,7 +238,10 @@ protected:
         mutable std::shared_ptr<Epetra_Vector> rhs_;
         
     };
-    
+
+    // Aztec preconditioned by Ifpack
+    // Preconditioned by inverse of Linv matrices
+    // Only in serial
     class Aztec_Ifpack_Solver : public Trilinos_Solver
     {
     public:
@@ -256,6 +264,8 @@ protected:
         std::vector<std::shared_ptr<AztecOO> > solver_;
     };
 
+    // Belos solver: iterative, not preconditioned
+    // Works in parallel
     class Belos_Solver : public Trilinos_Solver
     {
     public:
@@ -275,7 +285,10 @@ protected:
         std::vector<std::shared_ptr<BelosLinearProblem> > problem_;
         std::vector<std::shared_ptr<BelosSolver> > solver_;
     };
-    
+
+    // Belos preconditioned by Ifpack
+    // Preconditioned by inverse of Linv matrices
+    // Works in parallel
     class Belos_Ifpack_Solver : public Trilinos_Solver
     {
     public:
@@ -298,6 +311,10 @@ protected:
         std::vector<std::shared_ptr<BelosSolver> > solver_;
     };
 
+    // Belos preconditioned on the right by Ifpack
+    // Preconditioned on the right by the inverse of the basis value matrix
+    // Does not store the matrices between iterations
+    // Works in parallel
     class Belos_Ifpack_Right_Solver : public Trilinos_Solver
     {
     public:
@@ -321,6 +338,10 @@ protected:
         std::vector<std::shared_ptr<BelosSolver> > solver_;
     };
 
+    // Belos preconditioned on the right by Ifpack
+    // Preconditioned on the right by the inverse of the basis value matrix
+    // Stores the matrices between iterations
+    // Works in parallel
     class Belos_Ifpack_Right2_Solver : public Trilinos_Solver
     {
     public:
