@@ -176,7 +176,7 @@ get_galerkin_points_discretization(XML_Node input_node) const
         AssertMsg(false, "radii method (" + radii_method + ") not found");
     }
     
-    // Get RBFp
+    // Get RBFs
     shared_ptr<RBF> rbf = rbf_parser.parse_from_xml(weights_node.get_child("meshless_function"));
     shared_ptr<Distance> distance = make_shared<Cartesian_Distance>(dimension);
     bool global_rbf = rbf->range() == RBF::Range::GLOBAL;

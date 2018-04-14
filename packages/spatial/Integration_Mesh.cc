@@ -1398,10 +1398,14 @@ get_total_max_points() const
     int ind_mxs = 3;
     int ind_mnv = 4;
     int ind_mns = 5;
+    int ind_func = 6;
+    int ind_maxfunc = 7;
+    int ind_minfunc = 8;
     
-    vector<int> values(6, 0);
+    vector<int> values(9, 0);
     values[ind_mnv] = 100000000;
     values[ind_mns] = 100000000;
+    values[ind_minfunc] = 1000000;
     for (shared_ptr<Cell> cell : cells_)
     {
         int num = pow(cell->number_of_integration_ordinates, dimension_);
@@ -1414,7 +1418,20 @@ get_total_max_points() const
         {
             values[ind_mnv] = num;
         }
+
+        num = cell->number_of_weight_functions;
+        values[ind_func] += cell->number_of_weight_functions;
+        if (num > values[ind_maxfunc])
+        {
+            values[ind_maxfunc] = num;
+        }
+        if (num < values[ind_minfunc])
+        {
+            values[ind_minfunc] = num;
+        }
+        
     }
+    values[ind_func] = int(static_cast<double>(values[ind_func]) / static_cast<double>(number_of_cells_));
     
     for (shared_ptr<Surface> surface : surfaces_)
     {

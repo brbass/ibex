@@ -856,11 +856,14 @@ Belos_Ifpack_Solver(Meshless_Sweep const &wrs):
                 temp_prec->Compute();
                 AssertMsg(temp_prec->IsInitialized() == true, description);
                 AssertMsg(temp_prec->IsComputed() == true, description);
-                
-                prec_[k]
-                    = make_shared<BelosPreconditioner>(Teuchos::rcp(temp_prec));
-            }
 
+                #pragma omp critical
+                {
+                    prec_[k]
+                        = make_shared<BelosPreconditioner>(Teuchos::rcp(temp_prec));
+                }
+            }
+            
             // Get problem
             #pragma omp critical
             {
@@ -1006,9 +1009,12 @@ Belos_Ifpack_Right_Solver(Meshless_Sweep const &wrs):
             temp_prec->Compute();
             AssertMsg(temp_prec->IsInitialized() == true, std::to_string(t));
             AssertMsg(temp_prec->IsComputed() == true, std::to_string(t));
-                
-            prec_[t]
-                = make_shared<BelosPreconditioner>(Teuchos::rcp(temp_prec));
+
+            #pragma omp critical
+            {
+                prec_[t]
+                    = make_shared<BelosPreconditioner>(Teuchos::rcp(temp_prec));
+            }
         }
         
         // Get problem and solver
@@ -1172,9 +1178,12 @@ Belos_Ifpack_Right2_Solver(Meshless_Sweep const &wrs):
             temp_prec->Compute();
             AssertMsg(temp_prec->IsInitialized() == true, std::to_string(t));
             AssertMsg(temp_prec->IsComputed() == true, std::to_string(t));
-                
-            prec_[t]
-                = make_shared<BelosPreconditioner>(Teuchos::rcp(temp_prec));
+
+            #pragma omp critical
+            {
+                prec_[t]
+                    = make_shared<BelosPreconditioner>(Teuchos::rcp(temp_prec));
+            }
         }
         
         // Get problem and solver
