@@ -50,7 +50,7 @@ apply(vector<double> &x) const
     vector<double> const weights = angular_discretization_->weights();
     vector<double> const ordinates = angular_discretization_->ordinates();
 
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, 10)
     for (int i = 0; i < number_of_points; ++i)
     {
         for (int g = 0; g < number_of_groups; ++g)

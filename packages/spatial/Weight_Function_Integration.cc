@@ -147,7 +147,7 @@ void Weight_Function_Integration::
 add_integral_sets(vector<Weight_Function::Integrals> const &local_integrals,
                   vector<Weight_Function::Integrals> &integrals)
 {
-    #pragma omp for
+    #pragma omp for schedule(dynamic, 10)
     for (int i = 0; i < number_of_points_; ++i)
     {
         Weight_Function::Integrals const &local_integral = local_integrals[i];
@@ -176,7 +176,7 @@ void Weight_Function_Integration::
 add_material_sets(vector<Material_Data> const &local_materials,
                   vector<Material_Data> &materials)
 {
-    #pragma omp for
+    #pragma omp for schedule(dynamic, 10)
     for (int i = 0; i < number_of_points_; ++i)
     {
         Material_Data const &local_material = local_materials[i];
@@ -202,7 +202,7 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
                            vector<Material_Data> &materials) const
 {
     // Integral values should be initialized to zero in perform_integration()
-    #pragma omp for schedule(dynamic, 1)
+    #pragma omp for schedule(dynamic, 10)
     for (int i = 0; i < mesh_->number_of_cells(); ++i)
     {
         // Get cell data
@@ -285,7 +285,7 @@ normalize_materials(vector<Material_Data> &materials) const
         int number_of_scattering_moments = angular_->number_of_scattering_moments();
         int number_of_moments = angular_->number_of_moments();
         
-        #pragma omp for
+        #pragma omp for schedule(dynamic, 10)
         for (int i = 0; i < number_of_points_; ++i)
         {
             shared_ptr<Weight_Function> weight = weights_[i];
@@ -759,7 +759,7 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals,
                             std::vector<Material_Data> &materials) const
 {
     // Integral values should be initialized to zero in perform_integration()
-    #pragma omp for schedule(dynamic, 1)
+    #pragma omp for schedule(dynamic, 10)
     for (int i = 0; i < mesh_->number_of_surfaces(); ++i)
     {
         // Get surface data
@@ -927,7 +927,7 @@ void Weight_Function_Integration::
 put_integrals_into_weight(vector<Weight_Function::Integrals> const &integrals,
                           vector<Material_Data> const &material_data)
 {
-    #pragma omp for
+    #pragma omp for schedule(dynamic, 10)
     for (int i = 0; i < number_of_points_; ++i)
     {
         // Get material from material data

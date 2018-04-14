@@ -409,7 +409,7 @@ Amesos_Parallel_Solver(Meshless_Sweep const &wrs):
     problem_.resize(number_of_groups * number_of_ordinates);
     solver_.resize(number_of_groups * number_of_ordinates);
     Amesos factory;
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, 1)
     for (int o = 0; o < number_of_ordinates; ++o)
     {
         for (int g = 0; g < number_of_groups; ++g)
@@ -448,7 +448,7 @@ solve(vector<double> &x) const
     int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
 
     // Solve independently for each ordinate and group
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, 1)
     for (int o = 0; o < number_of_ordinates; ++o)
     {
         for (int g = 0; g < number_of_groups; ++g)
@@ -743,7 +743,7 @@ solve(vector<double> &x) const
         int t = omp_get_thread_num();
         Assert(problem_.size() == number_of_threads);
         
-        #pragma omp for
+        #pragma omp for schedule(dynamic, 1)
         for (int o = 0; o < number_of_ordinates; ++o)
         {
             for (int g = 0; g < number_of_groups; ++g)
@@ -820,7 +820,7 @@ Belos_Ifpack_Solver(Meshless_Sweep const &wrs):
     problem_.resize(number_of_groups * number_of_ordinates);
     solver_.resize(number_of_groups * number_of_ordinates);
     
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, 1)
     for (int o = 0; o < number_of_ordinates; ++o)
     {
         for (int g = 0; g < number_of_groups; ++g)
@@ -911,7 +911,7 @@ solve(vector<double> &x) const
     int number_of_ordinates = wrs_.angular_discretization_->number_of_ordinates();
 
     // Solve independently for each ordinate and group
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, 1)
     for (int o = 0; o < number_of_ordinates; ++o)
     {
         for (int g = 0; g < number_of_groups; ++g)
@@ -1068,7 +1068,7 @@ solve(vector<double> &x) const
         int t = omp_get_thread_num();
         Assert(problem_.size() == number_of_threads);
         
-        #pragma omp for
+        #pragma omp for schedule(dynamic, 1)
         for (int o = 0; o < number_of_ordinates; ++o)
         {
             for (int g = 0; g < number_of_groups; ++g)

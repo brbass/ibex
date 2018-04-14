@@ -64,7 +64,7 @@ apply_full(vector<double> &x) const
 
     // Copy source flux
     vector<double> y(x);
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, 10)
     for (int i = 0; i < number_of_points; ++i)
     {
         int d = 0;

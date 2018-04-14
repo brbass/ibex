@@ -89,7 +89,7 @@ apply(vector<double> &x) const
         include_normalization = false;
         break;
     }
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, 10)
     for (int i = 0; i < number_of_points; ++i)
     {
         // Get weight function and data

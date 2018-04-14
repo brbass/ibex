@@ -58,7 +58,7 @@ apply(vector<double> &x) const
     vector<int> const scattering_indices = angular_discretization_->scattering_indices();
     vector<double> const weights = angular_discretization_->weights();
 
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, 10)
     for (int i = 0; i < number_of_points; ++i)
     {
         double tau = spatial_discretization_->weight(i)->options()->tau;

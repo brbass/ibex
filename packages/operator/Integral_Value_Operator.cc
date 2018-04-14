@@ -83,7 +83,7 @@ apply(vector<double> &x) const
     
     // Apply operator
     vector<double> result(row_size_, 0.);
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, 10)
     for (int i = 0; i < number_of_cells; ++i)
     {
         // Get cell

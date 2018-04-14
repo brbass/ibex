@@ -68,7 +68,7 @@ apply_full(vector<double> &x) const
     // Copy source flux
     vector<double> y(x);
     x.assign(number_of_points * number_of_nodes * number_of_groups * number_of_moments, 0);
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, 10)
     for (int i = 0; i < number_of_points; ++i)
     {
         // Get weight function and connectivity information

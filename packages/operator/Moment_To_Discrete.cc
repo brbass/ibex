@@ -49,7 +49,7 @@ apply(vector<double> &x) const
     double angular_normalization = angular_discretization_->angular_normalization();
     vector<int> const scattering_indices = angular_discretization_->scattering_indices();
 
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, 10)
     for (int i = 0; i < number_of_points; ++i)
     {
         for (int g = 0; g < number_of_groups; ++g)

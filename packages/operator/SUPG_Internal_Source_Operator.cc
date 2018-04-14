@@ -64,7 +64,7 @@ apply(vector<double> &x) const
     int number_of_dimensional_moments = spatial_->dimensional_moments()->number_of_dimensional_moments();
     
     x.assign(number_of_points * number_of_nodes * number_of_moments * number_of_groups * number_of_dimensional_moments, 0);
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, 10)
     for (int i = 0; i < number_of_points; ++i)
     {
         shared_ptr<Cross_Section> internal_source

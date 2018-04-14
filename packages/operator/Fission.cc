@@ -113,7 +113,7 @@ group_to_group_full(vector<double> &x) const
     int number_of_moments = angular_discretization_->number_of_moments();
     int number_of_dimensional_moments = spatial_discretization_->dimensional_moments()->number_of_dimensional_moments();
 
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(dynamic, 10)
     for (int i = 0; i < number_of_points; ++i)
     {
         shared_ptr<Cross_Section> sigma_f_cs = spatial_discretization_->point(i)->material()->sigma_f();
@@ -179,7 +179,7 @@ group_full(vector<double> &x) const
     {
         int m = 0;
         int d = 0;
-        #pragma omp parallel for
+        #pragma omp parallel for schedule(dynamic, 10)
         for (int i = 0; i < number_of_points; ++i)
         {
             shared_ptr<Material> material = spatial_discretization_->point(i)->material();
@@ -245,7 +245,7 @@ group_coherent(vector<double> &x) const
     {
         int m = 0;
         int d = 0;
-        #pragma omp parallel for
+        #pragma omp parallel for schedule(dynamic, 10)
         for (int i = 0; i < number_of_points; ++i)
         {
             shared_ptr<Material> material = spatial_discretization_->point(i)->material();
