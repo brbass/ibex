@@ -6,7 +6,8 @@ def get_slab_discretization(length,
                             num_neighbors_basis,
                             num_neighbors_weight,
                             use_constant_radius):
-    points = get_cartesian_points_1d(length,
+    points = get_cartesian_points_1d(0,
+                                     length,
                                      num_points)
     
     return get_connectivity(num_points,
@@ -18,7 +19,8 @@ def get_slab_discretization(length,
 def output_slab_discretization_points(length,
                                       num_points):
     output_path = "slab_{}_{}.xml".format(length, num_points)
-    points = get_cartesian_points_1d(length,
+    points = get_cartesian_points_1d(0,
+                                     length,
                                      num_points)
     node = xml_points(1, # dimension
                       num_points,
