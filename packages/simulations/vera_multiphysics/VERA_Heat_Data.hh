@@ -1,6 +1,7 @@
 #ifndef VERA_Heat_Data_hh
 #define VERA_Heat_Data_hh
 
+#include <functional>
 #include <memory>
 
 #include "Heat_Transfer_Data.hh"

@@ -62,6 +62,10 @@ intersection(vector<double> const &initial_position,
     intersection.distance = (position_ - initial_position[surface_dimension_]) / initial_direction[surface_dimension_];
 
     intersection.position.assign(dimension_, 0);
+    for (int d = 0; d < dimension_; ++d)
+    {
+        intersection.position[d] = initial_position[d] + initial_direction[d] * intersection.distance;
+    }
     intersection.position[surface_dimension_] = position_;
     
     if (intersection.distance < 0)

@@ -30,7 +30,7 @@ protected:
                                 std::vector<double> &values) const override; // column values
     virtual void get_prec_matrix_row(int i, // weight function index (row)
                                      std::vector<int> &indices, // global basis (column indices)
-                                     std::vector<double> &values) const // column values
+                                     std::vector<double> &values) const override // column values
     {
         AssertMsg(false, "not implemented");
     }

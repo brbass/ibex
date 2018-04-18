@@ -99,11 +99,16 @@ public:
     template<typename T> void set_value(T data);
     template<typename T> void set_vector(std::vector<T> const &data,
                                          std::string index_order = "");
+    template<typename T> void set_matrix(std::vector<std::vector<T> > const &data,
+                                         std::string index_order = "");
 
     // Set value of child node
     template<typename T> void set_child_value(T data,
                                               std::string description);
     template<typename T> void set_child_vector(std::vector<T> const &data,
+                                               std::string description,
+                                               std::string index_order = "");
+    template<typename T> void set_child_matrix(std::vector<std::vector<T> > const &data,
                                                std::string description,
                                                std::string index_order = "");
 
@@ -502,6 +507,30 @@ set_vector(std::vector<T> const &data,
 }
 
 template<typename T> void XML_Node::
+set_matrix(std::vector<std::vector<T> > const &data,
+           std::string index_order)
+{
+    std::string data_string;
+    for (std::vector<T> const &local_data : data)
+    {
+        std::string local_string;
+        String_Functions::vector_to_string(local_string,
+                                           local_data,
+                                           XML_PRECISION);
+        data_string.append(local_string);
+    }
+    
+    xml_node_->append_child(pugi::node_pcdata).set_value(data_string.c_str());
+    
+    if (index_order != "")
+    {
+        set_attribute(index_order,
+                      "index");
+    }
+}
+
+
+template<typename T> void XML_Node::
 set_child_value(T data,
                 std::string description)
 {
@@ -514,6 +543,15 @@ set_child_vector(std::vector<T> const &data,
                  std::string index_order)
 {
     append_child(description).set_vector(data,
+                                         index_order);
+}
+
+template<typename T> void XML_Node::
+set_child_matrix(std::vector<std::vector<T> > const &data,
+                 std::string description,
+                 std::string index_order)
+{
+    append_child(description).set_matrix(data,
                                          index_order);
 }
 

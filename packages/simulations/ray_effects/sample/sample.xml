@@ -1,0 +1,123 @@
+<input>
+  <energy_discretization>
+    <number_of_groups>1</number_of_groups>
+  </energy_discretization>
+  <angular_discretization>
+    <dimension>3</dimension>
+    <number_of_moments>1</number_of_moments>
+    <rule>5</rule>
+  </angular_discretization>
+
+  <materials>
+   <number_of_materials>1</number_of_materials>
+    <material index='0'
+              name='source'>
+      <sigma_t>
+        0.1
+      </sigma_t>
+      <sigma_s>
+        0.00
+      </sigma_s>
+      <chi_nu_sigma_f>
+        0.0
+      </chi_nu_sigma_f>
+      <internal_source>
+        1.0
+      </internal_source>
+    </material>
+  </materials>
+  <boundary_sources>
+    <number_of_boundary_sources>1</number_of_boundary_sources>
+    <boundary_source index='0'>
+      <alpha>0.0</alpha>
+      <isotropic_source>0.0</isotropic_source>
+    </boundary_source>
+  </boundary_sources>
+  <solid_geometry>
+    <dimension>3</dimension>
+    <surfaces>
+      <number_of_surfaces>6</number_of_surfaces>
+      <surface index='0'
+               shape='cartesian_plane'
+               type='boundary'>
+        <surface_dimension>0</surface_dimension>
+        <position>-10</position>
+        <normal>-1.0</normal>
+        <boundary_source>0</boundary_source>
+      </surface>
+      <surface index='1'
+               shape='cartesian_plane'
+               type='boundary'>
+        <surface_dimension>0</surface_dimension>
+        <position>10.0</position>
+        <normal>1.0</normal>
+        <boundary_source>0</boundary_source>
+      </surface>
+      <surface index='2'
+               shape='cartesian_plane'
+               type='boundary'>
+        <surface_dimension>1</surface_dimension>
+        <position>-10</position>
+        <normal>-1.0</normal>
+        <boundary_source>0</boundary_source>
+      </surface>
+      <surface index='3'
+               shape='cartesian_plane'
+               type='boundary'>
+        <surface_dimension>1</surface_dimension>
+        <position>10.0</position>
+        <normal>1.0</normal>
+        <boundary_source>0</boundary_source>
+      </surface>
+      <surface index='4'
+               shape='cartesian_plane'
+               type='boundary'>
+        <surface_dimension>2</surface_dimension>
+        <position>-10</position>
+        <normal>-1.0</normal>
+        <boundary_source>0</boundary_source>
+      </surface>
+      <surface index='5'
+               shape='cartesian_plane'
+               type='boundary'>
+        <surface_dimension>2</surface_dimension>
+        <position>10.0</position>
+        <normal>1.0</normal>
+        <boundary_source>0</boundary_source>
+      </surface>
+    </surfaces>
+    <regions>
+      <number_of_regions>1</number_of_regions>
+      <region index='0'
+              material='0'>
+        <surface_relation surface='0'
+                          relation='negative'/>
+        <surface_relation surface='1'
+                          relation='negative'/>
+        <surface_relation surface='2'
+                          relation='negative'/>
+        <surface_relation surface='3'
+                          relation='negative'/>
+        <surface_relation surface='4'
+                          relation='negative'/>
+        <surface_relation surface='5'
+                          relation='negative'/>
+      </region>
+    </regions>
+  </solid_geometry>
+  <evaluation>
+    <number>10</number>
+    <points>
+      5 5 5
+      15 15 15
+      25 25 25
+      35 35 35
+      45 45 45
+      55 55 55
+      65 65 65
+      75 75 75
+      85 85 85
+      95 95 95
+    </points>
+  </evaluation>
+</input>

@@ -23,6 +23,7 @@ def plot_lens(d, r1, r2):
         yfvals2 = -yfvals1
         ax.fill_between(xfvals, yfvals2, yfvals1, color=colors[3])
     ax.set_aspect(1)
+    plt.legend(
     ax.grid()
     plt.savefig("../figs/lens_{}_{}_{}.pdf".format(d, r1, r2),
                 bbox_inches='tight')
