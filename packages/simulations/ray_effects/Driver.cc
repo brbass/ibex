@@ -81,6 +81,7 @@ void output_values(XML_Node input_node,
     }
     
     output_node.set_child_value(dimension, "dimension");
+    output_node.set_child_value(number_of_ordinates, "number_of_ordinates");
     output_node.set_child_value(number_of_evaluation_points, "number_of_evaluation_points");
     output_node.set_child_matrix(eval_points, "evaluation_points");
     output_node.set_child_vector(num_hits, "number_of_hits");
