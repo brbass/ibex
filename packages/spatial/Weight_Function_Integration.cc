@@ -113,13 +113,6 @@ perform_integration()
                               materials);
         }
         
-        // Remove extra data
-        #pragma omp single
-        {
-            extra_integrals.resize(0);
-            extra_materials.resize(0);
-        }
-         
         // Normalize materials
         normalize_materials(materials);
         
@@ -202,7 +195,7 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
                            vector<Material_Data> &materials) const
 {
     // Integral values should be initialized to zero in perform_integration()
-    #pragma omp for schedule(dynamic, 10)
+    #pragma omp for schedule(dynamic, 1)
     for (int i = 0; i < mesh_->number_of_cells(); ++i)
     {
         // Get cell data
@@ -759,7 +752,7 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals,
                             std::vector<Material_Data> &materials) const
 {
     // Integral values should be initialized to zero in perform_integration()
-    #pragma omp for schedule(dynamic, 10)
+    #pragma omp for schedule(dynamic, 1)
     for (int i = 0; i < mesh_->number_of_surfaces(); ++i)
     {
         // Get surface data

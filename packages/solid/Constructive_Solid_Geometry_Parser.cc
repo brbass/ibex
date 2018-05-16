@@ -15,6 +15,7 @@
 #include "Region.hh"
 #include "Sphere_3D.hh"
 #include "Surface.hh"
+#include "Vector_Functions.hh"
 #include "XML_Node.hh"
 
 using namespace std;
@@ -100,7 +101,8 @@ get_surfaces(XML_Node surfaces_node,
         {
             vector<double> origin = surface_node.get_child_vector<double>("origin", dimension);
             vector<double> normal = surface_node.get_child_vector<double>("normal", dimension);
-
+            normal = Vector_Functions::normalize(normal);
+            
             switch(dimension)
             {
             case 1:
