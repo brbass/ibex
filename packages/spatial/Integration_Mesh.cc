@@ -2,12 +2,6 @@
 
 #include <algorithm>
 #include <cmath>
-#if defined(ENABLE_OPENMP)
-    #include <omp.h>
-#else
-    inline int omp_get_num_threads() {return 1;}
-    inline int omp_get_thread_num() {return 0;}
-#endif
 #include <iomanip>
 #include <iostream>
 #include <limits>
@@ -51,6 +45,17 @@ Integration_Mesh(int dimension,
     // Get normalization information
     apply_basis_normalization_ = bases[0]->function()->depends_on_neighbors();
     apply_weight_normalization_ = weights[0]->function()->depends_on_neighbors();
+
+    if (apply_basis_normalization_)
+    {
+        basis_normalization_ = bases[0]->function()->normalization();
+    }
+    if (apply_weight_normalization_)
+    {
+        weight_normalization_ = weights[0]->function()->normalization();
+    }
+    
+    
 }
 
 void Integration_Mesh::
@@ -605,7 +610,6 @@ initialize_connectivity()
     if (options_->adaptive_quadrature)
     {
         // Get background cell integration ordinates
-        #pragma omp parallel for
         for (int i = 0; i < number_of_cells_; ++i)
         {
             shared_ptr<Cell> cell = cells_[i];
@@ -679,7 +683,6 @@ initialize_connectivity()
         }
         
         // Get background surface integration ordinates
-        #pragma omp parallel for
         for (int i = 0; i < number_of_surfaces_; ++i)
         {
             shared_ptr<Surface> surface = surfaces_[i];
@@ -1125,12 +1128,11 @@ get_basis_values(shared_ptr<Cell> const cell,
                  vector<vector<double> > const &basis_centers,
                  vector<double> &b_val) const
 {
-    // Initialize values
-    int number_of_basis_functions = cell->number_of_basis_functions;
-    b_val.resize(number_of_basis_functions);
+    // Initialize values 
+    b_val.resize(cell->number_of_basis_functions);
     
     // Get values for basis functions at quadrature point
-    for (int j = 0; j < number_of_basis_functions; ++j)
+    for (int j = 0; j < cell->number_of_basis_functions; ++j)
     {
         shared_ptr<Meshless_Function> const func = bases_[cell->basis_indices[j]]->function()->base_function();
                 
@@ -1140,14 +1142,10 @@ get_basis_values(shared_ptr<Cell> const cell,
     // Normalize basis functions
     if (apply_basis_normalization_)
     {
-        if (number_of_basis_functions > 0)
-        {
-            int index = cell->basis_indices[0];
-            bases_[index]->function()->normalization()->get_values(position,
-                                                                   basis_centers,
-                                                                   b_val,
-                                                                   b_val);
-        }
+        basis_normalization_->get_values(position,
+                                         basis_centers,
+                                         b_val,
+                                         b_val);
     }
 }
 
@@ -1162,15 +1160,13 @@ get_volume_values(shared_ptr<Cell> const cell,
                   vector<vector<double> > &w_grad) const
 {
     // Initialize values 
-    int number_of_weight_functions = cell->number_of_weight_functions;
-    int number_of_basis_functions = cell->number_of_basis_functions;
-    b_val.resize(number_of_basis_functions);
-    b_grad.resize(number_of_basis_functions);
-    w_val.resize(number_of_weight_functions);
-    w_grad.resize(number_of_weight_functions);
+    b_val.resize(cell->number_of_basis_functions);
+    b_grad.resize(cell->number_of_basis_functions);
+    w_val.resize(cell->number_of_weight_functions);
+    w_grad.resize(cell->number_of_weight_functions);
 
     // Get values for weight functions at quadrature point
-    for (int j = 0; j < number_of_weight_functions; ++j)
+    for (int j = 0; j < cell->number_of_weight_functions; ++j)
     {
         shared_ptr<Meshless_Function> const func = weights_[cell->weight_indices[j]]->function()->base_function();
         
@@ -1181,16 +1177,12 @@ get_volume_values(shared_ptr<Cell> const cell,
     // Normalize weight functions
     if (apply_weight_normalization_)
     {
-        if (number_of_weight_functions > 0)
-        {
-            int index = cell->weight_indices[0];
-            weights_[index]->function()->normalization()->get_gradient_values(position,
-                                                                              weight_centers,
-                                                                              w_val,
-                                                                              w_grad,
-                                                                              w_val,
-                                                                              w_grad);
-        }
+        weight_normalization_->get_gradient_values(position,
+                                                   weight_centers,
+                                                   w_val,
+                                                   w_grad,
+                                                   w_val,
+                                                   w_grad);
     }
     
     if (options_->identical_basis_functions)
@@ -1201,7 +1193,7 @@ get_volume_values(shared_ptr<Cell> const cell,
     else
     {
         // Get values for basis functions at quadrature point
-        for (int j = 0; j < number_of_basis_functions; ++j)
+        for (int j = 0; j < cell->number_of_basis_functions; ++j)
         {
             shared_ptr<Meshless_Function> const func = bases_[cell->basis_indices[j]]->function()->base_function();
                 
@@ -1212,16 +1204,12 @@ get_volume_values(shared_ptr<Cell> const cell,
         // Normalize basis functions
         if (apply_basis_normalization_)
         {
-            if (number_of_basis_functions > 0)
-            {
-                int index = cell->basis_indices[0];
-                bases_[index]->function()->normalization()->get_gradient_values(position,
-                                                                                basis_centers,
-                                                                                b_val,
-                                                                                b_grad,
-                                                                                b_val,
-                                                                                b_grad);
-            }
+            basis_normalization_->get_gradient_values(position,
+                                                      basis_centers,
+                                                      b_val,
+                                                      b_grad,
+                                                      b_val,
+                                                      b_grad);
         }
     }
 }
@@ -1249,14 +1237,10 @@ get_surface_values(shared_ptr<Surface> const surface,
     // Normalize weight functions
     if (apply_weight_normalization_)
     {
-        if (surface->number_of_weight_functions > 0)
-        {
-            int index = surface->weight_indices[0];
-            weights_[index]->function()->normalization()->get_values(position,
-                                                                     basis_centers,
-                                                                     b_val,
-                                                                     b_val);
-        }
+        weight_normalization_->get_values(position,
+                                          weight_centers,
+                                          w_val,
+                                          w_val);
     }
 
     if (options_->identical_basis_functions)
@@ -1274,14 +1258,10 @@ get_surface_values(shared_ptr<Surface> const surface,
         }
         if (apply_basis_normalization_)
         {
-            if (surface->number_of_basis_functions > 0)
-            {
-                int index = surface->basis_indices[0];
-                bases_[index]->function()->normalization()->get_values(position,
-                                                                       basis_centers,
-                                                                       b_val,
-                                                                       b_val);
-            }
+            basis_normalization_->get_values(position,
+                                             basis_centers,
+                                             b_val,
+                                             b_val);
         }
     }
 }

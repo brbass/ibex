@@ -61,7 +61,7 @@ public:
                                  std::vector<int> &indices,
                                  std::vector<double> &vals,
                                  std::vector<std::vector<double> > &grad_vals) const override;
-    virtual std::shared_ptr<Meshless_Function> base_function() const
+    virtual std::shared_ptr<Meshless_Function> base_function() override
     {
         return function_;
     }

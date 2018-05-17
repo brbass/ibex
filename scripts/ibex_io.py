@@ -78,6 +78,7 @@ def get_data(file_path):
 
     # Solver
     child_node = output_node.find("solver")
+    data["inverse_iterations"] = get_scalar("inverse_iterations", int, child_node)
     data["total_iterations"] = get_scalar("total_iterations", int, child_node)
     data["coefficients"] = unpack3(get_vector("coefficients", float, child_node),
                                    num_points,

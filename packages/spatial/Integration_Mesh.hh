@@ -6,6 +6,7 @@
 
 class Basis_Function;
 class KD_Tree;
+class Meshless_Normalization;
 class Weak_Spatial_Discretization_Options;
 class Weight_Function;
 
@@ -195,6 +196,8 @@ private:
     std::vector<int> dimensional_nodes_;
     std::vector<double> intervals_;
     std::shared_ptr<KD_Tree> node_tree_;
+    std::shared_ptr<Meshless_Normalization> basis_normalization_;
+    std::shared_ptr<Meshless_Normalization> weight_normalization_;
     std::vector<std::shared_ptr<Cell> > cells_;
     std::vector<std::shared_ptr<Node> > nodes_;
     std::vector<std::shared_ptr<Surface> > surfaces_;
