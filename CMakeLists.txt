@@ -16,7 +16,7 @@ set(global_trilinos_include_directories "")
 set(global_trilinos_link_directories "")
 set(global_trilinos_link_libraries "")
 
-if (FALSE)
+if (TRUE)
    # Find Trilinos
    find_package(Trilinos REQUIRED)
    message("Trilinos found in ${Trilinos_DIR}")
