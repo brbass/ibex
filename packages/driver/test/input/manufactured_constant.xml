@@ -6,12 +6,12 @@
   </energy_discretization>
   <angular_discretization>
     <dimension>1</dimension>
-    <number_of_moments>2</number_of_moments>
+    <number_of_moments>3</number_of_moments>
     <number_of_ordinates>16</number_of_ordinates>
   </angular_discretization>
   <manufactured>
     <solution type='constant'>
-      <values>1. 2. 0.1 0.3</values>
+      <values>1. 2. 0.1 0.3 0.0 0.0</values>
     </solution>
     <cross_sections type='constant'>
       <sigma_t>
@@ -22,15 +22,17 @@
         0.0 3.9
         0.01 0.0
         0.0 0.4
+        0.0 0.0
+        0.0 0.0
       </sigma_s>
     </cross_sections>
     <boundary_surfaces>
       <positions>0. 4.</positions>
     </boundary_surfaces>
-    <error integration_ordinates='64'>
+    <error integration_ordinates='64'
+           norm='integral'>
       <dimensional_cells>10</dimensional_cells>
     </error>
-
   </manufactured>
   <spatial_discretization input_format='cartesian'>
     <options weighting='full'
@@ -55,6 +57,7 @@
                          function='wendland33'/>
     </weight_functions>
   </spatial_discretization>
+  <problem/>
   <transport solver='aztec_ifpack'
              level_of_fill='1.0'
              drop_tolerance='1e-12'
