@@ -1,4 +1,12 @@
-The ibex code implements meshless methods for the solution of the neutron transport equation and heat conduction equation. The discretization methods include the strong-form collocation method and the weak-form meshless-local Petrov-Galerkin (MLPG) method. The code is hosted at https://github.com/brbass/ibex. 
+---------
+ibex code
+---------
+
+The ibex code implements meshless methods for the solution of the neutron transport equation and heat conduction equation. The discretization methods include the strong-form collocation method and the weak-form meshless-local Petrov-Galerkin (MLPG) method.
+
+The code is hosted at https://github.com/brbass/ibex.
+
+For the theory behind the code, see https://github.com/brbass/umich_dissertation. 
 
 ------------
 Dependencies

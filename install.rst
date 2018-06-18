@@ -2,7 +2,7 @@
 Install Trilinos
 --------------------
 
-The only external dependency of Ibex is Trilinos. If Trilinos is installed on your system with the appropriate packages (Epetra, Anasazi, AztecOO, Ifpack and Belos), this section can be skipped.
+The only external dependency of ibex is Trilinos. If Trilinos is installed on your system with the appropriate packages (Epetra, Anasazi, AztecOO, Ifpack and Belos), this section can be skipped.
 
 To install Trilinos with only the needed packages, do the following:
 
@@ -52,7 +52,7 @@ make install -j4
 Install ibex
 ------------
 
-Ibex is designed to be built in place. For a build outside of the source directory, the install directory will need to be changed in the CMakeLists.txt file in this directory.
+ibex is designed to be built in place. For a build outside of the source directory, the install directory will need to be changed in the CMakeLists.txt file in this directory.
 
 - Choose release type (Debug or Release) in the CMakeLists.txt file in this directory (./CMakeLists.txt)
   - For debugging, remove the -O3 symbol
