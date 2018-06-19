@@ -47,7 +47,7 @@ private:
     void perform_integration();
 
     // Cylindrical 2D integration methods
-    std::shared_ptr<Integration_Surface> get_cylindrical_surface(int i,
+    std::shared_ptr<Integration_Surface> get_cylindrical_surface(std::vector<double> limit_t,
                                                                  double radius) const;
     
     // Input data

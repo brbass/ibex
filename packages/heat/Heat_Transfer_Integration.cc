@@ -1,5 +1,7 @@
 #include "Heat_Transfer_Integration.hh"
 
+#include <algorithm>
+#include <cmath>
 #include <limits>
 
 #include "Check.hh"
@@ -197,7 +199,7 @@ perform_integration()
         shared_ptr<Integration_Surface> const surface =
             (options_->geometry == Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_2D
              ? get_cylindrical_surface({limits_t[i], limits_t[i+1]},
-                                       radius)
+                                       spatial_->options()->limits[0][1])
              : mesh_->surface(i));
         
         // Get quadrature
@@ -217,7 +219,7 @@ perform_integration()
         case Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_2D:
         {
             vector<double> ordinates_t;
-            Quadrature_Rule::cartesian_1d(Quadrature_Rule::Quadrature_Type::GAUSS_LEGENDRE;,
+            Quadrature_Rule::cartesian_1d(Quadrature_Rule::Quadrature_Type::GAUSS_LEGENDRE,
                                           number_of_ordinates,
                                           limits_t[i],
                                           limits_t[i+1],
@@ -228,7 +230,7 @@ perform_integration()
             for (int q = 0; q < number_of_ordinates; ++q)
             {
                 weights[q] *= radius;
-                ordinates[q] = {radius * cos(ordinates[q]), radius * sin(ordinates[q])};
+                ordinates[q] = {radius * cos(ordinates_t[q]), radius * sin(ordinates_t[q])};
             }
             break;
         }
@@ -312,7 +314,7 @@ get_cylindrical_surface(vector<double> limit_t,
                         double radius) const
 {
     // Requires identical basis functions to work
-    Assert(spatial_->options()->identical_basis_functions);
+    Assert(spatial_->options()->identical_basis_functions == Weak_Spatial_Discretization_Options::Identical_Basis_Functions::TRUE);
     
     // Get basis and weight functions that intersect with each point
     int number_of_test_points = 5;
@@ -332,7 +334,7 @@ get_cylindrical_surface(vector<double> limit_t,
     vector<int> indices;
     for (int i : nearest_weights)
     {
-        for (int j : spatial_->weight(i)->basis_function_indices)
+        for (int j : spatial_->weight(i)->basis_function_indices())
         {
             indices.push_back(j);
         }

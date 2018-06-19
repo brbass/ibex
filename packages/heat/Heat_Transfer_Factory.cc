@@ -184,3 +184,4 @@ get_cylindrical_1d(int number_of_points,
     return make_shared<Heat_Transfer_Solve>(integration,
                                             spatial);
 }
+
