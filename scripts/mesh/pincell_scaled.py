@@ -131,20 +131,23 @@ def output_points(num_radii,
         points = np.array(points)
         num_points = len(points)
     if restrict_circle != None:
+        radius = restrict_circle[0]
+        delta_frac = restrict_circle[1]
         old_points = points
         points = []
         for point in old_points:
-            if point[0] * point[0] + point[1] * point[1] <= restrict_circle:
+            if point[0] * point[0] + point[1] * point[1] <= radius * radius:
                 points.append(point)
         num_points_inside = len(points)
         num_points_l = int(np.sqrt(num_points_inside))
-        delta_l = 1.0 * num_points_l / restrict_circle
+        delta_l = delta_frac * initial_delta
         old_points = points
         points = []
         for point in old_points:
-            if point[0] * point[0] + point[1] * point[1] <= restrict_circle - 0.7 * delta_l:
+            rmax = radius - 0.7 * delta_l
+            if point[0] * point[0] + point[1] * point[1] <= rmax * rmax:
                 points.append(point)
-        points_temp = get_ring_points(restrict_circle, delta_l, randomize_start)
+        points_temp = get_ring_points(radius, delta_l, randomize_start)
         for point_temp in points_temp:
             points.append(point_temp)
         points = np.array(points)
@@ -157,7 +160,7 @@ def output_points(num_radii,
     if randomize_start:
         corner_string += "_rand"
     if restrict_circle:
-        corner_string += "_circ{}".format(restrict_circle)
+        corner_string += "_circ{}".format(restrict_circle[0])
     output_path = "vera1e_mesh_{}_{}_{}_{}_{}{}.xml".format(num_radii,
                                                             max_delta,
                                                             initial_delta,
@@ -200,8 +203,8 @@ if __name__ == '__main__':
                         help="center location of the ring")
     parser.add_argument("--restrict", type=float, nargs=4, required=False, default=None,
                         help="restrict points to those from x1,x2,y1,y2")
-    parser.add_argument("--restrict_circle", type=float, required=False, default=None,
-                        help="restrict points to those within the given radius")
+    parser.add_argument("--restrict_circle", type=float, nargs=2, required=False, default=None,
+                        help="restrict points to those within the given radius, args are radius and fraction of initial_delta from edge")
     parser.add_argument("--plot", action='store_true', default=False,
                         help="plot points")
     args = parser.parse_args()
