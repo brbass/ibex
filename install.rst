@@ -28,9 +28,11 @@ To install Trilinos with only the needed packages, do the following:
    -DCMAKE_INSTALL_PREFIX=/software/trilinos/bin \
    /software/trilinos/Trilinos
 
-- Make the program, e.g. from the build directory,
+- Make the program, run make from the build directory,
 
-make install -j4
+::
+
+   make install -j4
 
 - Add the following to your bashrc (with the correct paths):
 
