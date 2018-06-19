@@ -5,6 +5,7 @@
 #include "Check.hh"
 #include "Heat_Transfer_Data.hh"
 #include "Integration_Mesh.hh"
+#include "Quadrature_Rule.hh"
 #include "Weak_Spatial_Discretization.hh"
 #include "Weight_Function.hh"
 
@@ -60,7 +61,7 @@ perform_integration()
     for (int i = 0; i < number_of_cells; ++i)
     {
         // Get cell
-        shared_ptr<Integration_Mesh::Cell> const cell = mesh_->cell(i);
+        shared_ptr<Integration_Cell> const cell = mesh_->cell(i);
         
         // Get quadrature
         int number_of_ordinates;
@@ -88,6 +89,18 @@ perform_integration()
             // Get position
             vector<double> const &position = ordinates[q];
             double const quad_weight = weights[q];
+
+            // For cylindrical, check whether point is inside integration region
+            if (options_->geometry == Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_2D)
+            {
+                double const radius = spatial_->options()->limits[0][1];
+
+                // If point is outside region, continue to next ordinate
+                if (position[0] * position[0] + position[1] * position[1] > radius * radius)
+                {
+                    continue;
+                }
+            }
             
             // Get values at quadrature point
             vector<double> b_val;
@@ -115,6 +128,7 @@ perform_integration()
                 switch (options_->geometry)
                 {
                 case Heat_Transfer_Integration_Options::Geometry::CARTESIAN:
+                case Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_2D:
                     rhs_[w_ind] += quad_weight * w_val[w] * source;
                     break;
                 case Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_1D:
@@ -133,6 +147,7 @@ perform_integration()
                         switch (options_->geometry)
                         {
                         case Heat_Transfer_Integration_Options::Geometry::CARTESIAN:
+                        case Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_2D:
                             for (int d = 0; d < dimension; ++d)
                             {
                                 matrix_[w_ind][w_b_ind] += quad_weight * w_grad[w][d] * b_grad[b][d] * conduction;
@@ -148,34 +163,76 @@ perform_integration()
         }
     }
 
-    // Skip interior surface for cylindrical geometry
     int number_of_surfaces = mesh_->number_of_surfaces();
     int first_surface;
     switch (options_->geometry)
     {
     case Heat_Transfer_Integration_Options::Geometry::CARTESIAN:
+    case Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_2D:
         first_surface = 0;
         break;
+    // Skip interior surface for cylindrical 1D geometry
     case Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_1D:
         Assert(number_of_surfaces == 2);
         first_surface = 1;
         break;
     }
 
+    // Split theta into equal parts
+    vector<double> limits_t;
+    if (options_->geometry == Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_2D)
+    {
+        limits_t.resize(number_of_surfaces + 1);
+        double h = 2 * M_PI / static_cast<double>(number_of_surfaces);
+        for (int i = 0; i < number_of_surfaces + 1; ++i)
+        {
+            limits_t[i] = i * h;
+        }
+    }
+    
     // Perform surface integration
     for (int i = first_surface; i < number_of_surfaces; ++i)
     {
         // Get surface data
-        shared_ptr<Integration_Mesh::Surface> const surface = mesh_->surface(i);
-
+        shared_ptr<Integration_Surface> const surface =
+            (options_->geometry == Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_2D
+             ? get_cylindrical_surface({limits_t[i], limits_t[i+1]},
+                                       radius)
+             : mesh_->surface(i));
+        
         // Get quadrature
         int number_of_ordinates;
         vector<vector<double> > ordinates;
         vector<double> weights;
-        mesh_->get_surface_quadrature(i,
-                                      number_of_ordinates,
-                                      ordinates,
-                                      weights);
+        switch (options_->geometry)
+        {
+        case Heat_Transfer_Integration_Options::Geometry::CARTESIAN:
+        case Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_1D:
+            
+            mesh_->get_surface_quadrature(i,
+                                          number_of_ordinates,
+                                          ordinates,
+                                          weights);
+            break;
+        case Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_2D:
+        {
+            vector<double> ordinates_t;
+            Quadrature_Rule::cartesian_1d(Quadrature_Rule::Quadrature_Type::GAUSS_LEGENDRE;,
+                                          number_of_ordinates,
+                                          limits_t[i],
+                                          limits_t[i+1],
+                                          ordinates_t,
+                                          weights);
+            ordinates.resize(number_of_ordinates);
+            double const radius = spatial_->options()->limits[0][1];
+            for (int q = 0; q < number_of_ordinates; ++q)
+            {
+                weights[q] *= radius;
+                ordinates[q] = {radius * cos(ordinates[q]), radius * sin(ordinates[q])};
+            }
+            break;
+        }
+        }
         
         // Get connectivity information
         vector<vector<int> > weight_basis_indices;
@@ -217,6 +274,7 @@ perform_integration()
                 switch (options_->geometry)
                 {
                 case Heat_Transfer_Integration_Options::Geometry::CARTESIAN:
+                case Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_2D:
                     rhs_[w_ind] += quad_weight * w_val[w] * convection * temp_inf;
                     break;
                 case Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_1D:
@@ -235,6 +293,7 @@ perform_integration()
                         switch (options_->geometry)
                         {
                         case Heat_Transfer_Integration_Options::Geometry::CARTESIAN:
+                        case Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_2D:
                             matrix_[w_ind][w_b_ind] += quad_weight * w_val[w] * b_val[b] * convection;
                             break;
                         case Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_1D:
@@ -248,3 +307,46 @@ perform_integration()
     }
 }
 
+std::shared_ptr<Integration_Surface> Heat_Transfer_Integration::
+get_cylindrical_surface(vector<double> limit_t,
+                        double radius) const
+{
+    // Requires identical basis functions to work
+    Assert(spatial_->options()->identical_basis_functions);
+    
+    // Get basis and weight functions that intersect with each point
+    int number_of_test_points = 5;
+    vector<int> nearest_weights(number_of_test_points);
+    double dt = (limit_t[1] - limit_t[0]) / static_cast<double>(number_of_test_points - 1);
+    for (int i = 0; i < number_of_test_points; ++i)
+    {
+        double t = dt * i;
+        vector<double> position = {radius * cos(t), radius * sin(t)};
+        int nearest_point = spatial_->nearest_point(position);
+        nearest_weights[i] = nearest_point;
+    }
+    sort(nearest_weights.begin(), nearest_weights.end());
+    nearest_weights.erase(unique(nearest_weights.begin(), nearest_weights.end()), nearest_weights.end());
+
+    // Get basis and weight functions
+    vector<int> indices;
+    for (int i : nearest_weights)
+    {
+        for (int j : spatial_->weight(i)->basis_function_indices)
+        {
+            indices.push_back(j);
+        }
+    }
+    sort(indices.begin(), indices.end());
+    indices.erase(unique(indices.begin(), indices.end()), indices.end());
+    int number_of_indices = indices.size();
+
+    // Create surface
+    shared_ptr<Integration_Surface> surface = make_shared<Integration_Surface>();
+    surface->number_of_basis_functions = number_of_indices;
+    surface->number_of_weight_functions = number_of_indices;
+    surface->basis_indices = indices;
+    surface->weight_indices = indices;
+
+    return surface;
+}

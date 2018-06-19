@@ -199,7 +199,7 @@ perform_volume_integration(vector<Weight_Function::Integrals> &integrals,
     for (int i = 0; i < mesh_->number_of_cells(); ++i)
     {
         // Get cell data
-        shared_ptr<Integration_Mesh::Cell> const cell = mesh_->cell(i);
+        shared_ptr<Integration_Cell> const cell = mesh_->cell(i);
         
         // Get quadrature
         int number_of_ordinates;
@@ -375,7 +375,7 @@ normalize_materials(vector<Material_Data> &materials) const
 }
 
 void Weight_Function_Integration::
-add_volume_weight(shared_ptr<Integration_Mesh::Cell> const cell,
+add_volume_weight(shared_ptr<Integration_Cell> const cell,
                   double quad_weight,
                   vector<double> const &w_val,
                   vector<vector<double> > const &w_grad,
@@ -396,7 +396,7 @@ add_volume_weight(shared_ptr<Integration_Mesh::Cell> const cell,
 }
 
 void Weight_Function_Integration::
-add_volume_basis_weight(shared_ptr<Integration_Mesh::Cell> const cell,
+add_volume_basis_weight(shared_ptr<Integration_Cell> const cell,
                         double quad_weight,
                         vector<double> const &b_val,
                         vector<vector<double> > const &b_grad,
@@ -481,7 +481,7 @@ get_cross_sections(shared_ptr<Material> material,
 }
 
 void Weight_Function_Integration::
-add_volume_material(shared_ptr<Integration_Mesh::Cell> const cell,
+add_volume_material(shared_ptr<Integration_Cell> const cell,
                     double quad_weight,
                     vector<double> const &b_val,
                     vector<double> const &w_val,
@@ -756,7 +756,7 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals,
     for (int i = 0; i < mesh_->number_of_surfaces(); ++i)
     {
         // Get surface data
-        shared_ptr<Integration_Mesh::Surface> const surface = mesh_->surface(i);
+        shared_ptr<Integration_Surface> const surface = mesh_->surface(i);
 
         // Get local weight function indices for this surface
         vector<int> weight_surface_indices;
@@ -825,7 +825,7 @@ perform_surface_integration(vector<Weight_Function::Integrals> &integrals,
 }
 
 void Weight_Function_Integration::
-add_surface_weight(shared_ptr<Integration_Mesh::Surface> const surface,
+add_surface_weight(shared_ptr<Integration_Surface> const surface,
                    double quad_weight,
                    vector<double> const &w_val,
                    vector<int> const &weight_surface_indices,
@@ -845,7 +845,7 @@ add_surface_weight(shared_ptr<Integration_Mesh::Surface> const surface,
 }
 
 void Weight_Function_Integration::
-add_surface_basis_weight(shared_ptr<Integration_Mesh::Surface> const surface,
+add_surface_basis_weight(shared_ptr<Integration_Surface> const surface,
                          double quad_weight,
                          vector<double> const &b_val,
                          vector<double> const &w_val,
@@ -877,7 +877,7 @@ add_surface_basis_weight(shared_ptr<Integration_Mesh::Surface> const surface,
 }
 
 void Weight_Function_Integration::
-add_surface_source(shared_ptr<Integration_Mesh::Surface> const surface,
+add_surface_source(shared_ptr<Integration_Surface> const surface,
                    double quad_weight,
                    vector<double> const &w_val,
                    vector<int> const &weight_surface_indices,
@@ -1208,7 +1208,7 @@ initialize_materials(vector<Material_Data> &materials) const
 }
 
 void Weight_Function_Integration::
-get_flux(shared_ptr<Integration_Mesh::Cell> const cell,
+get_flux(shared_ptr<Integration_Cell> const cell,
          vector<double> const &b_val,
          vector<double> &flux) const
 {

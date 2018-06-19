@@ -39,7 +39,7 @@ private:
 
     virtual void apply(std::vector<double> &x) const override;
     
-    void get_flux(std::shared_ptr<Integration_Mesh::Cell> const cell,
+    void get_flux(std::shared_ptr<Integration_Cell> const cell,
                   std::vector<double> const &b_val,
                   std::vector<double> const &coeff,
                   std::vector<double> &flux) const;

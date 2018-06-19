@@ -87,7 +87,7 @@ apply(vector<double> &x) const
     for (int i = 0; i < number_of_cells; ++i)
     {
         // Get cell
-        shared_ptr<Integration_Mesh::Cell> const cell = mesh_->cell(i);
+        shared_ptr<Integration_Cell> const cell = mesh_->cell(i);
         
         // Get quadrature
         int number_of_ordinates;
@@ -159,7 +159,7 @@ apply(vector<double> &x) const
 }
 
 void Integral_Value_Operator::
-get_flux(shared_ptr<Integration_Mesh::Cell> const cell,
+get_flux(shared_ptr<Integration_Cell> const cell,
          vector<double> const &b_val,
          vector<double> const &coeff,
          vector<double> &flux) const

@@ -88,9 +88,9 @@ initialize_mesh()
     
     // Initialize nodes
     nodes_.resize(number_of_nodes_);
-    for (shared_ptr<Node> &node : nodes_)
+    for (shared_ptr<Integration_Node> &node : nodes_)
     {
-        node = make_shared<Node>();
+        node = make_shared<Integration_Node>();
     }
     switch (dimension_)
     {
@@ -100,7 +100,7 @@ initialize_mesh()
         for (int i = 0; i < dimensional_nodes_[0]; ++i)
         {
             double index = i;
-            shared_ptr<Node> node = nodes_[i];
+            shared_ptr<Integration_Node> node = nodes_[i];
             node->position = {options_->limits[di][0] + intervals_[di] * i};
         }
         break;
@@ -114,7 +114,7 @@ initialize_mesh()
             for (int j = 0; j < dimensional_nodes_[1]; ++j)
             {
                 int index = j + dimensional_nodes_[1] * i;
-                shared_ptr<Node> node = nodes_[index];
+                shared_ptr<Integration_Node> node = nodes_[index];
                 node->position = {options_->limits[di][0] + intervals_[di] * i,
                                   options_->limits[dj][0] + intervals_[dj] * j};
             }
@@ -133,7 +133,7 @@ initialize_mesh()
                 for (int k = 0; k < dimensional_nodes_[2]; ++k)
                 {
                     int index = k + dimensional_nodes_[2] * (j + dimensional_nodes_[1] * i);
-                    shared_ptr<Node> node = nodes_[index];
+                    shared_ptr<Integration_Node> node = nodes_[index];
                     node->position = {options_->limits[di][0] + intervals_[di] * i,
                                       options_->limits[dj][0] + intervals_[dj] * j,
                                       options_->limits[dk][0] + intervals_[dk] * k};
@@ -148,9 +148,9 @@ initialize_mesh()
 
     // Initialize cells
     cells_.resize(number_of_cells_);
-    for (shared_ptr<Cell> &cell : cells_)
+    for (shared_ptr<Integration_Cell> &cell : cells_)
     {
-        cell = make_shared<Cell>();
+        cell = make_shared<Integration_Cell>();
     }
     switch (dimension_)
     {
@@ -160,7 +160,7 @@ initialize_mesh()
         for (int i = 0; i < options_->dimensional_cells[di]; ++i)
         {
             int index = i;
-            shared_ptr<Cell> cell = cells_[index];
+            shared_ptr<Integration_Cell> cell = cells_[index];
             
             // Set upper and lower limits
             cell->limits.resize(dimension_);
@@ -176,7 +176,7 @@ initialize_mesh()
             for (int ni = i; ni <= i + 1; ++ni)
             {
                 int n_index = ni;
-                shared_ptr<Node> node = nodes_[n_index];
+                shared_ptr<Integration_Node> node = nodes_[n_index];
                 node->neighboring_cells.push_back(index);
                 cell->neighboring_nodes.push_back(n_index);
             }
@@ -193,7 +193,7 @@ initialize_mesh()
             {
                 int index = j + options_->dimensional_cells[dj] * i;
                 vector<int> indices = {i, j};
-                shared_ptr<Cell> cell = cells_[index];
+                shared_ptr<Integration_Cell> cell = cells_[index];
                 
                 // Set upper and lower limits
                 cell->limits.resize(dimension_);
@@ -211,7 +211,7 @@ initialize_mesh()
                     for (int nj = j; nj <= j + 1; ++nj)
                     {
                         int n_index = nj + dimensional_nodes_[dj] * ni;
-                        shared_ptr<Node> node = nodes_[n_index];
+                        shared_ptr<Integration_Node> node = nodes_[n_index];
                         node->neighboring_cells.push_back(index);
                         cell->neighboring_nodes.push_back(n_index);
                     }
@@ -233,7 +233,7 @@ initialize_mesh()
                 {
                     int index = k + options_->dimensional_cells[dk] * (j + options_->dimensional_cells[dj] * i);
                     vector<int> indices = {i, j, k};
-                    shared_ptr<Cell> cell = cells_[index];
+                    shared_ptr<Integration_Cell> cell = cells_[index];
                     
                     // Set neighboring nodes and cells
                     for (int ni = i; ni <= i + 1; ++ni)
@@ -243,7 +243,7 @@ initialize_mesh()
                             for (int nk = k; nk <= k + 1; ++nk)
                             {
                                 int n_index = nk + dimensional_nodes_[dk] * (nj + dimensional_nodes_[dj] * ni);
-                                shared_ptr<Node> node = nodes_[n_index];
+                                shared_ptr<Integration_Node> node = nodes_[n_index];
                                 node->neighboring_cells.push_back(index);
                                 cell->neighboring_nodes.push_back(n_index);
                             }
@@ -275,9 +275,9 @@ initialize_mesh()
     {
         number_of_surfaces_ = 2;
         surfaces_.resize(number_of_surfaces_);
-        for (shared_ptr<Surface> &surface : surfaces_)
+        for (shared_ptr<Integration_Surface> &surface : surfaces_)
         {
-            surface = make_shared<Surface>();
+            surface = make_shared<Integration_Surface>();
         }
         for (int i = 0; i < number_of_surfaces_; ++i)
         {
@@ -309,7 +309,7 @@ initialize_mesh()
             double normal = p == 0 ? -1 : 1;
             for (int j = 0; j < options_->dimensional_cells[dj]; ++j)
             {
-                shared_ptr<Surface> surface = make_shared<Surface>();
+                shared_ptr<Integration_Surface> surface = make_shared<Integration_Surface>();
                 surface->dimension = di;
                 surface->normal = normal;
                 surface->neighboring_cell = j + options_->dimensional_cells[dj] * i;
@@ -318,7 +318,7 @@ initialize_mesh()
                 for (int nj = j; nj <= j + 1; ++nj)
                 {
                     int n_index = nj + dimensional_nodes_[dj] * ni;
-                    shared_ptr<Node> node = nodes_[n_index];
+                    shared_ptr<Integration_Node> node = nodes_[n_index];
                     node->neighboring_surfaces.push_back(index);
                 }
 
@@ -334,7 +334,7 @@ initialize_mesh()
             double normal = p == 0 ? -1 : 1;
             for (int i = 0; i < options_->dimensional_cells[di]; ++i)
             {
-                shared_ptr<Surface> surface = make_shared<Surface>();
+                shared_ptr<Integration_Surface> surface = make_shared<Integration_Surface>();
                 surface->dimension = dj;
                 surface->normal = normal;
                 surface->neighboring_cell = j + options_->dimensional_cells[dj] * i;
@@ -343,7 +343,7 @@ initialize_mesh()
                 for (int ni = i; ni <= i + 1; ++ni)
                 {
                     int n_index = nj + dimensional_nodes_[dj] * ni;
-                    shared_ptr<Node> node = nodes_[n_index];
+                    shared_ptr<Integration_Node> node = nodes_[n_index];
                     node->neighboring_surfaces.push_back(index);
                 }
                 
@@ -374,7 +374,7 @@ initialize_mesh()
             {
                 for (int k = 0; k < options_->dimensional_cells[dk]; ++k)
                 {
-                    shared_ptr<Surface> surface = make_shared<Surface>();
+                    shared_ptr<Integration_Surface> surface = make_shared<Integration_Surface>();
                     surface->dimension = di;
                     surface->normal = normal;
                     surface->neighboring_cell = k + options_->dimensional_cells[dk] * (j + options_->dimensional_cells[dj]* i);
@@ -385,7 +385,7 @@ initialize_mesh()
                         for (int nk = k; nk <= k + 1; ++nk)
                         {
                             int n_index = nk + dimensional_nodes_[dk] * (nj + dimensional_nodes_[dj] * ni);
-                            shared_ptr<Node> node = nodes_[n_index];
+                            shared_ptr<Integration_Node> node = nodes_[n_index];
                             node->neighboring_surfaces.push_back(index);
                         }
                     }
@@ -405,7 +405,7 @@ initialize_mesh()
             {
                 for (int k = 0; k < options_->dimensional_cells[dk]; ++k)
                 {
-                    shared_ptr<Surface> surface = make_shared<Surface>();
+                    shared_ptr<Integration_Surface> surface = make_shared<Integration_Surface>();
                     surface->dimension = dj;
                     surface->normal = normal;
                     surface->neighboring_cell = k + options_->dimensional_cells[dk] * (j + options_->dimensional_cells[dj]* i);
@@ -416,7 +416,7 @@ initialize_mesh()
                         for (int nk = k; nk <= k + 1; ++nk)
                         {
                             int n_index = nk + dimensional_nodes_[dk] * (nj + dimensional_nodes_[dj] * ni);
-                            shared_ptr<Node> node = nodes_[n_index];
+                            shared_ptr<Integration_Node> node = nodes_[n_index];
                             node->neighboring_surfaces.push_back(index);
                         }
                     }
@@ -436,7 +436,7 @@ initialize_mesh()
             {
                 for (int j = 0; j < options_->dimensional_cells[dj]; ++j)
                 {
-                    shared_ptr<Surface> surface = make_shared<Surface>();
+                    shared_ptr<Integration_Surface> surface = make_shared<Integration_Surface>();
                     surface->dimension = dk;
                     surface->normal = normal;
                     surface->neighboring_cell = k + options_->dimensional_cells[dk] * (j + options_->dimensional_cells[dj]* i);
@@ -447,7 +447,7 @@ initialize_mesh()
                         for (int nj = j; nj <= j + 1; ++nj)
                         {
                             int n_index = nk + dimensional_nodes_[dk] * (nj + dimensional_nodes_[dj] * ni);
-                            shared_ptr<Node> node = nodes_[n_index];
+                            shared_ptr<Integration_Node> node = nodes_[n_index];
                             node->neighboring_surfaces.push_back(index);
                         }
                     }
@@ -502,7 +502,7 @@ initialize_connectivity()
         // Add weight indices to cells and surfaces
         for (int j = 0; j < number_of_intersecting_nodes; ++j)
         {
-            shared_ptr<Node> node = nodes_[intersecting_nodes[j]];
+            shared_ptr<Integration_Node> node = nodes_[intersecting_nodes[j]];
             
             for (int c_index : node->neighboring_cells)
             {
@@ -543,7 +543,7 @@ initialize_connectivity()
             // Add basis indices to cells and surfaces
             for (int j = 0; j < number_of_intersecting_nodes; ++j)
             {
-                shared_ptr<Node> node = nodes_[intersecting_nodes[j]];
+                shared_ptr<Integration_Node> node = nodes_[intersecting_nodes[j]];
             
                 for (int c_index : node->neighboring_cells)
                 {
@@ -561,7 +561,7 @@ initialize_connectivity()
     // Remove duplicate volume indices
     for (int i = 0; i < number_of_cells_; ++i)
     {
-        shared_ptr<Cell> cell = cells_[i];
+        shared_ptr<Integration_Cell> cell = cells_[i];
         
         // Remove duplicate weight indices
         sort(cell->weight_indices.begin(), cell->weight_indices.end());
@@ -585,7 +585,7 @@ initialize_connectivity()
     // Remove duplicate surface indices
     for (int i = 0; i < number_of_surfaces_; ++i)
     {
-        shared_ptr<Surface> surface = surfaces_[i];
+        shared_ptr<Integration_Surface> surface = surfaces_[i];
 
         // Remove duplicate weight indices
         sort(surface->weight_indices.begin(), surface->weight_indices.end());
@@ -612,7 +612,7 @@ initialize_connectivity()
         // Get background cell integration ordinates
         for (int i = 0; i < number_of_cells_; ++i)
         {
-            shared_ptr<Cell> cell = cells_[i];
+            shared_ptr<Integration_Cell> cell = cells_[i];
             
             // Find minimum radius
             double min_radius = 0.5 * numeric_limits<double>::max();
@@ -685,7 +685,7 @@ initialize_connectivity()
         // Get background surface integration ordinates
         for (int i = 0; i < number_of_surfaces_; ++i)
         {
-            shared_ptr<Surface> surface = surfaces_[i];
+            shared_ptr<Integration_Surface> surface = surfaces_[i];
             
             // Find minimum radius
             double min_radius = 0.5 * numeric_limits<double>::max();
@@ -716,7 +716,7 @@ initialize_connectivity()
             }
             
             // Find min surface length
-            shared_ptr<Cell> cell = cells_[surface->neighboring_cell];
+            shared_ptr<Integration_Cell> cell = cells_[surface->neighboring_cell];
             double min_length = 0.5 * numeric_limits<double>::max();
             for (int d = 0; d < dimension_; ++d)
             {
@@ -750,13 +750,13 @@ initialize_connectivity()
         // Set number of integration ordinates for each cell and surface to global value
         for (int i = 0; i < number_of_cells_; ++i)
         {
-            shared_ptr<Cell> cell = cells_[i];
+            shared_ptr<Integration_Cell> cell = cells_[i];
 
             cell->number_of_integration_ordinates = options_->integration_ordinates;
         }
         for (int i = 0; i < number_of_surfaces_; ++i)
         {
-            shared_ptr<Surface> surface = surfaces_[i];
+            shared_ptr<Integration_Surface> surface = surfaces_[i];
         
             surface->number_of_integration_ordinates = options_->integration_ordinates;
         }
@@ -869,7 +869,7 @@ get_volume_quadrature(int i,
                       vector<double> &weights) const
 {
     // Get limits of integration
-    shared_ptr<Cell> const cell = cells_[i];
+    shared_ptr<Integration_Cell> const cell = cells_[i];
     vector<vector<double> > const &limits = cell->limits;
     int const number_of_integration_ordinates = cell->number_of_integration_ordinates;
     int const dx = 0;
@@ -948,8 +948,8 @@ get_surface_quadrature(int i,
                        vector<double> &weights) const
 {
     // Get limits of integration
-    shared_ptr<Surface> const surface = surfaces_[i];
-    shared_ptr<Cell> const cell = cells_[surface->neighboring_cell];
+    shared_ptr<Integration_Surface> const surface = surfaces_[i];
+    shared_ptr<Integration_Cell> const cell = cells_[surface->neighboring_cell];
     vector<vector<double> > const &limits = cell->limits;
     int const number_of_integration_ordinates = surface->number_of_integration_ordinates;
     int const dx = 0;
@@ -1123,7 +1123,7 @@ get_surface_quadrature(int i,
 }
 
 void Integration_Mesh::
-get_basis_values(shared_ptr<Cell> const cell,
+get_basis_values(shared_ptr<Integration_Cell> const cell,
                  vector<double> const &position,
                  vector<vector<double> > const &basis_centers,
                  vector<double> &b_val) const
@@ -1150,7 +1150,7 @@ get_basis_values(shared_ptr<Cell> const cell,
 }
 
 void Integration_Mesh::
-get_volume_values(shared_ptr<Cell> const cell,
+get_volume_values(shared_ptr<Integration_Cell> const cell,
                   vector<double> const &position,
                   vector<vector<double> > const &basis_centers,
                   vector<vector<double> > const &weight_centers,
@@ -1215,7 +1215,7 @@ get_volume_values(shared_ptr<Cell> const cell,
 }
 
 void Integration_Mesh::
-get_surface_values(shared_ptr<Surface> const surface,
+get_surface_values(shared_ptr<Integration_Surface> const surface,
                    vector<double> const &position,
                    vector<vector<double> > const &basis_centers,
                    vector<vector<double> > const &weight_centers,
@@ -1267,7 +1267,7 @@ get_surface_values(shared_ptr<Surface> const surface,
 }
 
 void Integration_Mesh::
-get_cell_basis_indices(shared_ptr<Cell> const cell,
+get_cell_basis_indices(shared_ptr<Integration_Cell> const cell,
                        vector<vector<int> > &indices) const
 {
     indices.assign(cell->number_of_weight_functions,
@@ -1283,7 +1283,7 @@ get_cell_basis_indices(shared_ptr<Cell> const cell,
 }
 
 void Integration_Mesh::
-get_surface_basis_indices(shared_ptr<Surface> const surface,
+get_surface_basis_indices(shared_ptr<Integration_Surface> const surface,
                           vector<vector<int> > &indices) const
 {
     indices.assign(surface->number_of_weight_functions,
@@ -1299,7 +1299,7 @@ get_surface_basis_indices(shared_ptr<Surface> const surface,
 }
 
 void Integration_Mesh::
-get_weight_surface_indices(shared_ptr<Surface> const surface,
+get_weight_surface_indices(shared_ptr<Integration_Surface> const surface,
                            vector<int> &indices) const
 {
     indices.assign(surface->number_of_weight_functions, Weight_Function::Errors::DOES_NOT_EXIST);
@@ -1312,7 +1312,7 @@ get_weight_surface_indices(shared_ptr<Surface> const surface,
 }
 
 void Integration_Mesh::
-get_basis_centers(shared_ptr<Cell> const cell,
+get_basis_centers(shared_ptr<Integration_Cell> const cell,
                   vector<vector<double> > &basis_positions) const
 {
     int const number_of_basis_functions = cell->number_of_basis_functions;
@@ -1324,7 +1324,7 @@ get_basis_centers(shared_ptr<Cell> const cell,
 }
 
 void Integration_Mesh::
-get_basis_weight_centers(shared_ptr<Cell> const cell,
+get_basis_weight_centers(shared_ptr<Integration_Cell> const cell,
                          vector<vector<double> > &basis_positions,
                          vector<vector<double> > &weight_positions) const
 {
@@ -1351,7 +1351,7 @@ get_basis_weight_centers(shared_ptr<Cell> const cell,
 }
 
 void Integration_Mesh::
-get_basis_weight_centers(shared_ptr<Surface> const surface,
+get_basis_weight_centers(shared_ptr<Integration_Surface> const surface,
                          vector<vector<double> > &basis_positions,
                          vector<vector<double> > &weight_positions) const
 {
@@ -1406,7 +1406,7 @@ get_total_max_points() const
     values[ind_mnv] = 100000000;
     values[ind_mns] = 100000000;
     values[ind_minfunc] = 1000000;
-    for (shared_ptr<Cell> cell : cells_)
+    for (shared_ptr<Integration_Cell> cell : cells_)
     {
         int num = pow(cell->number_of_integration_ordinates, dimension_);
         values[ind_tv] += num;
@@ -1433,7 +1433,7 @@ get_total_max_points() const
     }
     values[ind_func] = int(static_cast<double>(values[ind_func]) / static_cast<double>(number_of_cells_));
     
-    for (shared_ptr<Surface> surface : surfaces_)
+    for (shared_ptr<Integration_Surface> surface : surfaces_)
     {
         int num = pow(surface->number_of_integration_ordinates, dimension_ - 1);
         values[ind_ts] += num;
