@@ -13,7 +13,9 @@ class VERA_Heat_Data : public Heat_Transfer_Data
 {
 public:
 
-    VERA_Heat_Data(std::shared_ptr<VERA_Transport_Result> result,
+    VERA_Heat_Data(bool include_crack,
+                   int heat_dimension,
+                   std::shared_ptr<VERA_Transport_Result> result,
                    std::shared_ptr<VERA_Temperature> weighting_temperature);
 
     virtual double conduction(std::vector<double> const &position) const override;
@@ -23,13 +25,15 @@ public:
 
 private:
 
+    bool include_crack_;
+    int heat_dimension_;
     std::shared_ptr<VERA_Transport_Result> result_;
     std::shared_ptr<VERA_Temperature> weighting_temperature_;
     // int number_of_materials_;
     double temperature_inf_;
     double convection_;
     // std::vector<double> conduction_;
-    // std::vector<double> interfaces_;
+    std::vector<double> interfaces_;
 };
 
 #endif

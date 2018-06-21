@@ -14,12 +14,14 @@ using namespace std;
 
 VERA_Solid_Geometry::
 VERA_Solid_Geometry(bool include_ifba,
+                    bool include_crack,
                     std::shared_ptr<VERA_Temperature> temperature,
                     shared_ptr<Angular_Discretization> angular,
                     shared_ptr<Energy_Discretization> energy,
                     vector<shared_ptr<Material> > materials,
                     shared_ptr<Boundary_Source> boundary_source):
     include_ifba_(include_ifba),
+    include_crack_(include_crack),
     temperature_(temperature),
     angular_(angular),
     energy_(energy),

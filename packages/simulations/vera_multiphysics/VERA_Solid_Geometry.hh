@@ -23,6 +23,7 @@ class VERA_Solid_Geometry : public Solid_Geometry
 public:
 
     VERA_Solid_Geometry(bool include_ifba,
+                        bool include_crack,
                         std::shared_ptr<VERA_Temperature> temperature,
                         std::shared_ptr<Angular_Discretization> angular,
                         std::shared_ptr<Energy_Discretization> energy,
@@ -112,6 +113,7 @@ private:
     
     // Data
     bool include_ifba_;
+    bool include_crack_;
     std::shared_ptr<VERA_Temperature> temperature_;
     std::shared_ptr<Angular_Discretization> angular_;
     std::shared_ptr<Energy_Discretization> energy_;

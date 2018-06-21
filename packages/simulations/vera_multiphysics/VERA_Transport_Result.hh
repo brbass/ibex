@@ -15,8 +15,10 @@ class XML_Node;
 class VERA_Transport_Result
 {
 public:
-    
-    VERA_Transport_Result(double pincell_power,
+
+    VERA_Transport_Result(int heat_dimension,
+                          double fuel_radius,
+                          double pincell_power,
                           std::shared_ptr<Solid_Geometry> solid,
                           std::shared_ptr<Angular_Discretization> angular,
                           std::shared_ptr<Energy_Discretization> energy,
@@ -24,6 +26,7 @@ public:
                           std::shared_ptr<Solver> solver,
                           std::shared_ptr<Solver::Result> result);
 
+    double get_fission_energy(std::vector<double> const &position);
     double get_radial_fission_energy(double radius);
 
     std::shared_ptr<Solver::Result> result() const
@@ -37,6 +40,8 @@ private:
 
     void normalize();
 
+    // Input data
+    int heat_dimension_;
     double pincell_power_;
     double fuel_radius_;
     std::shared_ptr<Solid_Geometry> solid_;
@@ -48,6 +53,11 @@ private:
     int number_of_ordinates_;
     std::vector<double> ordinates_;
     std::vector<double> weights_;
+
+    // Constants
+    double const mev_to_joule_ = 1.6021766e-13;
+    std::vector<double> const nu_ = {2.65063, 2.43223};
+    std::vector<double> const kappa_ = {196.155, 193.083};
 };
 
 #endif

@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -22,6 +23,7 @@
 #include "Meshless_Sweep.hh"
 #include "Meshless_Sweep_Parser.hh"
 #include "Quadrature_Rule.hh"
+#include "Random_Number_Generator.hh"
 #include "Solver.hh"
 #include "Solver_Parser.hh"
 #include "Timer.hh"
@@ -37,7 +39,9 @@
 using namespace std;
 
 shared_ptr<VERA_Transport_Result>
-run_transport(double pincell_power,
+run_transport(bool include_crack,
+              int heat_dimension,
+              double pincell_power,
               XML_Node input_node,
               shared_ptr<VERA_Temperature> temperature)
 {
@@ -68,6 +72,7 @@ run_transport(double pincell_power,
     // Get solid geometry
     shared_ptr<VERA_Solid_Geometry> solid
         = make_shared<VERA_Solid_Geometry>(include_ifba,
+                                           include_crack,
                                            temperature,
                                            angular,
                                            energy,
@@ -108,7 +113,19 @@ run_transport(double pincell_power,
                                               sweep);
     solver->solve();
 
-    return make_shared<VERA_Transport_Result>(pincell_power,
+    double fuel_radius;
+    if (include_crack)
+    {
+        fuel_radius = 0.4135;
+    }
+    else
+    {
+        fuel_radius = 0.4096;
+    }
+    
+    return make_shared<VERA_Transport_Result>(heat_dimension,
+                                              fuel_radius,
+                                              pincell_power,
                                               solid,
                                               angular,
                                               energy,
@@ -118,19 +135,39 @@ run_transport(double pincell_power,
 }
 
 shared_ptr<VERA_Temperature> 
-run_heat(XML_Node input_node,
+run_heat(bool include_crack,
+         int heat_dimension,
+         XML_Node input_node,
          shared_ptr<VERA_Transport_Result> result,
          shared_ptr<VERA_Temperature> weighting_temperature)
 {
+    if (include_crack)
+    {
+        Assert(heat_dimension == 2);
+    }
+    
     // Get solid geometry
     double length = 0.475;
     shared_ptr<Solid_Geometry> solid;
     vector<shared_ptr<Cartesian_Plane> > surfaces;
     Heat_Transfer_Factory factory;
-    factory.get_solid(1, // dimension
-                      {{0, length}}, // limits
-                      solid,
-                      surfaces);
+    switch (heat_dimension)
+    {
+    case 1:
+        factory.get_solid(heat_dimension,
+                          {{0, length}}, // limits
+                          solid,
+                          surfaces);
+        break;
+    case 2:
+        factory.get_solid(heat_dimension,
+                          {{-length, length}, {-length, length}}, // limits
+                          solid,
+                          surfaces);
+        break;
+    default:
+        AssertMsg(false, "dimension not found");
+    }
 
     // Get weak spatial discretization
     Weak_Spatial_Discretization_Parser spatial_parser(solid,
@@ -140,13 +177,26 @@ run_heat(XML_Node input_node,
     
     // Get heat transfer data
     shared_ptr<VERA_Heat_Data> data
-        = make_shared<VERA_Heat_Data>(result,
+        = make_shared<VERA_Heat_Data>(include_crack,
+                                      heat_dimension,
+                                      result,
                                       weighting_temperature);
 
     // Get heat transfer integration
     shared_ptr<Heat_Transfer_Integration_Options> integration_options
         = make_shared<Heat_Transfer_Integration_Options>();
-    integration_options->geometry = Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_1D;
+    switch (heat_dimension)
+    {
+    case 1:
+        integration_options->geometry = Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_1D;
+        break;
+    case 2:
+        integration_options->geometry = Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_2D;
+        break;
+    default:
+        AssertMsg(false, "dimension not found");
+    }
+    
     shared_ptr<Heat_Transfer_Integration> integration
         = make_shared<Heat_Transfer_Integration>(integration_options,
                                                  data,
@@ -158,43 +208,98 @@ run_heat(XML_Node input_node,
                                            spatial);
     shared_ptr<Heat_Transfer_Solution> solution
         = solver->solve();
-    
-    return make_shared<VERA_Temperature>([solution](vector<double> const & position) -> double
-                                         {
-                                             double radius = sqrt(position[0] * position[0] + position[1] * position[1]);
-                                             if (radius > 0.475)
-                                             {
-                                                 return 600.0;
-                                             }
-                                             else
-                                             {
-                                                 return solution->solution({radius});
-                                             }
-                                         });
+
+    switch (heat_dimension)
+    {
+    case 1:
+        
+        return make_shared<VERA_Temperature>([solution](vector<double> const &position) -> double
+            {
+                double radius = sqrt(position[0] * position[0] + position[1] * position[1]);
+                if (radius > 0.475)
+                {
+                    return 600.0;
+                }
+                else
+                {
+                    return solution->solution({radius});
+                }
+            });
+    case 2:
+        return make_shared<VERA_Temperature>([solution](vector<double> const &position) -> double
+            {
+                double radius2 = position[0] * position[0] + position[1] * position[1];
+                if (radius2 > 0.475 * 0.475)
+                {
+                    return 600.0;
+                }
+                else
+                {
+                    return solution->solution(position);
+                }
+            });
+    default:
+        AssertMsg(false, "dimension not found");
+    }
 }
 
-void output_temperature(shared_ptr<VERA_Temperature> temperature,
+void output_temperature(int heat_dimension,
+                        shared_ptr<VERA_Temperature> temperature,
                         XML_Node output_node)
 {
-    double dr = 0.001 - 1e-12;
     vector<double> positions;
     vector<double> values;
-    double maxr = 0.475 + 0.5 * dr;
-    int num_values = floor(maxr/dr) + 1;
-    for (int i = 0; i < num_values; ++i)
+    
+    switch (heat_dimension)
     {
-        double r = i * dr;
-        vector<double> position = {r, 0};
-        positions.push_back(r);
-        values.push_back((*temperature)(position));
+    case 1:
+    {
+        double dr = 0.001 - 1e-12;
+        double maxr = 0.475 + 0.5 * dr;
+        int num_values = floor(maxr/dr) + 1;
+        for (int i = 0; i < num_values; ++i)
+        {
+            double r = i * dr;
+            vector<double> position = {r, 0};
+            positions.push_back(r);
+            values.push_back((*temperature)(position));
+        }
+        break;
     }
-    // for (double r = 0; r < maxr; r += dr)
-    // {
-    //     vector<double> position = {r, 0};
-    //     positions.push_back(r);
-    //     values.push_back((*temperature)(position));
-    // }
+    case 2:
+    {
+        double dr = 0.001 - 1e-12;
+        double maxr = 0.475 + 0.5 * dr;
+        int num_values = floor(maxr/dr) + 1;
+        Random_Number_Generator<double> rng(0,
+                                            2 * M_PI,
+                                            492); // seed
+        for (int i = 0; i < num_values; ++i)
+        {
+            double r = i * dr;
 
+            double circ = 2 * M_PI * r;
+            int numt = int(ceil(circ / dr));
+            double start_t = rng.scalar();
+            double dt = 2 * M_PI / static_cast<double>(numt);
+            
+            for (int i = 0; i < numt; ++i)
+            {
+                double t = start_t + i * dt;
+                vector<double> position = {r * cos(t), r * sin(t)};
+                for (int d = 0; d < heat_dimension; ++d)
+                {
+                    positions.push_back(position[d]);
+                }
+                values.push_back((*temperature)(position));
+            }
+        }
+        break;
+    }
+    default:
+        AssertMsg(false, "dimension not found");
+    }
+    
     output_node.set_child_vector(positions, "points");
     output_node.set_child_vector(values, "values");
 }
@@ -210,6 +315,10 @@ void run_test(XML_Node input_node,
     shared_ptr<VERA_Transport_Result> result;
 
     // Get total desired power
+    bool include_crack
+        = input_node.get_child("heat").get_child_value<bool>("include_heat");
+    int heat_dimension
+        = input_node.get_child("heat").get_child_value<int>("heat_dimension");
     double pincell_power
         = input_node.get_child("heat").get_child_value<double>("pincell_power");
     int number_of_iterations
@@ -222,7 +331,9 @@ void run_test(XML_Node input_node,
         // Run transport calculation
         cout << "start transport calculation " << i << endl;
         result
-            = run_transport(pincell_power,
+            = run_transport(include_crack,
+                            heat_dimension,
+                            pincell_power,
                             input_node.get_child("transport"),
                             temperature);
         eigenvalue_history.push_back(result->result()->k_eigenvalue);
@@ -232,7 +343,9 @@ void run_test(XML_Node input_node,
         cout << "start heat transfer calculation " << i << endl;
         shared_ptr<VERA_Temperature> old_temperature = temperature;
         temperature
-            = run_heat(input_node.get_child("heat"),
+            = run_heat(include_crack,
+                       heat_dimension,
+                       input_node.get_child("heat"),
                        result,
                        old_temperature);
         cout << "end heat transfer calculation " << i << endl;
@@ -240,7 +353,8 @@ void run_test(XML_Node input_node,
     
     // Output data
     timer.stop();
-    output_temperature(temperature,
+    output_temperature(heat_dimension,
+                       temperature,
                        output_node.append_child("temperature"));
     output_node.append_child("timing").set_child_value(timer.time(), "total");
     output_node.set_child_value(pincell_power, "pincell_power");
