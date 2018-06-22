@@ -218,6 +218,7 @@ perform_integration()
             break;
         case Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_2D:
         {
+            number_of_ordinates = spatial_->options()->integration_ordinates;
             vector<double> ordinates_t;
             Quadrature_Rule::cartesian_1d(Quadrature_Rule::Quadrature_Type::GAUSS_LEGENDRE,
                                           number_of_ordinates,
@@ -271,7 +272,7 @@ perform_integration()
             {
                 // Get global weight function index
                 int w_ind = surface->weight_indices[w];
-
+                
                 // Add convection term to the source
                 switch (options_->geometry)
                 {

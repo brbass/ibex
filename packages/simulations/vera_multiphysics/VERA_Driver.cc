@@ -3,6 +3,11 @@
 #include <fstream>
 #include <memory>
 #include <mpi.h>
+#if defined(ENABLE_OPENMP)
+    #include <omp.h>
+#else
+    inline void omp_set_num_threads(int i) {return;}
+#endif
 #include <string>
 #include <vector>
 
@@ -316,7 +321,7 @@ void run_test(XML_Node input_node,
 
     // Get total desired power
     bool include_crack
-        = input_node.get_child("heat").get_child_value<bool>("include_heat");
+        = input_node.get_child("heat").get_attribute<bool>("include_crack");
     int heat_dimension
         = input_node.get_child("heat").get_child_value<int>("heat_dimension");
     double pincell_power
@@ -372,7 +377,7 @@ int main(int argc, char **argv)
         cerr << "need input file" << endl;
         return 1;
     }
-
+    
     // Get base XML node
     string input_filename = argv[1];
     string output_filename = input_filename + ".out";
@@ -380,8 +385,17 @@ int main(int argc, char **argv)
     XML_Node input_node = input_file.get_child("input");
     XML_Document output_file;
     XML_Node output_node = output_file.append_child("output");
+
+    // Set number of threads for transport
+    int number_of_threads = input_node.get_attribute<int>("number_of_threads",
+                                                          1);
+    omp_set_num_threads(number_of_threads);
+
+    // Run problem
     run_test(input_node,
              output_node);
+
+    // Output data
     output_file.save(output_filename);
     
     // Close MPI
