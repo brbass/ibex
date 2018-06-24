@@ -13,6 +13,6 @@ endmacro()
 
 include_executable(tst_cylindrical_heat tst_Constant_Cylindrical.cc)
 include_test(tst_cylindrical_heat_1d tst_cylindrical_heat "")
-include_test(tst_cylindrical_heat_1d tst_cylindrical_heat ${CMAKE_CURRENT_BINARY_DIR}/input/.xml)
+include_test(tst_cylindrical_heat_1d tst_cylindrical_heat ${CMAKE_CURRENT_BINARY_DIR}/input/heat_two_region.xml)
 
 add_subdirectory(input)
