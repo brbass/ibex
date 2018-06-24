@@ -323,7 +323,7 @@ get_cylindrical_surface(vector<double> limit_t,
     double dt = (limit_t[1] - limit_t[0]) / static_cast<double>(number_of_test_points - 1);
     for (int i = 0; i < number_of_test_points; ++i)
     {
-        double t = dt * i;
+        double t = limit_t[0] + dt * i;
         vector<double> position = {radius * cos(t), radius * sin(t)};
         int nearest_point = spatial_->nearest_point(position);
         nearest_weights[i] = nearest_point;
