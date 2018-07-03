@@ -147,7 +147,7 @@ def output_points(num_radii,
             rmax = radius - 0.7 * delta_l
             if point[0] * point[0] + point[1] * point[1] <= rmax * rmax:
                 points.append(point)
-        points_temp = get_ring_points(radius, delta_l, randomize_start)
+        points_temp = get_ring_points(radius, max_delta, randomize_start)
         for point_temp in points_temp:
             points.append(point_temp)
         points = np.array(points)
@@ -161,12 +161,12 @@ def output_points(num_radii,
         corner_string += "_rand"
     if restrict_circle:
         corner_string += "_circ{}".format(restrict_circle[0])
-    output_path = "vera1e_mesh_{}_{}_{}_{}_{}{}.xml".format(num_radii,
-                                                            max_delta,
-                                                            initial_delta,
-                                                            ring_start,
-                                                            length,
-                                                            corner_string)
+    output_path = "pincell_scaled_{}_{}_{}_{}_{}{}.xml".format(num_radii,
+                                                               max_delta,
+                                                               initial_delta,
+                                                               ring_start,
+                                                               length,
+                                                               corner_string)
 
     # Get node and add input data
     node = xml_points(2, # dimension
