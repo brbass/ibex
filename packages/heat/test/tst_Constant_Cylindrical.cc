@@ -144,7 +144,7 @@ int test_constant(int number_of_points,
 
     return checksum;
 }
-                  
+
 int test_constant_2d(XML_Node input_node,
                      double length1,
                      double length2,
@@ -166,7 +166,7 @@ int test_constant_2d(XML_Node input_node,
                       limits,
                       solid,
                       surfaces);
-
+    
     // Get weak spatial discretization
     Weak_Spatial_Discretization_Parser spatial_parser(solid,
                                                       surfaces);
@@ -206,7 +206,8 @@ int test_constant_2d(XML_Node input_node,
         = solver->solve();
 
     // Check a spot
-    vector<double> test_position(1, 0.046);
+    vector<double> test_position(dimension, 0.046);
+    test_position[1] = 0;
     cout << solution->solution(test_position) << endl;
     cout << data->solution(test_position) << endl;
 }
@@ -221,10 +222,10 @@ int main(int argc, char **argv)
     {
         int number_of_points = 400;
         double radius_num_intervals = 3.1;
-        double length1 = 1;
+        double length1 = 1.4;
         double length2 = 2;
-        double conduction1 = 0.0347 / 2;
-        double conduction2 = 0.2158 / 100;
+        double conduction1 = 0.0007;
+        double conduction2 = 0.05;
         double convection = 3.;
         double source1 = 3.;
         double source2 = 0.;
@@ -247,10 +248,10 @@ int main(int argc, char **argv)
         XML_Document input_file(input_filename);
         XML_Node input_node = input_file.get_child("input");
         
-        double length1 = 1;
+        double length1 = 1.4;
         double length2 = 2;
-        double conduction1 = 0.0347 / 2;
-        double conduction2 = 0.2158 / 100;
+        double conduction1 = 0.0007;
+        double conduction2 = 0.05;
         double convection = 3.;
         double source1 = 3.;
         double source2 = 0.;
