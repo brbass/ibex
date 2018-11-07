@@ -53,6 +53,10 @@ get_weak_discretization(XML_Node input_node) const
     {
         return get_cartesian_discretization(input_node);
     }
+    else if (input_format == "legendre")
+    {
+        return get_legendre_discretization(input_node);
+    }
     else
     {
         AssertMsg(false, "input format (" + input_format + ") not found");
@@ -259,7 +263,8 @@ get_galerkin_points_discretization(XML_Node input_node) const
     return make_shared<Weak_Spatial_Discretization>(basis_functions,
                                                     weight_functions,
                                                     dimensional_moments,
-                                                    weak_options);
+                                                    weak_options,
+                                                    kd_tree);
 }
 
 shared_ptr<Weak_Spatial_Discretization> Weak_Spatial_Discretization_Parser::
@@ -398,6 +403,114 @@ get_cartesian_discretization(XML_Node input_node) const
         AssertMsg(false, "meshless type (" + meshless_type + ") not found");
     }
 
+    // Get basis functions
+    vector<shared_ptr<Basis_Function> > basis_functions;
+    weak_factory.get_basis_functions(number_of_points,
+                                     meshless_functions,
+                                     basis_functions);
+
+    // Get weight functions
+    vector<shared_ptr<Weight_Function> > weight_functions;
+    weak_factory.get_weight_functions(number_of_points,
+                                      weight_options,
+                                      weak_options,
+                                      dimensional_moments,
+                                      neighbors,
+                                      meshless_functions,
+                                      basis_functions,
+                                      weight_functions);
+    
+    // Create spatial discretization
+    return make_shared<Weak_Spatial_Discretization>(basis_functions,
+                                                    weight_functions,
+                                                    dimensional_moments,
+                                                    weak_options,
+                                                    kd_tree);
+}
+
+shared_ptr<Weak_Spatial_Discretization> Weak_Spatial_Discretization_Parser::
+get_legendre_discretization(XML_Node input_node) const
+{
+    Meshless_Function_Factory meshless_factory;
+    Weak_Spatial_Discretization_Factory weak_factory(solid_geometry_,
+                                                     boundary_surfaces_);
+    
+    // Get options
+    shared_ptr<Weight_Function_Options> weight_options
+        = get_weight_options(input_node.get_child("options"));
+    shared_ptr<Weak_Spatial_Discretization_Options> weak_options
+        = get_weak_options(input_node.get_child("options"));
+    Assert(weak_options->identical_basis_functions
+           != Weak_Spatial_Discretization_Options::Identical_Basis_Functions::FALSE);
+    weak_options->identical_basis_functions
+        = Weak_Spatial_Discretization_Options::Identical_Basis_Functions::TRUE;
+    
+    // Initialize data
+    int dimension = solid_geometry_->dimension();
+    
+    // Get dimensional moments
+    shared_ptr<Dimensional_Moments> dimensional_moments
+        = make_shared<Dimensional_Moments>(weak_options->include_supg,
+                                           dimension);
+    
+    // Get Legendre functions
+    vector<int> order
+        = input_node.get_child_vector<int>("order",
+                                           dimension);
+    int number_of_points;
+    vector<shared_ptr<Meshless_Function> > meshless_functions;
+    meshless_factory.get_legendre_functions(dimension,
+                                            order,
+                                            weak_options->limits,
+                                            number_of_points,
+                                            meshless_functions);
+
+    // Set all functions to be neighbors of one another
+    vector<int> local_neighbors(number_of_points);
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        local_neighbors[i] = i;
+    }
+    vector<vector<int> > neighbors(number_of_points, local_neighbors);
+
+    // Set each function to come first in its own list
+    for (int i = 0; i < number_of_points; ++i)
+    {
+        neighbors[i][0] = i;
+        neighbors[i][i] = 0;
+    }
+    
+    // Get MLS
+    string meshless_type = input_node.get_child("meshless_function").get_attribute<string>("type");
+    if (meshless_type == "legendre")
+    {
+        // Do nothing
+    }
+    else if (meshless_type == "linear_mls")
+    {
+        vector<shared_ptr<Meshless_Function> > mls_functions;
+        meshless_factory.get_mls_functions(1,
+                                           number_of_points,
+                                           meshless_functions,
+                                           neighbors,
+                                           mls_functions);
+        meshless_functions.swap(mls_functions);
+    }
+    else if (meshless_type == "quadratic_mls")
+    {
+        vector<shared_ptr<Meshless_Function> > mls_functions;
+        meshless_factory.get_mls_functions(2,
+                                           number_of_points,
+                                           meshless_functions,
+                                           neighbors,
+                                           mls_functions);
+        meshless_functions.swap(mls_functions);
+    }
+    else
+    {
+        AssertMsg(false, "meshless type (" + meshless_type + ") not found");
+    }
+    
     // Get basis functions
     vector<shared_ptr<Basis_Function> > basis_functions;
     weak_factory.get_basis_functions(number_of_points,

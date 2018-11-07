@@ -10,6 +10,7 @@
 #include "Constructive_Solid_Geometry.hh"
 #include "Distance.hh"
 #include "KD_Tree.hh"
+#include "Legendre_Function.hh"
 #include "Linear_MLS_Function.hh"
 #include "Quadratic_MLS_Function.hh"
 #include "RBF.hh"
@@ -374,6 +375,48 @@ get_mls_functions(int order,
             break;
         default:
             AssertMsg(false, "invalid order for MLS function");
+        }
+    }
+}
+
+void Meshless_Function_Factory::
+get_legendre_functions(int dimension,
+                       vector<int> const &order,
+                       vector<vector<double> > const &limits,
+                       int &number_of_points,
+                       vector<shared_ptr<Meshless_Function> > &functions) const
+{
+    Assert(order.size() == dimension);
+    Assert(limits.size() == dimension);
+
+    // Get total number of points
+    number_of_points = 1;
+    for (int d = 0; d < dimension; ++d)
+    {
+        Assert(order[d] > 0);
+        number_of_points *= order[d] + 1;
+    }
+
+    // Get tensor product Legendre functions
+    int index = 0;
+    vector<int> current_order(dimension, 0);
+    functions.resize(number_of_points);
+    while (index < number_of_points)
+    {
+        functions[index] = make_shared<Legendre_Function>(index,
+                                                          dimension,
+                                                          current_order,
+                                                          limits);
+        
+        index += 1;
+        current_order[0] += 1;
+        for (int d = 0; d < dimension - 1; ++d)
+        {
+            if (current_order[d] > order[d])
+            {
+                current_order[d] = 0;
+                current_order[d + 1] += 1;
+            }
         }
     }
 }

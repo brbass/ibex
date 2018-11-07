@@ -13,6 +13,7 @@
 #include "AztecOO_ConditionNumber.h"
 #include "BelosSolverFactory.hpp"
 #include "BelosEpetraAdapter.hpp"
+#include "BelosPseudoBlockGmresSolMgr.hpp"
 #include "Epetra_CrsMatrix.h"
 #include "Epetra_LinearProblem.h"
 #include "Epetra_Map.h"

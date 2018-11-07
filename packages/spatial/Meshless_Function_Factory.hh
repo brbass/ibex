@@ -87,6 +87,14 @@ public:
                            std::vector<std::vector<int> > const &neighbors,
                            std::vector<std::shared_ptr<Meshless_Function> > &mls_functions) const;
 
+    // Get Legendre tensor product functions, given the order in each dimension
+    void get_legendre_functions(int dimension,
+                                std::vector<int> const &order,
+                                std::vector<std::vector<double> > const &limits,
+                                int &number_of_points,
+                                std::vector<std::shared_ptr<Meshless_Function> > &functions) const;
+
+    
     // Get MLS functions based on RBF functions
     // Creates and destroys KD tree, so it's advisable not to use this
     // where a KD tree is already being created (for weak discretization)

@@ -9,7 +9,13 @@ namespace Math_Functions
     // Returns Legendre polynomial
     double legendre_polynomial(int l,
                                double const &x);
-
+    double legendre_polynomial_rec(int l,
+                                   double const &x);
+    double d_legendre_polynomial(int l,
+                                 double const &x);
+    double dd_legendre_polynomial(int l,
+                                  double const &x);
+    
     // Returns associated real Legendre polynomial function
     double legendre_polynomial(int l,
                                int m,
