@@ -159,6 +159,12 @@ def perm_save_from_template(data):
     
     return input_filenames
 
+def run_multiprocessing_command_no_output(executable,
+                                          arguments):
+    run_multiprocessing_command(executable,
+                                arguments,
+                                False)
+
 def run_multiprocessing_command(executable,
                                 arguments,
                                 save_output = True):

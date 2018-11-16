@@ -3,8 +3,8 @@ import numpy as np
 import scipy as sp
 import scipy.spatial as sps
 from matplotlib import pyplot as plt
-# import xml.etree.ElementTree as et
-import lxml.etree as et
+import xml.etree.ElementTree as et
+# import lxml.etree as et
 
 # Get a 1D Cartesian mesh
 def get_cartesian_points_1d(xmin,

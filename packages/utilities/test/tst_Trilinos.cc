@@ -1,3 +1,4 @@
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <string>

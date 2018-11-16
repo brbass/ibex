@@ -12,13 +12,14 @@ To install Trilinos with only the needed packages, do the following:
 
 - Make a build directory, e.g., /software/trilinos/build
 
-- Run cmake in the build directory using the following script (modify open-mpi, build, and install paths if needed):
+- Make sure MPI_BASE_DIR is set in your environment so Trilinos can find it
+
+- Run cmake in the build directory using the following script (modify build and install paths appropriately):
 
 ::
 
    cmake \
    -DTPL_ENABLE_MPI=ON \
-   -DMPI_BASE_DIR=/usr/local/Cellar/open-mpi/3.0.1 \
    -DTrilinos_ENABLE_ALL_PACKAGES=OFF \
    -DTrilinos_ENABLE_Epetra=ON \
    -DTrilinos_ENABLE_Anasazi=ON \
@@ -28,11 +29,11 @@ To install Trilinos with only the needed packages, do the following:
    -DCMAKE_INSTALL_PREFIX=/software/trilinos/bin \
    /software/trilinos/Trilinos
 
-- Make the program, run make from the build directory,
+- Run make from the build directory,
 
 ::
 
-   make install -j4
+   make install -j32
 
 - Add the following to your bashrc (with the correct paths):
 
@@ -54,22 +55,29 @@ To install Trilinos with only the needed packages, do the following:
 Install ibex
 ------------
 
-ibex is designed to be built in place. For a build outside of the source directory, the install directory will need to be changed in the CMakeLists.txt file in this directory.
+The following assumes that IBEX_SOURCE is set to the directory containing this file.
 
-- Choose release type (Debug or Release) in the CMakeLists.txt file in this directory (./CMakeLists.txt)
-  - For debugging, remove the -O3 symbol
+To build ibex, first set the release type (Debug or Release) in the CMakeLists.txt file in IBEX_SOURCE. For debugging, remove the -O3 symbol.
 
-- Make build directory, e.g. ./build
+To build ibex in place, run the following (with an appropriate number of processors) in IBEX_SOURCE:
 
-- From build directory, run the following:
+::
+  
+   mkdir build; cd build; cmake ..; cmake ..; make install -j32
+
+This will install to the IBEX_SOURCE/bin directory
+
+To make and install in a different directory,
+
+- Create the build directory
+
+- From the build directory, run
 
 ::
 
-   cmake ..; cmake ..; make install -j4
+   cmake IBEX_SOURCE -DCMAKE_INSTALL_PREFIX=IBEX_BIN; cmake IBEX_SOURCE -DCMAKE_INSTALL_PREFIX=IBEX_BIN; make install -j32
 
-- This should install ibex into the directory ./bin
-
-- Optionally, add the following scripts (with modified paths) to .bashrc to add the "ibex" executable and the Python scripts
+Optionally, add the following scripts (with modified paths) to .bashrc to add the "ibex" executable and the Python scripts
 
 ::
 
@@ -84,5 +92,5 @@ ibex is designed to be built in place. For a build outside of the source directo
 
 ::
 
-   ctest -j4
+   ctest -j32
 

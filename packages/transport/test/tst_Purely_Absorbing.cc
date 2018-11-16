@@ -25,6 +25,7 @@
 #include "XML_Document.hh"
 #include "XML_Node.hh"
 
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <memory>
