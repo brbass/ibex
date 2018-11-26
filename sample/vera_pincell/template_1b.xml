@@ -1,0 +1,240 @@
+<input type='transport'
+       print='true'
+       number_of_threads='8'>
+  <energy_discretization>
+    <number_of_groups>2</number_of_groups>
+  </energy_discretization>
+  <angular_discretization>
+    <dimension>2</dimension>
+    <number_of_moments>2</number_of_moments>
+    <rule>(RULE)</rule>
+  </angular_discretization>
+  <materials>
+   <number_of_materials>4</number_of_materials>
+    <material index='0'
+              name='fuel'>
+      <sigma_t>
+        0.399697649 0.581826884
+      </sigma_t>
+      <sigma_s>
+        0.383829618 0.0
+        0.000830382 0.405420306
+        0.049482651 0.0
+        -0.000261476 0.006013128
+      </sigma_s>
+      <chi_nu_sigma_f>
+        0.013687612 0.255838918
+        0.000000015 0.000000189
+      </chi_nu_sigma_f>
+      <internal_source>
+        0.0 0.0
+      </internal_source>
+    </material>
+    <material index='1'
+              name='gap'>
+      <sigma_t>
+        0.000060070 0.000021458
+      </sigma_t>
+      <sigma_s>
+        0.000059744 0.0
+        0.000000396 0.000021460
+        0.000011213 0.0
+        -0.000000063 -0.000000063
+      </sigma_s>
+      <chi_nu_sigma_f>
+        0.0 0.0
+        0.0 0.0
+      </chi_nu_sigma_f>
+      <internal_source>
+        0.0 0.0
+      </internal_source>
+    </material>
+    <material index='2'
+              name='clad'>
+      <sigma_t>
+        0.319205599 0.297115812
+      </sigma_t>
+      <sigma_s>
+        0.317083075 0.0
+        0.000287583 0.294003048
+        0.052759371 0.0
+        -0.000078648 0.002146731
+      </sigma_s>
+      <chi_nu_sigma_f>
+        0.0 0.0
+        0.0 0.0
+      </chi_nu_sigma_f>
+      <internal_source>
+        0.0 0.0
+      </internal_source>
+    </material>
+    <material index='3'
+              name='moderator'>
+      <sigma_t>
+        0.528320878 1.316352822
+      </sigma_t>
+      <sigma_s>
+        0.486251066 0.000000031
+        0.041923677 1.301429236
+        0.290403747 0.000000031
+        0.018069833 0.523147177
+      </sigma_s>
+      <chi_nu_sigma_f>
+        0.0 0.0
+        0.0 0.0
+      </chi_nu_sigma_f>
+      <internal_source>
+        0.0 0.0
+      </internal_source>
+    </material>
+  </materials>
+  <boundary_sources>
+    <number_of_boundary_sources>1</number_of_boundary_sources>
+    <boundary_source index='0'>
+      <alpha>1.0 1.0</alpha>
+      <isotropic_source>0.0 0.0</isotropic_source>
+    </boundary_source>
+  </boundary_sources>
+  <solid_geometry>
+    <dimension>2</dimension>
+    <surfaces>
+      <number_of_surfaces>7</number_of_surfaces>
+      <surface index='0'
+               shape='cylinder'
+               type='internal'>
+        <radius>0.4096</radius>
+        <origin>0.0 0.0</origin>
+      </surface>
+      <surface index='1'
+               shape='cylinder'
+               type='internal'>
+        <radius>0.418</radius>
+        <origin>0.0 0.0</origin>
+      </surface>
+      <surface index='2'
+               shape='cylinder'
+               type='internal'>
+        <radius>0.475</radius>
+        <origin>0.0 0.0</origin>
+      </surface>
+      <surface index='3'
+               shape='cartesian_plane'
+               type='boundary'>
+        <surface_dimension>0</surface_dimension>
+        <position>-0.63</position>
+        <normal>-1.0</normal>
+        <boundary_source>0</boundary_source>
+      </surface>
+      <surface index='4'
+               shape='cartesian_plane'
+               type='boundary'>
+        <surface_dimension>0</surface_dimension>
+        <position>0.63</position>
+        <normal>1.0</normal>
+        <boundary_source>0</boundary_source>
+      </surface>
+      <surface index='5'
+               shape='cartesian_plane'
+               type='boundary'>
+        <surface_dimension>1</surface_dimension>
+        <position>-0.63</position>
+        <normal>-1.0</normal>
+        <boundary_source>0</boundary_source>
+      </surface>
+      <surface index='6'
+               shape='cartesian_plane'
+               type='boundary'>
+        <surface_dimension>1</surface_dimension>
+        <position>0.63</position>
+        <normal>1.0</normal>
+        <boundary_source>0</boundary_source>
+      </surface>
+    </surfaces>
+    <regions>
+      <number_of_regions>4</number_of_regions>
+      <region index='0'
+              material='0'>
+        <surface_relation surface='0'
+                          relation='inside'/>
+      </region>
+      <region index='1'
+              material='1'>
+        <surface_relation surface='0'
+                          relation='outside'/>
+        <surface_relation surface='1'
+                          relation='inside'/>
+      </region>
+      <region index='2'
+              material='2'>
+        <surface_relation surface='1'
+                          relation='outside'/>
+        <surface_relation surface='2'
+                          relation='inside'/>
+      </region>
+      <region index='3'
+              material='3'>
+        <surface_relation surface='2'
+                          relation='outside'/>
+        <surface_relation surface='3'
+                          relation='negative'/>
+        <surface_relation surface='4'
+                          relation='negative'/>
+        <surface_relation surface='5'
+                          relation='negative'/>
+        <surface_relation surface='6'
+                          relation='negative'/>
+      </region>
+    </regions>
+  </solid_geometry>
+  <spatial_discretization input_format='galerkin_points'
+                          points_file='(POINTS_FILE)'>
+    <options weighting='(WEIGHTING)'
+             external_integral_calculation='true'
+             supg='true'
+             tau_scaling='none'
+             identical_basis_functions='true'
+             output_material='false'
+             output_integrals='false'
+             adaptive_quadrature='true'
+             minimum_radius_ordinates='32'
+             maximum_integration_ordinates='1024'>
+      <tau>(TAU)</tau>
+      <integration_ordinates>16</integration_ordinates>
+      <dimensional_cells>(INT_CELLS) (INT_CELLS)</dimensional_cells>
+    </options>
+    <weight_functions>
+      <radius_calculation method='coverage'>
+        <number_of_neighbors>(NUM_NEIGHBORS)</number_of_neighbors>
+        <radius_multiplier>1.0</radius_multiplier>
+      </radius_calculation>
+      <meshless_function type='linear_mls'
+                         function='wendland11'/>
+    </weight_functions>
+  </spatial_discretization>
+  <problem type='eigenvalue'
+           discretization='weak'/>
+  <transport solver='belos_ifpack'
+             level_of_fill='1.0'
+             drop_tolerance='1e-12'
+             tolerance='1e-10'
+             kspace='40'
+             max_restarts='200'
+             max_iterations='8000'/>
+  <solver type='krylov'
+          explicit_inverse='false'
+          max_iterations='400'
+          kspace='20'
+          solver_print='1'
+          eigenvalue_tolerance='1e-8'>
+    <value type='centers'/>
+    <value type='integral'
+           adaptive_quadrature='false'
+           integration_ordinates='32'>
+      <limits>
+        -0.63 0.63
+        -0.63 0.63
+      </limits>
+      <dimensional_cells>100 100</dimensional_cells>
+    </value>
+  </solver>
+</input>
