@@ -1,8 +1,7 @@
 <input type='transport'
        print='true'
        number_of_threads='1'>
-  <spatial_discretization input_format='galerkin_points'
-                          points_file='heat_two_region_points.xml'>
+  <spatial_discretization input_format='full'>
     <options weighting='flat'
              external_integral_calculation='true'
              supg='false'
@@ -13,9 +12,11 @@
              output_integrals='false'
              adaptive_quadrature='false'>
       <tau>0.0</tau>
-      <integration_ordinates>64 64</integration_ordinates>
+      <integration_ordinates>8 8</integration_ordinates>
       <dimensional_cells>40 40</dimensional_cells>
     </options>
+    <basis_functions>
+    </basis_functions>
     <weight_functions>
       <radius_calculation method='coverage'>
         <number_of_neighbors>12</number_of_neighbors>

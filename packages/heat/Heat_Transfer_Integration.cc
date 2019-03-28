@@ -98,7 +98,8 @@ perform_integration()
                 double const radius = spatial_->options()->limits[0][1];
 
                 // If point is outside region, continue to next ordinate
-                if (position[0] * position[0] + position[1] * position[1] > radius * radius)
+                double const position2 = position[0] * position[0] + position[1] * position[1];
+                if (position2 > radius * radius)
                 {
                     continue;
                 }
@@ -330,7 +331,7 @@ get_cylindrical_surface(vector<double> limit_t,
     }
     sort(nearest_weights.begin(), nearest_weights.end());
     nearest_weights.erase(unique(nearest_weights.begin(), nearest_weights.end()), nearest_weights.end());
-
+    
     // Get basis and weight functions
     vector<int> indices;
     for (int i : nearest_weights)

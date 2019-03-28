@@ -14,7 +14,7 @@ To install Trilinos with only the needed packages, do the following:
 
 - Make sure MPI_BASE_DIR is set in your environment so Trilinos can find it
 
-- Run cmake in the build directory using the following script (modify build and install paths appropriately):
+- Run cmake in the build directory using the following script (modify source and install paths appropriately):
 
 ::
 
@@ -29,7 +29,7 @@ To install Trilinos with only the needed packages, do the following:
    -DCMAKE_INSTALL_PREFIX=/software/trilinos/bin \
    /software/trilinos/Trilinos
 
-- Run make from the build directory,
+- Run make from the build directory:
 
 ::
 
@@ -57,7 +57,7 @@ Install ibex
 
 The following assumes that IBEX_SOURCE is set to the directory containing this file.
 
-To build ibex, first set the release type (Debug or Release) in the CMakeLists.txt file in IBEX_SOURCE. For debugging, remove the -O3 symbol.
+To build ibex, first set the release type (Debug or Release) in the CMakeLists.txt file in IBEX_SOURCE. For debugging, remove the -O3 symbol. Due to the way the compilers get set by the Trilinos options, cmake needs to be run twice. Hopefully this will be fixed in a future version. 
 
 To build ibex in place, run the following (with an appropriate number of processors) in IBEX_SOURCE:
 
@@ -84,6 +84,11 @@ Optionally, add the following scripts (with modified paths) to .bashrc to add th
    export PATH="/home/brbass/code/ibex/bin:$PATH"
    export PYTHONPATH="/home/brbass/code/ibex/scripts:$PYTHONPATH"
 
+If the Trilinos directories were not set as instructed above, an additional cmake option may be needed:
+::
+
+   -DTrilinos_DIR=/software/trilinos/bin/lib/cmake/Trilinos
+
 #############
 # Run tests #
 #############
@@ -93,4 +98,3 @@ Optionally, add the following scripts (with modified paths) to .bashrc to add th
 ::
 
    ctest -j32
-

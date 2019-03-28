@@ -175,9 +175,9 @@ def run_multiprocessing_command(executable,
     # Get command
     pid = multiprocessing.current_process().name
     if save_output:
-        command = "{} {} &> {}.ter".format(executable, arguments, arguments)
+        command = "srun -N 1-1 {} {} &> {}.ter".format(executable, arguments, arguments)
     else:
-        command = "{} {}".format(executable, arguments)
+        command = "srun -N 1-1 {} {}".format(executable, arguments)
 
     # Run command
     print("start \"{}\" on process {}".format(command, pid))

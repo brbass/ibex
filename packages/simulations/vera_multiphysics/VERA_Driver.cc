@@ -220,21 +220,21 @@ run_heat(bool include_crack,
         
         return make_shared<VERA_Temperature>([solution](vector<double> const &position) -> double
             {
-                double radius = sqrt(position[0] * position[0] + position[1] * position[1]);
-                if (radius > 0.475)
+                double radius2 = position[0] * position[0] + position[1] * position[1];
+                if (radius2 > 0.475 * 0.475 + 1e-12)
                 {
                     return 600.0;
                 }
                 else
                 {
-                    return solution->solution({radius});
+                    return solution->solution({sqrt(radius2)});
                 }
             });
     case 2:
         return make_shared<VERA_Temperature>([solution](vector<double> const &position) -> double
             {
                 double radius2 = position[0] * position[0] + position[1] * position[1];
-                if (radius2 > 0.475 * 0.475)
+                if (radius2 > 0.475 * 0.475 + 1e-12)
                 {
                     return 600.0;
                 }
@@ -273,7 +273,7 @@ void output_temperature(int heat_dimension,
     }
     case 2:
     {
-        double dr = 0.001 - 1e-12;
+        double dr = 0.01 - 1e-11;
         double maxr = 0.475 + 0.5 * dr;
         int num_values = floor(maxr/dr) + 1;
         Random_Number_Generator<double> rng(0,

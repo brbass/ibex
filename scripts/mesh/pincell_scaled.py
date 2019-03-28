@@ -131,6 +131,7 @@ def output_points(num_radii,
         points = np.array(points)
         num_points = len(points)
     if restrict_circle != None:
+        # Get rid of points outside the radius
         radius = restrict_circle[0]
         delta_frac = restrict_circle[1]
         old_points = points
@@ -140,14 +141,20 @@ def output_points(num_radii,
                 points.append(point)
         num_points_inside = len(points)
         num_points_l = int(np.sqrt(num_points_inside))
-        delta_l = delta_frac * initial_delta
+        # Find the delta value at the edge of the problem
+        xpoints = np.array(points)[:,0]
+        min_index = np.argmin(xpoints)
+        delta_outer = np.sqrt((points[min_index][0] - points[min_index-1][0])**2 + (points[min_index][1] - points[min_index-1][1])**2)
+        # Ignore points that are close to the edge of the problem
+        delta_l = delta_frac * delta_outer
         old_points = points
         points = []
         for point in old_points:
             rmax = radius - 0.7 * delta_l
             if point[0] * point[0] + point[1] * point[1] <= rmax * rmax:
                 points.append(point)
-        points_temp = get_ring_points(radius, max_delta, randomize_start)
+        # Add points on the edge of the problem
+        points_temp = get_ring_points(radius, delta_outer, randomize_start)
         for point_temp in points_temp:
             points.append(point_temp)
         points = np.array(points)
@@ -178,7 +185,7 @@ def output_points(num_radii,
     
     # Output xml node
     et.ElementTree(node).write(output_path,
-                               pretty_print=True,
+                               # pretty_print=True,
                                xml_declaration=True)
     
     # Plot if desired

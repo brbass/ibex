@@ -13,6 +13,6 @@ endmacro()
 
 include_executable(tst_driver tst_Driver.cc)
 
-include_test(tst_manufactured_constant tst_driver ${CMAKE_CURRENT_BINARY_DIR}/input/manufactured_constant.xml)
+include_test(tst_manufactured_constant tst_driver ${CMAKE_CURRENT_SOURCE_DIR}/input/manufactured_constant.xml)
 
 add_subdirectory(input)

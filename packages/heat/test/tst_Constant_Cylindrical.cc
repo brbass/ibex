@@ -155,6 +155,8 @@ int test_constant_2d(XML_Node input_node,
                      double source2,
                      double temperature_inf)
 {
+    int checksum = 0;
+    
     // Get solid geometry
     int dimension = 2;
     vector<vector<double> > limits = {{-length2, length2},
@@ -191,17 +193,20 @@ int test_constant_2d(XML_Node input_node,
     integration_options->geometry = Heat_Transfer_Integration_Options::Geometry::CYLINDRICAL_2D;
     
     // Perform integration
+    cout << "performing integration" << endl;
     shared_ptr<Heat_Transfer_Integration> integration
         = make_shared<Heat_Transfer_Integration>(integration_options,
                                                  data,
                                                  spatial);
     
     // Initialize heat transfer solver
+    cout << "initializing solver" << endl;
     shared_ptr<Heat_Transfer_Solve> solver
         = make_shared<Heat_Transfer_Solve>(integration,
                                            spatial);
     
     // Solve problem
+    cout << "solving problem" << endl;
     shared_ptr<Heat_Transfer_Solution> solution
         = solver->solve();
 
@@ -210,6 +215,8 @@ int test_constant_2d(XML_Node input_node,
     test_position[1] = 0;
     cout << solution->solution(test_position) << endl;
     cout << data->solution(test_position) << endl;
+
+    return checksum;
 }
 
 int main(int argc, char **argv)
@@ -218,18 +225,19 @@ int main(int argc, char **argv)
     
     MPI_Init(&argc, &argv);
 
+    double length1 = 1.4;
+    double length2 = 2;
+    double conduction1 = 0.0007;
+    double conduction2 = 0.05;
+    double convection = 3.;
+    double source1 = 3.;
+    double source2 = 0.;
+    double temperature_inf = 600;
+        
     if (argc == 1)
     {
         int number_of_points = 400;
         double radius_num_intervals = 3.1;
-        double length1 = 1.4;
-        double length2 = 2;
-        double conduction1 = 0.0007;
-        double conduction2 = 0.05;
-        double convection = 3.;
-        double source1 = 3.;
-        double source2 = 0.;
-        double temperature_inf = 600;
         checksum += test_constant(number_of_points,
                                   radius_num_intervals,
                                   length1,
@@ -248,14 +256,6 @@ int main(int argc, char **argv)
         XML_Document input_file(input_filename);
         XML_Node input_node = input_file.get_child("input");
         
-        double length1 = 1.4;
-        double length2 = 2;
-        double conduction1 = 0.0007;
-        double conduction2 = 0.05;
-        double convection = 3.;
-        double source1 = 3.;
-        double source2 = 0.;
-        double temperature_inf = 600;
         checksum += test_constant_2d(input_node,
                                      length1,
                                      length2,
