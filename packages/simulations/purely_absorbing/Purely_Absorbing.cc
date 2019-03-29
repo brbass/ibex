@@ -14,18 +14,24 @@
 
 #include "Angular_Discretization.hh"
 #include "Angular_Discretization_Parser.hh"
+#include "Arbitrary_Discrete_Value_Operator.hh"
+#include "Arbitrary_Moment_Value_Operator.hh"
 #include "Boundary_Source.hh"
 #include "Boundary_Source_Parser.hh"
 #include "Cartesian_Plane.hh"
 #include "Constructive_Solid_Geometry.hh"
 #include "Constructive_Solid_Geometry_Parser.hh"
+#include "Conversion.hh"
 #include "Cross_Section.hh"
 #include "Discrete_To_Moment.hh"
 #include "Discrete_Value_Operator.hh"
 #include "Energy_Discretization.hh"
 #include "Energy_Discretization_Parser.hh"
+#include "Integral_Error_Operator.hh"
+#include "Integration_Mesh.hh"
 #include "Material.hh"
 #include "Material_Parser.hh"
+#include "Meshless_Function_Factory.hh"
 #include "Meshless_Sweep.hh"
 #include "Meshless_Sweep_Parser.hh"
 #include "Moment_Value_Operator.hh"
@@ -40,8 +46,6 @@
 #include "XML_Node.hh"
 
 using namespace std;
-
-
 
 double get_solution(std::shared_ptr<Constructive_Solid_Geometry> solid,
                     std::shared_ptr<Angular_Discretization> angular,
@@ -224,19 +228,7 @@ void run_problem(XML_Node input_node,
         = make_shared<Discrete_To_Moment>(spatial,
                                           angular,
                                           energy);
-    
-    // Get discrete and moment value operators
-    shared_ptr<Discrete_Value_Operator> discrete_value
-        = make_shared<Discrete_Value_Operator>(spatial,
-                                               angular,
-                                               energy,
-                                               false); // weighted
-    shared_ptr<Moment_Value_Operator> moment_value
-        = make_shared<Moment_Value_Operator>(spatial,
-                                             angular,
-                                             energy,
-                                             false); // weighted
-    
+
     // Get combined operator
     shared_ptr<Vector_Operator> combined = Linv * M * Q;
     
@@ -250,63 +242,228 @@ void run_problem(XML_Node input_node,
     vector<double> moment_coefficients = coefficients;
     (*D)(moment_coefficients);
 
-    // Get solution
-    vector<double> solution = coefficients;
-    (*discrete_value)(solution);
-    vector<double> moment_solution = moment_coefficients;
-    (*moment_value)(moment_solution);
-
-    // Check solution
-    int number_of_points = spatial->number_of_points();
+    // Get solution functions
     int number_of_ordinates = angular->number_of_ordinates();
     int number_of_moments = angular->number_of_moments();
-    double err_phi = 0.;
-    double err_psi = 0.;
-    double sum_phi = 0.;
-    double sum_psi = 0.;
-    vector<double> const weights = angular->weights();
-    for (int i = 0; i < number_of_points; ++i)
-    {
-        // Get position
-        double sol_num = 0.;
-        double sol_ana = 0.;
-        vector<double> const position = spatial->point(i)->position();
-        for (int o = 0; o < number_of_ordinates; ++o)
+    std::function<vector<double>(vector<double>)> moment_solution
+        = [&](vector<double> const& position)
         {
-            // Get direction
-            std::vector<double> const direction = angular->direction(o);
-            
-            // Get analytic solution
-            bool edge;
-            bool corner;
-            double const analytic = get_solution(solid,
-                                                 angular,
-                                                 position,
-                                                 direction,
-                                                 edge,
-                                                 corner);
+            vector<double> result(number_of_ordinates);
+            for (int o = 0; o < number_of_ordinates; ++o)
+            {
+                std::vector<double> const direction = angular->direction(o);
+                bool corner;
+                bool edge;
+                result[o] = get_solution(solid,
+                                         angular,
+                                         position,
+                                         direction,
+                                         edge,
+                                         corner);
+            }
+            angular->discrete_to_moment(result);
+            return result;
+        };
 
-            // Compare numeric to analytic solution
-            int k = o + number_of_ordinates * i;
-
-            double const weight = weights[o];
-            sol_ana += analytic * weight;
-            sum_psi += analytic;
-            err_psi += abs(analytic - solution[k]);
-            // cout << "ana: " << analytic << "\t" << "num: " << solution[k] << "\t" << "err: " << analytic - solution[k] << endl;
+    std::function<vector<double>(vector<double>)> discrete_solution
+        = [&](vector<double> const& position)
+        {
+            vector<double> result(number_of_ordinates);
+            for (int o = 0; o < number_of_ordinates; ++o)
+            {
+                std::vector<double> const direction = angular->direction(o);
+                bool corner;
+                bool edge;
+                result[o] = get_solution(solid,
+                                         angular,
+                                         position,
+                                         direction,
+                                         edge,
+                                         corner);
+            }
+            return result;
+        };
+    
+    // Get integral errors
+    vector<string> error_types;
+    vector<vector<double> > errors;
+    XML_Node errors_node = input_node.get_child("errors");
+    for (XML_Node error_node = errors_node.get_child("error");
+         error_node;
+         error_node = error_node.get_sibling("error",
+                                             false))
+    {
+        // Get integration options
+        int dimension = spatial->dimension();
+        std::shared_ptr<Integration_Mesh_Options> integration_options
+            = make_shared<Integration_Mesh_Options>();
+        integration_options->initialize_from_weak_options(spatial->options());
+        integration_options->adaptive_quadrature
+            = error_node.get_attribute<bool>("adaptive_quadrature",
+                                             false);
+        if (integration_options->adaptive_quadrature)
+        {
+            integration_options->minimum_radius_ordinates
+                = error_node.get_attribute<bool>("minimum_radius_ordinates");
         }
-        int k = number_of_moments * i;
-        sum_phi += sol_ana;
-        err_phi += abs(moment_solution[k] - sol_ana);
-        // for (int d = 0; d < solid->dimension(); ++d)
-        // {
-        //     cout << position[d] << "\t";
-        // }
-        // cout << "ana: " << sol_ana << "\t" << "num: " << moment_solution[k] << "\t" << "err: " << sol_ana - moment_solution[k] << endl;
+        
+        integration_options->integration_ordinates
+            = error_node.get_attribute<int>("integration_ordinates",
+                                            integration_options->integration_ordinates);
+        integration_options->limits
+            = error_node.get_child_matrix<double>("limits",
+                                                  dimension,
+                                                  2,
+                                                  integration_options->limits);
+        integration_options->dimensional_cells
+            = error_node.get_child_vector<int>("dimensional_cells",
+                                               dimension,
+                                               integration_options->dimensional_cells);
+
+        // Get error operator options
+        Integral_Error_Operator::Options options;
+        string norm_str = error_node.get_attribute<string>("norm");
+        string angular_str = error_node.get_attribute<string>("angular");
+        string energy_str = "group";
+        options.norm = options.norm_conversion()->convert(norm_str);
+        options.angular = options.angular_conversion()->convert(angular_str);
+        options.energy = options.energy_conversion()->convert(energy_str);
+
+        // Get analytic solution
+        std::function<vector<double>(vector<double>)> solution;
+        std::vector<double> error;
+        switch (options.angular)
+        {
+        case Integral_Error_Operator::Options::Angular::MOMENTS:
+            solution = moment_solution;
+            error = moment_coefficients;
+            break;
+        case Integral_Error_Operator::Options::Angular::ORDINATES:
+            solution = discrete_solution;
+            error = coefficients;
+            break;
+        default:
+            AssertMsg(false, "integral error angular type " + angular_str + "not found");
+        }
+        
+        shared_ptr<Integral_Error_Operator> op
+            = make_shared<Integral_Error_Operator>(options,
+                                                   integration_options,
+                                                   spatial,
+                                                   angular,
+                                                   energy,
+                                                   solution);
+
+        (*op)(error);
+        error_types.push_back(norm_str + "_" + angular_str);
+        errors.push_back(error);
     }
-    err_phi /= sum_phi;
-    err_psi /= sum_psi;
-    cout << "err_psi: " << err_psi << "\t" << "err_phi: " << err_phi << endl;
+
+    vector<string> value_types;
+    vector<vector<double> > values;
+    vector<vector<vector<double>>> value_points;
+    XML_Node values_node = input_node.get_child("values");
+    for (XML_Node value_node = values_node.get_child("value");
+         value_node;
+         value_node = value_node.get_sibling("value",
+                                             false))
+    {
+        // Get spatial data
+        int dimension = spatial->dimension();
+        vector<vector<double> > limits = spatial->options()->limits;
+
+        // Get number of points
+        vector<int> dimensional_points
+            = value_node.get_child_vector<int>("points",
+                                               dimension);
+
+        // Get Cartesian points
+        Meshless_Function_Factory factory;
+        int num_eval_points;
+        vector<vector<double> > eval_points;
+        factory.get_cartesian_points(dimension,
+                                     dimensional_points,
+                                     limits,
+                                     num_eval_points,
+                                     eval_points);
+
+        // Evaluate values
+        vector<double> value;
+        string eval_type = value_node.get_attribute<string>("type");
+        if (eval_type == "moments")
+        {
+            shared_ptr<Arbitrary_Moment_Value_Operator> op
+                = make_shared<Arbitrary_Moment_Value_Operator>(spatial,
+                                                               angular,
+                                                               energy,
+                                                               eval_points);
+            value = moment_coefficients;
+            (*op)(value);
+        }
+        else if (eval_type == "ordinates")
+        {
+            shared_ptr<Arbitrary_Discrete_Value_Operator> op
+                = make_shared<Arbitrary_Discrete_Value_Operator>(spatial,
+                                                                 angular,
+                                                                 energy,
+                                                                 eval_points);
+            value = coefficients;
+            (*op)(value); 
+        }
+        else if (eval_type == "analytic_moments")
+        {
+            value.resize(num_eval_points);
+            for (int i = 0; i < num_eval_points; ++i)
+            {
+                value[i] = moment_solution(eval_points[i])[0];
+            }
+        }
+        else if (eval_type == "analytic_ordinates")
+        {
+            value.resize(num_eval_points * number_of_ordinates);
+            for (int i = 0; i < num_eval_points; ++i)
+            {
+                vector<double> sol = discrete_solution(eval_points[i]);
+                for (int o = 0; o < number_of_ordinates; ++o)
+                {
+                    value[o + number_of_ordinates * i] = sol[o];
+                }
+            }
+        }
+        else
+        {
+            cout << "evaluation type " << eval_type << " not found and thus ignored" << endl;
+        }
+        values.push_back(value);
+        value_types.push_back(eval_type);
+        value_points.push_back(eval_points);
+    }
+    
+    energy->output(output_node.append_child("energy_discretization"));
+    angular->output(output_node.append_child("angular_discretization"));
+    spatial->output(output_node.append_child("spatial_discretization"));
+    transport->output(output_node.append_child("transport_discretization"));
+    solid->output(output_node.append_child("solid_geometry"));
+    Linv->output(output_node.append_child("transport"));
+    if (errors.size() > 0)
+    {
+        XML_Node error_node = output_node.append_child("error");
+        for (int i = 0; i < errors.size(); ++i)
+        {
+            error_node.set_child_vector<double>(errors[i], error_types[i], "angular-cell");
+        }
+    }
+    if (values.size() > 0)
+    {
+        XML_Node values_node = output_node.append_child("values");
+        for (int i = 0; i < values.size(); ++i)
+        {
+            XML_Node value_node = values_node.append_child("value");
+            value_node.set_attribute(value_types[i], "type");
+            value_node.set_child_matrix<double>(value_points[i], "points");
+            value_node.set_child_vector<double>(values[i], "result", "angular-cell");
+        }
+    }
 }
 
 int main(int argc, char **argv)
