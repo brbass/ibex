@@ -5,7 +5,7 @@ macro(include_executable test_exec test_src)
     message(${test_src})
     add_executable(${test_exec} ${test_src})
     target_link_libraries(${test_exec} ${test_dependencies})
-    install(TARGETS ${test_exec} DESTINATION ${CMAKE_INSTALL_PREFIX}/simulations/ray_effects)
+    install(TARGETS ${test_exec} DESTINATION ${CMAKE_INSTALL_PREFIX}/simulations/purely_absorbing)
 endmacro()
 
 file(GLOB src *.cc *.hh)

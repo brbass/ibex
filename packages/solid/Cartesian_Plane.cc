@@ -94,7 +94,7 @@ normal_direction(vector<double> const &position,
     }
     
     normal.direction.assign(dimension_, 0);
-    normal.direction[surface_dimension_] = 1.;
+    normal.direction[surface_dimension_] = normal_;
     
     return normal;
 }

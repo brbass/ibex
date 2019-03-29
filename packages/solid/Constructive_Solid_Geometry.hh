@@ -80,6 +80,7 @@ public:
     virtual int find_region_including_surface(std::vector<double> const &position) const;
     virtual int find_surface(std::vector<double> const &position) const override;
     virtual int find_boundary_surface(std::vector<double> const &position) const;
+    virtual std::vector<int> find_all_boundary_surfaces(std::vector<double> const &position) const;
 
     virtual int next_intersection(std::vector<double> const &initial_position,
                                   std::vector<double> const &initial_direction,
@@ -113,6 +114,10 @@ public:
     virtual void optical_distance(std::vector<double> const &initial_position,
                                   std::vector<double> const &final_position,
                                   std::vector<double> &optical_distance) const override;
+    virtual std::shared_ptr<Material> material(int index) const
+    {
+        return materials_[index];
+    }
     virtual std::shared_ptr<Material> material(std::vector<double> const &position) const override;
     virtual std::shared_ptr<Boundary_Source> boundary_source(std::vector<double> const &position) const override;
     virtual void check_class_invariants() const override;

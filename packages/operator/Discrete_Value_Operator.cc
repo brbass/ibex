@@ -74,7 +74,7 @@ apply(vector<double> &x) const
                         int k_y = n + number_of_nodes * (g + number_of_groups * (o + number_of_ordinates * k_bas));
                         int k_x = n + number_of_nodes * (g + number_of_groups * (o + number_of_ordinates * i));
                         
-                        x[k_x] += mult * x[k_y];
+                        x[k_x] += mult * y[k_y];
                     }
                 }
             }

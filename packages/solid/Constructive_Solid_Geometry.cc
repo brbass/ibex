@@ -207,6 +207,25 @@ find_boundary_surface(vector<double> const &position) const
     return NO_SURFACE; // particle not on a surface
 }
 
+vector<int> Constructive_Solid_Geometry::
+find_all_boundary_surfaces(vector<double> const &position) const
+{
+    vector<int> surfaces;
+    for (int i = 0; i < boundary_surfaces_.size(); ++i)
+    {
+        Surface::Relation relation
+            = boundary_surfaces_[i]->relation(position,
+                                              true);
+        
+        if (relation == Surface::Relation::EQUAL)
+        {
+            surfaces.push_back(i);
+        }
+    }
+
+    return surfaces;
+}
+
 int Constructive_Solid_Geometry::
 next_intersection(int initial_region,
                   vector<double> const &initial_position,
@@ -334,44 +353,86 @@ next_boundary(int initial_region,
                                  distance,
                                  final_position);
     }
-    
-    int surface_index = 0;
-    int region_index = initial_region;
-    int previous_region_index;
-    vector<double> position(initial_position);
-    distance = 0;
 
-    while (surface_index != NO_SURFACE)
+    int best_surface = NO_SURFACE;
+    distance = numeric_limits<double>::max();
+    vector<double> best_position(dimension_);
+    
+    int number_of_boundary_surfaces = boundary_surfaces_.size();
+    
+    for (int i = 0; i < number_of_boundary_surfaces; ++i)
     {
-        previous_region_index = region_index;
+        shared_ptr<Surface> local_surface = boundary_surfaces_[i];
         
-        new_position(delta_distance(),
-                     position,
-                     initial_direction,
-                     position);
-        
-        distance += delta_distance();
-        
-        double next_distance;
-        surface_index = next_intersection(region_index,
-                                          position,
-                                          initial_direction,
-                                          region_index,
-                                          next_distance,
-                                          position);
-        
-        distance += next_distance;
-        
-        if (region_index == NO_REGION)
+        Surface::Intersection intersection
+            = local_surface->intersection(initial_position,
+                                          initial_direction);
+        if(intersection.type == Surface::Intersection::Type::INTERSECTS)
         {
-            boundary_region = previous_region_index;
-            final_position = position;
-            
-            break;
+            if (intersection.distance < distance)
+            {
+                best_surface = local_surface->index();
+                distance = intersection.distance;
+                best_position = intersection.position;
+            }
         }
     }
     
-    return surface_index;
+    final_position = best_position;
+    
+    vector<double> plus_position;
+    new_position(delta_distance(),
+                 final_position,
+                 initial_direction,
+                 plus_position);
+
+    boundary_region = find_region_including_surface(plus_position);
+    
+    return best_surface;
+    
+    // int surface_index = 0;
+    // int previous_surface_index = 0;
+    // int region_index = initial_region;
+    // int previous_region_index;
+    // vector<double> position(initial_position);
+    // distance = 0;
+
+    // while (surface_index != NO_SURFACE)
+    // {
+    //     previous_surface_index = surface_index;
+    //     previous_region_index = region_index;
+        
+    //     new_position(delta_distance(),
+    //                  position,
+    //                  initial_direction,
+    //                  position);
+        
+    //     distance += delta_distance();
+        
+    //     double next_distance;
+    //     surface_index = next_intersection(region_index,
+    //                                       position,
+    //                                       initial_direction,
+    //                                       region_index,
+    //                                       next_distance,
+    //                                       position);
+    //     if (surfaces_[surface_index]->surface_type() == Surface::Surface_Type::BOUNDARY)
+    //     {
+    //         return surface_index;
+    //     }
+        
+    //     distance += next_distance;
+        
+    //     if (region_index == NO_REGION)
+    //     {
+    //         boundary_region = previous_region_index;
+    //         final_position = position;
+            
+    //         break;
+    //     }
+    // }
+    
+    // return previous_surface_index;
 }
 
 int Constructive_Solid_Geometry::
