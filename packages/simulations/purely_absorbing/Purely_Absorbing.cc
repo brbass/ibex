@@ -288,10 +288,9 @@ void run_problem(XML_Node input_node,
     vector<string> error_types;
     vector<vector<double> > errors;
     XML_Node errors_node = input_node.get_child("errors");
-    for (XML_Node error_node = errors_node.get_child("error");
+    for (XML_Node error_node = errors_node.get_child("error", false);
          error_node;
-         error_node = error_node.get_sibling("error",
-                                             false))
+         error_node = error_node.get_sibling("error", false))
     {
         // Get integration options
         int dimension = spatial->dimension();
@@ -363,10 +362,9 @@ void run_problem(XML_Node input_node,
     vector<vector<double> > values;
     vector<vector<vector<double>>> value_points;
     XML_Node values_node = input_node.get_child("values");
-    for (XML_Node value_node = values_node.get_child("value");
+    for (XML_Node value_node = values_node.get_child("value", false);
          value_node;
-         value_node = value_node.get_sibling("value",
-                                             false))
+         value_node = value_node.get_sibling("value", false))
     {
         // Get spatial data
         int dimension = spatial->dimension();
