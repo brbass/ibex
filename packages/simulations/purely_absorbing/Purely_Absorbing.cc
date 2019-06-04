@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <utility>
 
 #include <mpi.h>
 #if defined(ENABLE_OPENMP)
@@ -37,6 +38,7 @@
 #include "Moment_Value_Operator.hh"
 #include "SUPG_Internal_Source_Operator.hh"
 #include "SUPG_Moment_To_Discrete.hh"
+#include "Timer.hh"
 #include "Transport_Discretization.hh"
 #include "Vector_Functions.hh"
 #include "Vector_Operator_Functions.hh"
@@ -55,7 +57,11 @@ double get_solution(std::shared_ptr<Constructive_Solid_Geometry> solid,
                     bool &corner)
 {
     // Reverse direction
-    std::vector<double> reverse_direction = {-direction[0], -direction[1]};
+    int dimension = angular->dimension();
+    std::vector<double> reverse_direction(dimension);
+    for (int d = 0; d < dimension; ++d) {
+        reverse_direction[d] = -direction[d];
+    }
 
     // Get boundary surface index and distance
     vector<int> all_boundary_surfaces = solid->find_all_boundary_surfaces(position);
@@ -148,6 +154,9 @@ double get_solution(std::shared_ptr<Constructive_Solid_Geometry> solid,
 void run_problem(XML_Node input_node,
                  XML_Node output_node)
 {
+    Timer timer;
+    vector<pair<double, string>> times;
+    
     // Energy discretization
     Energy_Discretization_Parser energy_parser;
     shared_ptr<Energy_Discretization> energy = 
@@ -188,12 +197,15 @@ void run_problem(XML_Node input_node,
         = solid->cartesian_boundary_surfaces();
 
     // Get spatial discretization
+    timer.start();
     Weak_Spatial_Discretization_Parser spatial_parser(solid,
                                                       boundary_surfaces);
     shared_ptr<Weak_Spatial_Discretization>spatial
         = spatial_parser.get_weak_discretization(input_node.get_child("spatial_discretization"));
     Assert(spatial->options()->include_supg);
     Assert(!(spatial->has_reflection()));
+    timer.stop();
+    times.emplace_back(timer.time(), "spatial_initialization");
     
     // Get transport discretization
     shared_ptr<Transport_Discretization> transport
@@ -202,6 +214,7 @@ void run_problem(XML_Node input_node,
                                                 energy);
     
     // Get sweep operator
+    timer.start();
     Meshless_Sweep_Parser sweep_parser(spatial,
                                        angular,
                                        energy,
@@ -209,6 +222,8 @@ void run_problem(XML_Node input_node,
     shared_ptr<Meshless_Sweep> Linv
         = sweep_parser.get_meshless_sweep(input_node.get_child("transport"));
     Linv->set_include_boundary_source(true);
+    timer.stop();
+    times.emplace_back(timer.time(), "sweep_initialization");
     
     // Get internal source operator
     shared_ptr<SUPG_Internal_Source_Operator> Q
@@ -236,7 +251,10 @@ void run_problem(XML_Node input_node,
     vector<double> coefficients(Q->column_size());
 
     // Get solution coefficients
+    timer.start();
     (*combined)(coefficients);
+    timer.stop();
+    times.emplace_back(timer.time(), "solve");
 
     // Get moment coefficients
     vector<double> moment_coefficients = coefficients;
@@ -461,6 +479,12 @@ void run_problem(XML_Node input_node,
             value_node.set_child_matrix<double>(value_points[i], "points");
             value_node.set_child_vector<double>(values[i], "result", "angular-cell");
         }
+    }
+
+    XML_Node timing_node = output_node.append_child("timing");
+    for (pair<double, string> time : times)
+    {
+        timing_node.set_child_value(time.first, time.second);
     }
 }
 

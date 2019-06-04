@@ -6,6 +6,7 @@
 
 #include "Heat_Transfer_Data.hh"
 
+class Surface;
 typedef std::function<double(std::vector<double> const &)> VERA_Temperature;
 class VERA_Transport_Result;
 
@@ -27,8 +28,10 @@ private:
 
     bool include_crack_;
     int heat_dimension_;
+    int num_crack_surfaces_;
     std::shared_ptr<VERA_Transport_Result> result_;
     std::shared_ptr<VERA_Temperature> weighting_temperature_;
+    std::vector<std::shared_ptr<Surface>> crack_surfaces_;
     // int number_of_materials_;
     double temperature_inf_;
     double convection_;

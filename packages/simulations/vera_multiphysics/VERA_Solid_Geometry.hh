@@ -17,6 +17,7 @@ class Cartesian_Plane;
 class Energy_Discretization;
 class Material;
 class Material_Factory;
+class Surface;
 
 class VERA_Solid_Geometry : public Solid_Geometry
 {
@@ -114,6 +115,8 @@ private:
     // Data
     bool include_ifba_;
     bool include_crack_;
+    int num_crack_surfaces_;
+    std::vector<std::shared_ptr<Surface>> crack_surfaces_;
     std::shared_ptr<VERA_Temperature> temperature_;
     std::shared_ptr<Angular_Discretization> angular_;
     std::shared_ptr<Energy_Discretization> energy_;

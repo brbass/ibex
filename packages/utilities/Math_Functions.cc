@@ -35,8 +35,8 @@ int factorial2(int n)
     return val;
 }
 
-double legendre_polynomial_rec(int l,
-                               double const &x)
+double legendre_polynomial(int l,
+                           double const &x)
 {
     if (l == 0)
     {
@@ -58,7 +58,73 @@ double legendre_polynomial_rec(int l,
         
     return pl;
 }
+
+double d_legendre_polynomial(int l,
+                             double const &x)
+{
+    if (l == 0)
+    {
+        return 0;
+    }
     
+    double dplm2 = 0;
+    double dplm1 = 0;
+    double dpl = 1;
+    double plm2 = 0;
+    double plm1 = 1;
+    double pl = x;
+    
+    for (int i = 2; i <= l; ++i)
+    {
+        double j = static_cast<double>(i);
+        
+        dplm2 = dplm1;
+        dplm1 = dpl;
+        plm2 = plm1;
+        plm1 = pl;
+        pl = ((2 * j - 1) * x * plm1 - (j - 1) * plm2) / j;
+        dpl = ((2 * j - 1) * (plm1 + x * dplm1) - (j - 1) * dplm2) / j;
+    }
+        
+    return dpl;
+}
+
+double dd_legendre_polynomial(int l,
+                              double const &x)
+{
+    if (l == 0)
+    {
+        return 0;
+    }
+        
+    double ddplm2 = 0;
+    double ddplm1 = 0;
+    double ddpl = 0;
+    double dplm2 = 0;
+    double dplm1 = 0;
+    double dpl = 1;
+    double plm2 = 0;
+    double plm1 = 1;
+    double pl = x;
+    
+    for (int i = 2; i <= l; ++i)
+    {
+        double j = static_cast<double>(i);
+        
+        ddplm2 = ddplm1;
+        ddplm1 = ddpl;
+        dplm2 = dplm1;
+        dplm1 = dpl;
+        plm2 = plm1;
+        plm1 = pl;
+        pl = ((2 * j - 1) * x * plm1 - (j - 1) * plm2) / j;
+        dpl = ((2 * j - 1) * (plm1 + x * dplm1) - (j - 1) * dplm2) / j;
+        ddpl = ((2 * j - 1) * (2 * dplm1 + x * ddplm1) - (j - 1) * ddplm2) / j;
+    }
+    
+    return ddpl;
+}
+
 double legendre_polynomial(int l,
                            int m,
                            double const &x)
@@ -220,8 +286,8 @@ void spherical_to_xyz(double const &mu,
     z = sin(phi) * val;
 }
 
-double legendre_polynomial(int l,
-                           double const &x)
+double legendre_polynomial_monomial(int l,
+                                    double const &x)
 {
     double const x2 = x * x;
     switch(l)
@@ -429,13 +495,13 @@ double legendre_polynomial(int l,
     case 100:
         return 0.07958923738717877*(1. - 5050.*x2*(1. - 841.1666666666666*x2*(1. - 336.*x2*(1. - 179.60714285714286*x2*(1. - 111.42222222222222*x2*(1. - 75.68181818181819*x2*(1. - 54.637362637362635*x2*(1. - 41.208333333333336*x2*(1. - 32.11764705882353*x2*(1. - 25.678947368421053*x2*(1. - 20.952380952380953*x2*(1. - 17.380434782608695*x2*(1. - 14.615384615384615*x2*(1. - 12.431216931216932*x2*(1. - 10.675862068965516*x2*(1. - 9.243951612903226*x2*(1. - 8.06060606060606*x2*(1. - 7.071428571428571*x2*(1. - 6.236130867709815*x2*(1. - 5.524358974358974*x2*(1. - 4.912891986062718*x2*(1. - 4.383720930232558*x2*(1. - 3.922705314009662*x2*(1. - 3.518617021276596*x2*(1. - 3.162448979591837*x2*(1. - 2.8469079939668176*x2*(1. - 2.5660377358490565*x2*(1. - 2.314935064935065*x2*(1. - 2.089534180278282*x2*(1. - 1.8864406779661016*x2*(1. - 1.702802749867795*x2*(1. - 1.5362103174603174*x2*(1. - 1.3846153846153846*x2*(1. - 1.2462686567164178*x2*(1. - 1.1196687370600413*x2*(1. - 1.0035211267605635*x2*(1. - 0.8967049241021844*x2*(1. - 0.7982456140350878*x2*(1. - 0.7072927072927073*x2*(1. - 0.6231012658227848*x2*(1. - 0.5450165612767239*x2*(1. - 0.4724612736660929*x2*(1. - 0.4049247606019152*x2*(1. - 0.34195402298850575*x2*(1. - 0.28314606741573034*x2*(1. - 0.2281414237935977*x2*(1. - 0.17661862274079157*x2*(1. - 0.12828947368421054*x2*(1. - 0.08289501367557332*x2*(1. - 0.040202020202020204*x2))))))))))))))))))))))))))))))))))))))))))))))))));        
     default:
-        return legendre_polynomial_rec(l,
-                                       x);
+        return legendre_polynomial(l,
+                                   x);
     }
 }
 
-double d_legendre_polynomial(int l,
-                             double const &x)
+double d_legendre_polynomial_monomial(int l,
+                                      double const &x)
 {
     double const x2 = x * x;
     switch(l)
@@ -648,8 +714,8 @@ double d_legendre_polynomial(int l,
     }
 }
 
-double dd_legendre_polynomial(int l,
-                              double const &x)
+double dd_legendre_polynomial_monomial(int l,
+                                       double const &x)
 {
     double const x2 = x * x;
     switch(l)
@@ -950,8 +1016,8 @@ double legendre_polynomial_old(int l,
     case 40:
         return 0.12537068761957926 - 102.80396384805499*pow(x,2) + 13998.473077310155*pow(x,4) - 755917.5461747483*pow(x,6) + 2.1570647121200856e7*pow(x,8) - 3.758086076226993e8*pow(x,10) + 4.355963406535833e9*pow(x,12) - 3.5517855468676796e10*pow(x,14) + 2.1162722216753256e11*pow(x,16) - 9.460981696901456e11*pow(x,18) + 3.231672169099497e12*pow(x,20) - 8.533852914072266e12*pow(x,22) + 1.7531502182170197e13*pow(x,24) - 2.8050403491472316e13*pow(x,26) + 3.4803278406086023e13*pow(x,28) - 3.3123120138206008e13*pow(x,30) + 2.3707071873111152e13*pow(x,32) - 1.2339509780656787e13*pow(x,34) + 4.406967778805995e12*pow(x,36) - 9.653955020428496e11*pow(x,38) + 9.777723674536554e10*pow(x,40);
     default:
-        return legendre_polynomial_rec(l,
-                                       x);
+        return legendre_polynomial(l,
+                                   x);
     }
 }
 

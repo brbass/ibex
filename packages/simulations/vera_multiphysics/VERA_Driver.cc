@@ -7,6 +7,7 @@
     #include <omp.h>
 #else
     inline void omp_set_num_threads(int i) {return;}
+    inline void omp_get_num_threads() {return 1;}
 #endif
 #include <string>
 #include <vector>
@@ -48,7 +49,8 @@ run_transport(bool include_crack,
               int heat_dimension,
               double pincell_power,
               XML_Node input_node,
-              shared_ptr<VERA_Temperature> temperature)
+              shared_ptr<VERA_Temperature> temperature,
+              int num_threads)
 {
     // Get energy discretization
     Energy_Discretization_Parser energy_parser;
@@ -91,8 +93,10 @@ run_transport(bool include_crack,
     // Get spatial discretization
     Weak_Spatial_Discretization_Parser spatial_parser(solid,
                                                       boundary_surfaces);
+    // omp_set_num_threads(num_threads);
     shared_ptr<Weak_Spatial_Discretization> spatial
         = spatial_parser.get_weak_discretization(input_node.get_child("spatial_discretization"));
+    // omp_set_num_threads(1);
     
     // Get transport discretization
     shared_ptr<Transport_Discretization> transport
@@ -105,8 +109,10 @@ run_transport(bool include_crack,
                                    angular,
                                    energy,
                                    transport);
+    // omp_set_num_threads(num_threads);
     shared_ptr<Meshless_Sweep> sweep
         = sweep_parser.get_meshless_sweep(input_node.get_child("transport"));
+    // omp_set_num_threads(1);
     
     // Get solver
     Solver_Parser solver_parser(spatial,
@@ -116,7 +122,10 @@ run_transport(bool include_crack,
     shared_ptr<Solver> solver
         = solver_parser.get_krylov_eigenvalue(input_node.get_child("solver"),
                                               sweep);
+
+    // omp_set_num_threads(num_threads);
     solver->solve();
+    // omp_set_num_threads(1);
 
     double fuel_radius;
     if (include_crack)
@@ -310,7 +319,8 @@ void output_temperature(int heat_dimension,
 }
 
 void run_test(XML_Node input_node,
-              XML_Node output_node)
+              XML_Node output_node,
+              int num_threads)
 {
     // Get initial temperature
     shared_ptr<VERA_Temperature> temperature
@@ -340,7 +350,8 @@ void run_test(XML_Node input_node,
                             heat_dimension,
                             pincell_power,
                             input_node.get_child("transport"),
-                            temperature);
+                            temperature,
+                            num_threads);
         eigenvalue_history.push_back(result->result()->k_eigenvalue);
         cout << "end transport calculation " << i << endl;
         
@@ -390,10 +401,11 @@ int main(int argc, char **argv)
     int number_of_threads = input_node.get_attribute<int>("number_of_threads",
                                                           1);
     omp_set_num_threads(number_of_threads);
-
+    
     // Run problem
     run_test(input_node,
-             output_node);
+             output_node,
+             number_of_threads);
 
     // Output data
     output_file.save(output_filename);

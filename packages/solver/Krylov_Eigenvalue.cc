@@ -70,6 +70,9 @@ solve()
     shared_ptr<Epetra_Comm> comm = make_shared<Epetra_MpiComm>(MPI_COMM_WORLD);
     shared_ptr<Epetra_Map> map = make_shared<Epetra_Map>(phi_size + number_of_augments, 0, *comm);
 
+    // Turn off timing
+    Teuchos::TimeMonitor::setStackedTimer(Teuchos::null);
+    
     // Get LHS and RHS operators
     shared_ptr<Epetra_Operator> oper_lhs;
     shared_ptr<Epetra_Operator> oper_rhs;

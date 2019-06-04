@@ -9,6 +9,7 @@
 #include "Cross_Section.hh"
 #include "Material.hh"
 #include "Material_Factory.hh"
+#include "Plane_2D.hh"
 
 using namespace std;
 
@@ -33,14 +34,43 @@ VERA_Solid_Geometry(bool include_ifba,
     materials_(materials),
     boundary_source_(boundary_source)
 {
-    // Set up radii
-    material_radii2_
-        = {0.4096, 0.4106, 0.418, 0.475, 0.891};
+    // Set up radii and crack geometry
+    if (include_crack)
+    {
+        material_radii2_
+            = {0.4135, 0.4145, 0.418, 0.475, 0.891};
+
+        num_crack_surfaces_ = 4;
+        crack_surfaces_.resize(num_crack_surfaces_);
+        std::vector<std::vector<double>> points
+            = {{-0.399331, -0.123527},
+               {-0.395446, -0.135450},
+               {0.041730, -0.415912},
+               {0.066595, -0.412661}};
+        std::vector<std::vector<double>> normals
+            = {{0.098538, 0.995133},
+               {-0.074026, -0.997256},
+               {-0.857227, -0.514938},
+               {0.839759, 0.542960}};
+        for (int i = 0; i < num_crack_surfaces_; ++i)
+        {
+            crack_surfaces_[i] = make_shared<Plane_2D>(i,
+                                                       Surface::Surface_Type::INTERNAL,
+                                                       points[i],
+                                                       normals[i]);
+        }
+    }
+    else
+    {
+        num_crack_surfaces_ = 0;
+        material_radii2_
+            = {0.4096, 0.4106, 0.418, 0.475, 0.891};
+    }
     for (double &radius : material_radii2_)
     {
         radius = radius * radius;
     }
-
+    
     // Get boundary surfaces
     double prob_radius = 0.63;
     boundary_surfaces_.resize(4);
@@ -102,9 +132,11 @@ radial_distance2(vector<double> const &position) const
 shared_ptr<Material> VERA_Solid_Geometry::
 material(vector<double> const &position) const
 {
-    // Get material by position
+    // Get radius
     double const radius2 = radial_distance2(position);
     Material_Type mat_type = NONE;
+    
+    // Find region for given radius
     for (int i = 0; i < number_of_material_types_; ++i)
     {
         if (radius2 < material_radii2_[i])
@@ -113,6 +145,30 @@ material(vector<double> const &position) const
             break;
         }
     }
+    
+    // Override material if position is in a crack
+    if (include_crack_)
+    {
+        // Check whether material is inside the cladding
+        if (radius2 < material_radii2_[2])
+        {
+            // Get relationship of point to crack surfaces
+            std::vector<bool> negative(4);
+            for (int i = 0; i < num_crack_surfaces_; ++i)
+            {
+                negative[i] = crack_surfaces_[i]->relation(position) == Surface::Relation::NEGATIVE;
+            }
+
+            // Check whether point is in either crack
+            if ((negative[0] && negative[1])
+                || (negative[0] && negative[2] && negative[3]))
+            {
+                mat_type = GAP;
+            }
+        }
+    }
+    
+    // Make sure some material was found
     Assert(mat_type != NONE);
 
     // Get problem type

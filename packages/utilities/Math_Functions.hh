@@ -7,14 +7,18 @@ namespace Math_Functions
     int factorial(int n);
     
     // Returns Legendre polynomial
-    double legendre_polynomial_rec(int l,
-                                   double const &x);
     double legendre_polynomial(int l,
                                double const &x);
     double d_legendre_polynomial(int l,
                                  double const &x);
     double dd_legendre_polynomial(int l,
                                   double const &x);
+    double legendre_polynomial_monomial(int l,
+                                        double const &x);
+    double d_legendre_polynomial_monomial(int l,
+                                          double const &x);
+    double dd_legendre_polynomial_monomial(int l,
+                                           double const &x);
     double legendre_polynomial_old(int l,
                                double const &x);
     double d_legendre_polynomial_old(int l,

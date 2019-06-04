@@ -175,9 +175,9 @@ def run_multiprocessing_command(executable,
     # Get command
     pid = multiprocessing.current_process().name
     if save_output:
-        command = "srun -N 1-1 {} {} &> {}.ter".format(executable, arguments, arguments)
+        command = "srun {} {} &> {}.ter".format(executable, arguments, arguments)
     else:
-        command = "srun -N 1-1 {} {}".format(executable, arguments)
+        command = "srun {} {}".format(executable, arguments)
 
     # Run command
     print("start \"{}\" on process {}".format(command, pid))
@@ -260,7 +260,8 @@ def single_run_from_template(data):
     return input_filenames
 
 def full_save_from_template(data,
-                            save_files=True):
+                            save_files=True,
+                            run_if_output_exists = True):
     # Get template string
     template_filename = data["template_filename"]
     template_file = open(template_filename, "r")
@@ -286,8 +287,14 @@ def full_save_from_template(data,
         for description in description_perm:
             input_filename += "_{}".format(description)
         input_filename += postfix
-        input_filenames.append(input_filename)
 
+        if not run_if_output_exists:
+            fout = input_filename + ".out"
+            if os.path.isfile(fout):
+                continue
+
+        input_filenames.append(input_filename)
+                
         # Save input file
         if save_files:
             input_file = open(input_filename, "w")
@@ -298,12 +305,14 @@ def full_save_from_template(data,
 
 # Give list of run parameters: no permutations taken
 def full_run_from_template(data,
-                           save_files=True):
+                           save_files=True,
+                           run_if_output_exists = True):
     # Get commands
     executable = data["executable"]
     # directory = data["directory"]
     input_filenames = full_save_from_template(data,
-                                              save_files)
+                                              save_files,
+                                              run_if_output_exists)
     input_commands = [[executable, input_filename] for input_filename in input_filenames]
     
     # Run problems

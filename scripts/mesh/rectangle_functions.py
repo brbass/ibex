@@ -29,7 +29,7 @@ def output_rectangle_points(xmin,
     spatial_node = node.find("spatial_discretization")
     
     et.ElementTree(node).write(output_path,
-                               pretty_print=True,
+                               # pretty_print=True,
                                xml_declaration=True)
     
 if __name__ == '__main__':
